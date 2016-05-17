@@ -136,10 +136,18 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 	 * @return
 	 * the executor service
 	 */
-	public ExecutorService getExecutor() {
-		return executor.getExecutor();
+	public ExecutorService getExecutorService() {
+		return executor.getExecutorService();
 	}
 
+	/**
+	 * @return
+	 * the executor service provider
+	 */
+	public ExecutorServiceProvider getExecutorServiceProvider() {
+		return executor;
+	}
+	
 	/**
 	 * @return 
 	 * the path matcher

@@ -8,6 +8,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Convenience access to (blocking) executor services with easy shutdown.
+ * 
  * @author Simon Heiden
  */
 public class ExecutorServiceProvider {
@@ -32,13 +34,13 @@ public class ExecutorServiceProvider {
 	 * the maximum number of threads to allow in the pool
 	 * @param keepAliveTime
 	 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
-	 * @param unit the time unit for the keepAliveTime argument
+	 * @param unit
+	 * the time unit for the keepAliveTime argument
 	 */
 	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
 		super();
 		//create an executor service
-		this.executor = new ThreadPoolExecutor(
-				corePoolSize, maximumPoolSize, keepAliveTime, unit,
+		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit,
                 new LimitedQueue<Runnable>(2*maximumPoolSize));
 	}
 	
@@ -68,8 +70,35 @@ public class ExecutorServiceProvider {
 	 * @return
 	 * the executor service
 	 */
-	public ExecutorService getExecutor() {
+	public ExecutorService getExecutorService() {
 		return executor;
+	}
+	
+	/**
+	 * Shuts down the underlying executor service and waits for it to terminate.
+	 * @return
+	 * true if all jobs finished, false if interrupted or a timeout has been reached
+	 */
+	public boolean shutdownAndWaitForTermination() {
+		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
+		executor.shutdown();
+
+		//await termination
+		boolean result = false;
+		try {
+//			System.out.println("awaiting termination...");
+			result = executor.awaitTermination(7, TimeUnit.DAYS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		if (result) {
+			System.out.println("All jobs finished!");
+		} else {
+			System.err.println("Timeout reached or Exception thrown! Could not finish all jobs!");
+		}
+
+		return result;
 	}
 	
 }

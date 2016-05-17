@@ -39,6 +39,8 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 	 */
 	private boolean overwrite = false;
 	
+	private String defaultExtension = "";
+	
 	/**
 	 * Creates an {@link OutputPathGenerator} object with the given parameters. 
 	 * Will fail if the output directory already exists.
@@ -46,10 +48,7 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 	 * holds the path to the output directory
 	 */
 	public OutputPathGenerator(Path outputdir) {
-		this.outputdir = outputdir;
-		if (!outputdir.toFile().mkdirs()) {
-			Misc.abort(this, "Could not create directory \"%s\"!", outputdir.toString());			
-		}
+		this(outputdir, false);
 	}
 	
 	/**
@@ -71,12 +70,46 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 			Misc.abort(this, "Could not create directory \"%s\"!", outputdir.toString());
 		}
 	}
+	
+	/**
+	 * Creates an {@link OutputPathGenerator} object with the given parameters. 
+	 * Will fail if the output directory already exists.
+	 * @param outputdir
+	 * holds the path to the output directory
+	 * @param extension
+	 * a default extension to attach to the output file names
+	 */
+	public OutputPathGenerator(Path outputdir, String extension) {
+		this(outputdir, extension, false);
+	}
+	
+	/**
+	 * Creates an {@link OutputPathGenerator} object with the given parameters. 
+	 * Will fail if the output directory already exists and should not be overwritten.
+	 * @param outputdir
+	 * holds the path to the output directory
+	 * @param extension
+	 * a default extension to attach to the output file names
+	 * @param overwrite
+	 * if existing directories or files shall be overwritten
+	 */
+	public OutputPathGenerator(Path outputdir, String extension, boolean overwrite) {
+		this(outputdir, overwrite);
+		this.defaultExtension = extension;
+	}
 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator#getNewOutputPath(java.lang.String)
 	 */
 	public Path getNewOutputPath(String extension) {		
 		return getNewOutputPath(null, extension);
+	}
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator#getNewOutputPath()
+	 */
+	public Path getNewOutputPath() {		
+		return getNewOutputPath(null, defaultExtension);
 	}
 	
 

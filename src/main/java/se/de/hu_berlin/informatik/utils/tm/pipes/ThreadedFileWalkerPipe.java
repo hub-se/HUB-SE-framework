@@ -8,8 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threadwalker.AThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threadwalker.ProcessAndReturnThreadedFileWalker;
@@ -85,19 +83,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 		}
 		
 		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
-		walker.getExecutor().shutdown();
-		
-		//await termination
-//		System.out.println("awaiting termination...");
-		boolean done = false;
-		while (!done) {
-			try {	
-				walker.getExecutor().awaitTermination(7, TimeUnit.DAYS);
-				done = true;
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		walker.getExecutorServiceProvider().shutdownAndWaitForTermination();
 
 		return null;
 	}

@@ -25,6 +25,13 @@ public interface IOutputPathGenerator<A> {
 	public Path getNewOutputPath(String extension);
 	
 	/**
+	 * Gets a new, unique output path.
+	 * @return
+	 * a new {@link Path} to a non-existing file
+	 */
+	public Path getNewOutputPath();
+	
+	/**
 	 * Gets a new, unique output path with the specified extension.
 	 * @param someObject
 	 * is an object that is used to generate an output path

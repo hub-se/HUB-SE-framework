@@ -6,6 +6,8 @@ package se.de.hu_berlin.informatik.utils.threadwalker;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator;
+
 /**
  * An abstract class that implements the {@link Callable} interface and
  * is enriched with fields for input objects and output paths. The user has to
@@ -33,23 +35,13 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	private Path output = null;
 	
 	/**
-	 * Creates a new {@link CallableWithPaths} object with the given paths.
-	 * @param input
-	 * an input object
-	 * @param output
-	 * an output path
-	 */
-	public CallableWithPaths(A input, Path output) {
-		super();
-		this.input = input;
-		this.output = output;
-	}
-	
-	/**
 	 * Creates a new {@link CallableWithPaths} object with no paths set.
+	 * @param outputPathGenerator
+	 * a generator to automatically create output paths
 	 */
-	public CallableWithPaths() {
+	public CallableWithPaths(IOutputPathGenerator<Path> outputPathGenerator) {
 		super();
+		output = outputPathGenerator.getNewOutputPath();
 	}
 	
 	/**
@@ -68,13 +60,13 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 		return input;
 	}
 
-	/**
-	 * @param output
-	 * an output path
-	 */
-	public void setOutputPath(Path output) {
-		this.output = output;
-	}
+//	/**
+//	 * @param output
+//	 * an output path
+//	 */
+//	public void setOutputPath(Path output) {
+//		this.output = output;
+//	}
 	
 	/**
 	 * @return 

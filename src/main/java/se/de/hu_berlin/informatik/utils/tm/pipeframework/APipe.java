@@ -207,6 +207,11 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 				input = null;
 				//and set the link state to false
 				isLinked = false;
+				//do other shutdown procedures, if necessary
+				if(!finalShutdown()) {
+					Misc.err(this, "Final shutdown was unsuccessful.");
+				}
+				getOutput().setProviderDone();
 				//now we can reuse the pipe
 				break;
 			}
@@ -227,7 +232,6 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 			if ((result = getResultFromCollectedItems()) != null) {
 				submitProcessedItem(result);
 			}
-			getOutput().setProviderDone();
 			return true;
 		}
 		return false;

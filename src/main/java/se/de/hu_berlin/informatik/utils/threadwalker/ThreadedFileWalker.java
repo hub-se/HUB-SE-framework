@@ -4,10 +4,10 @@
 package se.de.hu_berlin.informatik.utils.threadwalker;
 
 import java.nio.file.*;
+import java.util.concurrent.ExecutorService;
 import java.lang.reflect.InvocationTargetException;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
 /**
  * {@link AThreadedFileWalker} extension that takes a callable class 
@@ -16,20 +16,16 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @author Simon Heiden
  * 
  * @see AThreadedFileWalker
- * @see CallableWithReturn
+ * @see CallableWithPaths
  */
-public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
+public class ThreadedFileWalker extends AThreadedFileWalker {
 	
-	private Class<? extends CallableWithReturn<B>> call;
-	private Class<?>[] typeArgs;
-	private Object[] clazzConstructorArguments;
-	private APipe<?, B> pipe;
-
+	Class<? extends CallableWithPaths<Path,?>> call;
+	Class<?>[] typeArgs;
+	Object[] clazzConstructorArguments;
 	
 	/**
-	 * Initializes a {@link ProcessAndReturnThreadedFileWalker} object with the given parameters.
-	 * @param pipe
-	 * the pipe object that is associated with this file walker
+	 * Initializes a {@link ThreadedFileWalker} object with the given parameters. 
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
 	 * @param searchDirectories 
@@ -43,30 +39,50 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	 * @param callableClass
 	 * callable class to be called on every visited file
 	 * @param clazzConstructorArguments
-	 * arguments that shall be passed to the constructor of the callable class
+	 * arguments that shall be passed to the constructor of the callable class 
 	 */
-	public ProcessAndReturnThreadedFileWalker(APipe<?, B> pipe, boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
+	public ThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
 			String pattern, int maxThreadCount,
-			Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
+			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
 		super(ignoreRootDir, searchDirectories, searchFiles, pattern, maxThreadCount);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;
-		this.pipe = pipe;
 	}
 	
-	
-	
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.threadwalker.AThreadedFileWalker#processMatchedFileOrDir(java.nio.file.Path)
+	/**
+	 * Initializes a {@link ThreadedFileWalker} object with the given parameters. 
+	 * Will fail if the output directory already exists. Automatically generates output paths.
+	 * @param executor
+	 * an executor service that shall be used
+	 * @param ignoreRootDir
+	 * whether the root directory should be ignored
+	 * @param searchDirectories 
+	 * whether files shall be included in the search
+	 * @param searchFiles 
+	 * whether directories shall be included in the search
+	 * @param pattern
+	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param callableClass
+	 * callable class to be called on every visited file
+	 * @param clazzConstructorArguments
+	 * arguments that shall be passed to the constructor of the callable class 
 	 */
+	public ThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir,
+			boolean searchDirectories, boolean searchFiles, String pattern,
+			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
+		super(executor, ignoreRootDir, searchDirectories, searchFiles, pattern);
+		this.call = callableClass;
+		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
+		this.clazzConstructorArguments = clazzConstructorArguments;
+	}
+
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
-//		System.out.println("\tsubmitting task for: " + fileOrDir);
+//		System.out.println("\tsubmitting task for: " + file);
 		try {
-			CallableWithReturn<B> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
-			o.setPipe(pipe);
-			o.setInputPath(fileOrDir);
+			CallableWithPaths<Path,?> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
+			o.setInput(fileOrDir);
 			getExecutorService().submit(o);
 		} catch (InstantiationException e) {
 			Misc.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
@@ -82,5 +98,5 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 			Misc.err(this, e, "Security exception on object %s.", call.getSimpleName());
 		}
 	}
-
+	
 }
