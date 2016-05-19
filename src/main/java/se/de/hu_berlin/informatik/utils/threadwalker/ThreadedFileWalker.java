@@ -34,17 +34,17 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param maxThreadCount
-	 * sets the maximum thread count of the underlying {@link java.util.concurrent.ExecutorService}
+	 * @param threadCount
+	 * sets the thread count of the underlying {@link java.util.concurrent.ExecutorService}
 	 * @param callableClass
 	 * callable class to be called on every visited file
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class 
 	 */
 	public ThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int maxThreadCount,
+			String pattern, int threadCount,
 			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		super(ignoreRootDir, searchDirectories, searchFiles, pattern, maxThreadCount);
+		super(ignoreRootDir, searchDirectories, searchFiles, pattern, threadCount);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;

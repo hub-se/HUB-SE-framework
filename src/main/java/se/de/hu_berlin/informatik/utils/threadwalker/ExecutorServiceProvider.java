@@ -57,13 +57,13 @@ public class ExecutorServiceProvider {
 	}
 	
 	/**
-	 * Creates an {@link ExecutorServiceProvider} object with the given parameters,
-	 * {@code corePoolSize=1}, {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
-	 * @param maximumPoolSize
-	 * the maximum number of threads to allow in the pool
+	 * Creates an {@link ExecutorServiceProvider} object with the given fixed number of threads,
+	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
+	 * @param poolSize
+	 * the number of threads to run in the pool
 	 */
-	public ExecutorServiceProvider(int maximumPoolSize) {
-		this(1, maximumPoolSize, 1L, TimeUnit.SECONDS);
+	public ExecutorServiceProvider(int poolSize) {
+		this(poolSize, poolSize, 1L, TimeUnit.SECONDS);
 	}
 
 	/**

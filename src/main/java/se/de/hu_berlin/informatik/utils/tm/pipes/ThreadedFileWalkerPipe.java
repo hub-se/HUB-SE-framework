@@ -48,7 +48,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	 * @param pattern
 	 * the pattern that describes the files that should be processed by this file walker
 	 * @param threadCount
-	 * the maximal number of threads that shall be run in parallel
+	 * the number of threads that shall be run in parallel
 	 * @param clazz
 	 * a {@link CallableWithPaths} class which is called for every matching file
 	 * @param clazzConstructorArguments

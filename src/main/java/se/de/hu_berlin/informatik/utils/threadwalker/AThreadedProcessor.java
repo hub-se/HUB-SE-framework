@@ -40,17 +40,21 @@ public abstract class AThreadedProcessor {
 	 * the maximum number of threads to allow in the pool
 	 */
 	public AThreadedProcessor(int corePoolSize, int maximumPoolSize) {
-		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS);
+		super();
+		//create an executor service
+		this.executor = new ExecutorServiceProvider(corePoolSize, maximumPoolSize);
 	}
 	
 	/**
-	 * Creates an {@link AThreadedProcessor} object with the given parameters,
-	 * {@code corePoolSize=1}, {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
-	 * @param maximumPoolSize
-	 * the maximum number of threads to allow in the pool
+	 * Creates an {@link AThreadedProcessor} object with the given fixed number of threads,
+	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
+	 * @param poolSize
+	 * the number of threads to run in the pool
 	 */
-	public AThreadedProcessor(int maximumPoolSize) {
-		this(1, maximumPoolSize, 1L, TimeUnit.SECONDS);
+	public AThreadedProcessor(int poolSize) {
+		super();
+		//create an executor service
+		this.executor = new ExecutorServiceProvider(poolSize);
 	}
 	
 	/**

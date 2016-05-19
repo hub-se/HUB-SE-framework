@@ -96,12 +96,12 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param maximumPoolSize
-	 * the maximum number of threads to allow in the pool
+	 * @param poolSize
+	 * the number of threads to run in the pool
 	 */
 	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int maximumPoolSize) {
-		this(ignoreRootDir, searchDirectories, searchFiles, pattern, 1, maximumPoolSize, 1L, TimeUnit.SECONDS);
+			String pattern, int poolSize) {
+		this(ignoreRootDir, searchDirectories, searchFiles, pattern, poolSize, poolSize, 1L, TimeUnit.SECONDS);
 	}
 	
 	/**

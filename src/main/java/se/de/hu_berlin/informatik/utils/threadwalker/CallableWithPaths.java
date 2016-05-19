@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 
 /**
  * An abstract class that implements the {@link Callable} interface and
@@ -45,6 +46,14 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	}
 	
 	/**
+	 * Creates a new {@link CallableWithPaths} object with no paths set and no
+	 * output path generator attached.
+	 */
+	public CallableWithPaths() {
+		super();
+	}
+	
+	/**
 	 * @param input
 	 * an input object
 	 */
@@ -73,7 +82,12 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	 * the output path
 	 */
 	public Path getOutputPath() {
-		return output;
+		if (output != null) {
+			return output;
+		} else {
+			Misc.err(this, "No output path available.");
+			return null;
+		}
 	}
 
 }
