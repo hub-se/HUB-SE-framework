@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.threadwalker;
+package se.de.hu_berlin.informatik.utils.threaded;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 

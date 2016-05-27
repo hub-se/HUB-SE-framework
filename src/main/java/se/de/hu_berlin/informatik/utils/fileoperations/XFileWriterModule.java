@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.tm.modules;
+package se.de.hu_berlin.informatik.utils.fileoperations;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

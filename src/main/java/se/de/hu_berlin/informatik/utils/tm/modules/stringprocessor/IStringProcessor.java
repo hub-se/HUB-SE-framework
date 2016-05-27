@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor;
 
-import se.de.hu_berlin.informatik.utils.tm.modules.FileLineProcessorModule;
+import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
 
 /**
  * Provides a method that gets a {@link String} and processes

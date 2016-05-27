@@ -496,4 +496,43 @@ public class Misc {
 			}
 		}
 	}
+	
+	/**
+	 * Converts a wrapper object array to its corresponding 
+	 * simple type array.
+	 * @param oBytes
+	 * the wrapper object array
+	 * @return
+	 * the corresponding simple type array
+	 */
+	public static byte[] toPrimitives(Byte[] oBytes)
+	{
+	    byte[] bytes = new byte[oBytes.length];
+
+	    for(int i = 0; i < oBytes.length; i++) {
+	        bytes[i] = oBytes[i];
+	    }
+
+	    return bytes;
+	}
+	
+	/**
+	 * Converts a wrapper object array to its corresponding 
+	 * simple type array.
+	 * @param oIntegers
+	 * the wrapper object array
+	 * @return
+	 * the corresponding simple type array
+	 */
+	public static int[] toPrimitives(Integer[] oIntegers)
+	{
+	    int[] integers = new int[oIntegers.length];
+
+	    for(int i = 0; i < oIntegers.length; i++) {
+	        integers[i] = oIntegers[i];
+	    }
+
+	    return integers;
+	}
+	
 }

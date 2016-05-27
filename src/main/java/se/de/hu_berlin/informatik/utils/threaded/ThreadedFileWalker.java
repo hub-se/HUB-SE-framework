@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.threadwalker;
+package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
 import java.util.concurrent.ExecutorService;

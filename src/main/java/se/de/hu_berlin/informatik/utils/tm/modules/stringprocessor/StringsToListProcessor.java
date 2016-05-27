@@ -12,14 +12,14 @@ import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProces
  * 
  * @author Simon Heiden
  */
-public class StringToListProcessor implements IStringProcessor {
+public class StringsToListProcessor implements IStringProcessor {
 
 	private List<String> lines;
 	
 	/**
-	 * Creates a new {@link StringToListProcessor} object.
+	 * Creates a new {@link StringsToListProcessor} object.
 	 */
-	public StringToListProcessor() {
+	public StringsToListProcessor() {
 		lines = new ArrayList<>();
 	}
 

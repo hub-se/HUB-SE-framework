@@ -1,10 +1,9 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.tm.modules;
+package se.de.hu_berlin.informatik.utils.fileoperations;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -13,7 +12,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
- * A file writer module that gets for example a list of {@link String}s 
+ * A file writer module that gets a byte array 
  * and writes its contents to a specified output file. Output file names
  * may also be generated automatically with an included instance of
  * {@link OutputPathGenerator}. The given input is returned as it is
@@ -23,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @see OutputPathGenerator
  */
-public class FileWriterModule<A extends Iterable<? extends CharSequence> > extends AModule<A, A> {
+public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 
 	private Path outputPath;
 	private Path outputdir;
@@ -33,7 +32,7 @@ public class FileWriterModule<A extends Iterable<? extends CharSequence> > exten
 	OutputPathGenerator generator;
 	
 	/**
-	 * Creates a new {@link FileWriterModule} with the given parameters.
+	 * Creates a new {@link ByteArrayToFileWriterModule} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
@@ -43,7 +42,7 @@ public class FileWriterModule<A extends Iterable<? extends CharSequence> > exten
 	 * @param extension
 	 * is the extension of the automatically generated output paths
 	 */
-	public FileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
+	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
 		super(true);
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
@@ -62,13 +61,13 @@ public class FileWriterModule<A extends Iterable<? extends CharSequence> > exten
 	}
 	
 	/**
-	 * Creates a new {@link FileWriterModule} with the given parameters.
+	 * Creates a new {@link ByteArrayToFileWriterModule} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
 	 * determines if files and directories should be overwritten
 	 */
-	public FileWriterModule(Path outputPath, boolean overwrite) {
+	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite) {
 		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
@@ -77,18 +76,20 @@ public class FileWriterModule<A extends Iterable<? extends CharSequence> > exten
 		if (!overwrite && outputPath.toFile().exists()) {
 			Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
 		}
-		outputPath.getParent().toFile().mkdirs();
+		if (outputPath.getParent() != null) {
+			outputPath.getParent().toFile().mkdirs();
+		}
 	}
 	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
-	public A processItem(A item) {
+	public byte[] processItem(byte[] item) {
 		if (generateOutputPaths) {
 			outputPath = generator.getNewOutputPath(extension);
 		}
 		try {
-			Files.write(outputPath, item, StandardCharsets.UTF_8);
+			Files.write(outputPath, item);
 		} catch (IOException e) {
 			Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}

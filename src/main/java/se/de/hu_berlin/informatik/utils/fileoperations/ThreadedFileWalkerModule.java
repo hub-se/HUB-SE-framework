@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.tm.modules;
+package se.de.hu_berlin.informatik.utils.fileoperations;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,9 +9,9 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.threadwalker.ThreadedFileWalker;
+import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
-import se.de.hu_berlin.informatik.utils.threadwalker.CallableWithPaths;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.

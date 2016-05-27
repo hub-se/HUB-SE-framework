@@ -9,11 +9,11 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.threadwalker.AThreadedFileWalker;
-import se.de.hu_berlin.informatik.utils.threadwalker.ProcessAndReturnThreadedFileWalker;
+import se.de.hu_berlin.informatik.utils.threaded.AThreadedFileWalker;
+import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
+import se.de.hu_berlin.informatik.utils.threaded.CallableWithReturn;
+import se.de.hu_berlin.informatik.utils.threaded.ProcessAndReturnThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
-import se.de.hu_berlin.informatik.utils.threadwalker.CallableWithPaths;
-import se.de.hu_berlin.informatik.utils.threadwalker.CallableWithReturn;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.

@@ -5,9 +5,10 @@ package se.de.hu_berlin.informatik.utils.tm.pipes;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import se.de.hu_berlin.informatik.utils.threadwalker.ThreadedElementProcessor;
+
+import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadedElementProcessor;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
-import se.de.hu_berlin.informatik.utils.threadwalker.CallableWithPaths;
 
 /**
  * Starts a threaded element processor with a provided callable class on each
