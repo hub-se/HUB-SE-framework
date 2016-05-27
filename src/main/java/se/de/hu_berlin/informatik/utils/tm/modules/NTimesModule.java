@@ -29,7 +29,7 @@ public class NTimesModule extends AModule<Object,Object> {
 	 */
 	public Object processItem(Object item) {
 		for (int i = 0; i < n-1; ++i) {
-			getLinkedModule().submitAndStart(item);
+			getLinkedModule().submit(item);
 		}
 		return item;
 	}

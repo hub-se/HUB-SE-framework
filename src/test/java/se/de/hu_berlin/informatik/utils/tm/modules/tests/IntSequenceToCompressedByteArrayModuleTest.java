@@ -59,16 +59,16 @@ public class IntSequenceToCompressedByteArrayModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(0);temp.add(1);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(0);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(0);temp.add(1);temp.add(1);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
 		byte[] expected = { 1, 0, 0, 0, 4, 0, 0, 0, 3, (byte)Integer.parseInt("01011001", 2), (byte)Integer.parseInt("01100000", 2) };
-		byte[] actual = module.getResult();
+		byte[] actual = module.getResultFromCollectedItems();
 		assertEquals(expected.length, actual.length);
 		assertArrayEquals(expected, actual);
 	}
@@ -79,16 +79,16 @@ public class IntSequenceToCompressedByteArrayModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1);temp.add(1);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(0);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(1);temp.add(1);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
 		byte[] expected = { 1, 0, 0, 0, 4, 0, 0, 0, 3, (byte)Integer.parseInt("11011001", 2), (byte)Integer.parseInt("11100000", 2) };
-		byte[] actual = module.getResult();
+		byte[] actual = module.getResultFromCollectedItems();
 		assertEquals(expected.length, actual.length);
 		assertArrayEquals(expected, actual);
 	}
@@ -99,13 +99,13 @@ public class IntSequenceToCompressedByteArrayModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(7);temp.add(0);temp.add(7);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(7);temp.add(0);temp.add(0);temp.add(7);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
 		byte[] expected = { 3, 0, 0, 0, 4, 0, 0, 0, 2, (byte)Integer.parseInt("11100011", 2), (byte)Integer.parseInt("10001110", 2), (byte)Integer.parseInt("00000111", 2) };
-		byte[] actual = module.getResult();
+		byte[] actual = module.getResultFromCollectedItems();
 		assertEquals(expected.length, actual.length);
 		assertArrayEquals(expected, actual);
 	}
@@ -116,10 +116,10 @@ public class IntSequenceToCompressedByteArrayModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1023);temp.add(63);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
 		byte[] expected = { 10, 0, 0, 0, 2, 0, 0, 0, 1, (byte)Integer.parseInt("11111111", 2), (byte)Integer.parseInt("11000011", 2), (byte)Integer.parseInt("11110000", 2) };
-		byte[] actual = module.getResult();
+		byte[] actual = module.getResultFromCollectedItems();
 		assertEquals(expected.length, actual.length);
 		assertArrayEquals(expected, actual);
 	}

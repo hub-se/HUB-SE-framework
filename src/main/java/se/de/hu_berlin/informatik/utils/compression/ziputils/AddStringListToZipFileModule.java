@@ -27,6 +27,7 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 
 	private ZipFile zipFile;
 	private ZipParameters parameters;
+	private int fileCounter = -1;
 	
 	public AddStringListToZipFileModule(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
@@ -34,8 +35,16 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 		if (deleteExisting) {
 			Misc.delete(zipFilePath);
 		}
+		
+		if (zipFilePath.getParent() != null) {
+			zipFilePath.getParent().toFile().mkdirs();
+		}
+		
 		try {
 			zipFile = new ZipFile(zipFilePath.toString());
+			if (zipFile.getFile().exists()) {
+				fileCounter = zipFile.getFileHeaders().size()-1;
+			}
 		} catch (ZipException e) {
 			Misc.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
 		}
@@ -60,10 +69,10 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 			// this sets the name of the file for this entry in the zip file
 //			parameters.setFileNameInZip(zipFile.getFileHeaders().size() + ".txt");
 			
-			temp = Paths.get(zipFile.getFileHeaders().size() + ".txt");
+			temp = Paths.get(++fileCounter + ".txt");
 			// save the given data to the temporary file (not perfect, but well...)
 			new StringListToFileWriterModule<List<String>>(temp, true)
-			.submitAndStart(list);
+			.submit(list);
 
 			// Creates a new entry in the zip file and adds the content to the zip file
 			zipFile.addFile(temp.toFile(), parameters);

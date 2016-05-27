@@ -30,7 +30,7 @@ public class ListSequencerModule<A extends List<B>,B> extends AModule<A,B> {
 			return null;
 		}
 		for (int i = 0; i < list.size()-1; ++i) {
-			getLinkedModule().submitAndStart(list.get(i));
+			getLinkedModule().submit(list.get(i));
 		}
 		return list.get(list.size()-1);
 	}

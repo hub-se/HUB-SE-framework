@@ -98,7 +98,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 	 * this module
 	 */
 	@SuppressWarnings("unchecked")
-	public AModule<A,B> submitAndStart(Object item) {
+	public AModule<A,B> submit(Object item) {
 		try {
 			input = (A)item;
 		} catch (ClassCastException e) {
@@ -106,7 +106,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 		}
 		process();
 		if (linkedModule != null) {
-			linkedModule.submitAndStart(output);
+			linkedModule.submit(output);
 		}
 		return this;
 	}
@@ -117,7 +117,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 	 * this module
 	 */
 	public AModule<A,B> start() {
-		return submitAndStart(null);
+		return submit(null);
 	}
 
 	/**

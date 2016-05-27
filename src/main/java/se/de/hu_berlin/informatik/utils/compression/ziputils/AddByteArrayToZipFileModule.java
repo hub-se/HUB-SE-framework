@@ -22,6 +22,7 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 
 	private ZipFile zipFile;
 	private ZipParameters parameters;
+	private int fileCounter = -1;
 	
 	public AddByteArrayToZipFileModule(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
@@ -29,8 +30,16 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 		if (deleteExisting) {
 			Misc.delete(zipFilePath);
 		}
+		
+		if (zipFilePath.getParent() != null) {
+			zipFilePath.getParent().toFile().mkdirs();
+		}
+		
 		try {
 			zipFile = new ZipFile(zipFilePath.toString());
+			if (zipFile.getFile().exists()) {
+				fileCounter = zipFile.getFileHeaders().size()-1;
+			}
 		} catch (ZipException e) {
 			Misc.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
 		}
@@ -53,8 +62,8 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 	 */
 	public byte[] processItem(byte[] array) {
 		try {
-			// this sets the name of the file for this entry in the zip file
-			parameters.setFileNameInZip(zipFile.getFileHeaders().size() + ".bin");
+			// this sets the name of the file for this entry in the zip file, starting from '0.bin'
+			parameters.setFileNameInZip(++fileCounter + ".bin");
 
 			InputStream is = new ByteArrayInputStream(array);
 

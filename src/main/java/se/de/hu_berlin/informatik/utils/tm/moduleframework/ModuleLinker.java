@@ -70,7 +70,7 @@ public class ModuleLinker {
 	 */
 	public ModuleLinker submitAndStart(Object... items) {
 		for (int i = 0; i < items.length; ++i) {
-			getStartModule().submitAndStart(items[i]);
+			getStartModule().submit(items[i]);
 		}
 		return this;
 	}

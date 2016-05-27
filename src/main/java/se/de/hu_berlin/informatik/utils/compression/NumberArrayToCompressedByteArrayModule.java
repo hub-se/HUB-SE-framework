@@ -103,7 +103,7 @@ public class NumberArrayToCompressedByteArrayModule<T extends Number> extends AM
 	}
 
 	@Override
-	public byte[] getResult() {
+	public byte[] getResultFromCollectedItems() {
 		ByteBuffer b = ByteBuffer.allocate(4);
 		//b.order(ByteOrder.BIG_ENDIAN); // optional, the initial order of a byte buffer is always BIG_ENDIAN.
 		b.putInt(totalSequences);

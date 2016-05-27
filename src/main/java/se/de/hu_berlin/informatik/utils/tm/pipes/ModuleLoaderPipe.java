@@ -51,7 +51,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public B processItem(A item) {		
-		return getModule().submitAndStart(item).getResult();
+		return getModule().submit(item).getResult();
 	}
 	
 	/**

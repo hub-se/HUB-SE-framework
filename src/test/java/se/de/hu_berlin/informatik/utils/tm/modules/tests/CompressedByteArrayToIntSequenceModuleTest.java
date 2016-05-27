@@ -63,15 +63,15 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(0);temp.add(1);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(0);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(0);temp.add(1);temp.add(1);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
-		List<List<Integer>> actual = decoder.submitAndStart(module.getResult()).getResult();
+		List<List<Integer>> actual = decoder.submit(module.getResultFromCollectedItems()).getResult();
 		
 		assertEquals(3, actual.size());
 		List<Integer> sequence = actual.get(0);
@@ -102,15 +102,15 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1);temp.add(1);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(0);temp.add(0);temp.add(1);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(1);temp.add(1);temp.add(1);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
-		List<List<Integer>> actual = decoder.submitAndStart(module.getResult()).getResult();
+		List<List<Integer>> actual = decoder.submit(module.getResultFromCollectedItems()).getResult();
 		
 		assertEquals(3, actual.size());
 		List<Integer> sequence = actual.get(0);
@@ -141,12 +141,12 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(7);temp.add(0);temp.add(7);temp.add(0);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		temp = new ArrayList<>();
 		temp.add(7);temp.add(0);temp.add(0);temp.add(7);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
-		List<List<Integer>> actual = decoder.submitAndStart(module.getResult()).getResult();
+		List<List<Integer>> actual = decoder.submit(module.getResultFromCollectedItems()).getResult();
 		
 		assertEquals(2, actual.size());
 		List<Integer> sequence = actual.get(0);
@@ -170,9 +170,9 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1023);temp.add(63);
-		module.submitAndStart(temp);
+		module.submit(temp);
 		
-		List<List<Integer>> actual = decoder.submitAndStart(module.getResult()).getResult();
+		List<List<Integer>> actual = decoder.submit(module.getResultFromCollectedItems()).getResult();
 		
 		assertEquals(1, actual.size());
 		List<Integer> sequence = actual.get(0);

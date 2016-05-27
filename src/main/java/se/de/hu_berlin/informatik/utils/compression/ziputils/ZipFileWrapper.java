@@ -32,7 +32,7 @@ public class ZipFileWrapper {
 
 		//parse the file containing the identifiers
 		Path filePath = Paths.get(destPath, filename);
-		byte[] result = new FileToByteArrayModule().submitAndStart(filePath).getResult();
+		byte[] result = new FileToByteArrayModule().submit(filePath).getResult();
 		Misc.delete(filePath);
 		
 		return result;
