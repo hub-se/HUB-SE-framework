@@ -68,7 +68,7 @@ public class ModuleLinker {
 	 * @return
 	 * this module linker
 	 */
-	public ModuleLinker submitAndStart(Object... items) {
+	public ModuleLinker submit(Object... items) {
 		for (int i = 0; i < items.length; ++i) {
 			getStartModule().submit(items[i]);
 		}

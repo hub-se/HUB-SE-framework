@@ -330,7 +330,7 @@ public class Misc {
 	 */
 	private static void printfMessage(Object o, String message, Object... args) {
 		if (o != null) {
-			System.out.printf(o.getClass().getSimpleName() + ": " + message + "%n", args);
+			System.out.printf("[" + o.getClass().getSimpleName() + "] " + message + "%n", args);
 		} else {
 			System.out.printf(message + "%n", args);
 		}

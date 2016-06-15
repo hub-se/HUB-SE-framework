@@ -22,11 +22,36 @@ public class ExecuteMainClassInNewJVMModule extends AModule<String[],Integer> {
 	
 	private String javaHome = null;
 	
+	/**
+	 * Starts the given class as a new process with the standard JVM.
+	 * @param executionDir
+	 * the directory to execute the new process in (or null if the current directory should be used)
+	 * @param clazz
+	 * the name of the Java class to execute. Must contain a main method
+	 * @param cp
+	 * the class path to use
+	 * @param properties
+	 * other properties to give to the JVM
+	 */
 	public ExecuteMainClassInNewJVMModule(File executionDir, String clazz, String cp, String... properties) {
 		this(null, executionDir, clazz, cp, properties);
 	}
 	
-	public ExecuteMainClassInNewJVMModule(String javaHome, File executionDir, String clazz, String cp, String... properties) {
+	/**
+	 * Starts the given class as a new process.
+	 * @param javaHome
+	 * a path to a Java installation directory (or null if the standard Java installation should be used)
+	 * @param executionDir
+	 * the directory to execute the new process in (or null if the current directory should be used)
+	 * @param clazz
+	 * the name of the Java class to execute. Must contain a main method
+	 * @param cp
+	 * the class path to use
+	 * @param properties
+	 * other properties to give to the JVM
+	 */
+	public ExecuteMainClassInNewJVMModule(String javaHome, File executionDir, 
+			String clazz, String cp, String... properties) {
 		super(true);
 		this.executionDir = executionDir;
 		this.clazz = clazz;
