@@ -426,7 +426,54 @@ public class Misc {
 //	}
 	
 	/**
-	 * Joins two arrays of type {@code T}.
+	 * Returns a String representation of the given array
+	 * with ',' as separation element and enclosed in rectangular brackets.
+	 * @param array
+	 * an array
+	 * @return
+	 * a String representation of the given array
+	 * @param <T>
+	 * the type of the array
+	 */
+	public static <T> String arrayToString(T[] array) {
+		return arrayToString(array, ",", "[", "]");
+	}
+	
+	/**
+	 * Returns a String representation of the given array.
+	 * @param array
+	 * an array
+	 * @param sepElement
+	 * a separation element that separates the different elements of
+	 * the array in the returned String representation
+	 * @param start
+	 * a String that marks the begin of the array
+	 * @param end
+	 * a String that marks the end of the array
+	 * @return
+	 * a String representation of the given array
+	 * @param <T>
+	 * the type of the array
+	 */
+	public static <T> String arrayToString(T[] array, String sepElement, String start, String end) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(start);
+		boolean isFirst = true;
+		for (T element : array) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(sepElement);
+			}
+			builder.append(element);
+		}
+		builder.append(end);
+		
+		return builder.toString();
+	}
+	
+	/**
+	 * Joins two arrays of type {@code T} and returns the concatenated arrays.
 	 * @param a
 	 * the first array
 	 * @param b
