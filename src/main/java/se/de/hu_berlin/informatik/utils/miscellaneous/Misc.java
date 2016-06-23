@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -389,6 +391,79 @@ public class Misc {
 	public static boolean delete(Path fileOrDir) {
 		return delete(fileOrDir.toFile());
 	}
+	
+	/**
+	 * Copies a file or a directory recursively.
+	 * @param source
+	 * the source file or directory
+	 * @param dest
+	 * the destination file or directory
+	 * @param options
+	 * the copy options
+	 * @throws IOException
+	 * thrown in case of an error
+	 */
+	public static void copyFileOrDir(File source, File dest, CopyOption...  options) throws IOException {
+	    if (source.isDirectory())
+	        copyDir(source, dest, options);
+	    else {
+	        ensureParentDir(dest);
+	        copyFile(source, dest, options);
+	    }
+	}
+
+	/**
+	 * Copies a directory. 
+	 * @param source
+	 * the source directory
+	 * @param dest
+	 * the destination directory
+	 * @param options
+	 * the copy options
+	 * @throws IOException
+	 * thrown in case of an error
+	 */
+	private static void copyDir(File source, File dest, CopyOption... options) throws IOException {
+	    if (!dest.exists())
+	        dest.mkdirs();
+	    File[] contents = source.listFiles();
+	    if (contents != null) {
+	        for (File f : contents) {
+	            File newFile = new File(dest.getAbsolutePath() + File.separator + f.getName());
+	            if (f.isDirectory())
+	                copyDir(f, newFile, options);
+	            else
+	                copyFile(f, newFile, options);
+	        }
+	    }
+	}
+
+	/**
+	 * Copies a file.
+	 * @param source
+	 * the source file
+	 * @param dest
+	 * the destination file
+	 * @param options
+	 * the copy options
+	 * @throws IOException
+	 * thrown in case of an error
+	 */
+	private static void copyFile(File source, File dest, CopyOption... options) throws IOException {
+	    Files.copy(source.toPath(), dest.toPath(), options);
+	}
+
+	/**
+	 * Ensure that the given file has a parent directory. Creates all
+	 * directories on the way to the parent directory if they not exist.
+	 * @param file
+	 * the file
+	 */
+	private static void ensureParentDir(File file) {
+	    File parent = file.getParentFile();
+	    if (parent != null && !parent.exists())
+	        parent.mkdirs();
+	} 
 
 	/**
 	 * Writes a String to the provided file.
