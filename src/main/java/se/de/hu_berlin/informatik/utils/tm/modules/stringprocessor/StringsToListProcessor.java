@@ -32,13 +32,21 @@ public class StringsToListProcessor implements IStringProcessor {
 
 	/**
 	 * @return 
-	 * a list of all processed Strings
+	 * null
 	 */
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#getResult()
 	 */
 	public Object getResult() {
+		return null;
+	}
+
+	@Override
+	public Object getResultFromCollectedItems() {
+		// TODO Auto-generated method stub
 		return lines;
 	}
+	
+	
 
 }
