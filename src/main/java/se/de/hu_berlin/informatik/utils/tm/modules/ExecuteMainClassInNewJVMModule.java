@@ -5,6 +5,8 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.io.File;
 import java.io.IOException;
+
+import se.de.hu_berlin.informatik.utils.miscellaneous.ClassPathParser;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -23,39 +25,58 @@ public class ExecuteMainClassInNewJVMModule extends AModule<String[],Integer> {
 	private String javaHome = null;
 	
 	/**
-	 * Starts the given class as a new process with the standard JVM.
+	 * Starts the given class as a new process with the standard JVM and the current class path.
+	 * @param clazz
+	 * the name of the Java class to execute. Must contain a main method
 	 * @param executionDir
 	 * the directory to execute the new process in (or null if the current directory should be used)
+	 * @param properties
+	 * other properties to give to the JVM
+	 */
+	public ExecuteMainClassInNewJVMModule(String clazz, File executionDir, String... properties) {
+		this(null, clazz, null, executionDir, properties);
+	}
+	
+	/**
+	 * Starts the given class as a new process with the standard JVM.
 	 * @param clazz
 	 * the name of the Java class to execute. Must contain a main method
 	 * @param cp
 	 * the class path to use
+	 * @param executionDir
+	 * the directory to execute the new process in (or null if the current directory should be used)
 	 * @param properties
 	 * other properties to give to the JVM
 	 */
-	public ExecuteMainClassInNewJVMModule(File executionDir, String clazz, String cp, String... properties) {
-		this(null, executionDir, clazz, cp, properties);
+	public ExecuteMainClassInNewJVMModule(String clazz, String cp, File executionDir, String... properties) {
+		this(null, clazz, cp, executionDir, properties);
 	}
 	
 	/**
 	 * Starts the given class as a new process.
 	 * @param javaHome
 	 * a path to a Java installation directory (or null if the standard Java installation should be used)
-	 * @param executionDir
-	 * the directory to execute the new process in (or null if the current directory should be used)
 	 * @param clazz
 	 * the name of the Java class to execute. Must contain a main method
 	 * @param cp
 	 * the class path to use
+	 * @param executionDir
+	 * the directory to execute the new process in (or null if the current directory should be used)
 	 * @param properties
 	 * other properties to give to the JVM
 	 */
-	public ExecuteMainClassInNewJVMModule(String javaHome, File executionDir, 
-			String clazz, String cp, String... properties) {
+	public ExecuteMainClassInNewJVMModule(String javaHome,  
+			String clazz, String cp, File executionDir, String... properties) {
 		super(true);
 		this.executionDir = executionDir;
 		this.clazz = clazz;
-		this.cp = cp;
+		if (cp != null) {
+			this.cp = cp;
+		} else {
+			this.cp = new ClassPathParser()
+					.parseSystemClasspath()
+					.getClasspath();
+		}
 		this.properties = properties;
 		
 		this.javaHome = javaHome;

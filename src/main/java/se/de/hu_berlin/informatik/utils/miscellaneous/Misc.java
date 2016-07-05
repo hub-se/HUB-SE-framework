@@ -263,7 +263,7 @@ public class Misc {
 	private static void printfErrorMessage(Object o, String message, Object... args) {
 		System.out.flush();
 		if (o != null) {
-			System.err.printf(o.getClass().getSimpleName() + ": " + message + "%n", args);
+			System.err.printf("[" + o.getClass().getSimpleName() + "] " + message + "%n", args);
 		} else {
 			System.err.printf(message + "%n", args);
 		}
