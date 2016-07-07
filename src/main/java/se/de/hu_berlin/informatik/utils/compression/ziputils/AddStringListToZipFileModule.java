@@ -11,7 +11,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
-import se.de.hu_berlin.informatik.utils.fileoperations.StringListToFileWriterModule;
+import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -71,7 +71,7 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 			
 			temp = Paths.get(++fileCounter + ".txt");
 			// save the given data to the temporary file (not perfect, but well...)
-			new StringListToFileWriterModule<List<String>>(temp, true)
+			new ListToFileWriterModule<List<String>>(temp, true)
 			.submit(list);
 
 			// Creates a new entry in the zip file and adds the content to the zip file

@@ -3,17 +3,24 @@
  */
 package se.de.hu_berlin.informatik.utils.fileoperations;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
- * A file writer module that gets for example a list of {@link String}s 
+ * A file writer module that gets for example a List object
  * and writes its contents to a specified output file. Output file names
  * may also be generated automatically with an included instance of
  * {@link OutputPathGenerator}. The given input is returned as it is
@@ -22,11 +29,11 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * @author Simon Heiden
  * 
  * @param A
- * the type of iterable char sequence 
+ * the type of iterable object 
  * 
  * @see OutputPathGenerator
  */
-public class StringListToFileWriterModule<A extends Iterable<? extends CharSequence> > extends AModule<A, A> {
+public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A> {
 
 	private Path outputPath;
 	private Path outputdir;
@@ -36,7 +43,7 @@ public class StringListToFileWriterModule<A extends Iterable<? extends CharSeque
 	OutputPathGenerator generator;
 	
 	/**
-	 * Creates a new {@link StringListToFileWriterModule} with the given parameters.
+	 * Creates a new {@link ListToFileWriterModule} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
@@ -46,7 +53,7 @@ public class StringListToFileWriterModule<A extends Iterable<? extends CharSeque
 	 * @param extension
 	 * is the extension of the automatically generated output paths
 	 */
-	public StringListToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
+	public ListToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
 		super(true);
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
@@ -65,13 +72,13 @@ public class StringListToFileWriterModule<A extends Iterable<? extends CharSeque
 	}
 	
 	/**
-	 * Creates a new {@link StringListToFileWriterModule} with the given parameters.
+	 * Creates a new {@link ListToFileWriterModule} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
 	 * determines if files and directories should be overwritten
 	 */
-	public StringListToFileWriterModule(Path outputPath, boolean overwrite) {
+	public ListToFileWriterModule(Path outputPath, boolean overwrite) {
 		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
@@ -91,11 +98,26 @@ public class StringListToFileWriterModule<A extends Iterable<? extends CharSeque
 			outputPath = generator.getNewOutputPath(extension);
 		}
 		try {
-			Files.write(outputPath, item, StandardCharsets.UTF_8);
+			write(outputPath, item, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
+	}
+	
+	public static Path write(Path path, Iterable<?> lines,
+			Charset cs, OpenOption... options) throws IOException {
+		// ensure lines is not null before opening file
+		Objects.requireNonNull(lines);
+		CharsetEncoder encoder = cs.newEncoder();
+		OutputStream out = Files.newOutputStream(path, options);
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
+			for (Object line: lines) {
+				writer.append(line.toString());
+				writer.newLine();
+			}
+		}
+		return path;
 	}
 
 }

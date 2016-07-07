@@ -578,29 +578,30 @@ public class Misc {
 	 * array of type {@code T}.
 	 * @param a
 	 * the first array
-	 * @param item
+	 * @param items
 	 * item to append to the array
 	 * @return
 	 * the array with the given item appended
 	 * @param <T>
 	 * the type of the arrays
 	 */
-	public static <T> T[] addToArrayAndReturnResult(T[] a, T item) {
-		if (a == null) {
-			Class<?> type = item.getClass();
-			@SuppressWarnings("unchecked")
-			T[] array = (T[]) Array.newInstance(type, 1);
-			array[0] = item;
-			return array;
-		}
-		if (item == null) {
+	@SafeVarargs
+	public static <T> T[] addToArrayAndReturnResult(T[] a, T... items) {
+		if (items == null || items.length == 0) {
 			return a;
+		}
+		if (a == null) {
+			Class<?> type = items[0].getClass();
+			@SuppressWarnings("unchecked")
+			T[] array = (T[]) Array.newInstance(type, items.length);
+			System.arraycopy(items, 0, array, 0, items.length);
+			return array;
 		}
 		Class<?> type = a.getClass().getComponentType();
 		@SuppressWarnings("unchecked")
-		T[] joinedArray = (T[]) Array.newInstance(type, a.length + 1);
+		T[] joinedArray = (T[]) Array.newInstance(type, a.length + items.length);
 		System.arraycopy(a, 0, joinedArray, 0, a.length);
-		joinedArray[a.length] = item;
+		System.arraycopy(items, 0, joinedArray, a.length, items.length);
 		return joinedArray;
 	}
 	
