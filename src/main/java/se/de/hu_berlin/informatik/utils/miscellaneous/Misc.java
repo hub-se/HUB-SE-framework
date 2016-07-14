@@ -467,19 +467,49 @@ public class Misc {
 
 	/**
 	 * Writes a String to the provided file.
-	 * @param st
+	 * @param string
 	 * the string to write
-	 * @param f
+	 * @param file
 	 * the output file
 	 * @throws IOException
 	 * if the file does not exist or can not be opened or written to
 	 */
-	public static void writeString2File(String st, File f) throws IOException {
-		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(f)))) {
-			writer.println(st);
+	public static void writeString2File(String string, File file) throws IOException {
+		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
+			writer.println(string);
 		} catch (IOException e) {
 			throw(e);
 		}
+	}
+	
+	/**
+	 * Appends a String to the provided file.
+	 * @param string
+	 * the string to append
+	 * @param file
+	 * the output file
+	 * @throws IOException
+	 * if the file does not exist or can not be opened or written to
+	 */
+	public static void appendString2File(String string, File file) throws IOException {
+		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
+			writer.println(string);
+		} catch (IOException e) {
+			throw(e);
+		}
+	}
+	
+	/**
+	 * Reads a file and returns its contents as a String.
+	 * @param path
+	 * the path to the file to read
+	 * @return
+	 * the file's contents
+	 * @throws IOException
+	 * if the file does not exist or can not be opened
+	 */
+	public static String readFile2String(Path path) throws IOException {
+		return new String(Files.readAllBytes(path));
 	}
 	
 //	/**
@@ -657,5 +687,7 @@ public class Misc {
 
 	    return integers;
 	}
+
+	
 	
 }
