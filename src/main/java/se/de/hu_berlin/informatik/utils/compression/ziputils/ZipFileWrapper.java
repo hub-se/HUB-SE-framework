@@ -20,6 +20,7 @@ public class ZipFileWrapper {
 	}
 	
 	
+	public byte[] uncheckedGet(int index) throws ZipException {
 		//extract the zip file contents to the zip file's parent folder
 		String filename = index + ".bin";
 		
@@ -34,7 +35,9 @@ public class ZipFileWrapper {
 		return result;
 	}
 	
+	public byte[] get(int index) {
 		try {
+			return uncheckedGet(index);
 		} catch (ZipException e) {
 			Misc.abort((Object)null, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
 		}
