@@ -20,15 +20,11 @@ public class ZipFileWrapper {
 	}
 	
 	
-	public byte[] get(int index) {
 		//extract the zip file contents to the zip file's parent folder
 		String filename = index + ".bin";
 		
-		try {
-			zipFile.extractFile(filename, destPath);
-		} catch (ZipException e) {
-			Misc.abort((Object)null, e, "Unable to get zipped file '%s', or could not write to '%s'.", filename, destPath);
-		}
+		//may throw exception if file does not exist
+		zipFile.extractFile(filename, destPath);
 
 		//parse the file containing the identifiers
 		Path filePath = Paths.get(destPath, filename);
@@ -36,6 +32,13 @@ public class ZipFileWrapper {
 		Misc.delete(filePath);
 		
 		return result;
+	}
+	
+		try {
+		} catch (ZipException e) {
+			Misc.abort((Object)null, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
+		}
+		return null;
 	}
 
 }
