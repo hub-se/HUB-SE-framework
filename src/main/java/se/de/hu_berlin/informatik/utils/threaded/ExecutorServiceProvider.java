@@ -75,11 +75,25 @@ public class ExecutorServiceProvider {
 	}
 	
 	/**
-	 * Shuts down the underlying executor service and waits for it to terminate.
+	 * Shuts down the underlying executor service and waits 7 days for it to terminate.
 	 * @return
 	 * true if all jobs finished, false if interrupted or a timeout has been reached
 	 */
 	public boolean shutdownAndWaitForTermination() {
+		return shutdownAndWaitForTermination(7, TimeUnit.DAYS);
+	}
+	
+	
+	/**
+	 * Shuts down the underlying executor service and waits for it to terminate.
+	 * @param duration
+	 * the number of time units to wait
+	 * @param unit
+	 * the time unit used (seconds, minutes, ...)
+	 * @return
+	 * true if all jobs finished, false if interrupted or a timeout has been reached
+	 */
+	public boolean shutdownAndWaitForTermination(int duration, TimeUnit unit) {
 		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
 		executor.shutdown();
 
@@ -87,7 +101,7 @@ public class ExecutorServiceProvider {
 		boolean result = false;
 		try {
 //			System.out.println("awaiting termination...");
-			result = executor.awaitTermination(7, TimeUnit.DAYS);
+			result = executor.awaitTermination(duration, unit);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

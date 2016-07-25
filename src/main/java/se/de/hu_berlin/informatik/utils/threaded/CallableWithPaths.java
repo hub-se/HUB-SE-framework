@@ -56,9 +56,12 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	/**
 	 * @param input
 	 * an input object
+	 * @return
+	 * this object to enable chaining
 	 */
-	public void setInput(A input) {
+	public CallableWithPaths<A,T> setInput(A input) {
 		this.input = input;
+		return this;
 	}
 
 	/**
