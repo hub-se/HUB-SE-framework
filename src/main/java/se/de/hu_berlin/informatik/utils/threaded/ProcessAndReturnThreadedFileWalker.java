@@ -62,7 +62,7 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	 */
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
-//		System.out.println("\tsubmitting task for: " + fileOrDir);
+//		Misc.out(this, "\tsubmitting task for: " + fileOrDir);
 		try {
 			CallableWithReturn<B> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
 			o.setPipe(pipe);

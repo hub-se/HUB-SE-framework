@@ -29,7 +29,7 @@ public class ReadZipFileModule extends AModule<Path,ZipFileWrapper> {
 		try {
 			zipFile = new ZipFile(zipFilePath.toString());
 		} catch (ZipException e) {
-			Misc.abort("Could not initialize zip file '%s' for reading.", zipFilePath);
+			Misc.abort(this, "Could not initialize zip file '%s' for reading.", zipFilePath);
 		}
 		
 		return new ZipFileWrapper(zipFile);

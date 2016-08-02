@@ -39,7 +39,7 @@ public class ZipFileWrapper {
 		try {
 			return uncheckedGet(index);
 		} catch (ZipException e) {
-			Misc.abort((Object)null, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
+			Misc.abort(ZipFileWrapper.class, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
 		}
 		return null;
 	}

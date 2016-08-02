@@ -64,7 +64,7 @@ public class ThreadedElementProcessor<A> extends AThreadedProcessor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void processElement(Object inputObject) {
-//		System.out.println("\tsubmitting task for: " + inputObject);
+//		Misc.out(this, "\tsubmitting task for: " + inputObject);
 		try {
 			CallableWithPaths<A,?> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
 			o.setInput((A) inputObject);

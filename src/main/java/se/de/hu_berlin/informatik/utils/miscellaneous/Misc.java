@@ -198,18 +198,18 @@ public class Misc {
 		exitWithError();
 	}
 	
-	/**
-	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void abort(String message, Object... args) {
-		printfErrorMessage(null, message, args);
-		printAbort();
-		exitWithError();
-	}
+//	/**
+//	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
+//	 * @param message
+//	 * an error message
+//	 * @param args
+//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+//	 */
+//	public static void abort(String message, Object... args) {
+//		printfErrorMessage(null, message, args);
+//		printAbort();
+//		exitWithError();
+//	}
 	
 	/**
 	 * Prints the given message to {@code System.err}.
@@ -240,21 +240,21 @@ public class Misc {
 		printfErrorMessage(o, message, args);
 	}
 	
-	/**
-	 * Prints the given message to {@code System.err}.
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void err(String message, Object... args) {
-		printfErrorMessage(null, message, args);
-	}
+//	/**
+//	 * Prints the given message to {@code System.err}.
+//	 * @param message
+//	 * an error message
+//	 * @param args
+//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+//	 */
+//	public static void err(String message, Object... args) {
+//		printfErrorMessage(null, message, args);
+//	}
 	
 	/**
 	 * Helper method that prints the given message to {@code System.err}.
 	 * @param o
-	 * is some instantiated object. The class name is used in the produced error message.
+	 * is some instantiated object or a class (or null). The class name is used in the produced error message.
 	 * @param message
 	 * an error message
 	 * @param args
@@ -262,8 +262,16 @@ public class Misc {
 	 */
 	private static void printfErrorMessage(Object o, String message, Object... args) {
 		System.out.flush();
+		String identifier = null;
 		if (o != null) {
-			System.err.printf("[" + o.getClass().getSimpleName() + "] " + message + "%n", args);
+			try {
+				identifier = ((Class<?>)o).getSimpleName();
+			} catch(Exception e) {
+				identifier = o.getClass().getSimpleName();
+			}
+		}
+		if (identifier != null) {
+			System.err.printf("[" + identifier + "] " + message + "%n", args);
 		} else {
 			System.err.printf(message + "%n", args);
 		}
@@ -310,29 +318,37 @@ public class Misc {
 		printfMessage(o, message, args);
 	}
 	
-	/**
-	 * Prints the given message to {@code System.out}.
-	 * @param message
-	 * a message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void out(String message, Object... args) {
-		printfMessage(null, message, args);
-	}
+//	/**
+//	 * Prints the given message to {@code System.out}.
+//	 * @param message
+//	 * a message
+//	 * @param args
+//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+//	 */
+//	public static void out(String message, Object... args) {
+//		printfMessage(null, message, args);
+//	}
 	
 	/**
 	 * Helper method that prints the given message to {@code System.out}.
 	 * @param o
-	 * is some instantiated object. The class name is used in the produced message.
+	 * is some instantiated object or a class (or null). The class name is used in the produced message.
 	 * @param message
 	 * a message
 	 * @param args
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfMessage(Object o, String message, Object... args) {
+		String identifier = null;
 		if (o != null) {
-			System.out.printf("[" + o.getClass().getSimpleName() + "] " + message + "%n", args);
+			try {
+				identifier = ((Class<?>)o).getSimpleName();
+			} catch(Exception e) {
+				identifier = o.getClass().getSimpleName();
+			}
+		}
+		if (identifier != null) {
+			System.out.printf("[" + identifier + "] " + message + "%n", args);
 		} else {
 			System.out.printf(message + "%n", args);
 		}
@@ -375,7 +391,7 @@ public class Misc {
 					delete(file);
 				}
 			} catch(NullPointerException e) {
-				err("Could not delete " + fileOrDir.toString() + ".");
+				err(null, "Could not delete " + fileOrDir.toString() + ".");
 			}
 		}
 		return fileOrDir.delete();

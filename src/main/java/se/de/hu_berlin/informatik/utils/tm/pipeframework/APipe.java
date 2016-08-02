@@ -127,7 +127,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 	protected Thread startAutomaticProcessing() {
 		if (getThread() == null || !getThread().isAlive()) {
 			Thread thread = new Thread(this);
-//			System.out.println(thread.getName() + " started");
+//			Misc.out(this, thread.getName() + " started");
 			getOutput().setProviderWorking();
 			thread.start();
 			return thread;

@@ -79,7 +79,7 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
-//		System.out.println("\tsubmitting task for: " + file);
+//		Misc.out(this, "\tsubmitting task for: " + file);
 		try {
 			CallableWithPaths<Path,?> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
 			o.setInput(fileOrDir);

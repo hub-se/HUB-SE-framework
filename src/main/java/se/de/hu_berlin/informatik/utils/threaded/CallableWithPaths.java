@@ -71,14 +71,6 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	public A getInput() {
 		return input;
 	}
-
-//	/**
-//	 * @param output
-//	 * an output path
-//	 */
-//	public void setOutputPath(Path output) {
-//		this.output = output;
-//	}
 	
 	/**
 	 * @return 
