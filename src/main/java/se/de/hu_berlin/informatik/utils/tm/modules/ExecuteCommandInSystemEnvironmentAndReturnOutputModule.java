@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -94,7 +95,7 @@ public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AMod
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			Misc.err(this, e, "IOException thrown.");
+			Log.err(this, e, "IOException thrown.");
 			return null;
 		}
 //        InputStreamConsumer consumer = new InputStreamConsumer(p.getInputStream(), System.out);
@@ -124,7 +125,7 @@ public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AMod
 				builder.append(line);
 			}
 		} catch (IOException e1) {
-			Misc.err(this, e1, "IOException thrown while trying to process process output.");
+			Log.err(this, e1, "IOException thrown while trying to process process output.");
 			return null;
 		}
 		String result = builder.toString();

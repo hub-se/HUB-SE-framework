@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -68,7 +68,7 @@ public class IntSequenceToCompressedByteArrayModule extends AModule<List<Integer
 	@Override
 	public byte[] processItem(List<Integer> intSequence) {
 		if (intSequence.size() != sequenceLength) {
-			Misc.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
+			Log.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
 		}
 		++totalSequences;
 		for (Integer element : intSequence) {

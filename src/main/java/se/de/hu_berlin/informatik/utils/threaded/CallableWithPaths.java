@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * An abstract class that implements the {@link Callable} interface and
@@ -80,7 +80,7 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 		if (output != null) {
 			return output;
 		} else {
-			Misc.err(this, "No output path available.");
+			Log.err(this, "No output path available.");
 			return null;
 		}
 	}

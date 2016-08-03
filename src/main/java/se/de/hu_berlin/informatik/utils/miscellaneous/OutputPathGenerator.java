@@ -64,10 +64,10 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 		this.overwrite = overwrite;
 		if (outputdir.toFile().exists()) {
 			if (!overwrite) {
-				Misc.abort(this, "Directory \"%s\" already exists!", outputdir.toString());
+				Log.abort(this, "Directory \"%s\" already exists!", outputdir.toString());
 			}
 		} else if (!outputdir.toFile().mkdirs()) {
-			Misc.abort(this, "Could not create directory \"%s\"!", outputdir.toString());
+			Log.abort(this, "Could not create directory \"%s\"!", outputdir.toString());
 		}
 	}
 	
@@ -127,10 +127,10 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 			subFolder = outputdir.toString()  + File.separator + String.valueOf(subFolderCount);
 			if (Paths.get(subFolder).toFile().exists()) {
 				if (!overwrite) {
-					Misc.abort(this, "Directory \"%s\" already exists!", subFolder);
+					Log.abort(this, "Directory \"%s\" already exists!", subFolder);
 				}
 			}else if (!Paths.get(subFolder).toFile().mkdirs()) {
-				Misc.abort(this, "Could not create directory \"%s\"!", subFolder);
+				Log.abort(this, "Could not create directory \"%s\"!", subFolder);
 			}			
 			fileCounter = 0;
 		}

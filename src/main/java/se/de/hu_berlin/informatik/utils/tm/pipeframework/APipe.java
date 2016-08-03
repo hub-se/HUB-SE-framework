@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
@@ -190,7 +190,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 				return item;
 			}
 		} else {
-			Misc.abort(this, "Started thread with no input.");
+			Log.abort(this, "Started thread with no input.");
 		}
 		return null;
 	}
@@ -209,7 +209,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 				isLinked = false;
 				//do other shutdown procedures, if necessary
 				if(!finalShutdown()) {
-					Misc.err(this, "Final shutdown was unsuccessful.");
+					Log.err(this, "Final shutdown was unsuccessful.");
 				}
 				getOutput().setProviderDone();
 				//now we can reuse the pipe
@@ -244,7 +244,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 		if (transmitter instanceof APipe) {
 			return linkPipeTo((APipe<C, D>)transmitter);
 		} else {
-			Misc.abort(this, "Can only link to other pipes.");
+			Log.abort(this, "Can only link to other pipes.");
 		}
 		return null;
 	}
@@ -267,13 +267,13 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 			try {
 				pipe.setInput((IProvider<C,APipe<?,?>>)getOutput());
 			} catch (ClassCastException e) {
-				Misc.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
+				Log.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
 			}
 			getOutput().setProviderWorking();
 			pipe.setThread(pipe.startAutomaticProcessing());
 			isLinked = true;
 		} else {
-			Misc.abort(this, "No linking to already used pipes allowed!");
+			Log.abort(this, "No linking to already used pipes allowed!");
 		}
 		return pipe;
 	}

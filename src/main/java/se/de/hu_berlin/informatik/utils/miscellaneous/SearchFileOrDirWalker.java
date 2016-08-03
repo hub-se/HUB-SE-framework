@@ -60,7 +60,7 @@ public class SearchFileOrDirWalker extends SimpleFileVisitor<Path> {
 	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles) {
 		super();
 		if (!searchDirectories && !searchFiles) {
-			Misc.abort(this, "Neither searching for files nor for directories.");
+			Log.abort(this, "Neither searching for files nor for directories.");
 		}
 		this.searchDirectories = searchDirectories;
 		this.searchFiles = searchFiles;

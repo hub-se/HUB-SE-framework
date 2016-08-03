@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.fileoperations;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.XFileWrapper;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -42,15 +42,15 @@ public class XFileWriterModule extends AModule<XFileWrapper<Iterable<? extends C
 	 */
 	public XFileWrapper<Iterable<? extends CharSequence>> processItem(XFileWrapper<Iterable<? extends CharSequence>> item) {
 		if (item.getOutputPath().toFile().isDirectory()) {
-			Misc.abort(this, "Path \"%s\" is a directory and should be a file.", item.getOutputPath().toString());
+			Log.abort(this, "Path \"%s\" is a directory and should be a file.", item.getOutputPath().toString());
 		}
 		if (!overwrite && item.getOutputPath().toFile().exists()) {
-			Misc.abort(this, "File \"%s\" exists.", item.getOutputPath().toString());
+			Log.abort(this, "File \"%s\" exists.", item.getOutputPath().toString());
 		}
 		try {
 			Files.write(item.getOutputPath(), item.getLinesToWrite(), StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			Misc.abort(this, e, "Cannot write file \"" + item.getOutputPath().toString() + "\".");
+			Log.abort(this, e, "Cannot write file \"" + item.getOutputPath().toString() + "\".");
 		}
 		return item;
 	}

@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -78,22 +78,22 @@ public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? exten
 					outputPath = paths[i];
 					++i;
 					if (outputPath.toFile().isDirectory()) {
-						Misc.err(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+						Log.err(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 						break;
 					}
 					if (!overwrite && outputPath.toFile().exists()) {
-						Misc.err(this, "File \"%s\" exists.", outputPath.toString());
+						Log.err(this, "File \"%s\" exists.", outputPath.toString());
 						break;
 					}
 					outputPath.getParent().toFile().mkdirs();
 				} catch (IndexOutOfBoundsException e) {
-					Misc.abort(this, "No output path for file %d given.", i+1);
+					Log.abort(this, "No output path for file %d given.", i+1);
 				}
 			}
 			try {
 				Files.write(outputPath, iterator.next(), StandardCharsets.UTF_8);
 			} catch (IOException e) {
-				Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+				Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 			}
 		}
 		return items;

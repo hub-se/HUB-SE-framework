@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -52,10 +52,10 @@ public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 			this.generator = new OutputPathGenerator(outputdir, overwrite);
 		} else {
 			if (outputPath.toFile().isDirectory()) {
-				Misc.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+				Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 			}
 			if (!overwrite && outputPath.toFile().exists()) {
-				Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
+				Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 			}
 		}
 	}
@@ -71,10 +71,10 @@ public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
-			Misc.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 		}
 		if (!overwrite && outputPath.toFile().exists()) {
-			Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
+			Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 		}
 		if (outputPath.getParent() != null) {
 			outputPath.getParent().toFile().mkdirs();
@@ -91,7 +91,7 @@ public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 		try {
 			Files.write(outputPath, item);
 		} catch (IOException e) {
-			Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}

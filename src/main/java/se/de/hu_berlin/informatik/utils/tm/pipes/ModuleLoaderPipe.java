@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
@@ -71,7 +71,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 */
 	private AModule<A, B> getModule() {
 		if (module == null) {
-			Misc.abort(this, "No module loaded.");
+			Log.abort(this, "No module loaded.");
 		}
 		return module;
 	}

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.ClassPathParser;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -107,7 +108,7 @@ public class ExecuteMainClassInNewJVMModule extends AModule<String[],Integer> {
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			Misc.err(this, e, "IOException thrown.");
+			Log.err(this, e, "IOException thrown.");
 			return 1;
 		}
 //        InputStreamConsumer consumer = new InputStreamConsumer(p.getInputStream(), System.out);

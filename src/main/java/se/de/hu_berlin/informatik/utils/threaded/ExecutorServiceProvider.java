@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Convenience access to (blocking) executor services with easy shutdown.
@@ -109,9 +109,9 @@ public class ExecutorServiceProvider {
 		}
 		
 		if (result) {
-			Misc.out(this, "All jobs finished!");
+			Log.out(this, "All jobs finished!");
 		} else {
-			Misc.err(this, "Timeout reached or Exception thrown! Could not finish all jobs!");
+			Log.err(this, "Timeout reached or Exception thrown! Could not finish all jobs!");
 		}
 
 		return result;

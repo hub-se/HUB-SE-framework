@@ -16,7 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Objects;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
 /**
@@ -62,7 +62,7 @@ public class SearchFileOrDirPipe extends APipe<Path,Path> implements FileVisitor
 	public SearchFileOrDirPipe(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles) {
 		super();
 		if (!searchDirectories && !searchFiles) {
-			Misc.abort(this, "Neither searching for files nor for directories.");
+			Log.abort(this, "Neither searching for files nor for directories.");
 		}
 		this.searchDirectories = searchDirectories;
 		this.searchFiles = searchFiles;
@@ -106,7 +106,7 @@ public class SearchFileOrDirPipe extends APipe<Path,Path> implements FileVisitor
 		try {
 			Files.walkFileTree(start, Collections.emptySet(), Integer.MAX_VALUE, this);
 		} catch (IOException e) {
-			Misc.abort(this, e, "IOException thrown.");
+			Log.abort(this, e, "IOException thrown.");
 		}
 		return null;
 	}

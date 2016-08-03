@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Module that reads a submitted file and processes each line with the given
@@ -62,9 +62,9 @@ public class FileLineProcessorModule<A> extends AModule<Path, A> {
 			while ((line = reader.readLine()) != null) {
 				if (!processor.process(line)) {
 					if (abortOnError) {
-						Misc.abort(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
+						Log.abort(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 					} else {
-						Misc.err(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
+						Log.err(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 					}
 				}
 			}
@@ -72,9 +72,9 @@ public class FileLineProcessorModule<A> extends AModule<Path, A> {
 			return (A) processor.getResult();
 			
 		} catch (IOException x) {
-			Misc.err(this, x, "Not able to open/read file %s.", input.toString());
+			Log.err(this, x, "Not able to open/read file %s.", input.toString());
 		} catch (ClassCastException x) {
-			Misc.abort(this, x, "Could not cast output object to desired type.");
+			Log.abort(this, x, "Could not cast output object to desired type.");
 		}
 		return null;
 	}

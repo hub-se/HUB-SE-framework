@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.AThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithReturn;
@@ -79,7 +79,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 		try {
 			Files.walkFileTree(input, Collections.emptySet(), Integer.MAX_VALUE, walker);
 		} catch (IOException e) {
-			Misc.abort(this, e, "IOException thrown.");
+			Log.abort(this, e, "IOException thrown.");
 		}
 		
 		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)

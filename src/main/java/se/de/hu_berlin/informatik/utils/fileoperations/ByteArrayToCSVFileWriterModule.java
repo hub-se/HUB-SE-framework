@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.junit.Assert;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -48,10 +48,10 @@ public class ByteArrayToCSVFileWriterModule extends AModule<byte[], byte[]> {
 		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
-			Misc.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 		}
 		if (!overwrite && outputPath.toFile().exists()) {
-			Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
+			Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 		}
 		if (outputPath.getParent() != null) {
 			outputPath.getParent().toFile().mkdirs();
@@ -66,7 +66,7 @@ public class ByteArrayToCSVFileWriterModule extends AModule<byte[], byte[]> {
 		try {
 			Files.write(outputPath, toCsv(item, columnCount));
 		} catch (IOException e) {
-			Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}

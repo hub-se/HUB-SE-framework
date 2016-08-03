@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
@@ -75,7 +75,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		try {
 			Files.walkFileTree(input, Collections.emptySet(), Integer.MAX_VALUE, walker);
 		} catch (IOException e) {
-			Misc.abort(this, e, "IOException thrown.");
+			Log.abort(this, e, "IOException thrown.");
 		}
 		
 		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)

@@ -15,7 +15,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputUtilities;
 
 /**
@@ -86,7 +86,7 @@ public class OptionParser {
             	OutputUtilities.switchOffStdErrFINAL();
             }
         } catch (ParseException pvException) {
-            Misc.err(this, "parse error: %s", pvException.getMessage());
+            Log.err(this, "parse error: %s", pvException.getMessage());
             printHelp(1);
         }
 	}
@@ -98,7 +98,7 @@ public class OptionParser {
 	 */
 	public CommandLine getCmdLine() {
 		if (lvCmd == null) {
-			Misc.abort(this, "No command line available. (Maybe forgot parsing the options?)");
+			Log.abort(this, "No command line available. (Maybe forgot parsing the options?)");
 		}
 		return lvCmd;
 	}
@@ -155,7 +155,7 @@ public class OptionParser {
 	 * the option parameter which produced the error.
 	 */
 	public void printHelp(final int status, String opt) {
-		Misc.err(this, "Error with option '-%s'.", opt);
+		Log.err(this, "Error with option '-%s'.", opt);
 		printHelp(status);
 	}
 	
@@ -168,7 +168,7 @@ public class OptionParser {
 	 * the option parameter which produced the error.
 	 */
 	public void printHelp(final int status, char opt) {
-		Misc.err(this, "Error with option '-%s'.", opt);
+		Log.err(this, "Error with option '-%s'.", opt);
 		printHelp(status);
 	}
 	

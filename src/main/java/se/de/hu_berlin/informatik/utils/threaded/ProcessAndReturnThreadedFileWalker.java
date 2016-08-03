@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.threaded;
 import java.nio.file.*;
 import java.lang.reflect.InvocationTargetException;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
 /**
@@ -69,17 +69,17 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 			o.setInputPath(fileOrDir);
 			getExecutorService().submit(o);
 		} catch (InstantiationException e) {
-			Misc.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
+			Log.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
 		} catch (IllegalAccessException e) {
-			Misc.err(this, e, "Illegal access to object %s.", call.getSimpleName());
+			Log.err(this, e, "Illegal access to object %s.", call.getSimpleName());
 		} catch (IllegalArgumentException e) {
-			Misc.abort(this, e, "Illegal argument to object %s.", call.getSimpleName());
+			Log.abort(this, e, "Illegal argument to object %s.", call.getSimpleName());
 		} catch (InvocationTargetException e) {
-			Misc.err(this, e, "Invocation target exception on object %s.", call.getSimpleName());
+			Log.err(this, e, "Invocation target exception on object %s.", call.getSimpleName());
 		} catch (NoSuchMethodException e) {
-			Misc.abort(this, e, "No such method exception on object %s.", call.getSimpleName());
+			Log.abort(this, e, "No such method exception on object %s.", call.getSimpleName());
 		} catch (SecurityException e) {
-			Misc.err(this, e, "Security exception on object %s.", call.getSimpleName());
+			Log.err(this, e, "Security exception on object %s.", call.getSimpleName());
 		}
 	}
 

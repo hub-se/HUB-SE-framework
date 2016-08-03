@@ -15,7 +15,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -63,10 +63,10 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 			this.generator = new OutputPathGenerator(outputdir, overwrite);
 		} else {
 			if (outputPath.toFile().isDirectory()) {
-				Misc.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+				Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 			}
 			if (!overwrite && outputPath.toFile().exists()) {
-				Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
+				Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 			}
 		}
 	}
@@ -82,10 +82,10 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
-			Misc.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
+			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());
 		}
 		if (!overwrite && outputPath.toFile().exists()) {
-			Misc.abort(this, "File \"%s\" exists.", outputPath.toString());
+			Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 		}
 		outputPath.getParent().toFile().mkdirs();
 	}
@@ -100,7 +100,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 		try {
 			write(outputPath, item, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			Misc.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}

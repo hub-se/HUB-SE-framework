@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -68,7 +68,7 @@ public class NumberArrayToCompressedByteArrayModule<T extends Number> extends AM
 	@Override
 	public byte[] processItem(T[] array) {
 		if (array.length % sequenceLength != 0) {
-			Misc.abort(this, "Sequence length %d, doesn't fit with size of given array (%d).", sequenceLength, array.length);
+			Log.abort(this, "Sequence length %d, doesn't fit with size of given array (%d).", sequenceLength, array.length);
 		}
 		totalSequences += array.length / sequenceLength;
 		for (int i = 0; i < array.length; ++i) {

@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Path;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -36,7 +36,7 @@ public class FileToByteArrayModule extends AModule<Path, byte[]> {
 		try (FileInputStream fis = new FileInputStream(inputFile)) {
 			fis.read(data, 0, data.length);
 		} catch (Exception e) {
-			Misc.abort(this, e, "Can not read file '%s'", input);
+			Log.abort(this, e, "Can not read file '%s'", input);
 		}
 		return data;
 	}

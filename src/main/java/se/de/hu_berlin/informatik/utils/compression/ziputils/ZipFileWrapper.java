@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileToByteArrayModule;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 
 public class ZipFileWrapper {
@@ -39,7 +40,7 @@ public class ZipFileWrapper {
 		try {
 			return uncheckedGet(index);
 		} catch (ZipException e) {
-			Misc.abort(ZipFileWrapper.class, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
+			Log.abort(ZipFileWrapper.class, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
 		}
 		return null;
 	}

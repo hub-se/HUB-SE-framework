@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
@@ -66,7 +66,7 @@ public class PipeLinker {
 		} else if (transmitter instanceof AModule) {
 			return new ModuleLoaderPipe<A,B>((AModule<A,B>)transmitter);
 		} else {
-			Misc.abort(this, "Unable to obtain type of transmitter %s.", transmitter.toString());
+			Log.abort(this, "Unable to obtain type of transmitter %s.", transmitter.toString());
 		}
 		return null;
 	}
@@ -78,7 +78,7 @@ public class PipeLinker {
 	 */
 	private APipe<?, ?> getStartPipe() {
 		if (startPipe == null) {
-			Misc.abort(this, "No start pipe available.");
+			Log.abort(this, "No start pipe available.");
 		}
 		return startPipe;
 	}
@@ -90,7 +90,7 @@ public class PipeLinker {
 	 */
 	private APipe<?, ?> getEndPipe() {
 		if (endPipe == null) {
-			Misc.abort(this, "No end pipe available.");
+			Log.abort(this, "No end pipe available.");
 		}
 		return endPipe;
 	}

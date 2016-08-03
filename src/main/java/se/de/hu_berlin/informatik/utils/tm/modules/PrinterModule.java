@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.modules;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -24,7 +24,7 @@ public class PrinterModule<A> extends AModule<A, A> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public A processItem(A item) {
-		Misc.out(this, item.toString());
+		Log.out(this, item.toString());
 		return item;
 	}
 

@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Provides more general and easy access methods for the linking of modules,
@@ -44,7 +44,7 @@ public class ModuleLinker {
 	 */
 	private AModule<?, ?> getStartModule() {
 		if (startModule == null) {
-			Misc.abort(this, "No start module available.");
+			Log.abort(this, "No start module available.");
 		}
 		return startModule;
 	}
@@ -55,7 +55,7 @@ public class ModuleLinker {
 	 */
 	private AModule<?, ?> getEndModule() {
 		if (endModule == null) {
-			Misc.abort(this, "No end module available.");
+			Log.abort(this, "No end module available.");
 		}
 		return endModule;
 	}

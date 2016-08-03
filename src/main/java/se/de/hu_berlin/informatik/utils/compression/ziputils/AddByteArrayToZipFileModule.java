@@ -10,6 +10,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -41,7 +42,7 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 				fileCounter = zipFile.getFileHeaders().size()-1;
 			}
 		} catch (ZipException e) {
-			Misc.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
 		}
 		
 		parameters = new ZipParameters();
@@ -70,7 +71,7 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 			// Creates a new entry in the zip file and adds the content to the zip file
 			zipFile.addStream(is, parameters);
 		} catch (ZipException e) {
-			Misc.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+			Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
 		}
 		return array;
 	}

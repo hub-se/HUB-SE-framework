@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Simple wrapper class for a {@link LinkedBlockingQueue} that
@@ -62,9 +62,9 @@ public class SynchronizedProvider<A> implements IProvider<A, APipe<?,?>> {
 			hasElement = true;
 			notifyAll();
 		} catch (ClassCastException e) {
-			Misc.abort(this, e, "Type mismatch while submitting item.");
+			Log.abort(this, e, "Type mismatch while submitting item.");
 		} catch (NullPointerException e) {
-			Misc.err(this, "Submitted item was null.");
+			Log.err(this, "Submitted item was null.");
 		}
 	}
 	

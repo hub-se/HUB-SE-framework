@@ -4,7 +4,7 @@
 package se.de.hu_berlin.informatik.utils.compression;
 
 import java.nio.ByteBuffer;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -85,7 +85,7 @@ public class CompressedByteArrayToByteArrayModule extends AModule<byte[],byte[]>
 		
 		usedBits = array[0];
 		if (usedBits > 8) {
-			Misc.abort(this, "More bits than 8 are being used. Can not store the numbers in a byte.");
+			Log.abort(this, "More bits than 8 are being used. Can not store the numbers in a byte.");
 		}
 		
 		byte[] smallArray = { array[1], array[2], array[3], array[4] };

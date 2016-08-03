@@ -6,8 +6,6 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 import java.io.File;
 import java.nio.file.Paths;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-
 /**
  * Helper Class that defines various standard directories and methods
  * to be used by JUnit test cases. Just extend this class to be able to

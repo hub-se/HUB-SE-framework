@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 
@@ -69,7 +69,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 		if (transmitter instanceof AModule) {
 			return linkModuleTo((AModule<C, D>)transmitter);
 		} else {
-			Misc.abort(this, "Can only link to other modules.");
+			Log.abort(this, "Can only link to other modules.");
 		}
 		return null;
 	}
@@ -102,7 +102,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 		try {
 			input = (A)item;
 		} catch (ClassCastException e) {
-			Misc.abort(this, e, "Type mismatch while submitting!");
+			Log.abort(this, e, "Type mismatch while submitting!");
 		}
 		process();
 		if (linkedModule != null) {
@@ -136,7 +136,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 	 */
 	public AModule<?,?> getLinkedModule() {
 		if (linkedModule == null) {
-			Misc.abort(this, "No module linked to.");
+			Log.abort(this, "No module linked to.");
 		}
 		return linkedModule;
 	}
@@ -147,7 +147,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 	 */
 	private void process() {
 		if (needsInput && input == null) {
-			Misc.err(this, "No input item submitted/available.");
+			Log.err(this, "No input item submitted/available.");
 			return;
 		}
 		output = processItem(input);

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
@@ -88,7 +89,7 @@ public class ExecuteCommandInSystemEnvironmentModule extends AModule<String[],In
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			Misc.err(this, e, "IOException thrown.");
+			Log.err(this, e, "IOException thrown.");
 			return 1;
 		}
 //        InputStreamConsumer consumer = new InputStreamConsumer(p.getInputStream(), System.out);

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import se.de.hu_berlin.informatik.utils.miscellaneous.SearchFileOrDirWalker;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Starts a file walker that searches for files and directories that 
@@ -62,7 +62,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 		this.searchDirectories = searchDirectories;
 		this.searchFiles = searchFiles;
 		if (depth < 0) {
-			Misc.abort(this, "Search depth has negative value.");
+			Log.abort(this, "Search depth has negative value.");
 		}
 		this.depth = depth;
 	}
@@ -72,7 +72,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 	 */
 	public List<Path> processItem(Path input) {
 		if (!input.toFile().exists()) {
-			Misc.abort(this, "Path '%s' doesn't exist.", input.toString());
+			Log.abort(this, "Path '%s' doesn't exist.", input.toString());
 		}
 		
 		//declare a search for files FileWalker
@@ -87,7 +87,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 		try {
 			Files.walkFileTree(input, Collections.emptySet(), depth, walker);
 		} catch (IOException e) {
-			Misc.abort(this, e, "IOException thrown.");
+			Log.abort(this, e, "IOException thrown.");
 		}
 
 		return walker.getResult();
