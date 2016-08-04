@@ -142,7 +142,7 @@ public class Misc {
 	 * @param file
 	 * the file
 	 */
-	private static void ensureParentDir(File file) {
+	public static void ensureParentDir(File file) {
 	    File parent = file.getParentFile();
 	    if (parent != null && !parent.exists())
 	        parent.mkdirs();
