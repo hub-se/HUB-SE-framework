@@ -11,7 +11,7 @@ import java.io.PrintStream;
  * 
  * @author Simon
  */
-public class OutputUtilities {
+public class OutputStreamManipulationUtilities {
 
 	private static PrintStream originalOut = System.out;
 	private static PrintStream originalErr = System.err;

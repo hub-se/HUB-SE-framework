@@ -16,7 +16,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.miscellaneous.OutputUtilities;
+import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUtilities;
 
 /**
  * Provides an easy interface to the commons cli {@link CommandLine} parser 
@@ -78,12 +78,12 @@ public class OptionParser {
             }
             
             if (lvCmd.hasOption('z')) {
-            	OutputUtilities.switchOffStdOutFINAL();
+            	OutputStreamManipulationUtilities.switchOffStdOutFINAL();
             }
             
             if (lvCmd.hasOption("zz")) {
-            	OutputUtilities.switchOffStdOutFINAL();
-            	OutputUtilities.switchOffStdErrFINAL();
+            	OutputStreamManipulationUtilities.switchOffStdOutFINAL();
+            	OutputStreamManipulationUtilities.switchOffStdErrFINAL();
             }
         } catch (ParseException pvException) {
             Log.err(this, "parse error: %s", pvException.getMessage());
