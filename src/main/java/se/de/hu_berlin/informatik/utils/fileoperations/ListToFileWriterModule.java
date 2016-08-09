@@ -100,7 +100,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 		try {
 			write(outputPath, item, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+			Log.err(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}
