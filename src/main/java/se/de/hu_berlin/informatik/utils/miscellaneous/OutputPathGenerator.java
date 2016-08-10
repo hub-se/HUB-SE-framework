@@ -117,7 +117,7 @@ public class OutputPathGenerator implements IOutputPathGenerator<Path> {
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator#getNewOutputPath(java.nio.file.Path, java.lang.String)
 	 */
 	@Override
-	public Path getNewOutputPath(Path originalPath, String extension) {
+	public synchronized Path getNewOutputPath(Path originalPath, String extension) {
 		String prefix = "";
 		if (originalPath != null) {
 			prefix = originalPath.getFileName().toString() + "_";

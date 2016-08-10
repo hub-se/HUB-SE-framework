@@ -20,7 +20,7 @@ public class ListSequencerPipe<A extends List<B>,B> extends APipe<A,B> {
 	 */
 	public B processItem(A list) {
 		if (list.size() == 0) {
-			//will produce an error message
+			//do nothing
 			return null;
 		}
 		for (int i = 0; i < list.size()-1; ++i) {

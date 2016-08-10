@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
 /**
  * An abstract class that implements the {@link Callable} interface and
@@ -35,6 +36,8 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	 */
 	private Path output = null;
 	
+	private PipeLinker pipeCallback = null;
+	
 	/**
 	 * Creates a new {@link CallableWithPaths} object with no paths set.
 	 * @param outputPathGenerator
@@ -51,6 +54,29 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 	 */
 	public CallableWithPaths() {
 		super();
+	}
+	
+	/**
+	 * Creates a new {@link CallableWithPaths} object with no paths set.
+	 * @param outputPathGenerator
+	 * a generator to automatically create output paths
+	 * @param pipeCallback
+	 * a callback object that may for example be used to submit items to
+	 */
+	public CallableWithPaths(IOutputPathGenerator<Path> outputPathGenerator, PipeLinker pipeCallback) {
+		this(pipeCallback);
+		output = outputPathGenerator.getNewOutputPath();
+	}
+	
+	/**
+	 * Creates a new {@link CallableWithPaths} object with no paths set and no
+	 * output path generator attached.
+	 * @param pipeCallback
+	 * a callback object that may for example be used to submit items to
+	 */
+	public CallableWithPaths(PipeLinker pipeCallback) {
+		super();
+		this.pipeCallback = pipeCallback;
 	}
 	
 	/**
@@ -81,6 +107,19 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 			return output;
 		} else {
 			Log.err(this, "No output path available.");
+			return null;
+		}
+	}
+	
+	/**
+	 * @return 
+	 * the PipeLinker callback object, or null it isn't set
+	 */
+	public PipeLinker getCallback() {
+		if (pipeCallback != null) {
+			return pipeCallback;
+		} else {
+			Log.err(this, "No PipeLinker callback available.");
 			return null;
 		}
 	}
