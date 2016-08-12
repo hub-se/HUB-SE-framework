@@ -82,6 +82,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 		} else {
 			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, pattern);
 		}
+		delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {

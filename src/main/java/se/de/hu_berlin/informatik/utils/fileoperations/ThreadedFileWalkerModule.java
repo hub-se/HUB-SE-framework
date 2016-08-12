@@ -70,6 +70,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		//declare a threaded FileWalker
 		ThreadedFileWalker walker = new ThreadedFileWalker(ignoreRootDir, searchDirectories, searchFiles, 
 					pattern, threadCount, clazz, clazzConstructorArguments);
+		delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {

@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
-import se.de.hu_berlin.informatik.utils.threaded.ThreadedElementProcessor;
+import se.de.hu_berlin.informatik.utils.tm.modules.ThreadedElementProcessorModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
 /**
@@ -16,14 +16,14 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * 
  * @author Simon Heiden
  * 
- * @see ThreadedElementProcessor
+ * @see ThreadedElementProcessorModule
  * @see CallableWithPaths
  * @see Callable
  */
 public class ThreadedProcessorPipe<A> extends APipe<A,Boolean> {
 
 	private boolean executorGiven = false;
-	private ThreadedElementProcessor<A> processor;
+	private ThreadedElementProcessorModule<A> processor;
 
 	/**
 	 * Creates a new {@link ThreadedProcessorPipe} object with the given parameters.
@@ -37,7 +37,7 @@ public class ThreadedProcessorPipe<A> extends APipe<A,Boolean> {
 	public ThreadedProcessorPipe(int threadCount,
 			Class<? extends CallableWithPaths<A,?>> clazz, Object... clazzConstructorArguments) {
 		super();
-		processor = new ThreadedElementProcessor<A>(threadCount, clazz, clazzConstructorArguments);
+		processor = new ThreadedElementProcessorModule<A>(threadCount, clazz, clazzConstructorArguments);
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class ThreadedProcessorPipe<A> extends APipe<A,Boolean> {
 	public ThreadedProcessorPipe(ExecutorService executor,
 			Class<? extends CallableWithPaths<A,?>> clazz, Object... clazzConstructorArguments) {
 		super();
-		processor = new ThreadedElementProcessor<A>(executor, clazz, clazzConstructorArguments);
+		processor = new ThreadedElementProcessorModule<A>(executor, clazz, clazzConstructorArguments);
 		executorGiven = true;
 	}
 
@@ -60,7 +60,7 @@ public class ThreadedProcessorPipe<A> extends APipe<A,Boolean> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public Boolean processItem(A input) {
-		processor.processElement(input);
+		processor.submit(input);
 		
 		return null;
 	}

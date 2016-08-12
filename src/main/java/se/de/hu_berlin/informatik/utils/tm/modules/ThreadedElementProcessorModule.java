@@ -1,33 +1,38 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.util.concurrent.ExecutorService;
 import java.lang.reflect.InvocationTargetException;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
+import se.de.hu_berlin.informatik.utils.threaded.ExecutorServiceProvider;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
- * {@link AThreadedProcessor} extension that takes a callable class 
+ * Module that is given a callable class 
  * and calls it on every item that is given to it.
  * 
  * @author Simon Heiden
  * 
- * @see AThreadedProcessor
+ * @see AModule
  * @see CallableWithPaths
  *
  * @param <A>
  * type of input objects
  */
-public class ThreadedElementProcessor<A> extends AThreadedProcessor {
+public class ThreadedElementProcessorModule<A> extends AModule<A,A>{
 	
 	Class<? extends CallableWithPaths<A,?>> call;
 	Class<?>[] typeArgs;
 	Object[] clazzConstructorArguments;
 	
+	private ExecutorServiceProvider executor;
+	
 	/**
-	 * Initializes a {@link ThreadedElementProcessor} object with the given parameters.
+	 * Initializes a {@link ThreadedElementProcessorModule} object with the given parameters.
 	 * @param threadCount
 	 * sets the thread count of the underlying {@link java.util.concurrent.ExecutorService}
 	 * @param callableClass
@@ -35,16 +40,18 @@ public class ThreadedElementProcessor<A> extends AThreadedProcessor {
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class 
 	 */
-	public ThreadedElementProcessor(int threadCount,
+	public ThreadedElementProcessorModule(int threadCount,
 			Class<? extends CallableWithPaths<A,?>> callableClass, Object... clazzConstructorArguments) {
-		super(threadCount);
+		super(true);
+		//create an executor service
+		this.executor = new ExecutorServiceProvider(threadCount);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;
 	}
 	
 	/**
-	 * Initializes a {@link ThreadedElementProcessor} object with the given parameters.
+	 * Initializes a {@link ThreadedElementProcessorModule} object with the given parameters.
 	 * @param executor
 	 * an executor service that shall be used
 	 * @param callableClass
@@ -52,9 +59,11 @@ public class ThreadedElementProcessor<A> extends AThreadedProcessor {
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class 
 	 */
-	public ThreadedElementProcessor(ExecutorService executor,
+	public ThreadedElementProcessorModule(ExecutorService executor,
 			Class<? extends CallableWithPaths<A,?>> callableClass, Object... clazzConstructorArguments) {
-		super(executor);
+		super(true);
+		//create an executor service
+		this.executor = new ExecutorServiceProvider(executor);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;
@@ -62,13 +71,12 @@ public class ThreadedElementProcessor<A> extends AThreadedProcessor {
 	
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public void processElement(Object inputObject) {
+	private void processElement(Object inputObject) {
 //		Misc.out(this, "\tsubmitting task for: " + inputObject);
 		try {
 			CallableWithPaths<A,?> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
 			o.setInput((A) inputObject);
-			getExecutorService().submit(o);
+			executor.getExecutorService().submit(o);
 		} catch (ClassCastException e) {
 			Log.abort(this, e, "Input type mismatch!");
 		} catch (InstantiationException e) {
@@ -86,4 +94,17 @@ public class ThreadedElementProcessor<A> extends AThreadedProcessor {
 		}
 	}
 	
+	/**
+	 * @return
+	 * the executor service provider
+	 */
+	public ExecutorServiceProvider getExecutorServiceProvider() {
+		return executor;
+	}
+
+	@Override
+	public A processItem(A item) {
+		processElement(item);
+		return item;
+	}
 }

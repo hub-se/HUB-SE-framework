@@ -4,6 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * Provides more general and easy access methods for the linking of modules,
@@ -14,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  *
  * @see AModule
  */
-public class ModuleLinker {
+public class ModuleLinker extends Trackable {
 
 	private AModule<?,?> startModule = null;
 	private AModule<?,?> endModule = null;
@@ -34,6 +36,10 @@ public class ModuleLinker {
 				modules[i].linkTo(modules[i+1]);
 			}
 			endModule = modules[modules.length-1];
+			
+			if (isTracking()) {
+				startModule.enableTracking(getTracker());
+			}
 		}
 		return this;
 	}
@@ -91,5 +97,41 @@ public class ModuleLinker {
 	 */
 	public Object getLastResult() {
 		return getEndModule().getResult();
+	}
+	
+	@Override
+	public ModuleLinker enableTracking() {
+		super.enableTracking();
+		if (startModule != null) {
+			startModule.enableTracking(this.getTracker());
+		}
+		return this;
+	}
+	
+	@Override
+	public ModuleLinker enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		if (startModule != null) {
+			startModule.enableTracking(this.getTracker());
+		}
+		return this;
+	}
+
+	@Override
+	public ModuleLinker disableTracking() {
+		super.disableTracking();
+		if (startModule != null) {
+			startModule.disableTracking();
+		}
+		return this;
+	}
+
+	@Override
+	public ModuleLinker enableTracking(ProgressTracker tracker) {
+		super.enableTracking(tracker);
+		if (startModule != null) {
+			startModule.enableTracking(this.getTracker());
+		}
+		return this;
 	}
 }

@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
 import se.de.hu_berlin.informatik.utils.threaded.ExecutorServiceProvider;
-import se.de.hu_berlin.informatik.utils.threaded.ThreadedElementProcessor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -18,7 +17,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @author Simon Heiden
  * 
- * @see ThreadedElementProcessor
+ * @see ThreadedElementProcessorModule
  * @see CallableWithPaths
  * @see Callable
  */
@@ -71,19 +70,25 @@ public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
 	public Boolean processItem(List<A> input) {
 		if (executorGiven) {
 			//declare a threaded list processor
-			ThreadedElementProcessor<A> processor = new ThreadedElementProcessor<A>(executor.getExecutorService(), clazz, clazzConstructorArguments);
+			ThreadedElementProcessorModule<A> processor = 
+					new ThreadedElementProcessorModule<A>(
+							executor.getExecutorService(), clazz, clazzConstructorArguments);
+			delegateTrackingTo(processor);
 			
 			for (A element : input) {
-				processor.processElement(element);
+				processor.submit(element);
 			}
 
 			return true;
 		} else {
 			//declare a threaded list processor
-			ThreadedElementProcessor<A> processor = new ThreadedElementProcessor<A>(threadCount, clazz, clazzConstructorArguments);
-
+			ThreadedElementProcessorModule<A> processor = 
+					new ThreadedElementProcessorModule<A>(
+							threadCount, clazz, clazzConstructorArguments);
+			delegateTrackingTo(processor);
+			
 			for (A element : input) {
-				processor.processElement(element);
+				processor.submit(element);
 			}
 
 			//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)

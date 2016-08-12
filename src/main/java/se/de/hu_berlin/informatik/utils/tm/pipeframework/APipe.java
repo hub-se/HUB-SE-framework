@@ -6,6 +6,8 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
+import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -45,7 +47,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
  * 
  * @see PipeLinker
  */
-public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
+public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>, Runnable {
 
 	private Thread thread = null;
 	private IProvider<A,APipe<?,?>> input = null;
@@ -171,6 +173,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 		if ((item = tryToGetNextInputItem()) != null) {
 			B result;
 			if ((result = processItem(item)) != null) {
+				track();
 				submitProcessedItem(result);
 				return true;
 			}
@@ -230,6 +233,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 		if (!hasInput() || hasInput() && getInput().isProviderDone()) {
 			B result;
 			if ((result = getResultFromCollectedItems()) != null) {
+				track();
 				submitProcessedItem(result);
 			}
 			return true;
@@ -317,6 +321,30 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, Runnable {
 	 */
 	public void waitForShutdown() {
 		getOutput().waitForShutdown();
+	}
+	
+	@Override
+	public APipe<A,B> enableTracking() {
+		super.enableTracking();
+		return this;
+	}
+	
+	@Override
+	public APipe<A,B> enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		return this;
+	}
+
+	@Override
+	public APipe<A,B> disableTracking() {
+		super.disableTracking();
+		return this;
+	}
+
+	@Override
+	public APipe<A,B> enableTracking(ProgressTracker tracker) {
+		super.enableTracking(tracker);
+		return this;
 	}
 	
 }

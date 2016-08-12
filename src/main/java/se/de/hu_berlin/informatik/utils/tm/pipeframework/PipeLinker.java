@@ -10,6 +10,8 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
+import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * Provides more general and easy access methods for the linking of pipes
@@ -18,7 +20,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
  * @author Simon Heiden
  *
  */
-public class PipeLinker {
+public class PipeLinker extends Trackable {
 
 	private APipe<?,?> startPipe = null;
 	private APipe<?,?> endPipe = null;
@@ -46,6 +48,10 @@ public class PipeLinker {
 			
 			for (int i = 0; i < pipes.size()-1; ++i) {
 				pipes.get(i).linkTo(pipes.get(i+1));
+			}
+			
+			if (isTracking()) {
+				startPipe.enableTracking(getTracker());
 			}
 		}
 		return this;
@@ -145,4 +151,41 @@ public class PipeLinker {
 		}
 		getEndPipe().waitForShutdown();
 	}
+	
+	@Override
+	public PipeLinker enableTracking() {
+		super.enableTracking();
+		if (startPipe != null) {
+			startPipe.enableTracking(this.getTracker());
+		}
+		return this;
+	}
+	
+	@Override
+	public PipeLinker enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		if (startPipe != null) {
+			startPipe.enableTracking(this.getTracker());
+		}
+		return this;
+	}
+
+	@Override
+	public PipeLinker disableTracking() {
+		super.disableTracking();
+		if (startPipe != null) {
+			startPipe.disableTracking();
+		}
+		return this;
+	}
+
+	@Override
+	public PipeLinker enableTracking(ProgressTracker tracker) {
+		super.enableTracking(tracker);
+		if (startPipe != null) {
+			startPipe.enableTracking(this.getTracker());
+		}
+		return this;
+	}
+	
 }

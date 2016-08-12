@@ -19,14 +19,10 @@ public class ListSequencerPipe<A extends List<B>,B> extends APipe<A,B> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public B processItem(A list) {
-		if (list.size() == 0) {
-			//do nothing
-			return null;
+		for (B element : list) {
+			submitProcessedItem(element);
 		}
-		for (int i = 0; i < list.size()-1; ++i) {
-			submitProcessedItem(list.get(i));
-		}
-		return list.get(list.size()-1);
+		return null;
 	}
 
 }

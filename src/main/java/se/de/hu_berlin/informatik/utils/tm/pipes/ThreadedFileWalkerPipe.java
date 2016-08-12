@@ -74,6 +74,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 		//declare a threaded FileWalker
 		AThreadedFileWalker walker = new ProcessAndReturnThreadedFileWalker<B>(this, ignoreRootDir, 
 				searchDirectories, searchFiles, pattern, threadCount, clazz, clazzConstructorArguments);
+		delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {

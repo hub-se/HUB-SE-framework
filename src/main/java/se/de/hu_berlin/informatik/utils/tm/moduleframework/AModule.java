@@ -6,6 +6,8 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
+import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -42,7 +44,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
  * 
  * @see ModuleLinker
  */
-public abstract class AModule<A,B> implements ITransmitter<A,B> {
+public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B> {
 	
 	private A input = null;
 	private B output = null;
@@ -150,7 +152,32 @@ public abstract class AModule<A,B> implements ITransmitter<A,B> {
 			Log.err(this, "No input item submitted/available.");
 			return;
 		}
+		track();
 		output = processItem(input);
 	}
 
+	@Override
+	public AModule<A,B> enableTracking() {
+		super.enableTracking();
+		return this;
+	}
+	
+	@Override
+	public AModule<A,B> enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		return this;
+	}
+
+	@Override
+	public AModule<A,B> disableTracking() {
+		super.disableTracking();
+		return this;
+	}
+
+	@Override
+	public AModule<A,B> enableTracking(ProgressTracker tracker) {
+		super.enableTracking(tracker);
+		return this;
+	}
+	
 }

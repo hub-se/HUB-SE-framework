@@ -69,7 +69,6 @@ public abstract class CallableWithReturn<B> implements Callable<Boolean> {
 	 */
 	@Override
 	public Boolean call() {
-		System.out.print(".");
 		pipe.submitProcessedItem(processInput(input));
 		return true;
 	}

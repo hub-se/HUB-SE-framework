@@ -8,19 +8,24 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+
 /**
- * {@link SimpleFileVisitor} extension that is enriched with a blocking {@link ExecutorService}.
+ * FileVisitor implementation that is enriched with a blocking {@link ExecutorService}.
  * 
  * @author Simon Heiden
+ * 
+ * @see FileVisitor
  */
-public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
+public abstract class AThreadedFileWalker extends Trackable implements FileVisitor<Path> {
 	
 	final private PathMatcher matcher;
 
@@ -30,7 +35,7 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 	private boolean searchFiles = false;
 	
 	private boolean isFirst = true;
-	
+
 	/**
 	 * Creates an {@link AThreadedFileWalker} object with the given parameters.
 	 * @param ignoreRootDir
@@ -178,8 +183,10 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 		if (attrs.isDirectory()) {
 			if (searchDirectories) {
 				if (matcher == null) {
+					track();
 					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
+					track();
 					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 				}
@@ -189,6 +196,7 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 				if (matcher == null) {
 					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
+					track();
 					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 				}
@@ -205,8 +213,10 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 		if (!isFirst) {
 			if (searchDirectories) {
 				if (matcher == null) {
+					track();
 					processMatchedFileOrDir(dir);
 				} else if (match(dir.toAbsolutePath())) {
+					track();
 					processMatchedFileOrDir(dir);
 //					Misc.out(dir.toString());
 				}
@@ -216,4 +226,39 @@ public abstract class AThreadedFileWalker extends SimpleFileVisitor<Path> {
 		}
 		return CONTINUE;
 	}
+	
+
+    /**
+     * Invoked for a file that could not be visited.
+     *
+     * <p> Unless overridden, this method re-throws the I/O exception that prevented
+     * the file from being visited.
+     */
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc)
+        throws IOException
+    {
+        Objects.requireNonNull(file);
+        throw exc;
+    }
+
+    /**
+     * Invoked for a directory after entries in the directory, and all of their
+     * descendants, have been visited.
+     *
+     * <p> Unless overridden, this method returns {@link FileVisitResult#CONTINUE
+     * CONTINUE} if the directory iteration completes without an I/O exception;
+     * otherwise this method re-throws the I/O exception that caused the iteration
+     * of the directory to terminate prematurely.
+     */
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+        throws IOException
+    {
+        Objects.requireNonNull(dir);
+        if (exc != null)
+            throw exc;
+        return FileVisitResult.CONTINUE;
+    }
+    
 }
