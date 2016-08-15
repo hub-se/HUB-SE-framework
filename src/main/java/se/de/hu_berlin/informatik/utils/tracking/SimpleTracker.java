@@ -9,4 +9,9 @@ public class SimpleTracker implements ITrackingStrategy {
 		writeTrackMsg(++count);
 	}
 
+	@Override
+	public void track(String msg) {
+		writeTrackMsg(++count, msg);
+	}
+
 }

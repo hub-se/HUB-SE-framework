@@ -12,8 +12,15 @@ public class StepWiseTracker implements ITrackingStrategy {
 
 	@Override
 	public void track() {
-		if (++count % stepWidth == 0) {
+		if (++count % stepWidth == 0 || count == 1) {
 			writeTrackMsg(count);
+		}
+	}
+
+	@Override
+	public void track(String msg) {
+		if (++count % stepWidth == 0 || count == 1) {
+			writeTrackMsg(count, msg);
 		}
 	}
 

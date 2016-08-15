@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Provides miscellaneous methods that are useful for various applications. 
@@ -146,8 +147,8 @@ public class Misc {
 	    File parent = file.getParentFile();
 	    if (parent != null && !parent.exists())
 	        parent.mkdirs();
-	} 
-
+	}
+	
 	/**
 	 * Writes a String to the provided file.
 	 * @param string
@@ -195,23 +196,51 @@ public class Misc {
 		return new String(Files.readAllBytes(path));
 	}
 	
-//	/**
-//	 * Copies the given file to the given destination.
-//	 * @param a
-//	 * the file to copy
-//	 * @param b
-//	 * the output file
-//	 * @throws IOException
-//	 * if the input file could not be read or the output file could not be written
-//	 */
-//	public static void copyFile(File a, File b) throws IOException {
-//		try (FileInputStream inStream = new FileInputStream(a); FileOutputStream outStream = new FileOutputStream(b);
-//				FileChannel in = (inStream).getChannel(); FileChannel out = (outStream).getChannel()) {
-//			out.transferFrom(in, 0, in.size());
-//		} catch (IOException e) {
-//			throw(e);
-//		}
-//	}
+	/**
+	 * Reads a file and returns its contents as a char array.
+	 * @param filePath
+	 * the path to the file to read
+	 * @return
+	 * the file's contents
+	 * @throws IOException
+	 * if the file does not exist or can not be opened
+	 */
+	public static char[] readFile2CharArray(String filePath) throws IOException {
+		return new String(Files.readAllBytes(Paths.get(filePath))).toCharArray();
+	}
+	
+	/**
+	 * Replaces all white spaces (including tabs, new lines, etc.) in a given 
+	 * String with a replacement String.
+	 * @param aString
+	 * a String in which to replace white spaces
+	 * @param replaceString
+	 * the String to replace the white spaces with
+	 * @return
+	 * the result String
+	 */
+	public static String replaceWhitespacesInString(String aString, String replaceString) {
+		return replaceNewLinesInString(aString, replaceString)
+				.replace(" ", replaceString)
+				.replace("\t", replaceString);
+	}
+	
+	/**
+	 * Replaces all new lines, carriage returns and form feeds in a given 
+	 * String with a replacement String.
+	 * @param aString
+	 * a String in which to replace white spaces
+	 * @param replaceString
+	 * the String to replace the white spaces with
+	 * @return
+	 * the result String
+	 */
+	public static String replaceNewLinesInString(String aString, String replaceString) {
+		return aString
+				.replace("\n", replaceString)
+				.replace("\r", replaceString)
+				.replace("\f", replaceString);
+	}
 	
 	/**
 	 * Returns a String representation of the given array

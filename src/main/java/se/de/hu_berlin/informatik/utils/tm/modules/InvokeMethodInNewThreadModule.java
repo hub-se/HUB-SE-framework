@@ -6,6 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -95,13 +96,7 @@ public class InvokeMethodInNewThreadModule extends AModule<Object[],Thread> {
 		thread.start();
 		
 		if (waitForFinish) {
-			while (thread.isAlive()) {
-				try {
-					thread.join();
-				} catch (InterruptedException e) {
-					// do nothing
-				}
-			}
+			Misc.waitOnThread(thread);
 		}
 		
 		//return the started thread

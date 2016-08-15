@@ -6,13 +6,24 @@ public abstract class Trackable {
 	private boolean isTracking = false;
 
 	/**
-	 * Enables tracking of progress.
+	 * Enables tracking of progress. Doesn't use a progress bar.
 	 * @return
 	 * this object for chaining
 	 */
 	public Trackable enableTracking() {
+		return enableTracking(false);
+	}
+	
+	/**
+	 * Enables tracking of progress.
+	 * @param useProgressBar
+	 * whether to use a progress bar to show the progress
+	 * @return
+	 * this object for chaining
+	 */
+	public Trackable enableTracking(boolean useProgressBar) {
 		if (tracker == null) {
-			tracker = new ProgressTracker();
+			tracker = new ProgressTracker(useProgressBar);
 		}
 		isTracking = true;
 		return this;
@@ -21,15 +32,31 @@ public abstract class Trackable {
 	/**
 	 * Enables tracking of progress. Uses the given
 	 * step width to only produce output after the
-	 * given number of tracked elements.
+	 * given number of tracked elements. Doesn't use 
+	 * a progress bar.
 	 * @param stepWidth
 	 * sets the step width for producing outputs
 	 * @return
 	 * this object for chaining
 	 */
 	public Trackable enableTracking(int stepWidth) {
+		return enableTracking(false, stepWidth);
+	}
+	
+	/**
+	 * Enables tracking of progress. Uses the given
+	 * step width to only produce output after the
+	 * given number of tracked elements.
+	 * @param useProgressBar
+	 * whether to use a progress bar to show the progress
+	 * @param stepWidth
+	 * sets the step width for producing outputs
+	 * @return
+	 * this object for chaining
+	 */
+	public Trackable enableTracking(boolean useProgressBar, int stepWidth) {
 		if (tracker == null) {
-			tracker = new ProgressTracker(stepWidth);
+			tracker = new ProgressTracker(useProgressBar, stepWidth);
 		}
 		isTracking = true;
 		return this;
@@ -46,7 +73,9 @@ public abstract class Trackable {
 	}
 	
 	/**
-	 * Enables tracking of progress.
+	 * Enables tracking of progress, while using the given 
+	 * tracker object. If the given tracker is null, then a
+	 * new tracker is created that doesn't use a progress bar.
 	 * @param tracker
 	 * a tracker object to use
 	 * @return
@@ -56,7 +85,7 @@ public abstract class Trackable {
 		if (tracker != null) {
 			this.tracker = tracker;
 		} else {
-			this.tracker = new ProgressTracker();
+			this.tracker = new ProgressTracker(false);
 		}
 		isTracking = true;
 		return this;
@@ -85,6 +114,18 @@ public abstract class Trackable {
 	public void track() {
 		if (isTracking) {
 			tracker.track();
+		}
+	}
+	
+	/**
+	 * Tracks the progress for a processed element if tracking
+	 * has been enabled.
+	 * @param msg
+	 * a message to display
+	 */
+	public void track(String msg) {
+		if (isTracking) {
+			tracker.track(msg);
 		}
 	}
 	

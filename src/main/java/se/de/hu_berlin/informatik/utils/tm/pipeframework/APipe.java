@@ -346,5 +346,17 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>,
 		super.enableTracking(tracker);
 		return this;
 	}
+
+	@Override
+	public APipe<A,B> enableTracking(boolean useProgressBar) {
+		super.enableTracking(useProgressBar);
+		return this;
+	}
+
+	@Override
+	public APipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
+		super.enableTracking(useProgressBar, stepWidth);
+		return this;
+	}
 	
 }
