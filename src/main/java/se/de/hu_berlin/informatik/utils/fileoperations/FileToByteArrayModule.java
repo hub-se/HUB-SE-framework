@@ -8,15 +8,12 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
  * A file reader module that reads a file and returns a byte array with the file's contents.
  * 
  * @author Simon Heiden
- * 
- * @see OutputPathGenerator
  */
 public class FileToByteArrayModule extends AModule<Path, byte[]> {
 	

@@ -13,8 +13,10 @@ import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
  * 
  * @author Simon Heiden
  *
+ * @param T
+ * the type of the returned objects
  */
-public interface IStringProcessor {
+public interface IStringProcessor<T> {
 
 	/**
 	 * Takes a {@link String} and processes it in some way.
@@ -30,7 +32,7 @@ public interface IStringProcessor {
 	 * the result of the processing. May be anything and has to be 
 	 * used appropriately by calling classes
 	 */
-	public Object getResult();
+	public T getResult();
 
 	/**
 	 * Should be overwritten by implementing String processors that may collect
@@ -40,7 +42,7 @@ public interface IStringProcessor {
 	 * @return
 	 * the result of unprocessed collected items
 	 */
-	default public Object getResultFromCollectedItems(){
+	default public T getResultFromCollectedItems(){
 		return null;
 	}
 }

@@ -14,6 +14,9 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+
+import se.de.hu_berlin.informatik.utils.fileoperations.FileToListModule;
 
 /**
  * Provides miscellaneous methods that are useful for various applications. 
@@ -150,15 +153,18 @@ public class Misc {
 	}
 	
 	/**
-	 * Writes a String to the provided file.
+	 * Writes a String to the provided file. If the file does not exist, it will be created.
 	 * @param string
 	 * the string to write
 	 * @param file
 	 * the output file
 	 * @throws IOException
-	 * if the file does not exist or can not be opened or written to
+	 * if the file is a directory or can not be opened or written to
 	 */
 	public static void writeString2File(String string, File file) throws IOException {
+		if (!file.exists()) {
+			file.createNewFile();
+		}
 		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
 			writer.println(string);
 		} catch (IOException e) {
@@ -167,15 +173,18 @@ public class Misc {
 	}
 	
 	/**
-	 * Appends a String to the provided file.
+	 * Appends a String to the provided file. If the file does not exist, it will be created.
 	 * @param string
 	 * the string to append
 	 * @param file
 	 * the output file
 	 * @throws IOException
-	 * if the file does not exist or can not be opened or written to
+	 * if the file is a directory or can not be opened or written to
 	 */
 	public static void appendString2File(String string, File file) throws IOException {
+		if (!file.exists()) {
+			file.createNewFile();
+		}
 		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
 			writer.println(string);
 		} catch (IOException e) {
@@ -194,6 +203,17 @@ public class Misc {
 	 */
 	public static String readFile2String(Path path) throws IOException {
 		return new String(Files.readAllBytes(path));
+	}
+	
+	/**
+	 * Reads a file and returns its contents as a String.
+	 * @param path
+	 * the path to the file to read
+	 * @return
+	 * the file's contents or null if it could not be opened
+	 */
+	public static List<String> readFile2List(Path path) {
+		return new FileToListModule().submit(path).getResult();
 	}
 	
 	/**

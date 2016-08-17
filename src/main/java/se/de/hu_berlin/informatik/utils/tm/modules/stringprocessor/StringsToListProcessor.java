@@ -12,7 +12,7 @@ import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProces
  * 
  * @author Simon Heiden
  */
-public class StringsToListProcessor implements IStringProcessor {
+public class StringsToListProcessor implements IStringProcessor<List<String>> {
 
 	private List<String> lines;
 	
@@ -37,13 +37,12 @@ public class StringsToListProcessor implements IStringProcessor {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#getResult()
 	 */
-	public Object getResult() {
+	public List<String> getResult() {
 		return null;
 	}
 
 	@Override
-	public Object getResultFromCollectedItems() {
-		// TODO Auto-generated method stub
+	public List<String> getResultFromCollectedItems() {
 		return lines;
 	}
 	
