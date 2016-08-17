@@ -4,12 +4,17 @@ import java.io.IOException;
 
 public class ProgressBarTracker implements ITrackingStrategy {
 
-	final private static String BAR = "[--------------------]";
 	final private static String ICON_POS = ">";
 	final private static String ICON_NEG = "<";
-	final private static int BAR_LENGTH = BAR.length();
 	
-	final private static int PROGRESS_BAR_MSG_LENGTH = 80 - BAR_LENGTH - 1;
+	final private static char BAR_OPEN = '[';
+	final private static char BAR_CLOSE = ']';
+	final private static char BAR_MIDDLE = '-';
+	
+	private String bar = "[--------------------]";
+	private int barLength = bar.length();
+	
+	private int progress_bar_msg_length = 80 - barLength - 3;
 	
 	private boolean bouncePositive = true;
 	private int barPosition = 0;
@@ -20,6 +25,20 @@ public class ProgressBarTracker implements ITrackingStrategy {
 	public ProgressBarTracker(int stepWidth) {
 		super();
 		this.stepWidth = stepWidth;
+	}
+	
+	public ProgressBarTracker(int stepWidth, int barLength) {
+		super();
+		this.stepWidth = stepWidth;
+		char[] temp = new char[barLength+1];
+		temp[0] = BAR_OPEN;
+		temp[barLength] = BAR_CLOSE;
+		for (int i = 1; i < barLength; ++i) {
+			temp[i] = BAR_MIDDLE;
+		}
+		bar = new String(temp);
+		this.barLength = bar.length();
+		progress_bar_msg_length = 80 - barLength - 3;
 	}
 
 	@Override
@@ -38,9 +57,9 @@ public class ProgressBarTracker implements ITrackingStrategy {
 
 	private void updateAndWriteTrackBar() {
 		try {
-			if (barPosition < BAR_LENGTH && barPosition > 0) {
-				String b1 = BAR.substring(0, barPosition);
-				String b2 = BAR.substring(barPosition);
+			if (barPosition < barLength && barPosition > 0) {
+				String b1 = bar.substring(0, barPosition);
+				String b2 = bar.substring(barPosition);
 				String icon;
 				if(bouncePositive) {
 					icon = ICON_POS;
@@ -49,10 +68,10 @@ public class ProgressBarTracker implements ITrackingStrategy {
 					icon = ICON_NEG;
 					barPosition--;
 				}
-				System.out.write((b1 + icon + b2 + "\r").getBytes());
+				System.out.write((" " + b1 + icon + b2 + "\r").getBytes());
 			}
 			
-			if (barPosition == BAR_LENGTH) {
+			if (barPosition == barLength) {
 				barPosition--;
 				bouncePositive = false;
 			} else if (barPosition == 0) {
@@ -65,9 +84,9 @@ public class ProgressBarTracker implements ITrackingStrategy {
 	
 	private void updateAndWriteTrackBar(String msg) {
 		try {
-			if (barPosition < BAR_LENGTH && barPosition > 0) {
-				String b1 = BAR.substring(0, barPosition);
-				String b2 = BAR.substring(barPosition);
+			if (barPosition < barLength && barPosition > 0) {
+				String b1 = bar.substring(0, barPosition);
+				String b2 = bar.substring(barPosition);
 				String icon;
 				if(bouncePositive) {
 					icon = ICON_POS;
@@ -76,11 +95,11 @@ public class ProgressBarTracker implements ITrackingStrategy {
 					icon = ICON_NEG;
 					barPosition--;
 				}
-				System.out.write((b1 + icon + b2 + " " + 
-						generateTruncatedMessage(msg, PROGRESS_BAR_MSG_LENGTH) + "\r").getBytes());
+				System.out.write((" " + b1 + icon + b2 + " " + 
+						generateTruncatedMessage(msg, progress_bar_msg_length) + "\r").getBytes());
 			}
 			
-			if (barPosition == BAR_LENGTH) {
+			if (barPosition == barLength) {
 				barPosition--;
 				bouncePositive = false;
 			} else if (barPosition == 0) {

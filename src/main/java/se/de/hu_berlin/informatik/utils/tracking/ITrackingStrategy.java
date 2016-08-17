@@ -7,7 +7,7 @@ public interface ITrackingStrategy {
 	final public static String ANIM= "|/-\\";
 	final public static int ANIM_LENGTH = ANIM.length();
 	
-	final public static int MAX_PRINT_LENGTH = 80;
+	final public static int MAX_PRINT_LENGTH = 79;
 
 	public void track();
 	
@@ -15,14 +15,14 @@ public interface ITrackingStrategy {
 	
 	default public void writeTrackMsg(int count) {
 		try {
-			System.out.write((ANIM.charAt(count % ANIM_LENGTH)  + " " + count + "\r").getBytes());
+			System.out.write((" -" + count + "-\r").getBytes());
 		} catch (IOException e) { //do nothing
 		}
 	}
 	
 	default public void writeTrackMsg(int count, String msg) {
 		try {
-			System.out.write((ANIM.charAt(count % ANIM_LENGTH)  + " " + count + ": " + 
+			System.out.write((" -" + count + "- " + 
 					generateTruncatedMessage(msg, MAX_PRINT_LENGTH - 4 - String.valueOf(count).length()) + "\r").getBytes());
 		} catch (IOException e) { //do nothing
 		}
