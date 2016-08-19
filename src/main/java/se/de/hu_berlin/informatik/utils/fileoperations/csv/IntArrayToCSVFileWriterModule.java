@@ -1,16 +1,11 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.fileoperations;
+package se.de.hu_berlin.informatik.utils.fileoperations.csv;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
@@ -27,11 +22,6 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  */
 public class IntArrayToCSVFileWriterModule extends AModule<int[], int[]> {
 
-	/**
-     * used CSV delimiter
-     */
-    public static final String CSV_DELIMITER = ";";
-    
 	private Path outputPath;
 	private int columnCount;
 	
@@ -64,38 +54,11 @@ public class IntArrayToCSVFileWriterModule extends AModule<int[], int[]> {
 	 */
 	public int[] processItem(int[] item) {
 		try {
-			Files.write(outputPath, toCsv(item, columnCount));
+			Files.write(outputPath, CSVUtils.toCsv(item, columnCount));
 		} catch (IOException e) {
 			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}
-	
-	/**
-     * Turns an integer array into a CSV line.
-     * @param dataArray 
-     * an array containing the data elements
-     * @param columnCount
-     * the number of columns
-     * @return 
-     * the combined CSV string to write to a file
-     */
-    public static List<String> toCsv(final int[] dataArray, int columnCount) {
-        final StringBuffer line = new StringBuffer();
-        Assert.assertTrue(dataArray.length % columnCount == 0);
-        
-        List<String> lines = new ArrayList<>();
-        
-        for (int i = 0; i < dataArray.length; ++i) {
-            line.append(dataArray[i]);
-            if ((i+1) % columnCount == 0) {
-            	lines.add(line.toString());
-            	line.setLength(0);
-            } else {
-            	line.append(CSV_DELIMITER);
-            }
-        }
-        return lines;
-    }
 
 }

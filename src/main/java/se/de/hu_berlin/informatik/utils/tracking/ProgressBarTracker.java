@@ -14,10 +14,10 @@ public class ProgressBarTracker implements ITrackingStrategy {
 	private String bar = "[--------------------]";
 	private int barLength = bar.length();
 	
-	private int progress_bar_msg_length = 80 - barLength - 3;
+	private int progress_bar_msg_length = 80 - barLength - 4;
 	
 	private boolean bouncePositive = true;
-	private int barPosition = 0;
+	private int barPosition = 1;
 	
 	private int stepWidth = 0;
 	private int count = 0;
@@ -38,7 +38,7 @@ public class ProgressBarTracker implements ITrackingStrategy {
 		}
 		bar = new String(temp);
 		this.barLength = bar.length();
-		progress_bar_msg_length = 80 - barLength - 3;
+		progress_bar_msg_length = 80 - barLength - 4;
 	}
 
 	@Override

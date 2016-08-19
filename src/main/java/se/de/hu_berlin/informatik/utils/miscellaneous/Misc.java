@@ -80,6 +80,34 @@ public class Misc {
 	}
 	
 	/**
+	 * Searches for a file containing the given pattern (recursively).
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @return
+	 * the found file, or null if no file was found that contains the pattern
+	 */
+	public static File searchFileContainingPattern(File startDir, String pattern) {
+		if (startDir.isDirectory()) {
+			try {
+				for (File file : startDir.listFiles()) {
+					File result = searchFileContainingPattern(file, pattern);
+					if (result != null) {
+						return result;
+					}
+				}
+			} catch(NullPointerException e) {
+				Log.err(null, "Could not search in " + startDir.toString() + ".");
+			}
+		} else if (startDir.getName().contains(pattern)) {
+			return startDir;
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Copies a file or a directory recursively.
 	 * @param source
 	 * the source file or directory

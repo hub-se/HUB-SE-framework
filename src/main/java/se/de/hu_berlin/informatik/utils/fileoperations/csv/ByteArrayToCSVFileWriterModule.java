@@ -1,16 +1,11 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.fileoperations;
+package se.de.hu_berlin.informatik.utils.fileoperations.csv;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
@@ -64,38 +59,11 @@ public class ByteArrayToCSVFileWriterModule extends AModule<byte[], byte[]> {
 	 */
 	public byte[] processItem(byte[] item) {
 		try {
-			Files.write(outputPath, toCsv(item, columnCount));
+			Files.write(outputPath, CSVUtils.toCsv(item, columnCount));
 		} catch (IOException e) {
 			Log.abort(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
 		}
 		return item;
 	}
 	
-	/**
-     * Turns a byte array into a CSV line.
-     * @param dataArray 
-     * an array containing the data elements
-     * @param columnCount
-     * the number of columns
-     * @return 
-     * the combined CSV string to write to a file
-     */
-    public static List<String> toCsv(final byte[] dataArray, int columnCount) {
-        final StringBuffer line = new StringBuffer();
-        Assert.assertTrue(dataArray.length % columnCount == 0);
-        
-        List<String> lines = new ArrayList<>();
-        
-        for (int i = 0; i < dataArray.length; ++i) {
-            line.append(dataArray[i]);
-            if ((i+1) % columnCount == 0) {
-            	lines.add(line.toString());
-            	line.setLength(0);
-            } else {
-            	line.append(CSV_DELIMITER);
-            }
-        }
-        return lines;
-    }
-
 }
