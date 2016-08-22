@@ -78,11 +78,23 @@ public class ExecutorServiceProvider {
 	
 	/**
 	 * Shuts down the underlying executor service and waits 7 days for it to terminate.
+	 * @param log
+	 * whether to create an output message
+	 * @return
+	 * true if all jobs finished, false if interrupted or a timeout has been reached
+	 */
+	public boolean shutdownAndWaitForTermination(boolean log) {
+		return shutdownAndWaitForTermination(7, TimeUnit.DAYS, log);
+	}
+	
+	/**
+	 * Shuts down the underlying executor service and waits 7 days for it to terminate.
+	 * Print an output message.
 	 * @return
 	 * true if all jobs finished, false if interrupted or a timeout has been reached
 	 */
 	public boolean shutdownAndWaitForTermination() {
-		return shutdownAndWaitForTermination(7, TimeUnit.DAYS);
+		return shutdownAndWaitForTermination(7, TimeUnit.DAYS, true);
 	}
 	
 	
@@ -92,10 +104,12 @@ public class ExecutorServiceProvider {
 	 * the number of time units to wait
 	 * @param unit
 	 * the time unit used (seconds, minutes, ...)
+	 * @param log
+	 * whether to create an output message
 	 * @return
 	 * true if all jobs finished, false if interrupted or a timeout has been reached
 	 */
-	public boolean shutdownAndWaitForTermination(int duration, TimeUnit unit) {
+	public boolean shutdownAndWaitForTermination(int duration, TimeUnit unit, boolean log) {
 		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
 		executor.shutdown();
 
@@ -109,7 +123,9 @@ public class ExecutorServiceProvider {
 		}
 		
 		if (result) {
-			Log.out(this, "All jobs finished!");
+			if (log) {
+				Log.out(this, "All jobs finished!");
+			}
 		} else {
 			Log.err(this, "Timeout reached or Exception thrown! Could not finish all jobs!");
 		}
