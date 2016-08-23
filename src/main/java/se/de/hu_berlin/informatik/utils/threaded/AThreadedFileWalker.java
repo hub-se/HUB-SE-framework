@@ -33,6 +33,7 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
+	private boolean skipAfterFind = false;
 	
 	private boolean isFirst = true;
 
@@ -40,12 +41,14 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	 * Creates an {@link AThreadedFileWalker} object with the given parameters.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param corePoolSize
 	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
 	 * @param maximumPoolSize
@@ -54,15 +57,17 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
 	 * @param unit the time unit for the keepAliveTime argument
 	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
+	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
 		super();
 		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 		//create an executor service
 		this.executor = new ExecutorServiceProvider(corePoolSize, maximumPoolSize, keepAliveTime, unit);
 		
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
+		
+		this.skipAfterFind = skipAfterFind;
 		
 		if (!ignoreRootDir) {
 			isFirst = false;
@@ -74,20 +79,23 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param corePoolSize
 	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
 	 * @param maximumPoolSize
 	 * the maximum number of threads to allow in the pool
 	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int corePoolSize, int maximumPoolSize) {
-		this(ignoreRootDir, searchDirectories, searchFiles, pattern, corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS);
+	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int corePoolSize, int maximumPoolSize) {
+		this(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, 
+				corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS);
 	}
 	
 	/**
@@ -95,18 +103,21 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	 * {@code corePoolSize=1}, {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param poolSize
 	 * the number of threads to run in the pool
 	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int poolSize) {
-		this(ignoreRootDir, searchDirectories, searchFiles, pattern, poolSize, poolSize, 1L, TimeUnit.SECONDS);
+	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int poolSize) {
+		this(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, 
+				poolSize, poolSize, 1L, TimeUnit.SECONDS);
 	}
 	
 	/**
@@ -115,22 +126,26 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	 * an executor service that shall be used
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 */
-	public AThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern) {
+	public AThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind) {
 		super();
 		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 		//create an executor service
 		this.executor = new ExecutorServiceProvider(executor);
 		
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
+		
+		this.skipAfterFind = skipAfterFind;
 		
 		if (!ignoreRootDir) {
 			isFirst = false;
@@ -189,6 +204,9 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 					track();
 					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
+					if (skipAfterFind) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 				}
 			}
 		} else {
@@ -219,6 +237,9 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 					track();
 					processMatchedFileOrDir(dir);
 //					Misc.out(dir.toString());
+					if (skipAfterFind) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 				}
 			}
 		} else {

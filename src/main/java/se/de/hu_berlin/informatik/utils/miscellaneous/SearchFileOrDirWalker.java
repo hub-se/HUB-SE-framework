@@ -32,21 +32,26 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
 	
+	private boolean skipAfterFind = false;
+	
 	private boolean isFirst = true;
 
 	/**
 	 * Creates a new {@link SearchFileOrDirWalker} object with the given pattern.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * pattern to match the file paths against, for example "**&#47;*.{txt}"
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 */
-	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles, String pattern) {
-		this(ignoreRootDir, searchDirectories, searchFiles);
+	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles, 
+			String pattern, boolean skipAfterFind) {
+		this(ignoreRootDir, searchForDirectories, searchForFiles, skipAfterFind);
 		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
 	}
 	
@@ -55,18 +60,23 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 	 * files.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 */
-	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles) {
+	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles, 
+			boolean skipAfterFind) {
 		super();
-		if (!searchDirectories && !searchFiles) {
+		if (!searchForDirectories && !searchForFiles) {
 			Log.abort(this, "Neither searching for files nor for directories.");
 		}
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
+		this.skipAfterFind = skipAfterFind;
+		
 		this.matchedPaths = new ArrayList<>();
 		
 		if (!ignoreRootDir) {
@@ -77,27 +87,33 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 	/**
 	 * Creates a new {@link SearchFileOrDirWalker} object with the given pattern. Ignores
 	 * the root directory.
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * pattern to match the file names against, for example "*.{txt}"
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 */
-	public SearchFileOrDirWalker(boolean searchDirectories, boolean searchFiles, String pattern) {
-		this(true, searchDirectories, searchFiles, pattern);
+	public SearchFileOrDirWalker(boolean searchForDirectories, boolean searchForFiles, 
+			String pattern, boolean skipAfterFind) {
+		this(true, searchForDirectories, searchForFiles, pattern, skipAfterFind);
 	}
 	
 	/**
 	 * Creates a new {@link SearchFileOrDirWalker} object that returns ALL visited
 	 * files. Ignores the root directory.
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 */
-	public SearchFileOrDirWalker(boolean searchDirectories, boolean searchFiles) {
-		this(true, searchDirectories, searchFiles);
+	public SearchFileOrDirWalker(boolean searchForDirectories, boolean searchForFiles, 
+			boolean skipAfterFind) {
+		this(true, searchForDirectories, searchForFiles, skipAfterFind);
 	}
 	
 	/**
@@ -133,6 +149,9 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 					track();
 					matchedPaths.add(file);
 //					Misc.out(file.toString());
+					if (skipAfterFind) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 				}
 			}
 		} else {
@@ -164,6 +183,9 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 					track();
 					matchedPaths.add(dir);
 //					Misc.out(dir.toString());
+					if (skipAfterFind) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 				}
 			}
 		} else {

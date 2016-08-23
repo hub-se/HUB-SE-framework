@@ -32,12 +32,14 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	 * the pipe object that is associated with this file walker
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param maxThreadCount
 	 * sets the maximum thread count of the underlying {@link java.util.concurrent.ExecutorService}
 	 * @param callableClass
@@ -45,10 +47,10 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class
 	 */
-	public ProcessAndReturnThreadedFileWalker(APipe<?, B> pipe, boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int maxThreadCount,
+	public ProcessAndReturnThreadedFileWalker(APipe<?, B> pipe, boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int maxThreadCount,
 			Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
-		super(ignoreRootDir, searchDirectories, searchFiles, pattern, maxThreadCount);
+		super(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, maxThreadCount);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;

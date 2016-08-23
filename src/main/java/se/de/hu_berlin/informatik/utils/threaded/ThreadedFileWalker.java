@@ -28,12 +28,14 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 	 * Initializes a {@link ThreadedFileWalker} object with the given parameters. 
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param threadCount
 	 * sets the thread count of the underlying {@link java.util.concurrent.ExecutorService}
 	 * @param callableClass
@@ -41,10 +43,10 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class 
 	 */
-	public ThreadedFileWalker(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int threadCount,
+	public ThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int threadCount,
 			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		super(ignoreRootDir, searchDirectories, searchFiles, pattern, threadCount);
+		super(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, threadCount);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;
@@ -57,21 +59,23 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 	 * an executor service that shall be used
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param callableClass
 	 * callable class to be called on every visited file
 	 * @param clazzConstructorArguments
 	 * arguments that shall be passed to the constructor of the callable class 
 	 */
 	public ThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir,
-			boolean searchDirectories, boolean searchFiles, String pattern,
+			boolean searchForDirectories, boolean searchForFiles, String pattern, boolean skipAfterFind,
 			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		super(executor, ignoreRootDir, searchDirectories, searchFiles, pattern);
+		super(executor, ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind);
 		this.call = callableClass;
 		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 		this.clazzConstructorArguments = clazzConstructorArguments;

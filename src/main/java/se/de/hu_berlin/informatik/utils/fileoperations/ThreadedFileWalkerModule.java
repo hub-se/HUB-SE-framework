@@ -32,16 +32,20 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	private boolean searchFiles;
 	private boolean ignoreRootDir;
 	
+	private boolean skipAfterFind = false;
+	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that describes the files that should be processed by this file walker
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param threadCount
 	 * the number of threads that shall be run in parallel
 	 * @param clazz
@@ -49,8 +53,8 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	 * @param clazzConstructorArguments
 	 * arguments that might be needed in the constructor of the callable class
 	 */
-	public ThreadedFileWalkerModule(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles,
-			String pattern, int threadCount,
+	public ThreadedFileWalkerModule(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
+			String pattern, boolean skipAfterFind, int threadCount,
 			Class<? extends CallableWithPaths<Path,?>> clazz, Object... clazzConstructorArguments) {
 		super(true);
 		this.pattern = pattern;
@@ -58,9 +62,11 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		this.clazz = clazz;
 		this.clazzConstructorArguments = clazzConstructorArguments;
 		
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
 		this.ignoreRootDir = ignoreRootDir;
+		
+		this.skipAfterFind = skipAfterFind;
 	}
 
 	/* (non-Javadoc)
@@ -69,7 +75,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	public Boolean processItem(Path input) {
 		//declare a threaded FileWalker
 		ThreadedFileWalker walker = new ThreadedFileWalker(ignoreRootDir, searchDirectories, searchFiles, 
-					pattern, threadCount, clazz, clazzConstructorArguments);
+					pattern, skipAfterFind, threadCount, clazz, clazzConstructorArguments);
 		delegateTrackingTo(walker);
 		
 		//traverse the file tree

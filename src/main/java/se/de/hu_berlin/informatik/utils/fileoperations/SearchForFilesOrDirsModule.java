@@ -28,39 +28,48 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
 	
+	private boolean skipAfterFind = false;
+	
 	/**
 	 * Creates a new {@link SearchForFilesOrDirsModule} object with the given parameter.
+	 * @param searchForDirectories 
+	 * whether files shall be included in the search
+	 * @param searchForFiles 
+	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that the files are matched against
 	 * (a value of null matches all files and dirs)
-	 * @param searchDirectories 
-	 * whether files shall be included in the search
-	 * @param searchFiles 
-	 * whether directories shall be included in the search
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param recursive 
 	 * whether files should be searched recursively
 	 */
-	public SearchForFilesOrDirsModule(String pattern, boolean searchDirectories, boolean searchFiles, boolean recursive) {
-		this(pattern, searchDirectories, searchFiles, recursive ? Integer.MAX_VALUE : 1);
+	public SearchForFilesOrDirsModule(boolean searchForDirectories, boolean searchForFiles, 
+			String pattern, boolean skipAfterFind, boolean recursive) {
+		this(searchForDirectories, searchForFiles, pattern, skipAfterFind, recursive ? Integer.MAX_VALUE : 1);
 	}
 	
 	/**
 	 * Creates a new {@link SearchForFilesOrDirsModule} object with the given parameter.
+	 * @param searchForDirectories 
+	 * whether files shall be included in the search
+	 * @param searchForFiles 
+	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that the files are matched against
 	 * (a value of null matches all files and dirs)
-	 * @param searchDirectories 
-	 * whether files shall be included in the search
-	 * @param searchFiles 
-	 * whether directories shall be included in the search
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param depth
 	 * maximum depth in which to search
 	 */
-	public SearchForFilesOrDirsModule(String pattern, boolean searchDirectories, boolean searchFiles, int depth) {
+	public SearchForFilesOrDirsModule(boolean searchForDirectories, boolean searchForFiles, 
+			String pattern, boolean skipAfterFind, int depth) {
 		super(true);
 		this.pattern = pattern;
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
+		this.skipAfterFind = skipAfterFind;
 		if (depth < 0) {
 			Log.abort(this, "Search depth has negative value.");
 		}
@@ -78,9 +87,9 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 		//declare a search for files FileWalker
 		SearchFileOrDirWalker walker;
 		if (pattern == null) {
-			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles);
+			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, skipAfterFind);
 		} else {
-			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, pattern);
+			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, pattern, skipAfterFind);
 		}
 		delegateTrackingTo(walker);
 		

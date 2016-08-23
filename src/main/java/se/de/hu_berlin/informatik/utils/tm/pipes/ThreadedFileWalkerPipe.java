@@ -36,17 +36,21 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	private boolean searchFiles;
 	private boolean ignoreRootDir;
 	
+	private boolean skipAfterFind = false;
+	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerPipe} object with the given parameters. 
 	 * Doesn't create any output paths and assumes that no output is created during execution.
 	 * @param ignoreRootDir
 	 * whether the root directory should be ignored
-	 * @param searchDirectories 
+	 * @param searchForDirectories 
 	 * whether files shall be included in the search
-	 * @param searchFiles 
+	 * @param searchForFiles 
 	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that describes the files that should be processed by this file walker
+	 * @param skipAfterFind
+	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param threadCount
 	 * the number of threads that shall be run in parallel
 	 * @param clazz
@@ -54,17 +58,20 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	 * @param clazzConstructorArguments
 	 * arguments that might be needed in the constructor of the callable class
 	 */
-	public ThreadedFileWalkerPipe(String pattern, boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles, 
-			int threadCount, Class<? extends CallableWithReturn<B>> clazz, Object... clazzConstructorArguments) {
+	public ThreadedFileWalkerPipe(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles, 
+			String pattern,  boolean skipAfterFind, int threadCount, 
+			Class<? extends CallableWithReturn<B>> clazz, Object... clazzConstructorArguments) {
 		super();
 		this.pattern = pattern;
 		this.threadCount = threadCount;
 		this.clazz = clazz;
 		this.clazzConstructorArguments = clazzConstructorArguments;
 		
-		this.searchDirectories = searchDirectories;
-		this.searchFiles = searchFiles;
+		this.searchDirectories = searchForDirectories;
+		this.searchFiles = searchForFiles;
 		this.ignoreRootDir = ignoreRootDir;
+		
+		this.skipAfterFind = skipAfterFind;
 	}
 
 	/* (non-Javadoc)
@@ -73,7 +80,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	public B processItem(Path input) {
 		//declare a threaded FileWalker
 		AThreadedFileWalker walker = new ProcessAndReturnThreadedFileWalker<B>(this, ignoreRootDir, 
-				searchDirectories, searchFiles, pattern, threadCount, clazz, clazzConstructorArguments);
+				searchDirectories, searchFiles, pattern, skipAfterFind, threadCount, clazz, clazzConstructorArguments);
 		delegateTrackingTo(walker);
 		
 		//traverse the file tree
