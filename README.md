@@ -15,3 +15,5 @@ Contains various utility functionalities for Java projects, including:
   - sequencing a list, meaning a given input list is returned element by element to another linked module
   - simple access to the thread-based file walker and list processor
   - ...
+
+If you encounter any bugs, feel free to write an [e-mail](mailto:heiden@informatik.hu-berlin.de) with details of the bug and I will fix it as soon as possible.
