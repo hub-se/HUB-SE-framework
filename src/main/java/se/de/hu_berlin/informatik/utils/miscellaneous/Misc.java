@@ -89,10 +89,31 @@ public class Misc {
 	 * the found file, or null if no file was found that contains the pattern
 	 */
 	public static File searchFileContainingPattern(File startDir, String pattern) {
+		return searchFileContainingPattern(startDir, pattern, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Searches for a file containing the given pattern up to a specified depth.
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param depth
+	 * recursion depth
+	 * @return
+	 * the found file, or null if no file was found that contains the pattern
+	 */
+	public static File searchFileContainingPattern(File startDir, String pattern, int depth) {
+		if (depth < 0) {
+			return null;
+		}
 		if (startDir.isDirectory()) {
+			if (depth == 0) {
+				return null;
+			}
 			try {
 				for (File file : startDir.listFiles()) {
-					File result = searchFileContainingPattern(file, pattern);
+					File result = searchFileContainingPattern(file, pattern, depth-1);
 					if (result != null) {
 						return result;
 					}
