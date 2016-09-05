@@ -18,6 +18,34 @@ public class LaTexUtils {
 	public static final String LATEX_TABLE_EOL = " \\\\";
 	public static final String LATEX_TABLE_HLINE = "\\hline";
 	
+	public static List<String> generateBibTexEntry(String fullLine, String key, String title, String journal, String pages, String volume, String year, String... authors) {
+		List<String> lines = new ArrayList<>();
+		lines.add("%" + fullLine);
+		lines.add("@article{" + key + ",");
+		if (authors.length % 2 != 0) {
+			Log.abort(null, "Author count doesn't match: %s.", Misc.arrayToString(authors));
+		}
+		StringBuilder builder = new StringBuilder();
+		boolean first = true;
+		for (int i = 0; i < authors.length; i += 2) {
+			if (first) {
+				first = false;
+			} else {
+				builder.append(" and ");
+			}
+			builder.append(authors[i] + ", " + authors[i+1]);
+		}
+		lines.add("\tauthor = {" + builder.toString() + "},");
+		lines.add("\ttitle = {{" + title + "}},");
+		lines.add("\tjournal = {" + journal + "},");
+		lines.add("\tpages = {" + pages + "},");
+		lines.add("\tvolume = {" + volume + "},");
+		lines.add("\tyear = {" + year + "}");
+		lines.add("}");
+		
+		return lines;
+	}
+	
 	public static List<String> generateLaTexTable(List<List<String[]>> data) {
 		if (data == null || data.size() == 0) {
 			Log.abort(LaTexUtils.class, "No data given.");
