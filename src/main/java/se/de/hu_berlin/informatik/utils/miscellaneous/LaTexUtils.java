@@ -46,6 +46,13 @@ public class LaTexUtils {
 		return lines;
 	}
 	
+	/**
+	 * Generates a LaTex table from the given data.
+	 * @param data
+	 * a list of list of String arrays
+	 * @return
+	 * the generated table as a list of Strings
+	 */
 	public static List<String> generateLaTexTable(List<List<String[]>> data) {
 		if (data == null || data.size() == 0) {
 			Log.abort(LaTexUtils.class, "No data given.");

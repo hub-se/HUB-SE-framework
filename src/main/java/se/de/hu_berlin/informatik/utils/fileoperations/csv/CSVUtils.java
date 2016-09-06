@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.fileoperations.csv;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.junit.Assert;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
 
 /**
@@ -69,6 +71,40 @@ public final class CSVUtils {
     			.getResultFromCollectedItems();
     }
     
+    /**
+     * Reads a CSV data file containg the given pattern and parses its contents into a list of String arrays.
+     * @param containingDir
+     * the path to the directory containing the CSV file
+     * @param pattern
+     * a pattern for the file name
+     * @param mirrored
+     * whether the CSV file shall be parsed vertically
+     * @return
+     * a list of String arrays, or null in case no file was found
+     */
+    public static List<String[]> readCSVFileToListOfStringArrays(File containingDir, String pattern, boolean mirrored) {
+    	File allCSV = Misc.searchFileContainingPattern(containingDir, pattern);
+    	if (allCSV != null) {
+    		return CSVUtils.readCSVFileToListOfStringArrays(allCSV.toPath(), mirrored);
+    	}
+    	return null;
+    }
+    
+    /**
+     * Reads a CSV data file containg the given pattern and parses its contents into a list of String arrays.
+     * @param containingDir
+     * the path to the directory containing the CSV file
+     * @param pattern
+     * a pattern for the file name
+     * @param mirrored
+     * whether the CSV file shall be parsed vertically
+     * @return
+     * a list of String arrays, or null in case no file was found
+     */
+    public static List<String[]> readCSVFileToListOfStringArrays(Path containingDir, String pattern, boolean mirrored) {
+    	return readCSVFileToListOfStringArrays(containingDir.toFile(), pattern, mirrored);
+    }
+
     /**
      * Turns an integer array into CSV lines.
      * @param dataArray 
