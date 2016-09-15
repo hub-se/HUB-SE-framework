@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
-import java.util.concurrent.ExecutorService;
 import java.lang.reflect.InvocationTargetException;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
@@ -20,65 +19,20 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  */
 public class ThreadedFileWalker extends AThreadedFileWalker {
 	
-	Class<? extends CallableWithPaths<Path,?>> call;
-	Class<?>[] typeArgs;
-	Object[] clazzConstructorArguments;
+	private final Class<? extends CallableWithPaths<Path,?>> call;
+	private final Class<?>[] typeArgs;
+	private final Object[] clazzConstructorArguments;
 	
-	/**
-	 * Initializes a {@link ThreadedFileWalker} object with the given parameters. 
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param threadCount
-	 * sets the thread count of the underlying {@link java.util.concurrent.ExecutorService}
-	 * @param callableClass
-	 * callable class to be called on every visited file
-	 * @param clazzConstructorArguments
-	 * arguments that shall be passed to the constructor of the callable class 
-	 */
-	public ThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind, int threadCount,
-			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		super(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, threadCount);
-		this.call = callableClass;
-		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
-		this.clazzConstructorArguments = clazzConstructorArguments;
-	}
-	
-	/**
-	 * Initializes a {@link ThreadedFileWalker} object with the given parameters. 
-	 * Will fail if the output directory already exists. Automatically generates output paths.
-	 * @param executor
-	 * an executor service that shall be used
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param callableClass
-	 * callable class to be called on every visited file
-	 * @param clazzConstructorArguments
-	 * arguments that shall be passed to the constructor of the callable class 
-	 */
-	public ThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir,
-			boolean searchForDirectories, boolean searchForFiles, String pattern, boolean skipAfterFind,
-			Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		super(executor, ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind);
-		this.call = callableClass;
-		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
-		this.clazzConstructorArguments = clazzConstructorArguments;
+	private ThreadedFileWalker(Builder builder) {
+		super(builder);
+		
+		call = builder.call;
+		typeArgs = builder.typeArgs;
+		clazzConstructorArguments = builder.clazzConstructorArguments;
+		
+		if (call == null) {
+			throw new IllegalStateException("No callable class given.");
+		}
 	}
 
 	@Override
@@ -103,4 +57,36 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 		}
 	}
 	
+	public static class Builder extends AThreadedFileWalker.Builder {
+
+		private Class<? extends CallableWithPaths<Path,?>> call = null;
+		private Class<?>[] typeArgs = null;
+		private Object[] clazzConstructorArguments = null;
+		
+		public Builder(String pattern) {
+			super(pattern);
+		}
+
+		@Override
+		public AThreadedFileWalker build() {
+			return new ThreadedFileWalker(this);
+		}
+		
+		/**
+		 * Sets the callable class with its contructor arguments.
+		 * @param callableClass
+		 * callable class to be called on every visited file
+		 * @param clazzConstructorArguments
+		 * arguments that shall be passed to the constructor of the callable class 
+		 * @return
+		 * this
+		 */
+		public Builder call(Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
+			this.call = callableClass;
+			this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
+			this.clazzConstructorArguments = clazzConstructorArguments;
+			return this;
+		}
+		
+	}
 }

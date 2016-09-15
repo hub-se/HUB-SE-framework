@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.Assert;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
 
 /**
@@ -22,7 +22,12 @@ public final class CSVUtils {
      * used CSV delimiter
      */
     public static final String CSV_DELIMITER = "\t";
-    
+
+    //suppress default constructor (class should not be instantiated)
+    private CSVUtils() {
+    	throw new AssertionError();
+    }
+
     /**
      * Reads a CSV data file and parses its contents into a list of Double arrays.
      * @param csvFile
@@ -83,7 +88,7 @@ public final class CSVUtils {
      * a list of String arrays, or null in case no file was found
      */
     public static List<String[]> readCSVFileToListOfStringArrays(File containingDir, String pattern, boolean mirrored) {
-    	File allCSV = Misc.searchFileContainingPattern(containingDir, pattern);
+    	File allCSV = FileUtils.searchFileContainingPattern(containingDir, pattern);
     	if (allCSV != null) {
     		return CSVUtils.readCSVFileToListOfStringArrays(allCSV.toPath(), mirrored);
     	}

@@ -25,39 +25,21 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	private Object[] clazzConstructorArguments;
 	private APipe<?, B> pipe;
 
-	
-	/**
-	 * Initializes a {@link ProcessAndReturnThreadedFileWalker} object with the given parameters.
-	 * @param pipe
-	 * the pipe object that is associated with this file walker
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param maxThreadCount
-	 * sets the maximum thread count of the underlying {@link java.util.concurrent.ExecutorService}
-	 * @param callableClass
-	 * callable class to be called on every visited file
-	 * @param clazzConstructorArguments
-	 * arguments that shall be passed to the constructor of the callable class
-	 */
-	public ProcessAndReturnThreadedFileWalker(APipe<?, B> pipe, boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind, int maxThreadCount,
-			Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
-		super(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, maxThreadCount);
-		this.call = callableClass;
-		this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
-		this.clazzConstructorArguments = clazzConstructorArguments;
-		this.pipe = pipe;
+	private ProcessAndReturnThreadedFileWalker(Builder<B> builder) {
+		super(builder);
+		
+		call = builder.call;
+		typeArgs = builder.typeArgs;
+		clazzConstructorArguments = builder.clazzConstructorArguments;
+		pipe = builder.pipe;
+		
+		if (call == null) {
+			throw new IllegalStateException("No callable class given.");
+		}
+		if (pipe == null) {
+			throw new IllegalStateException("No callback pipe given.");
+		}
 	}
-	
-	
 	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.threadwalker.AThreadedFileWalker#processMatchedFileOrDir(java.nio.file.Path)
@@ -85,4 +67,49 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 		}
 	}
 
+	public static class Builder<B> extends AThreadedFileWalker.Builder {
+
+		private Class<? extends CallableWithReturn<B>> call = null;
+		private Class<?>[] typeArgs = null;
+		private Object[] clazzConstructorArguments = null;
+		private APipe<?, B> pipe = null;
+		
+		public Builder(String pattern) {
+			super(pattern);
+		}
+
+		@Override
+		public AThreadedFileWalker build() {
+			return new ProcessAndReturnThreadedFileWalker<>(this);
+		}
+		
+		/**
+		 * Sets the callable class with its contructor arguments.
+		 * @param callableClass
+		 * callable class to be called on every visited file
+		 * @param clazzConstructorArguments
+		 * arguments that shall be passed to the constructor of the callable class 
+		 * @return
+		 * this
+		 */
+		public Builder<B> call(Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
+			this.call = callableClass;
+			this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
+			this.clazzConstructorArguments = clazzConstructorArguments;
+			return this;
+		}
+		
+		/**
+		 * Sets the callback pipe.
+		 * @param pipe
+		 * the pipe object that is associated with this file walker
+		 * @return
+		 * this
+		 */
+		public Builder<B> pipe(APipe<?, B> pipe) {
+			this.pipe = pipe;
+			return this;
+		}
+		
+	}
 }

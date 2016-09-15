@@ -6,6 +6,8 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 import java.io.File;
 import java.nio.file.Paths;
 
+import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+
 /**
  * Helper Class that defines various standard directories and methods
  * to be used by JUnit test cases. Just extend this class to be able to
@@ -58,6 +60,6 @@ public abstract class TestSettings {
 	 * Deletes the complete test output directory.
 	 */
 	public static void deleteTestOutputs() {
-		Misc.delete(Paths.get(getStdTestDir()));
+		FileUtils.delete(Paths.get(getStdTestDir()));
 	}
 }

@@ -3,9 +3,20 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.lmax.disruptor.BatchEventProcessor;
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.Sequence;
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
+
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
@@ -47,200 +58,105 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see PipeLinker
  */
-public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>, Runnable {
+public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> {
 
-	private Thread thread = null;
-	private IProvider<A,APipe<?,?>> input = null;
-	private IProvider<B,APipe<?,?>> output = null;
+	private boolean hasInput = false;
+	private APipe<B,?> output = null;
+
+	private Disruptor<Event<A>> disruptor;
+	private RingBuffer<Event<A>> ringBuffer;
+	final private int bufferSize;
 	
-	private boolean isLinked = false;
+	private boolean isRunning = false;
+
+	//holds the amount of pending items that were submitted but not yet processed
+	private AtomicInteger pendingItems = new AtomicInteger(0); 
 	
 	/**
-	 * Creates a pipe object with a default output provider size of 5.
+	 * Creates a pipe object with a buffer size of 8.
 	 */
 	public APipe() {
-		this(5);
+		this(8);
 	}
 	
 	/**
-	 * Creates a pipe object with the given output provider size.
-	 * @param pipeSize
-	 * the size of the output provider
+	 * Creates a pipe object.
+	 * @param bufferSize
+	 * the size of the ring buffer, must be power of 2
 	 */
-	public APipe(int pipeSize) {
+	public APipe(int bufferSize) {
 		super();
-		output = new SynchronizedProvider<>(pipeSize);
+		this.bufferSize = bufferSize;
+		if (Integer.bitCount(bufferSize) != 1) {
+            throw new IllegalArgumentException("bufferSize must be a power of 2");
+        }
 	}
 
+	/**
+	 * Starts the disruptor in case it is not already running.
+	 */
+	private void startDisruptorIfStopped() {
+		if (!isRunning) {
+//			Log.out(this, "Starting...");
+			// Executor that will be used to construct new threads for consumers
+			ThreadFactory threadFactory = Executors.defaultThreadFactory();
+
+			// Construct the Disruptor
+			disruptor = new Disruptor<>(Event::new, bufferSize, threadFactory,
+	                ProducerType.SINGLE, new BlockingWaitStrategy());
+
+			// Get the ring buffer from the Disruptor to be used for publishing.
+			ringBuffer = disruptor.getRingBuffer();
+
+			final BatchEventProcessor<Event<A>> batchEventProcessor =
+					new BatchEventProcessor<Event<A>>(
+							ringBuffer, ringBuffer.newBarrier(new Sequence[0]), new MyEventHandler());
+		
+			// Connect the handler
+			disruptor.handleEventsWith(batchEventProcessor);
+			// Start the Disruptor, starts all threads running
+			disruptor.start();
+			isRunning = true;
+		}
+	}
+	
+	/**
+	 * Sets this pipe to have an input pipe. 
+	 */
+	protected void setInput() {
+		hasInput = true;
+	}
+	
 	/**
 	 * @return
-	 * the {@link Thread} in which the implementing object is running. 
-	 */
-	private Thread getThread() {
-		return thread;
-	}
-
-	/**
-	 * @param thread
-	 * the running thread
-	 */
-	private void setThread(Thread thread) {
-		this.thread = thread; 
-	}
-
-	/**
-	 * @return
-	 * if an input provider exists
+	 * whether an input pipe exists
 	 */
 	private boolean hasInput() {
-		return (input != null);
+		return hasInput;
 	}
 
 	/**
-	 * @return
-	 * the input provider
+	 * @param pipe
+	 * the output pipe
 	 */
-	private IProvider<A,APipe<?,?>> getInput() {
-		return input;
+	private void setOutput(APipe<B,?> pipe) {
+		output = pipe;
 	}
 
-	/**
-	 * @param provider
-	 * the input provider
-	 */
-	protected void setInput(IProvider<A,APipe<?,?>> provider) {
-		input = provider;
-	}
-
-	/**
-	 * @return
-	 * the output provider
-	 */
-	private IProvider<B,APipe<?,?>> getOutput() {
-		return output;
-	}
-	
-	/**
-	 * Starts the automatic processing loop. Notifies the
-	 * output provider about starting execution.
-	 * @return
-	 * the running thread
-	 */
-	protected Thread startAutomaticProcessing() {
-		if (getThread() == null || !getThread().isAlive()) {
-			Thread thread = new Thread(this);
-//			Misc.out(this, thread.getName() + " started");
-			getOutput().setProviderWorking();
-			thread.start();
-			return thread;
-		}
-		return getThread();
-	}
-	
 	/**
 	 * Submits an object of type {@code B} to a connected output pipe.
 	 * If the pipe is not linked to any other pipe, then the item is 
-	 * discarded to avoid deadlocks where the output provider queue
-	 * is full and blocks further submission of items.
+	 * discarded.
 	 * @param item
 	 * the object of type {@code B} to be submitted
 	 */
 	public void submitProcessedItem(B item) {
-		if (isLinked()) {
+		if (output != null) {
 			output.submit(item);
 		}
 	}
-	
-	/**
-	 * @return
-	 * if the pipe is linked to another pipe
-	 */
-	private boolean isLinked() {
-		return isLinked ;
-	}
-	
-	/**
-	 * This method is executed repeatedly until the necessary conditions 
-	 * for a thread shutdown are met. Tries to obtain an item from the input
-	 * provider, processes it and submits the processed item to the output
-	 * provider. Obtained input items that are null are ignored and not
-	 * processed.
-	 * @return
-	 * true if the operation succeeded and false otherwise
-	 */
-	private boolean tryProcessItem() {
-		A item;
-		if ((item = tryToGetNextInputItem()) != null) {
-			B result;
-			if ((result = processItem(item)) != null) {
-				track();
-				submitProcessedItem(result);
-				return true;
-			}
-		}
-		return false;
-	}
 
-	/**
-	 * Attempts to obtain an item from a connected input.
-	 * @return
-	 * object of type A or null if operation did not succeed
-	 */
-	private A tryToGetNextInputItem() {
-		if (hasInput()) {
-			A item;
-			if ((item = getInput().get()) != null) {
-				return item;
-			}
-		} else {
-			Log.abort(this, "Started thread with no input.");
-		}
-		return null;
-	}
 
-	/**
-	 * Starts a loop that repeatedly tries to process an item and checks if the shutdown
-	 * conditions are met. If the shutdown conditions are met, then the loop is broken. 
-	 */
-	public void run() {
-		while (true) {
-			tryProcessItem();
-			if (shutdownConditionsFulfilled()) {
-				//we are done, so set the input to null
-				input = null;
-				//and set the link state to false
-				isLinked = false;
-				//do other shutdown procedures, if necessary
-				if(!finalShutdown()) {
-					Log.err(this, "Final shutdown was unsuccessful.");
-				}
-				getOutput().setProviderDone();
-				//now we can reuse the pipe
-				break;
-			}
-		}
-	}
-	
-	/**
-	 * This method tests the necessary
-	 * conditions that have to be met to be able to shut down the pipe.
-	 * If the pipe is about to get shut down, submit possibly pending
-	 * results from collected items.
-	 * @return
-	 * true if the object should be shut down, false otherwise
-	 */
-	private boolean shutdownConditionsFulfilled() {
-		if (!hasInput() || hasInput() && getInput().isProviderDone()) {
-			B result;
-			if ((result = getResultFromCollectedItems()) != null) {
-				track();
-				submitProcessedItem(result);
-			}
-			return true;
-		}
-		return false;
-	}
-	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
 	 */
@@ -252,7 +168,7 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>,
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Links a matching pipe to the output of this pipe.
 	 * @param <C>
@@ -268,67 +184,96 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>,
 	private <C,D> APipe<C, D> linkPipeTo(APipe<C, D> pipe) {
 		if (!pipe.hasInput()) {
 			//output pipe has no input yet
-			try {
-				pipe.setInput((IProvider<C,APipe<?,?>>)getOutput());
+			try {				
+				setOutput((APipe<B, ?>) pipe);
+				pipe.setInput();
 			} catch (ClassCastException e) {
 				Log.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
 			}
-			getOutput().setProviderWorking();
-			pipe.setThread(pipe.startAutomaticProcessing());
-			isLinked = true;
 		} else {
 			Log.abort(this, "No linking to already used pipes allowed!");
 		}
 		return pipe;
 	}
-	
+
 	/**
-	 * Shuts down the pipe.
+	 * Shuts down the pipe. Waits for all executions to terminate.
 	 */
 	public void shutdown() {
-		createInputProviderIfNoneExists();
-		getInput().setProviderDone();
+		//wait for pending operations to finish
+		while (pendingItems.get() > 0) {
+			//TODO: think of implementation with notify and wait, possibly...
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+
+		//check whether there are collected items to submit
+		B result;
+		if ((result = getResultFromCollectedItems()) != null) {
+			//submit the collected result
+			track();
+			submitProcessedItem(result);
+		}
+		
+//		Log.out(this, "Shutting down...");
+		//shut down the disruptor
+		disruptor.shutdown();
+		//initiate shut down of the pipe linked to this pipe's output (if any)
+		if (output != null) {
+			output.shutdown();
+		}
+		cleanup();
+		isRunning = false;
 	}
 	
+	private void cleanup() {
+		disruptor = null;
+		ringBuffer = null;
+	}
+
+	protected void shutdownLinkedPipe() {
+		
+	}
+
 	/**
 	 * Submits an item to this pipe.
 	 * @param item
 	 * the item to be submitted
-	 * @return
-	 * true if the operation succeeded, false otherwise
 	 */
-	public boolean submitItem(Object item) {
-		createInputProviderIfNoneExists();
-		
-		getInput().submit(item);
-		
-		return true;
-	}
-	
-	/**
-	 * Initializes an input provider if none exists and starts the automatic
-	 * processing procedure of this pipe.
-	 */
-	private void createInputProviderIfNoneExists() {
-		if (!hasInput()) {
-			input = new SynchronizedProvider<A>(5);
-			setThread(startAutomaticProcessing());
+	public void submit(A item) {
+		if (item != null) {
+			startDisruptorIfStopped();
+			pendingItems.incrementAndGet();
+			ringBuffer.publishEvent(Event::translate, item);
 		}
 	}
 	
 	/**
-	 * Waits for the complete shutdown of this pipe.
+	 * Submits an item of some kind to this pipe. Will abort the
+	 * application if the type does not match the pipe's input type.
+	 * More specificially, it will abort if the item can't be cast
+	 * to the pipe's input type.
+	 * @param item
+	 * the item to be submitted
 	 */
-	public void waitForShutdown() {
-		getOutput().waitForShutdown();
+	@SuppressWarnings("unchecked")
+	public void submitObject(Object item) {
+		try {
+			submit((A)item);
+		} catch (ClassCastException e) {
+			Log.abort(this, e, "Type mismatch while submitting item.");
+		}
 	}
-	
+
 	@Override
 	public APipe<A,B> enableTracking() {
 		super.enableTracking();
 		return this;
 	}
-	
+
 	@Override
 	public APipe<A,B> enableTracking(int stepWidth) {
 		super.enableTracking(stepWidth);
@@ -358,5 +303,16 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B>,
 		super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
-	
+
+	public class MyEventHandler implements EventHandler<Event<A>> {
+
+		@Override
+		public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+			track();
+			submitProcessedItem(processItem(event.get()));
+			pendingItems.decrementAndGet();
+		}
+
+	}
+
 }

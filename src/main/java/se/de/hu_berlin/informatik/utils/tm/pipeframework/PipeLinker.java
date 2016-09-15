@@ -23,10 +23,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 public class PipeLinker extends Trackable {
 
 	private APipe<?,?> startPipe = null;
-	private APipe<?,?> endPipe = null;
-	
-	private boolean isShutdown = false;
-	
+
 	/**
 	 * Links the given transmitters together to a chain of pipes. 
 	 * If the transmitters don't match, then
@@ -44,8 +41,7 @@ public class PipeLinker extends Trackable {
 			}
 
 			startPipe = pipes.get(0);
-			endPipe = pipes.get(transmitters.length-1);
-			
+
 			for (int i = 0; i < pipes.size()-1; ++i) {
 				pipes.get(i).linkTo(pipes.get(i+1));
 			}
@@ -88,18 +84,6 @@ public class PipeLinker extends Trackable {
 		}
 		return startPipe;
 	}
-	
-	/**
-	 * Retrieves the end pipe or aborts the application if none set.
-	 * @return
-	 * the end pipe
-	 */
-	private APipe<?, ?> getEndPipe() {
-		if (endPipe == null) {
-			Log.abort(this, "No end pipe available.");
-		}
-		return endPipe;
-	}
 
 	/**
 	 * Submits a single or multiple items to the underlying chain
@@ -111,20 +95,18 @@ public class PipeLinker extends Trackable {
 	 */
 	public PipeLinker submit(Object... items) {
 		for (int i = 0; i < items.length; ++i) {
-			getStartPipe().submitItem(items[i]);
+			getStartPipe().submitObject(items[i]);
 		}
-		isShutdown = false;
 		return this;
 	}
 	
 	/**
 	 * Shuts down the pipe chain. Has to be called to complete execution.
-	 * Otherwise, the application won't stop. The main application won't
-	 * stop execution or wait after calling this method, though.
+	 * Otherwise, the application won't stop. Will return when the pipe
+	 * chain has completed all executions.
 	 */
 	public void shutdown() {
 		getStartPipe().shutdown();
-		isShutdown = true;
 	}
 	
 	/**
@@ -135,21 +117,9 @@ public class PipeLinker extends Trackable {
 	 */
 	public void submitAndShutdown(Object... items) {
 		for (int i = 0; i < items.length; ++i) {
-			getStartPipe().submitItem(items[i]);
+			getStartPipe().submitObject(items[i]);
 		}
 		shutdown();
-	}
-	
-	/**
-	 * Waits for the complete shutdown of the linked pipes. If the
-	 * pipes were not shut down before, the pipes are shut down
-	 * before waiting.
-	 */
-	public void waitForShutdown() {
-		if (!isShutdown) {
-			shutdown();
-		}
-		getEndPipe().waitForShutdown();
 	}
 	
 	@Override

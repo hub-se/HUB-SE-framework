@@ -8,7 +8,6 @@ import java.nio.file.attribute.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 import static java.nio.file.FileVisitResult.*;
@@ -25,95 +24,26 @@ import java.io.IOException;
  */
 public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path> {
 	
-	private PathMatcher matcher = null;
-	
-	private List<Path> matchedPaths;
-	
-	private boolean searchDirectories = false;
-	private boolean searchFiles = false;
-	
-	private boolean skipAfterFind = false;
+	final private PathMatcher matcher;
+	final private List<Path> matchedPaths;
+	final private boolean searchDirectories;
+	final private boolean searchFiles;
+	final private boolean skipAfterFind;
 	
 	private boolean isFirst = true;
 
-	/**
-	 * Creates a new {@link SearchFileOrDirWalker} object with the given pattern.
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * pattern to match the file paths against, for example "**&#47;*.{txt}"
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 */
-	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles, 
-			String pattern, boolean skipAfterFind) {
-		this(ignoreRootDir, searchForDirectories, searchForFiles, skipAfterFind);
-		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-	}
-	
-	/**
-	 * Creates a new {@link SearchFileOrDirWalker} object that returns ALL visited
-	 * files.
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 */
-	public SearchFileOrDirWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles, 
-			boolean skipAfterFind) {
-		super();
-		if (!searchForDirectories && !searchForFiles) {
-			Log.abort(this, "Neither searching for files nor for directories.");
+	private SearchFileOrDirWalker(Builder builder) {
+		matcher = builder.matcher;
+		searchDirectories = builder.searchDirectories;
+		searchFiles = builder.searchFiles;
+		skipAfterFind = builder.skipAfterFind;
+		isFirst = builder.isFirst;
+		
+		if (searchDirectories == false && searchFiles == false) {
+			throw new IllegalStateException("Define whether files or directories shall be searched.");
 		}
-		this.searchDirectories = searchForDirectories;
-		this.searchFiles = searchForFiles;
-		this.skipAfterFind = skipAfterFind;
 		
 		this.matchedPaths = new ArrayList<>();
-		
-		if (!ignoreRootDir) {
-			isFirst = false;
-		}
-	}
-	
-	/**
-	 * Creates a new {@link SearchFileOrDirWalker} object with the given pattern. Ignores
-	 * the root directory.
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * pattern to match the file names against, for example "*.{txt}"
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 */
-	public SearchFileOrDirWalker(boolean searchForDirectories, boolean searchForFiles, 
-			String pattern, boolean skipAfterFind) {
-		this(true, searchForDirectories, searchForFiles, pattern, skipAfterFind);
-	}
-	
-	/**
-	 * Creates a new {@link SearchFileOrDirWalker} object that returns ALL visited
-	 * files. Ignores the root directory.
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 */
-	public SearchFileOrDirWalker(boolean searchForDirectories, boolean searchForFiles, 
-			boolean skipAfterFind) {
-		this(true, searchForDirectories, searchForFiles, skipAfterFind);
 	}
 	
 	/**
@@ -225,6 +155,79 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
         if (exc != null)
             throw exc;
         return FileVisitResult.CONTINUE;
+    }
+    
+    
+    public static class Builder implements se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder<SearchFileOrDirWalker> {
+		
+		private PathMatcher matcher;
+		
+		private boolean searchDirectories = false;
+		private boolean searchFiles = false;
+		private boolean skipAfterFind = false;
+		private boolean isFirst = true;
+		
+		public Builder() {
+			super();
+		}
+		
+		/**
+		 * Sets a search pattern.
+		 * @param pattern
+		 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+		 * @return
+		 * this
+		 */
+		public Builder pattern(String pattern) {
+			this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+			return this;
+		}
+		
+		/**
+		 * Enables searching for files.
+		 * @return
+		 * this
+		 */
+		public Builder searchForFiles() {
+			this.searchFiles = true;
+			return this;
+		}
+		
+		/**
+		 * Enables searching for directories.
+		 * @return
+		 * this
+		 */
+		public Builder searchForDirectories() {
+			this.searchDirectories = true;
+			return this;
+		}
+		
+		/**
+		 * Skips recursion to subtree after found items.
+		 * @return
+		 * this
+		 */
+		public Builder skipSubTreeAfterMatch() {
+			this.skipAfterFind = true;
+			return this;
+		}
+		
+		/**
+		 * Includes the root directory in the search.
+		 * @return
+		 * this
+		 */
+		public Builder includeRootDir() {
+			isFirst = false;
+			return this;
+		}
+
+		@Override
+		public SearchFileOrDirWalker build() {
+			return new SearchFileOrDirWalker(this);
+		}
+    	
     }
 	
 }

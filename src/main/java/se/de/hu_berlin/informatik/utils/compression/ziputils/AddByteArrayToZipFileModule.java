@@ -10,8 +10,8 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -29,7 +29,7 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 		//if this module needs an input item
 		super(true);
 		if (deleteExisting) {
-			Misc.delete(zipFilePath);
+			FileUtils.delete(zipFilePath);
 		}
 		
 		if (zipFilePath.getParent() != null) {

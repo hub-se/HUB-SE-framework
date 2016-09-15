@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import se.de.hu_berlin.informatik.utils.miscellaneous.SearchFileOrDirWalker;
+import se.de.hu_berlin.informatik.utils.miscellaneous.SearchFileOrDirWalker.Builder;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
@@ -22,58 +23,82 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  */
 public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 
-	private String pattern;
-	private int depth = 0;
+	final private String pattern;
+	final private int depth;
 	
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
+	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
 	
 	/**
 	 * Creates a new {@link SearchForFilesOrDirsModule} object with the given parameter.
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that the files are matched against
 	 * (a value of null matches all files and dirs)
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param recursive 
 	 * whether files should be searched recursively
 	 */
-	public SearchForFilesOrDirsModule(boolean searchForDirectories, boolean searchForFiles, 
-			String pattern, boolean skipAfterFind, boolean recursive) {
-		this(searchForDirectories, searchForFiles, pattern, skipAfterFind, recursive ? Integer.MAX_VALUE : 1);
+	public SearchForFilesOrDirsModule(String pattern, boolean recursive) {
+		this(pattern, recursive ? Integer.MAX_VALUE : 1);
 	}
 	
 	/**
 	 * Creates a new {@link SearchForFilesOrDirsModule} object with the given parameter.
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
 	 * @param pattern
 	 * the pattern that the files are matched against
 	 * (a value of null matches all files and dirs)
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
 	 * @param depth
 	 * maximum depth in which to search
 	 */
-	public SearchForFilesOrDirsModule(boolean searchForDirectories, boolean searchForFiles, 
-			String pattern, boolean skipAfterFind, int depth) {
+	public SearchForFilesOrDirsModule(String pattern, int depth) {
 		super(true);
 		this.pattern = pattern;
-		this.searchDirectories = searchForDirectories;
-		this.searchFiles = searchForFiles;
-		this.skipAfterFind = skipAfterFind;
 		if (depth < 0) {
 			Log.abort(this, "Search depth has negative value.");
 		}
 		this.depth = depth;
+	}
+	
+	/**
+	 * Enables searching for files.
+	 * @return
+	 * this
+	 */
+	public SearchForFilesOrDirsModule searchForFiles() {
+		this.searchFiles = true;
+		return this;
+	}
+	
+	/**
+	 * Enables searching for directories.
+	 * @return
+	 * this
+	 */
+	public SearchForFilesOrDirsModule searchForDirectories() {
+		this.searchDirectories = true;
+		return this;
+	}
+	
+	/**
+	 * Skips recursion to subtree after found items.
+	 * @return
+	 * this
+	 */
+	public SearchForFilesOrDirsModule skipSubTreeAfterMatch() {
+		this.skipAfterFind = true;
+		return this;
+	}
+	
+	/**
+	 * Includes the root directory in the search.
+	 * @return
+	 * this
+	 */
+	public SearchForFilesOrDirsModule includeRootDir() {
+		includeRootDir = false;
+		return this;
 	}
 
 	/* (non-Javadoc)
@@ -84,13 +109,25 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 			Log.abort(this, "Path '%s' doesn't exist.", input.toString());
 		}
 		
-		//declare a search for files FileWalker
-		SearchFileOrDirWalker walker;
-		if (pattern == null) {
-			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, skipAfterFind);
-		} else {
-			walker = new SearchFileOrDirWalker(searchDirectories, searchFiles, pattern, skipAfterFind);
+		Builder builder = new Builder();
+		if (includeRootDir) {
+			builder.includeRootDir();
 		}
+		if (searchDirectories) {
+			builder.searchForDirectories();
+		}
+		if (searchFiles) {
+			builder.searchForFiles();
+		}
+		if (skipAfterFind) {
+			builder.skipSubTreeAfterMatch();
+		}
+		if (pattern != null) {
+			builder.pattern(pattern);
+		}
+		
+		//declare a search for files FileWalker
+		SearchFileOrDirWalker walker = builder.build();
 		delegateTrackingTo(walker);
 		
 		//traverse the file tree

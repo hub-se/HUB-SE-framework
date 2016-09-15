@@ -28,127 +28,26 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 public abstract class AThreadedFileWalker extends Trackable implements FileVisitor<Path> {
 	
 	final private PathMatcher matcher;
-
 	final private ExecutorServiceProvider executor;
+	final private boolean searchDirectories;
+	final private boolean searchFiles;
+	final private boolean skipAfterFind;
 	
-	private boolean searchDirectories = false;
-	private boolean searchFiles = false;
-	private boolean skipAfterFind = false;
+	private boolean isFirst;
 	
-	private boolean isFirst = true;
-
-	/**
-	 * Creates an {@link AThreadedFileWalker} object with the given parameters.
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param corePoolSize
-	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
-	 * @param maximumPoolSize
-	 * the maximum number of threads to allow in the pool
-	 * @param keepAliveTime
-	 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
-	 * @param unit the time unit for the keepAliveTime argument
-	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind, int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
-		super();
-		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-		//create an executor service
-		this.executor = new ExecutorServiceProvider(corePoolSize, maximumPoolSize, keepAliveTime, unit);
+	protected AThreadedFileWalker(Builder builder) {
+		executor = builder.executor;
+		matcher = builder.matcher;
+		searchDirectories = builder.searchDirectories;
+		searchFiles = builder.searchFiles;
+		skipAfterFind = builder.skipAfterFind;
+		isFirst = builder.isFirst;
 		
-		this.searchDirectories = searchForDirectories;
-		this.searchFiles = searchForFiles;
-		
-		this.skipAfterFind = skipAfterFind;
-		
-		if (!ignoreRootDir) {
-			isFirst = false;
+		if (executor == null) {
+			throw new IllegalStateException("No executor service given.");
 		}
-	}
-	
-	/**
-	 * Creates an {@link AThreadedFileWalker} object with the given parameters,
-	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param corePoolSize
-	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
-	 * @param maximumPoolSize
-	 * the maximum number of threads to allow in the pool
-	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind, int corePoolSize, int maximumPoolSize) {
-		this(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, 
-				corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS);
-	}
-	
-	/**
-	 * Creates an {@link AThreadedFileWalker} object with the given parameters,
-	 * {@code corePoolSize=1}, {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 * @param poolSize
-	 * the number of threads to run in the pool
-	 */
-	public AThreadedFileWalker(boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind, int poolSize) {
-		this(ignoreRootDir, searchForDirectories, searchForFiles, pattern, skipAfterFind, 
-				poolSize, poolSize, 1L, TimeUnit.SECONDS);
-	}
-	
-	/**
-	 * Creates an {@link AThreadedFileWalker} object with the given parameters.
-	 * @param executor
-	 * an executor service that shall be used
-	 * @param ignoreRootDir
-	 * whether the root directory should be ignored
-	 * @param searchForDirectories 
-	 * whether files shall be included in the search
-	 * @param searchForFiles 
-	 * whether directories shall be included in the search
-	 * @param pattern
-	 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-	 * @param skipAfterFind
-	 * whether to skip subtree elements after a match (will only affect matching directories)
-	 */
-	public AThreadedFileWalker(ExecutorService executor, boolean ignoreRootDir, boolean searchForDirectories, boolean searchForFiles,
-			String pattern, boolean skipAfterFind) {
-		super();
-		this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-		//create an executor service
-		this.executor = new ExecutorServiceProvider(executor);
-		
-		this.searchDirectories = searchForDirectories;
-		this.searchFiles = searchForFiles;
-		
-		this.skipAfterFind = skipAfterFind;
-		
-		if (!ignoreRootDir) {
-			isFirst = false;
+		if (searchDirectories == false && searchFiles == false) {
+			throw new IllegalStateException("Define whether files or directories shall be searched.");
 		}
 	}
 
@@ -280,6 +179,110 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
         if (exc != null)
             throw exc;
         return FileVisitResult.CONTINUE;
+    }
+    
+    public static abstract class Builder implements se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder<AThreadedFileWalker> {
+		
+		private final PathMatcher matcher;
+		
+		private ExecutorServiceProvider executor = null;
+		private boolean searchDirectories = false;
+		private boolean searchFiles = false;
+		private boolean skipAfterFind = false;
+		private boolean isFirst = true;
+		
+		/**
+		 * Creates an {@link Builder} object with the given parameters.
+		 * @param pattern
+		 * holds a global pattern against which the visited files (more specific: their file names) should be matched
+		 */
+		public Builder(String pattern) {
+			super();
+			this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+		}
+		
+		/**
+		 * Enables searching for files.
+		 * @return
+		 * this
+		 */
+		public Builder searchForFiles() {
+			this.searchFiles = true;
+			return this;
+		}
+		
+		/**
+		 * Enables searching for directories.
+		 * @return
+		 * this
+		 */
+		public Builder searchForDirectories() {
+			this.searchDirectories = true;
+			return this;
+		}
+		
+		/**
+		 * Skips recursion to subtree after found items.
+		 * @return
+		 * this
+		 */
+		public Builder skipSubTreeAfterMatch() {
+			this.skipAfterFind = true;
+			return this;
+		}
+		
+		/**
+		 * Includes the root directory in the search.
+		 * @return
+		 * this
+		 */
+		public Builder includeRootDir() {
+			isFirst = false;
+			return this;
+		}
+		
+		/**
+		 * Sets the executor service.
+		 * @param executor
+		 * an executor service that shall be used
+		 * @return
+		 * this
+		 */
+		public Builder executor(ExecutorService executor) {
+			this.executor = new ExecutorServiceProvider(executor);
+			return this;
+		}
+		
+		/**
+		 * Sets the executor service.
+		 * @param corePoolSize
+		 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
+		 * @param maximumPoolSize
+		 * the maximum number of threads to allow in the pool
+		 * @param keepAliveTime
+		 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+		 * @param unit 
+		 * the time unit for the keepAliveTime argument
+		 * @return
+		 * this
+		 */
+		public Builder executor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
+			this.executor = new ExecutorServiceProvider(corePoolSize, maximumPoolSize, keepAliveTime, unit);
+			return this;
+		}
+		
+		/**
+		 * Sets the executor service with {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
+		 * @param poolSize
+		 * the number of threads to run in the pool
+		 * @return
+		 * this
+		 */
+		public Builder executor(int poolSize) {
+			this.executor = new ExecutorServiceProvider(poolSize, poolSize, 1L, TimeUnit.SECONDS);
+			return this;
+		}
+    	
     }
     
 }

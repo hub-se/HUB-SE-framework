@@ -3,156 +3,38 @@
  */
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
+import java.net.URI;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.Order;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+
 /**
  * Provides methods for creating error messages and other output, etc. 
  * 
  * @author Simon Heiden
  */
 public class Log {
+			
+	static {
+		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+		ConfigurationFactory.setConfigurationFactory(new CustomConfigurationFactory());
+	}
 	
-//	/**
-//	 * Failure types to print pre-defined error messages.
-//	 */
-//	public enum FailureType {
-//		/** Some directory does not exist. Needs the directory as a string as an argument. **/
-//		DIR_NOT_EXISTS,
-//		/** Some file does not exist. Needs the file as a string as an argument. **/
-//		FILE_NOT_EXISTS,
-//		/** Some path does not exist. Needs the path as a string as an argument. **/
-//		PATH_NOT_EXISTS,
-//		/** Error while processing an object. Needs the processed object as a string as an argument. **/
-//		PROCESSING_ERROR,
-//		/** Error while parsing an object. Needs the parsed object as a string as an argument. **/
-//		PARSING_ERROR,
-//		/** Some exception was thrown and caught. Needs no arguments. **/
-//		EXCEPTION_THROWN,
-//		/** Some unknown error occurred. Needs no arguments. **/
-//		UNKNOWN_ERROR
-//		 }
-//
-//	/**
-//	 * Helper method that prints a pre-defined message to {@code System.err}.
-//	 * @param o
-//	 * is some instantiated object. The class name is used in the produced error message.
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	private static void printfErrorMessage(Object o, FailureType failure, Object... args) {
-//		switch (failure) {
-//		case FILE_NOT_EXISTS:
-//			printfErrorMessage(o, "File '%s' does not exist.", args);
-//			break;
-//		case DIR_NOT_EXISTS:
-//			printfErrorMessage(o, "Directory '%s' does not exist.", args);
-//			break;
-//		case PATH_NOT_EXISTS:
-//			printfErrorMessage(o, "Path '%s' does not exist.", args);
-//			break;
-//		case PROCESSING_ERROR:
-//			printfErrorMessage(o, "Could not process '%s'.", args);
-//			break;
-//		case PARSING_ERROR:
-//			printfErrorMessage(o, "Could not parse '%s'.", args);
-//			break;
-//		case EXCEPTION_THROWN:
-//			printfErrorMessage(o, "Exception thrown.");
-//			break;
-//		case UNKNOWN_ERROR:
-//			printfErrorMessage(o, "An error occurred.");
-//			break;
-//		}
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err} and exits the application with 
-//	 * status code {@code 1}.
-//	 * @param o
-//	 * is some instantiated object. The class name is used in the produced error message.
-//	 * @param e
-//	 * a caught exception from which will be printed a stack trace
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void abort(Object o, Exception e, FailureType failure, Object... args) {
-//		printfErrorMessage(o, failure, args);
-//		printAbort();
-//		printException(e);
-//		exitWithError();
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err} and exits the application with 
-//	 * status code {@code 1}.
-//	 * @param o
-//	 * is some instantiated object. The class name is used in the produced error message.
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void abort(Object o, FailureType failure, Object... args) {
-//		printfErrorMessage(o, failure, args);
-//		printAbort();
-//		exitWithError();
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err} and exits the application with 
-//	 * status code {@code 1}.
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void abort(FailureType failure, Object... args) {
-//		printfErrorMessage(null, failure, args);
-//		printAbort();
-//		exitWithError();
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err}.
-//	 * @param o
-//	 * is some instantiated object. The class name is used in the produced error message.
-//	 * @param e
-//	 * a caught exception from which will be printed a stack trace
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void err(Object o, Exception e, FailureType failure, Object... args) {
-//		printfErrorMessage(o, failure, args);
-//		printException(e);
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err}.
-//	 * @param o
-//	 * is some instantiated object. The class name is used in the produced error message.
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void err(Object o, FailureType failure, Object... args) {
-//		printfErrorMessage(o, failure, args);
-//	}
-//	
-//	/**
-//	 * Prints a pre-defined message to {@code System.err}.
-//	 * @param failure
-//	 * a failure type to generate a pre-defined error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void err(FailureType failure, Object... args) {
-//		printfErrorMessage(null, failure, args);
-//	}
+	//suppress default constructor (class should not be instantiated)
+	private Log() {
+		throw new AssertionError();
+	}
 	
 	/**
 	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
@@ -167,8 +49,8 @@ public class Log {
 	 */
 	public static void abort(Object o, Exception e, String message, Object... args) {
 		printfErrorMessage(o, message, args);
-		printAbort();
-		printException(e);
+		printException(o, e);
+		printAbort(o);
 		exitWithError();
 	}
 	
@@ -183,22 +65,9 @@ public class Log {
 	 */
 	public static void abort(Object o, String message, Object... args) {
 		printfErrorMessage(o, message, args);
-		printAbort();
+		printAbort(o);
 		exitWithError();
 	}
-	
-//	/**
-//	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
-//	 * @param message
-//	 * an error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void abort(String message, Object... args) {
-//		printfErrorMessage(null, message, args);
-//		printAbort();
-//		exitWithError();
-//	}
 	
 	/**
 	 * Prints the given message to {@code System.err}.
@@ -213,7 +82,7 @@ public class Log {
 	 */
 	public static void err(Object o, Exception e, String message, Object... args) {
 		printfErrorMessage(o, message, args);
-		printException(e);
+		printException(o, e);
 	}
 	
 	/**
@@ -229,17 +98,6 @@ public class Log {
 		printfErrorMessage(o, message, args);
 	}
 	
-//	/**
-//	 * Prints the given message to {@code System.err}.
-//	 * @param message
-//	 * an error message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void err(String message, Object... args) {
-//		printfErrorMessage(null, message, args);
-//	}
-	
 	/**
 	 * Helper method that prints the given message to {@code System.err}.
 	 * @param o
@@ -254,37 +112,54 @@ public class Log {
 		String identifier = null;
 		if (o != null) {
 			try {
-				identifier = ((Class<?>)o).getSimpleName();
+				identifier = ((Class<?>)o).getName();
 			} catch(Exception e) {
-				identifier = o.getClass().getSimpleName();
+				identifier = o.getClass().getName();
 			}
 		}
-		if (identifier != null) {
-			System.err.printf("[" + identifier + "] " + message + "%n", args);
-		} else {
-			System.err.printf(message + "%n", args);
-		}
+		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
+		logger.printf(Level.ERROR, message, args);
 	}
-	
-	
 	
 	/**
 	 * Prints an exception to the console.
+	 * @param o
+	 * is some instantiated object or a class (or null). The class name is used in the produced error message.
 	 * @param e
 	 * the exception to be printed
 	 */
-	private static void printException(Exception e) {
-		System.err.println();
-		System.err.printf("Exception message: %s%n", e.getMessage());
-		System.err.println();
-		e.printStackTrace();
+	private static void printException(Object o, Exception e) {
+		String identifier = null;
+		if (o != null) {
+			try {
+				identifier = ((Class<?>)o).getName();
+			} catch(Exception x) {
+				identifier = o.getClass().getName();
+			}
+		}
+		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
+		logger.catching(Level.ERROR, e);
+//		System.err.printf("Exception message: %s%n", e.getMessage());
+//		System.err.println();
+//		e.printStackTrace();
 	}
 	
 	/**
 	 * Prints an abort message to {@code System.err}.
+	 * @param o
+	 * is some instantiated object or a class (or null). The class name is used in the produced message.
 	 */
-	private static void printAbort() {
-		System.err.println("aborting...");
+	private static void printAbort(Object o) {
+		String identifier = null;
+		if (o != null) {
+			try {
+				identifier = ((Class<?>)o).getName();
+			} catch(Exception e) {
+				identifier = o.getClass().getName();
+			}
+		}
+		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
+		logger.fatal("aborting...");
 	}
 	
 	/**
@@ -307,17 +182,6 @@ public class Log {
 		printfMessage(o, message, args);
 	}
 	
-//	/**
-//	 * Prints the given message to {@code System.out}.
-//	 * @param message
-//	 * a message
-//	 * @param args
-//	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-//	 */
-//	public static void out(String message, Object... args) {
-//		printfMessage(null, message, args);
-//	}
-	
 	/**
 	 * Helper method that prints the given message to {@code System.out}.
 	 * @param o
@@ -331,17 +195,54 @@ public class Log {
 		String identifier = null;
 		if (o != null) {
 			try {
-				identifier = ((Class<?>)o).getSimpleName();
+				identifier = ((Class<?>)o).getName();
 			} catch(Exception e) {
-				identifier = o.getClass().getSimpleName();
+				identifier = o.getClass().getName();
 			}
 		}
-		if (identifier != null) {
-			System.out.printf("[" + identifier + "] " + message + "%n", args);
-		} else {
-			System.out.printf(message + "%n", args);
-		}
+		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
+		logger.printf(Level.INFO, message, args);
 	}
 	
+	@Plugin(name = "CustomConfigurationFactory", category = ConfigurationFactory.CATEGORY)
+	@Order(50)
+	private static class CustomConfigurationFactory extends ConfigurationFactory {
+
+	    private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
+	        builder.setConfigurationName(name);
+	        builder.setStatusLevel(Level.ERROR);
+	        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL).
+	            addAttribute("level", Level.DEBUG));
+	        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").
+	            addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
+	        appenderBuilder.add(builder.newLayout("PatternLayout").
+	            addAttribute("pattern", "%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
+	            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}"));
+	        appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
+	            Filter.Result.NEUTRAL).addAttribute("marker", "FLOW"));
+	        builder.add(appenderBuilder);
+	        builder.add(builder.newLogger("org.apache.logging.log4j", Level.DEBUG).
+	            add(builder.newAppenderRef("Stdout")).
+	            addAttribute("additivity", false));
+	        builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
+	        return builder.build();
+	    }
+
+	    @Override
+	    public Configuration getConfiguration(ConfigurationSource source) {
+	        return getConfiguration(source.toString(), null);
+	    }
+
+	    @Override
+	    public Configuration getConfiguration(final String name, final URI configLocation) {
+	        ConfigurationBuilder<BuiltConfiguration> builder = newConfigurationBuilder();
+	        return createConfiguration(name, builder);
+	    }
+
+	    @Override
+	    protected String[] getSupportedTypes() {
+	        return new String[] {"*"};
+	    }
+	}
 	
 }

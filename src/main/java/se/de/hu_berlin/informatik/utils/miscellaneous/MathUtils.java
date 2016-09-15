@@ -8,6 +8,11 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
  */
 public class MathUtils {
 
+	//suppress default constructor (class should not be instantiated)
+	private MathUtils() {
+		throw new AssertionError();
+	}
+
 	/**
 	 * Rounds the given double to a given number of decimal places.
 	 * @param numberToRound

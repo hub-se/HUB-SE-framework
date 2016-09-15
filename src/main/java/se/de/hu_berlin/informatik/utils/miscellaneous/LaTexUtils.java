@@ -18,6 +18,11 @@ public class LaTexUtils {
 	public static final String LATEX_TABLE_EOL = " \\\\";
 	public static final String LATEX_TABLE_HLINE = "\\hline";
 	
+	//suppress default constructor (class should not be instantiated)
+	private LaTexUtils() {
+		throw new AssertionError();
+	}
+	
 	public static List<String> generateBibTexEntry(String fullLine, String key, String title, String journal, String pages, String volume, String year, String... authors) {
 		List<String> lines = new ArrayList<>();
 		lines.add("%" + fullLine);
