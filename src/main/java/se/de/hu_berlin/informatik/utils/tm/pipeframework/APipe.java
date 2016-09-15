@@ -110,7 +110,7 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 
 			final BatchEventProcessor<Event<A>> batchEventProcessor =
 					new BatchEventProcessor<Event<A>>(
-							ringBuffer, ringBuffer.newBarrier(new Sequence[0]), new MyEventHandler());
+							ringBuffer, ringBuffer.newBarrier(new Sequence[0]), new PipeEventHandler());
 		
 			// Connect the handler
 			disruptor.handleEventsWith(batchEventProcessor);
@@ -220,7 +220,9 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		
 //		Log.out(this, "Shutting down...");
 		//shut down the disruptor
-		disruptor.shutdown();
+		if (disruptor != null) {
+			disruptor.shutdown();
+		}
 		//initiate shut down of the pipe linked to this pipe's output (if any)
 		if (output != null) {
 			output.shutdown();
@@ -304,12 +306,16 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		return this;
 	}
 
-	public class MyEventHandler implements EventHandler<Event<A>> {
+	public class PipeEventHandler implements EventHandler<Event<A>> {
 
 		@Override
 		public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
 			track();
-			submitProcessedItem(processItem(event.get()));
+			try {
+				submitProcessedItem(processItem(event.get()));
+			} catch (Throwable t) {
+				Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
+			}
 			pendingItems.decrementAndGet();
 		}
 

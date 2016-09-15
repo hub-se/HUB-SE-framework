@@ -80,7 +80,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void err(Object o, Exception e, String message, Object... args) {
+	public static void err(Object o, Throwable e, String message, Object... args) {
 		printfErrorMessage(o, message, args);
 		printException(o, e);
 	}
@@ -128,7 +128,7 @@ public class Log {
 	 * @param e
 	 * the exception to be printed
 	 */
-	private static void printException(Object o, Exception e) {
+	private static void printException(Object o, Throwable e) {
 		String identifier = null;
 		if (o != null) {
 			try {
