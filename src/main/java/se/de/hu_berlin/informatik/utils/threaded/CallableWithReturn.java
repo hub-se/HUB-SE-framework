@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
@@ -18,12 +17,12 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * 
  * @see Callable
  */
-public abstract class CallableWithReturn<B> implements Callable<Boolean> {
+public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A>  implements Callable<Boolean> {
 
 	/**
-	 * The path to an input file.
+	 * The input object.
 	 */
-	private Path input = null;
+	private A input = null;
 	
 	APipe<?, B> pipe = null;
 	
@@ -32,7 +31,7 @@ public abstract class CallableWithReturn<B> implements Callable<Boolean> {
 	 * @param input
 	 * an input path
 	 */
-	public CallableWithReturn(Path input) {
+	public CallableWithReturn(A input) {
 		super();
 		this.input = input;
 	}
@@ -48,7 +47,7 @@ public abstract class CallableWithReturn<B> implements Callable<Boolean> {
 	 * @param input
 	 * an input path
 	 */
-	public void setInputPath(Path input) {
+	public void setInput(A input) {
 		this.input = input;
 	}
 
@@ -56,7 +55,7 @@ public abstract class CallableWithReturn<B> implements Callable<Boolean> {
 	 * @return 
 	 * the input path
 	 */
-	public Path getInputPath() {
+	public A getInput() {
 		return input;
 	}
 
@@ -73,6 +72,12 @@ public abstract class CallableWithReturn<B> implements Callable<Boolean> {
 		return true;
 	}
 
-	abstract public B processInput(Path input);
+	abstract public B processInput(A input);
 
+	@Override
+	public void processEvent(A input) throws Exception {
+		this.input = input;
+		call();
+	}
+	
 }

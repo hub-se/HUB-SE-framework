@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.tm.pipeframework;
+package se.de.hu_berlin.informatik.utils.threaded;
 
 import com.lmax.disruptor.EventFactory;
 

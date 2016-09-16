@@ -24,7 +24,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
  * 
  * @see Callable
  */
-public abstract class CallableWithPaths<A,T> implements Callable<T> {
+public abstract class CallableWithPaths<A,T> extends DisruptorEventHandler<A> implements Callable<T> {
 
 	/**
 	 * The input object.
@@ -124,4 +124,10 @@ public abstract class CallableWithPaths<A,T> implements Callable<T> {
 		}
 	}
 
+	@Override
+	public void processEvent(A input) throws Exception {
+		this.input = input;
+		call();
+	}
+	
 }

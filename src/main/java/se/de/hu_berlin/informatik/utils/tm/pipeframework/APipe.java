@@ -3,19 +3,9 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.ProducerType;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.threaded.DisruptorEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
@@ -59,19 +49,12 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * @see PipeLinker
  */
 public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> {
+	
+	final private DisruptorProvider<A> disruptorProvider;
 
 	private boolean hasInput = false;
 	private APipe<B,?> output = null;
 
-	private Disruptor<Event<A>> disruptor;
-	private RingBuffer<Event<A>> ringBuffer;
-	final private int bufferSize;
-	
-	private boolean isRunning = false;
-
-	//holds the amount of pending items that were submitted but not yet processed
-	private AtomicInteger pendingItems = new AtomicInteger(0); 
-	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
 	 */
@@ -84,40 +67,11 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	 * @param bufferSize
 	 * the size of the ring buffer, must be power of 2
 	 */
+	@SuppressWarnings("unchecked")
 	public APipe(int bufferSize) {
 		super();
-		this.bufferSize = bufferSize;
-		if (Integer.bitCount(bufferSize) != 1) {
-            throw new IllegalArgumentException("bufferSize must be a power of 2");
-        }
-	}
-
-	/**
-	 * Starts the disruptor in case it is not already running.
-	 */
-	private void startDisruptorIfStopped() {
-		if (!isRunning) {
-//			Log.out(this, "Starting...");
-			// Executor that will be used to construct new threads for consumers
-			ThreadFactory threadFactory = Executors.defaultThreadFactory();
-
-			// Construct the Disruptor
-			disruptor = new Disruptor<>(Event::new, bufferSize, threadFactory,
-	                ProducerType.SINGLE, new BlockingWaitStrategy());
-
-			// Get the ring buffer from the Disruptor to be used for publishing.
-			ringBuffer = disruptor.getRingBuffer();
-
-			final BatchEventProcessor<Event<A>> batchEventProcessor =
-					new BatchEventProcessor<Event<A>>(
-							ringBuffer, ringBuffer.newBarrier(new Sequence[0]), new PipeEventHandler());
-		
-			// Connect the handler
-			disruptor.handleEventsWith(batchEventProcessor);
-			// Start the Disruptor, starts all threads running
-			disruptor.start();
-			isRunning = true;
-		}
+		disruptorProvider = new DisruptorProvider<>(bufferSize);
+		disruptorProvider.connectHandlers(new PipeEventHandler());
 	}
 	
 	/**
@@ -200,16 +154,9 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	 * Shuts down the pipe. Waits for all executions to terminate.
 	 */
 	public void shutdown() {
-		//wait for pending operations to finish
-		while (pendingItems.get() > 0) {
-			//TODO: think of implementation with notify and wait, possibly...
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-		}
-
+//		Log.out(this, "waiting for pending items...");
+		disruptorProvider.waitForPendingEventsToFinish();
+		
 		//check whether there are collected items to submit
 		B result;
 		if ((result = getResultFromCollectedItems()) != null) {
@@ -220,24 +167,11 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		
 //		Log.out(this, "Shutting down...");
 		//shut down the disruptor
-		if (disruptor != null) {
-			disruptor.shutdown();
-		}
+		disruptorProvider.shutdown();
 		//initiate shut down of the pipe linked to this pipe's output (if any)
 		if (output != null) {
 			output.shutdown();
 		}
-		cleanup();
-		isRunning = false;
-	}
-	
-	private void cleanup() {
-		disruptor = null;
-		ringBuffer = null;
-	}
-
-	protected void shutdownLinkedPipe() {
-		
 	}
 
 	/**
@@ -247,9 +181,7 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	 */
 	public void submit(A item) {
 		if (item != null) {
-			startDisruptorIfStopped();
-			pendingItems.incrementAndGet();
-			ringBuffer.publishEvent(Event::translate, item);
+			disruptorProvider.submit(item);
 		}
 	}
 	
@@ -306,17 +238,12 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		return this;
 	}
 
-	public class PipeEventHandler implements EventHandler<Event<A>> {
+	public class PipeEventHandler extends DisruptorEventHandler<A> {
 
 		@Override
-		public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+		public void processEvent(A input) throws Exception {
 			track();
-			try {
-				submitProcessedItem(processItem(event.get()));
-			} catch (Throwable t) {
-				Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
-			}
-			pendingItems.decrementAndGet();
+			submitProcessedItem(processItem(input));
 		}
 
 	}

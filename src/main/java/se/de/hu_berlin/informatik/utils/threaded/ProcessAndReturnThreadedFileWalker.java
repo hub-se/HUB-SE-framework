@@ -20,7 +20,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  */
 public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	
-	private Class<? extends CallableWithReturn<B>> call;
+	private Class<? extends CallableWithReturn<Path,B>> call;
 	private Class<?>[] typeArgs;
 	private Object[] clazzConstructorArguments;
 	private APipe<?, B> pipe;
@@ -48,9 +48,9 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	public void processMatchedFileOrDir(Path fileOrDir) {
 //		Misc.out(this, "\tsubmitting task for: " + fileOrDir);
 		try {
-			CallableWithReturn<B> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
+			CallableWithReturn<Path,B> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
 			o.setPipe(pipe);
-			o.setInputPath(fileOrDir);
+			o.setInput(fileOrDir);
 			getExecutorService().submit(o);
 		} catch (InstantiationException e) {
 			Log.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
@@ -69,7 +69,7 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 
 	public static class Builder<B> extends AThreadedFileWalker.Builder {
 
-		private Class<? extends CallableWithReturn<B>> call = null;
+		private Class<? extends CallableWithReturn<Path,B>> call = null;
 		private Class<?>[] typeArgs = null;
 		private Object[] clazzConstructorArguments = null;
 		private APipe<?, B> pipe = null;
@@ -92,7 +92,7 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 		 * @return
 		 * this
 		 */
-		public Builder<B> call(Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
+		public Builder<B> call(Class<? extends CallableWithReturn<Path,B>> callableClass, Object... clazzConstructorArguments) {
 			this.call = callableClass;
 			this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
 			this.clazzConstructorArguments = clazzConstructorArguments;

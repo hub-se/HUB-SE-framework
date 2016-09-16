@@ -68,14 +68,6 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	}
 	
 	/**
-	 * @return 
-	 * the path matcher
-	 */
-	protected PathMatcher getMatcher() {
-		return matcher;
-	}
-	
-	/**
 	 * Convenience method to be used in actual implementations of this class
 	 * @param path
 	 * Path to be matched against the global pattern.

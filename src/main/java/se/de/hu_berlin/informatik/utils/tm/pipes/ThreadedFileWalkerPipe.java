@@ -30,7 +30,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	final private String pattern;
 	final private int threadCount;
 	
-	private Class<? extends CallableWithReturn<B>> clazz = null;
+	private Class<? extends CallableWithReturn<Path,B>> clazz = null;
 	private Object[] clazzConstructorArguments = null;
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
@@ -60,7 +60,7 @@ public class ThreadedFileWalkerPipe<B> extends APipe<Path,B> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerPipe<B> call(Class<? extends CallableWithReturn<B>> callableClass, Object... clazzConstructorArguments) {
+	public ThreadedFileWalkerPipe<B> call(Class<? extends CallableWithReturn<Path,B>> callableClass, Object... clazzConstructorArguments) {
 		this.clazz = callableClass;
 		this.clazzConstructorArguments = clazzConstructorArguments;
 		return this;
