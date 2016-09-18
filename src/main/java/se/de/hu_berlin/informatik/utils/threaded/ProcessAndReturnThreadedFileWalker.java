@@ -4,9 +4,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
-import java.lang.reflect.InvocationTargetException;
-
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 
 /**
@@ -19,26 +16,19 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @see CallableWithReturn
  */
 public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
-	
-	private Class<? extends CallableWithReturn<Path,B>> call;
-	private Class<?>[] typeArgs;
-	private Object[] clazzConstructorArguments;
-	private APipe<?, B> pipe;
 
 	private ProcessAndReturnThreadedFileWalker(Builder<B> builder) {
 		super(builder);
-		
-		call = builder.call;
-		typeArgs = builder.typeArgs;
-		clazzConstructorArguments = builder.clazzConstructorArguments;
-		pipe = builder.pipe;
-		
-		if (call == null) {
+
+		if (builder.callableFactory == null) {
 			throw new IllegalStateException("No callable class given.");
 		}
-		if (pipe == null) {
+		if (builder.pipe == null) {
 			throw new IllegalStateException("No callback pipe given.");
 		}
+		
+		builder.callableFactory.setCallbackPipe(builder.pipe);
+		getDisruptorProvider().connectHandlers(builder.threadCount, builder.callableFactory);
 	}
 	
 	/* (non-Javadoc)
@@ -47,35 +37,18 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
 //		Misc.out(this, "\tsubmitting task for: " + fileOrDir);
-		try {
-			CallableWithReturn<Path,B> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
-			o.setPipe(pipe);
-			o.setInput(fileOrDir);
-			getExecutorService().submit(o);
-		} catch (InstantiationException e) {
-			Log.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
-		} catch (IllegalAccessException e) {
-			Log.err(this, e, "Illegal access to object %s.", call.getSimpleName());
-		} catch (IllegalArgumentException e) {
-			Log.abort(this, e, "Illegal argument to object %s.", call.getSimpleName());
-		} catch (InvocationTargetException e) {
-			Log.err(this, e, "Invocation target exception on object %s.", call.getSimpleName());
-		} catch (NoSuchMethodException e) {
-			Log.abort(this, e, "No such method exception on object %s.", call.getSimpleName());
-		} catch (SecurityException e) {
-			Log.err(this, e, "Security exception on object %s.", call.getSimpleName());
-		}
+		getDisruptorProvider().submit(fileOrDir);
 	}
 
 	public static class Builder<B> extends AThreadedFileWalker.Builder {
 
-		private Class<? extends CallableWithReturn<Path,B>> call = null;
-		private Class<?>[] typeArgs = null;
-		private Object[] clazzConstructorArguments = null;
-		private APipe<?, B> pipe = null;
+		public IDisruptorEventHandlerFactoryWCallback<Path,B> callableFactory;
+		public int threadCount;
+		public APipe<?, B> pipe;
 		
-		public Builder(String pattern) {
+		public Builder(String pattern, int threadCount) {
 			super(pattern);
+			this.threadCount = threadCount;
 		}
 
 		@Override
@@ -84,18 +57,14 @@ public class ProcessAndReturnThreadedFileWalker<B> extends AThreadedFileWalker {
 		}
 		
 		/**
-		 * Sets the callable class with its contructor arguments.
-		 * @param callableClass
-		 * callable class to be called on every visited file
-		 * @param clazzConstructorArguments
-		 * arguments that shall be passed to the constructor of the callable class 
+		 * Sets the factory.
+		 * @param callableFactory
+		 * a factory that provides instances of callable classes 
 		 * @return
 		 * this
 		 */
-		public Builder<B> call(Class<? extends CallableWithReturn<Path,B>> callableClass, Object... clazzConstructorArguments) {
-			this.call = callableClass;
-			this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
-			this.clazzConstructorArguments = clazzConstructorArguments;
+		public Builder<B> call(IDisruptorEventHandlerFactoryWCallback<Path,B> callableFactory) {
+			this.callableFactory = callableFactory;
 			return this;
 		}
 		

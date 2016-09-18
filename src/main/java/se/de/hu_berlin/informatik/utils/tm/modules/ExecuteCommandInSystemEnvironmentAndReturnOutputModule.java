@@ -38,7 +38,7 @@ public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AMod
 	 * paths to add at the start of the PATH environment variable, if any
 	 */
 	public ExecuteCommandInSystemEnvironmentAndReturnOutputModule(File executionDir, boolean returnErrorOutput, String... paths) {
-		super(true);
+		super(true, true);
 		this.executionDir = executionDir;
 		this.paths = paths;
 		environmentVariables = new HashMap<>();

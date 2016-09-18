@@ -13,13 +13,12 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
- * FileVisitor implementation that is enriched with a blocking {@link ExecutorService}.
+ * FileVisitor implementation that is enriched with threads.
  * 
  * @author Simon Heiden
  * 
@@ -28,7 +27,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 public abstract class AThreadedFileWalker extends Trackable implements FileVisitor<Path> {
 	
 	final private PathMatcher matcher;
-	final private ExecutorServiceProvider executor;
+	final private DisruptorProvider<Path> disruptorProvider;
 	final private boolean searchDirectories;
 	final private boolean searchFiles;
 	final private boolean skipAfterFind;
@@ -36,35 +35,24 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 	private boolean isFirst;
 	
 	protected AThreadedFileWalker(Builder builder) {
-		executor = builder.executor;
 		matcher = builder.matcher;
 		searchDirectories = builder.searchDirectories;
 		searchFiles = builder.searchFiles;
 		skipAfterFind = builder.skipAfterFind;
 		isFirst = builder.isFirst;
 		
-		if (executor == null) {
-			throw new IllegalStateException("No executor service given.");
-		}
 		if (searchDirectories == false && searchFiles == false) {
 			throw new IllegalStateException("Define whether files or directories shall be searched.");
 		}
+		disruptorProvider = new DisruptorProvider<>(8);
 	}
 
 	/**
 	 * @return
-	 * the executor service
+	 * the disruptor provider
 	 */
-	public ExecutorService getExecutorService() {
-		return executor.getExecutorService();
-	}
-
-	/**
-	 * @return
-	 * the executor service provider
-	 */
-	public ExecutorServiceProvider getExecutorServiceProvider() {
-		return executor;
+	public DisruptorProvider<Path> getDisruptorProvider() {
+		return disruptorProvider;
 	}
 	
 	/**
@@ -173,11 +161,10 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
         return FileVisitResult.CONTINUE;
     }
     
-    public static abstract class Builder implements se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder<AThreadedFileWalker> {
+    public static abstract class Builder implements IBuilder<AThreadedFileWalker> {
 		
 		private final PathMatcher matcher;
 		
-		private ExecutorServiceProvider executor = null;
 		private boolean searchDirectories = false;
 		private boolean searchFiles = false;
 		private boolean skipAfterFind = false;
@@ -230,48 +217,6 @@ public abstract class AThreadedFileWalker extends Trackable implements FileVisit
 		 */
 		public Builder includeRootDir() {
 			isFirst = false;
-			return this;
-		}
-		
-		/**
-		 * Sets the executor service.
-		 * @param executor
-		 * an executor service that shall be used
-		 * @return
-		 * this
-		 */
-		public Builder executor(ExecutorService executor) {
-			this.executor = new ExecutorServiceProvider(executor);
-			return this;
-		}
-		
-		/**
-		 * Sets the executor service.
-		 * @param corePoolSize
-		 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
-		 * @param maximumPoolSize
-		 * the maximum number of threads to allow in the pool
-		 * @param keepAliveTime
-		 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
-		 * @param unit 
-		 * the time unit for the keepAliveTime argument
-		 * @return
-		 * this
-		 */
-		public Builder executor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
-			this.executor = new ExecutorServiceProvider(corePoolSize, maximumPoolSize, keepAliveTime, unit);
-			return this;
-		}
-		
-		/**
-		 * Sets the executor service with {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
-		 * @param poolSize
-		 * the number of threads to run in the pool
-		 * @return
-		 * this
-		 */
-		public Builder executor(int poolSize) {
-			this.executor = new ExecutorServiceProvider(poolSize, poolSize, 1L, TimeUnit.SECONDS);
 			return this;
 		}
     	

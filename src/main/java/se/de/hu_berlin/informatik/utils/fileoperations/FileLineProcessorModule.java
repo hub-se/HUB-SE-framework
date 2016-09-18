@@ -54,7 +54,7 @@ public class FileLineProcessorModule<A> extends AModule<Path, A> {
 	 * whether the execution should be aborted when encountering an error
 	 */
 	public FileLineProcessorModule(IStringProcessor<A> processor, boolean abortOnError) {
-		super(true);
+		super(true, true);
 		this.processor = processor;
 		this.abortOnError = abortOnError;
 	}

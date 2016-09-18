@@ -32,7 +32,7 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 	
 	public AddStringListToZipFileModule(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
-		super(true);
+		super(true, true);
 		if (deleteExisting) {
 			FileUtils.delete(zipFilePath);
 		}

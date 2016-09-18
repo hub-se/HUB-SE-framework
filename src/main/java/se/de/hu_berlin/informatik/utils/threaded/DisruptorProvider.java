@@ -1,7 +1,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,18 +11,16 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
-public class DisruptorProvider<T> {
+public class DisruptorProvider<T> extends Trackable {
 
 	private static ThreadFactory threadFactory;
-	private static Thread mainThread;
+	private Thread mainThread;
 	
 	static {
 		//thread factory that will be used to construct new threads for consumers
 		threadFactory = Executors.defaultThreadFactory();
-		mainThread = Thread.currentThread();
 	}
 	
 	//holds the amount of pending items that were submitted but not yet processed
@@ -34,6 +31,8 @@ public class DisruptorProvider<T> {
 	private DisruptorEventHandler<T>[] handlers = null;
 	private int bufferSize;
 	
+	private ProducerType producerType = ProducerType.MULTI;
+	
 	private boolean isRunning = false;
 	private boolean isConnectedToHandlers = false;
 	
@@ -43,12 +42,13 @@ public class DisruptorProvider<T> {
 		if (Integer.bitCount(bufferSize) != 1) {
             throw new IllegalArgumentException("bufferSize must be a power of 2");
         }
+		mainThread = Thread.currentThread();
 	}
 
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
 		disruptor = new Disruptor<>(Event<T>::new, bufferSize, threadFactory,
-				ProducerType.MULTI, new BlockingWaitStrategy());
+				producerType, new BlockingWaitStrategy());
 
 		// Get the ring buffer from the Disruptor to be used for publishing.
 		ringBuffer = disruptor.getRingBuffer();
@@ -66,6 +66,16 @@ public class DisruptorProvider<T> {
 			createNewDisruptorInstance();
 		}
 		return ringBuffer;
+	}
+	
+	public void setProducerType(boolean singleWriter) {
+		if (singleWriter) {
+//			Log.out(this, "single");
+			producerType = ProducerType.SINGLE;
+		} else {
+//			Log.out(this, "multi");
+			producerType = ProducerType.MULTI;
+		}
 	}
 	
 	public boolean isRunning() {
@@ -104,36 +114,18 @@ public class DisruptorProvider<T> {
 		isConnectedToHandlers = true;
 	}
 	
-	public DisruptorProvider<T> connectHandlers(int numberOfThreads, Class<? extends DisruptorEventHandler<T>> eventHandlerClass, Object... constructorArguments) {
+	public DisruptorProvider<T> connectHandlers(int numberOfThreads, IDisruptorEventHandlerFactory<T> factory) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
-		Class<?>[] typeArgs = eventHandlerClass.getConstructors()[0].getParameterTypes();//TODO is that right?
-		
-		Log.out(this, Misc.arrayToString(typeArgs));
+
 		// Use Array native method to create array
         // of a type only known at run time
         @SuppressWarnings("unchecked")
-        final DisruptorEventHandler<T>[] handlers = (DisruptorEventHandler<T>[]) Array.newInstance(eventHandlerClass, numberOfThreads);
+        final DisruptorEventHandler<T>[] handlers = (DisruptorEventHandler<T>[]) Array.newInstance(factory.getEventHandlerClass(), numberOfThreads);
         
 		for (int i = 0; i < numberOfThreads; ++i) {
-			DisruptorEventHandler<T> o;
-			try {
-				o = eventHandlerClass.getConstructor(typeArgs).newInstance(constructorArguments);
-				handlers[i] = o;
-			} catch (InstantiationException e) {
-				Log.abort(this, e, "Cannot instantiate object %s.", eventHandlerClass.getSimpleName());
-			} catch (IllegalAccessException e) {
-				Log.abort(this, e, "Illegal access to object %s.", eventHandlerClass.getSimpleName());
-			} catch (IllegalArgumentException e) {
-				Log.abort(this, e, "Illegal argument to object %s.", eventHandlerClass.getSimpleName());
-			} catch (InvocationTargetException e) {
-				Log.abort(this, e, "Invocation target exception on object %s.", eventHandlerClass.getSimpleName());
-			} catch (NoSuchMethodException e) {
-				Log.abort(this, e, "No such method exception on object %s.", eventHandlerClass.getSimpleName());
-			} catch (SecurityException e) {
-				Log.abort(this, e, "Security exception on object %s.", eventHandlerClass.getSimpleName());
-			}
+			handlers[i] = factory.newInstance();
 		}
 		
 		connectHandlers(handlers);
@@ -142,7 +134,10 @@ public class DisruptorProvider<T> {
 	}
 	
 	public DisruptorProvider<T> start() {
-		startIfNotRunning();
+		//avoid synchronized method call if already running
+		if (!isRunning) {
+			startIfNotRunning();
+		}
 		return this;
 	}
 	
@@ -170,6 +165,7 @@ public class DisruptorProvider<T> {
 	
 	public DisruptorProvider<T> waitForPendingEventsToFinish() {
 		if (disruptor != null && isRunning) {
+//			Log.out(this, "waiting for pending items...");
 			//wait for pending operations to finish
 			while (pendingItems.get() > 0) {
 				LockSupport.park();
@@ -181,6 +177,7 @@ public class DisruptorProvider<T> {
 	public DisruptorProvider<T> shutdown() {
 		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
+//			Log.out(this, "shutting down...");
 			// Shuts down the disruptor
 			disruptor.shutdown();
 			isRunning = false;
@@ -190,8 +187,12 @@ public class DisruptorProvider<T> {
 	}
 	
 	public void submit(T item) {
-		startIfNotRunning();
+		//avoid synchronized method call if already running
+		if (!isRunning) {
+			startIfNotRunning();
+		}
 		pendingItems.incrementAndGet();
+		track();
 		ringBuffer.publishEvent(Event::translate, item);
 	}
 

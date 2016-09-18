@@ -15,6 +15,10 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  */
 public class ListSequencerPipe<A extends List<B>,B> extends APipe<A,B> {
 
+	public ListSequencerPipe() {
+		super(true);
+	}
+
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */

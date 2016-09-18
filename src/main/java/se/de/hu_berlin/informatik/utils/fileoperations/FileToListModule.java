@@ -20,7 +20,7 @@ public class FileToListModule extends AModule<Path, List<String>> {
 	 * Creates a new {@link FileToListModule} with the given parameters.
 	 */
 	public FileToListModule() {
-		super(true);
+		super(true, true);
 	}
 	
 	/* (non-Javadoc)

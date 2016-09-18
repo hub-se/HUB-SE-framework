@@ -4,11 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-
-import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
-import se.de.hu_berlin.informatik.utils.threaded.ExecutorServiceProvider;
+import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 
 /**
@@ -16,95 +13,34 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * element in a given input list.
  * 
  * @author Simon Heiden
- * 
- * @see ThreadedElementProcessorModule
- * @see CallableWithPaths
- * @see Callable
  */
 public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
 
-	private int threadCount;
-	private ExecutorServiceProvider executor = null;
-	private boolean executorGiven = false;
-	private Class<? extends CallableWithPaths<A,?>> clazz;
-	private Object[] clazzConstructorArguments;
+	private DisruptorProvider<A> disruptorProvider;
 
-	/**
-	 * Creates a new {@link ThreadedListProcessorModule} object with the given parameters.
-	 * @param threadCount
-	 * the number of threads that shall be run in parallel
-	 * @param clazz
-	 * a {@link CallableWithPaths} class which is called for every matching file
-	 * @param clazzConstructorArguments
-	 * arguments that might be needed in the constructor of the callable class
-	 */
-	public ThreadedListProcessorModule(int threadCount,
-			Class<? extends CallableWithPaths<A,?>> clazz, Object... clazzConstructorArguments) {
-		super(true);
-		this.threadCount = threadCount;
-		this.clazz = clazz;
-		this.clazzConstructorArguments = clazzConstructorArguments;
-	}
-	
-	/**
-	 * Creates a new {@link ThreadedListProcessorModule} object with the given parameters. 
-	 * @param executor
-	 * an executor service that shall be used
-	 * @param clazz
-	 * a {@link CallableWithPaths} class which is called for every matching file
-	 * @param clazzConstructorArguments
-	 * arguments that might be needed in the constructor of the callable class
-	 */
-	public ThreadedListProcessorModule(ExecutorService executor,
-			Class<? extends CallableWithPaths<A,?>> clazz, Object... clazzConstructorArguments) {
-		super(true);
-		this.clazz = clazz;
-		this.clazzConstructorArguments = clazzConstructorArguments;
-		this.executor = new ExecutorServiceProvider(executor);
-		executorGiven = true;
+	public ThreadedListProcessorModule(Integer threadCount, IDisruptorEventHandlerFactory<A> callableFactory) {
+		super(true, false);
+		disruptorProvider = new DisruptorProvider<>(8);
+		disruptorProvider.connectHandlers(threadCount, callableFactory);
 	}
 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public Boolean processItem(List<A> input) {
-		if (executorGiven) {
-			//declare a threaded list processor
-			ThreadedElementProcessorModule<A> processor = 
-					new ThreadedElementProcessorModule<A>(
-							executor.getExecutorService(), clazz, clazzConstructorArguments);
-			delegateTrackingTo(processor);
-			
-			for (A element : input) {
-				processor.submit(element);
-			}
-
-			return true;
-		} else {
-			//declare a threaded list processor
-			ThreadedElementProcessorModule<A> processor = 
-					new ThreadedElementProcessorModule<A>(
-							threadCount, clazz, clazzConstructorArguments);
-			delegateTrackingTo(processor);
-			
-			for (A element : input) {
-				processor.submit(element);
-			}
-
-			//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
-			return processor.getExecutorServiceProvider().shutdownAndWaitForTermination();
+		delegateTrackingTo(disruptorProvider);
+		
+		for (A element : input) {
+			disruptorProvider.submit(element);
 		}
+		disruptorProvider.shutdown();
+		return null;
 	}
 
-	@Override
-	public boolean finalShutdown() {
-		if (executorGiven) {
-			//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
-			return executor.shutdownAndWaitForTermination();
-		}
-		return true;
-	}
-	
-	
+//	@Override
+//	public boolean finalShutdown() {
+//		disruptorProvider.shutdown();
+//		return true;
+//	}	
 
 }

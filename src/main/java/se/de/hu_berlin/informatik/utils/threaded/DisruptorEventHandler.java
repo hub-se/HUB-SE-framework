@@ -61,5 +61,5 @@ public abstract class DisruptorEventHandler<A> implements EventHandler<Event<A>>
 	}
 	
 	abstract public void processEvent(A input) throws Exception;
-	
+    
 }

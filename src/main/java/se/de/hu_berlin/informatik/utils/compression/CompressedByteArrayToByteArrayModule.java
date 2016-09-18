@@ -21,7 +21,7 @@ public class CompressedByteArrayToByteArrayModule extends AModule<byte[],byte[]>
 	
 	public CompressedByteArrayToByteArrayModule() {
 		//if this module needs an input item
-		super(true);
+		super(true, true);
 	}
 	
 	/* (non-Javadoc)

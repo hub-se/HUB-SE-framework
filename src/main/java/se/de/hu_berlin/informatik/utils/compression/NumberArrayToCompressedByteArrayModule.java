@@ -29,7 +29,7 @@ public class NumberArrayToCompressedByteArrayModule<T extends Number> extends AM
 	
 	public NumberArrayToCompressedByteArrayModule(int maxValue, int sequenceLength) {
 		//if this module needs an input item
-		super(true);
+		super(true, true);
 		result = new ArrayList<>();
 		
 		//compute the number of bits needed to represent integers with the given maximum value

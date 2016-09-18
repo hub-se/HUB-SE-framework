@@ -21,7 +21,28 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  *
  */
 public class PipeLinker extends Trackable {
+	
+	/**
+	 * Creates a new pipe linker. Assumes that input items are
+	 * submitted from a single thread. If multiple threads submit
+	 * items to this linker, use the other constructor and set
+	 * the parameter to false.
+	 */
+	public PipeLinker() {
+		this(true);
+	}
 
+	/**
+	 * Creates a new pipe linker.
+	 * @param singleWriter
+	 * whether input items are submitted from a single thread
+	 */
+	public PipeLinker(boolean singleWriter) {
+		super();
+		this.singleWriter = singleWriter;
+	}
+
+	private boolean singleWriter = true;
 	private APipe<?,?> startPipe = null;
 
 	/**
@@ -41,6 +62,8 @@ public class PipeLinker extends Trackable {
 			}
 
 			startPipe = pipes.get(0);
+			//input items are submitted with a single thread
+			startPipe.setProducerType(singleWriter);
 
 			for (int i = 0; i < pipes.size()-1; ++i) {
 				pipes.get(i).linkTo(pipes.get(i+1));

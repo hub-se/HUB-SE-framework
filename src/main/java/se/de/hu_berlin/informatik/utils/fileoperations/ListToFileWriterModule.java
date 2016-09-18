@@ -54,7 +54,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 	 * is the extension of the automatically generated output paths
 	 */
 	public ListToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
-		super(true);
+		super(true, true);
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
 		this.extension = extension;
@@ -79,7 +79,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A
 	 * determines if files and directories should be overwritten
 	 */
 	public ListToFileWriterModule(Path outputPath, boolean overwrite) {
-		super(true);
+		super(true, true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

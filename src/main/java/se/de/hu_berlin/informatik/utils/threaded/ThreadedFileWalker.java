@@ -4,9 +4,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
-import java.lang.reflect.InvocationTargetException;
-
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * {@link AThreadedFileWalker} extension that takes a callable class 
@@ -19,52 +16,30 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  */
 public class ThreadedFileWalker extends AThreadedFileWalker {
 	
-	private final Class<? extends CallableWithPaths<Path,?>> call;
-	private final Class<?>[] typeArgs;
-	private final Object[] clazzConstructorArguments;
-	
 	private ThreadedFileWalker(Builder builder) {
 		super(builder);
 		
-		call = builder.call;
-		typeArgs = builder.typeArgs;
-		clazzConstructorArguments = builder.clazzConstructorArguments;
-		
-		if (call == null) {
+		if (builder.callableFactory == null) {
 			throw new IllegalStateException("No callable class given.");
 		}
+		
+		getDisruptorProvider().connectHandlers(builder.threadCount, builder.callableFactory);
 	}
 
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
 //		Misc.out(this, "\tsubmitting task for: " + file);
-		try {
-			CallableWithPaths<Path,?> o = call.getConstructor(typeArgs).newInstance(clazzConstructorArguments);
-			o.setInput(fileOrDir);
-			getExecutorService().submit(o);
-		} catch (InstantiationException e) {
-			Log.err(this, e, "Cannot instantiate object %s.", call.getSimpleName());
-		} catch (IllegalAccessException e) {
-			Log.err(this, e, "Illegal access to object %s.", call.getSimpleName());
-		} catch (IllegalArgumentException e) {
-			Log.abort(this, e, "Illegal argument to object %s.", call.getSimpleName());
-		} catch (InvocationTargetException e) {
-			Log.err(this, e, "Invocation target exception on object %s.", call.getSimpleName());
-		} catch (NoSuchMethodException e) {
-			Log.abort(this, e, "No such method exception on object %s.", call.getSimpleName());
-		} catch (SecurityException e) {
-			Log.err(this, e, "Security exception on object %s.", call.getSimpleName());
-		}
+		getDisruptorProvider().submit(fileOrDir);
 	}
 	
 	public static class Builder extends AThreadedFileWalker.Builder {
 
-		private Class<? extends CallableWithPaths<Path,?>> call = null;
-		private Class<?>[] typeArgs = null;
-		private Object[] clazzConstructorArguments = null;
+		public IDisruptorEventHandlerFactory<Path> callableFactory;
+		public int threadCount;
 		
-		public Builder(String pattern) {
+		public Builder(String pattern, int threadCount) {
 			super(pattern);
+			this.threadCount = threadCount;
 		}
 
 		@Override
@@ -73,18 +48,14 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 		}
 		
 		/**
-		 * Sets the callable class with its contructor arguments.
-		 * @param callableClass
-		 * callable class to be called on every visited file
-		 * @param clazzConstructorArguments
-		 * arguments that shall be passed to the constructor of the callable class 
+		 * Sets the factory.
+		 * @param callableFactory
+		 * a factory that provides instances of callable classes 
 		 * @return
 		 * this
 		 */
-		public Builder call(Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-			this.call = callableClass;
-			this.typeArgs = call.getConstructors()[0].getParameterTypes();//TODO is that right?
-			this.clazzConstructorArguments = clazzConstructorArguments;
+		public Builder call(IDisruptorEventHandlerFactory<Path> callableFactory) {
+			this.callableFactory = callableFactory;
 			return this;
 		}
 		

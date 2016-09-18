@@ -17,7 +17,7 @@ public class PrinterModule<A> extends AModule<A, A> {
 	 * Creates a new {@link PrinterModule} object.
 	 */
 	public PrinterModule() {
-		super(true);
+		super(true, true);
 	}
 
 	/* (non-Javadoc)

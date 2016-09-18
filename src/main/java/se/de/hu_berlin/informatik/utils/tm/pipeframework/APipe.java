@@ -12,9 +12,9 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
- * framework. Classes that extend this abstract class may have an input 
- * provider and an output provider, can be linked together such that one pipe
- * provides the input of another pipe. Each pipe executes its calculations
+ * framework. Classes that extend this abstract class have an input 
+ * and an output, can be linked together such that one pipe element may
+ * provide the input of another pipe. Each pipe executes its calculations
  * inside of a thread which allows parallel execution of tasks. After usage,
  * the pipes have to be manually shutdown, though. (At least the first pipe
  * has to be manually shutdown. All other linked pipes are automatically
@@ -31,9 +31,8 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * <br><br> After linking, any matching item submitted to the first pipe
  * will start the execution process. Non-matching items will abort the
- * application with an error message. Objects that equal {@code null} will
- * be neither processed nor submitted to the output pipe if processing
- * a regular input item produces a {@code null} object.
+ * application with an error message. Submitted Objects that equal {@code null} 
+ * will simply be ignored.
  * 
  * <br><br> In general, pipes should not be linked manually and should
  * preferably be linked together with a {@link PipeLinker} which provides
@@ -55,30 +54,51 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	private boolean hasInput = false;
 	private APipe<B,?> output = null;
 
+	private final boolean singleWriter;
+
 	/**
 	 * Creates a pipe object with a buffer size of 8.
+	 * @param singleWriter
+	 * whether this pipe writes to the output with only a single thread 
+	 * (if not sure, set this to false)
 	 */
-	public APipe() {
-		this(8);
+	public APipe(boolean singleWriter) {
+		this(8, singleWriter);
 	}
 	
 	/**
 	 * Creates a pipe object.
 	 * @param bufferSize
 	 * the size of the ring buffer, must be power of 2
+	 * @param singleWriter
+	 * whether this pipe writes to the output with only a single thread
+	 * (if not sure, set this to false)
 	 */
 	@SuppressWarnings("unchecked")
-	public APipe(int bufferSize) {
+	public APipe(int bufferSize, boolean singleWriter) {
 		super();
 		disruptorProvider = new DisruptorProvider<>(bufferSize);
 		disruptorProvider.connectHandlers(new PipeEventHandler());
+		this.singleWriter = singleWriter;
+	}
+	
+	/**
+	 * Sets the producer type of the associated disruptor. 
+	 * @param singleWriter
+	 * whether the input pipe writes to this pipe with only a single thread 
+	 */
+	protected void setInput(boolean singleWriter) {
+		setProducerType(singleWriter);
+		hasInput = true;
 	}
 	
 	/**
 	 * Sets this pipe to have an input pipe. 
+	 * @param singleWriter
+	 * whether the input pipe writes to this pipe with only a single thread 
 	 */
-	protected void setInput() {
-		hasInput = true;
+	public void setProducerType(boolean singleWriter) {
+		disruptorProvider.setProducerType(singleWriter);
 	}
 	
 	/**
@@ -114,9 +134,10 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
 	 */
+	@Override
 	public <C, D> ITransmitter<C, D> linkTo(ITransmitter<C, D> transmitter) {
 		if (transmitter instanceof APipe) {
-			return linkPipeTo((APipe<C, D>)transmitter);
+			return linkPipeTo((APipe<C, D>)transmitter, singleWriter);
 		} else {
 			Log.abort(this, "Can only link to other pipes.");
 		}
@@ -131,16 +152,18 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	 * the output type of the pipe to be linked to
 	 * @param pipe
 	 * the pipe to be linked to
+	 * @param singleWriter
+	 * whether this pipe writes to the output only with a single thread
 	 * @return
 	 * the pipe to be linked to
 	 */
 	@SuppressWarnings("unchecked")
-	private <C,D> APipe<C, D> linkPipeTo(APipe<C, D> pipe) {
+	private <C,D> APipe<C, D> linkPipeTo(APipe<C, D> pipe, boolean singleWriter) {
 		if (!pipe.hasInput()) {
 			//output pipe has no input yet
 			try {				
 				setOutput((APipe<B, ?>) pipe);
-				pipe.setInput();
+				pipe.setInput(singleWriter);
 			} catch (ClassCastException e) {
 				Log.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
 			}
@@ -154,7 +177,6 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	 * Shuts down the pipe. Waits for all executions to terminate.
 	 */
 	public void shutdown() {
-//		Log.out(this, "waiting for pending items...");
 		disruptorProvider.waitForPendingEventsToFinish();
 		
 		//check whether there are collected items to submit
@@ -165,6 +187,7 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 			submitProcessedItem(result);
 		}
 		
+		finalShutdown();
 //		Log.out(this, "Shutting down...");
 		//shut down the disruptor
 		disruptorProvider.shutdown();

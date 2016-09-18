@@ -21,12 +21,12 @@ public class SamplePipe<A,B> extends APipe<A,B> {
 	// TODO create needed fields
 	
 	public SamplePipe() {
-		super();
+		super(false);
 		// TODO initialize needed fields, etc.
 	}
 
 	public SamplePipe(int pipeSize) {
-		super(pipeSize);
+		super(pipeSize, false);
 		// TODO initialize needed fields, etc.
 	}
 

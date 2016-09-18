@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.AThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
+import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
@@ -29,13 +30,12 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	final private String pattern;
 	final private int threadCount;
 	
-	private Class<? extends CallableWithPaths<Path,?>> clazz = null;
-	private Object[] clazzConstructorArguments = null;
 	private boolean searchDirectories = false;
 	private boolean searchFiles = false;
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
+	private IDisruptorEventHandlerFactory<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -45,23 +45,20 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	 * the number of threads that shall be run in parallel
 	 */
 	public ThreadedFileWalkerModule(String pattern, int threadCount) {
-		super(true);
+		super(true, false);
 		this.pattern = pattern;
 		this.threadCount = threadCount;
 	}
 	
 	/**
-	 * Sets the callable class with its contructor arguments.
-	 * @param callableClass
-	 * callable class to be called on every visited file
-	 * @param clazzConstructorArguments
-	 * arguments that shall be passed to the constructor of the callable class 
+	 * Sets the factory.
+	 * @param callableFactory
+	 * a factory that provides instances of callable classes 
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(Class<? extends CallableWithPaths<Path,?>> callableClass, Object... clazzConstructorArguments) {
-		this.clazz = callableClass;
-		this.clazzConstructorArguments = clazzConstructorArguments;
+	public ThreadedFileWalkerModule call(IDisruptorEventHandlerFactory<Path> callableFactory) {
+		this.callableFactory = callableFactory;
 		return this;
 	}
 	
@@ -110,7 +107,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	 */
 	public Boolean processItem(Path input) {
 		//declare a threaded FileWalker
-		Builder builder = new Builder(pattern);
+		Builder builder = new Builder(pattern, threadCount);
 		if (includeRootDir) {
 			builder.includeRootDir();
 		}
@@ -123,8 +120,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		if (skipAfterFind) {
 			builder.skipSubTreeAfterMatch();
 		}
-		builder.executor(threadCount);
-		builder.call(clazz, clazzConstructorArguments);
+		builder.call(callableFactory);
 		
 		AThreadedFileWalker walker = builder.build();
 		delegateTrackingTo(walker);
@@ -136,8 +132,9 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 			Log.abort(this, e, "IOException thrown.");
 		}
 		
-		//we are done! Shutdown of the executor service is necessary! (That means: No new task submissions!)
-		return walker.getExecutorServiceProvider().shutdownAndWaitForTermination();
+		//we are done! Shutdown is necessary!
+		walker.getDisruptorProvider().shutdown();
+		return true;
 	}
 
 }

@@ -1,7 +1,5 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import com.lmax.disruptor.EventFactory;
-
 
 /**
  * A wrapper for elements to be processed by a pipe. This is
@@ -22,12 +20,6 @@ public class Event<T> {
 
 	public T get() {
 		return value;
-	}
-
-	public class LongEventFactory implements EventFactory<Event<T>> {
-		public Event<T> newInstance() {
-			return new Event<>();
-		}
 	}
 
 	public static <T> void translate(Event<T> event, long sequence, T value) {

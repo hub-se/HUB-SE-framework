@@ -126,8 +126,13 @@ public abstract class CallableWithPaths<A,T> extends DisruptorEventHandler<A> im
 
 	@Override
 	public void processEvent(A input) throws Exception {
+		resetAndInit();
 		this.input = input;
 		call();
 	}
 	
+	/**
+	 * Should be used to reset or to initialize fields. Gets called before processing each event.
+	 */
+	abstract public void resetAndInit(); 
 }

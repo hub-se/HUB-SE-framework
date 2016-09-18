@@ -76,8 +76,14 @@ public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A>  
 
 	@Override
 	public void processEvent(A input) throws Exception {
+		resetAndInit();
 		this.input = input;
 		call();
 	}
+	
+	/**
+	 * Should be used to reset or to initialize fields. Gets called before processing each event.
+	 */
+	abstract public void resetAndInit(); 
 	
 }

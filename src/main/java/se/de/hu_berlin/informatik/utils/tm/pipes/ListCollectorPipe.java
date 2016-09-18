@@ -23,7 +23,7 @@ public class ListCollectorPipe<A> extends APipe<List<A>,List<A>> {
 	private List<A> collectedItems;
 	
 	public ListCollectorPipe(int minEntries) {
-		super();
+		super(true);
 		this.minEntries = minEntries;
 		collectedItems = new ArrayList<>();
 	}

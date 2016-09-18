@@ -30,7 +30,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * the module to load
 	 */
 	public ModuleLoaderPipe(AModule<A, B> module) {
-		super();
+		super(module.isSingleWriter());
 		this.module = module;
 	}
 
@@ -43,7 +43,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * the size of the output pipe
 	 */
 	public ModuleLoaderPipe(AModule<A, B> module, int pipeSize) {
-		super(pipeSize);
+		super(pipeSize, module.isSingleWriter());
 		this.module = module;
 	}
 
@@ -86,7 +86,10 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	public B getResultFromCollectedItems() {
 		return getModule().getResultFromCollectedItems();
 	}
-	
-	
+
+	@Override
+	public boolean finalShutdown() {
+		return getModule().finalShutdown();
+	}	
 
 }

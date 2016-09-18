@@ -26,7 +26,7 @@ public class XFileWriterModule extends AModule<XFileWrapper<Iterable<? extends C
 	 * determines if files and directories should be overwritten
 	 */
 	public XFileWriterModule(boolean overwrite) {
-		super(true);
+		super(true, true);
 		this.overwrite = overwrite;
 	}
 	

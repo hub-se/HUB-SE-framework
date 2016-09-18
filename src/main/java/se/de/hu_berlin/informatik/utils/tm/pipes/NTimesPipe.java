@@ -21,19 +21,7 @@ public class NTimesPipe extends APipe<Object,Object> {
 	 * the number of times that the item should be submitted to the linked pipe
 	 */
 	public NTimesPipe(int n) {
-		super();
-		this.n = n;
-	}
-
-	/**
-	 * Creates a new {@link NTimesPipe} object with the given parameters.
-	 * @param n
-	 * the number of times that the item should be submitted to the linked pipe
-	 * @param pipeSize
-	 * the size of the output pipe
-	 */
-	public NTimesPipe(int n, int pipeSize) {
-		super(pipeSize);
+		super(true);
 		this.n = n;
 	}
 

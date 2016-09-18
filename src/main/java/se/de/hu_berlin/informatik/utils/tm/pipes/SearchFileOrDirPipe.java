@@ -60,7 +60,7 @@ public class SearchFileOrDirPipe extends APipe<Path,Path> implements FileVisitor
 	 * whether directories shall be included in the search
 	 */
 	public SearchFileOrDirPipe(boolean ignoreRootDir, boolean searchDirectories, boolean searchFiles) {
-		super();
+		super(true);
 		if (!searchDirectories && !searchFiles) {
 			Log.abort(this, "Neither searching for files nor for directories.");
 		}

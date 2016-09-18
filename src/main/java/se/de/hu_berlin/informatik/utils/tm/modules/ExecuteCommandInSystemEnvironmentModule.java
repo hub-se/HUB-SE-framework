@@ -32,7 +32,7 @@ public class ExecuteCommandInSystemEnvironmentModule extends AModule<String[],In
 	 * paths to add at the start of the PATH environment variable, if any
 	 */
 	public ExecuteCommandInSystemEnvironmentModule(File executionDir, String... paths) {
-		super(true);
+		super(true, true);
 		this.executionDir = executionDir;
 		this.paths = paths;
 		environmentVariables = new HashMap<>();
