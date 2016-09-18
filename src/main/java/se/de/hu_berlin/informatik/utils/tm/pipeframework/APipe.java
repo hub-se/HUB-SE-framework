@@ -261,6 +261,11 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		return this;
 	}
 
+	/**
+	 * The event handler used for transmitting items from one pipe to another.
+	 * 
+	 * @author Simon Heiden
+	 */
 	public class PipeEventHandler extends DisruptorEventHandler<A> {
 
 		@Override

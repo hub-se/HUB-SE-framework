@@ -13,6 +13,13 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
+/**
+ * Provides convenient creation and access tools for a disruptor.
+ * 
+ * @author Simon Heiden
+ * @param <T>
+ * the type of items that may be submitted and processed by the disruptor
+ */
 public class DisruptorProvider<T> extends Trackable {
 
 	private static ThreadFactory threadFactory;
@@ -36,6 +43,11 @@ public class DisruptorProvider<T> extends Trackable {
 	private boolean isRunning = false;
 	private boolean isConnectedToHandlers = false;
 	
+	/**
+	 * Creates a new disruptor provider with the given buffer size.
+	 * @param bufferSize
+	 * the buffer size (must be a power of 2)
+	 */
 	public DisruptorProvider(int bufferSize) {
 		super();
 		this.bufferSize = bufferSize;
@@ -45,6 +57,9 @@ public class DisruptorProvider<T> extends Trackable {
 		mainThread = Thread.currentThread();
 	}
 
+	/**
+	 * Creates a new disruptor instance.
+	 */
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
 		disruptor = new Disruptor<>(Event<T>::new, bufferSize, threadFactory,
@@ -54,6 +69,12 @@ public class DisruptorProvider<T> extends Trackable {
 		ringBuffer = disruptor.getRingBuffer();
 	}
 	
+	/**
+	 * Returns the disruptor instance. Creates one if
+	 * none exists.
+	 * @return
+	 * the disruptor instance
+	 */
 	public Disruptor<Event<T>> getOrCreateDisruptor() {
 		if (disruptor == null) {
 			createNewDisruptorInstance();
@@ -61,6 +82,12 @@ public class DisruptorProvider<T> extends Trackable {
 		return disruptor;
 	}
 	
+	/**
+	 * Returns the ring buffer of a disruptor instance. Creates one if
+	 * none exists.
+	 * @return
+	 * the ring buffer
+	 */
 	public RingBuffer<Event<T>> getOrCreateRingBuffer() {
 		if (ringBuffer == null) {
 			createNewDisruptorInstance();
@@ -68,6 +95,10 @@ public class DisruptorProvider<T> extends Trackable {
 		return ringBuffer;
 	}
 	
+	/**
+	 * @param singleWriter
+	 * whether only a single thread is writing to this disruptor
+	 */
 	public void setProducerType(boolean singleWriter) {
 		if (singleWriter) {
 //			Log.out(this, "single");
@@ -78,10 +109,21 @@ public class DisruptorProvider<T> extends Trackable {
 		}
 	}
 	
+	/**
+	 * @return
+	 * whether the disruptor is running
+	 */
 	public boolean isRunning() {
 		return isRunning;
 	}
 	
+	/**
+	 * Performs a cleanup in the sense that an existing disruptor instance gets
+	 * nullified. Possibly existing instances of event handlers are kept, though,
+	 * in order to be able to start the disruptor again, if needed.
+	 * @return
+	 * this
+	 */
 	private DisruptorProvider<T> cleanup() {
 		if (!isRunning) {
 			disruptor = null;
@@ -91,6 +133,12 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
+	/**
+	 * Connects the given event handlers with the disruptor. The handlers process submitted events
+	 * in parallel.
+	 * @param handlers
+	 * the handlers to connect
+	 */
 	public void connectHandlers(@SuppressWarnings("unchecked") DisruptorEventHandler<T>... handlers) {
 		if (disruptor == null) {
 			createNewDisruptorInstance();
@@ -114,6 +162,16 @@ public class DisruptorProvider<T> extends Trackable {
 		isConnectedToHandlers = true;
 	}
 	
+	/**
+	 * Connects the given number of event handlers with the disruptor. The handlers are
+	 * instantiated with the given factory.
+	 * @param numberOfThreads
+	 * the number of handlers (threads) to create
+	 * @param factory
+	 * the factory to create the event handlers with
+	 * @return
+	 * this
+	 */
 	public DisruptorProvider<T> connectHandlers(int numberOfThreads, IDisruptorEventHandlerFactory<T> factory) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
@@ -133,6 +191,11 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
+	/**
+	 * Starts the disruptor manually. This is normally not needed.
+	 * @return
+	 * this
+	 */
 	public DisruptorProvider<T> start() {
 		//avoid synchronized method call if already running
 		if (!isRunning) {
@@ -141,6 +204,9 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
+	/**
+	 * Starts the disruptor if it is not already running.
+	 */
 	private synchronized void startIfNotRunning() {
 		if (!isRunning) {
 			if (disruptor == null) {
@@ -163,6 +229,11 @@ public class DisruptorProvider<T> extends Trackable {
 		}
 	}
 	
+	/**
+	 * Waits for any pending events to be processed.
+	 * @return
+	 * this
+	 */
 	public DisruptorProvider<T> waitForPendingEventsToFinish() {
 		if (disruptor != null && isRunning) {
 //			Log.out(this, "waiting for pending items...");
@@ -174,6 +245,11 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
+	/**
+	 * Shuts down the disruptor.
+	 * @return
+	 * this
+	 */
 	public DisruptorProvider<T> shutdown() {
 		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
@@ -186,6 +262,13 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
+	/**
+	 * Submits an item to the disruptor. Starts the disruptor threads
+	 * if it is not running. If no handlers are connected, then this
+	 * will throw an exception.
+	 * @param item
+	 * the item to submit
+	 */
 	public void submit(T item) {
 		//avoid synchronized method call if already running
 		if (!isRunning) {
@@ -196,7 +279,10 @@ public class DisruptorProvider<T> extends Trackable {
 		ringBuffer.publishEvent(Event::translate, item);
 	}
 
-	public void onEventEnd() {
+	/**
+	 * Gets called for each processed event at the end.
+	 */
+	protected void onEventEnd() {
 		if(pendingItems.decrementAndGet() <= 0) {
 			LockSupport.unpark(mainThread);
 		}
