@@ -37,127 +37,138 @@ public class Log {
 	}
 	
 	/**
-	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
-	 * @param o
-	 * is some instantiated object. The class name is used in the produced error message.
-	 * @param e
-	 * a caught exception from which will be printed a stack trace
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 * Returns an identifier for the given object. If the object is a String, then
+	 * the String will simply be returned. If it is a Class object, then the class 
+	 * name will be returned. In all other cases, the name of the class of the given
+	 * object will be returned.
+	 * @param id
+	 * the object for which to return an identifier
+	 * @return
+	 * an identifier
 	 */
-	public static void abort(Object o, Exception e, String message, Object... args) {
-		printfErrorMessage(o, message, args);
-		printException(o, e);
-		printAbort(o);
-		exitWithError();
-	}
-	
-	/**
-	 * Prints the given message to {@code System.err} and exits the application with status code {@code 1}.
-	 * @param o
-	 * is some instantiated object. The class name is used in the produced error message.
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void abort(Object o, String message, Object... args) {
-		printfErrorMessage(o, message, args);
-		printAbort(o);
-		exitWithError();
-	}
-	
-	/**
-	 * Prints the given message to {@code System.err}.
-	 * @param o
-	 * is some instantiated object. The class name is used in the produced error message.
-	 * @param e
-	 * a caught exception from which will be printed a stack trace
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void err(Object o, Throwable e, String message, Object... args) {
-		printfErrorMessage(o, message, args);
-		printException(o, e);
-	}
-	
-	/**
-	 * Prints the given message to {@code System.err}.
-	 * @param o
-	 * is some instantiated object. The class name is used in the produced error message.
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	public static void err(Object o, String message, Object... args) {
-		printfErrorMessage(o, message, args);
-	}
-	
-	/**
-	 * Helper method that prints the given message to {@code System.err}.
-	 * @param o
-	 * is some instantiated object or a class (or null). The class name is used in the produced error message.
-	 * @param message
-	 * an error message
-	 * @param args
-	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
-	 */
-	private static void printfErrorMessage(Object o, String message, Object... args) {
-		System.out.flush();
-		String identifier = null;
-		if (o != null) {
-			try {
-				identifier = ((Class<?>)o).getName();
-			} catch(Exception e) {
-				identifier = o.getClass().getName();
+	private static String getIdentifier(Object id) {
+		if (id != null) {
+			if (id instanceof String) {
+				return (String)id; 
+			} else {
+				try {
+					return ((Class<?>)id).getName();
+				} catch(Exception e) {
+					return id.getClass().getName();
+				}
 			}
 		}
+		return null;
+	}
+	
+	/**
+	 * Prints the given error message and exits the application with status code {@code 1}.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param e
+	 * a caught exception from which will be printed a stack trace
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void abort(Object id, Exception e, String message, Object... args) {
+		printfErrorMessage(id, message, args);
+		printException(id, e);
+		printAbort(id);
+		exitWithError();
+	}
+	
+	/**
+	 * Prints the given error message and exits the application with status code {@code 1}.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void abort(Object id, String message, Object... args) {
+		printfErrorMessage(id, message, args);
+		printAbort(id);
+		exitWithError();
+	}
+	
+	/**
+	 * Prints the given error message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param e
+	 * a caught exception from which will be printed a stack trace
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void err(Object id, Throwable e, String message, Object... args) {
+		printfErrorMessage(id, message, args);
+		printException(id, e);
+	}
+	
+	/**
+	 * Prints the given throwable.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param e
+	 * a caught exception from which will be printed a stack trace
+	 */
+	public static void err(Object id, Throwable e) {
+		printException(id, e);
+	}
+	
+	/**
+	 * Prints the given error message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void err(Object id, String message, Object... args) {
+		printfErrorMessage(id, message, args);
+	}
+	
+	/**
+	 * Helper method that prints the given error message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	private static void printfErrorMessage(Object id, String message, Object... args) {
+		String identifier = getIdentifier(id);
 		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
 		logger.printf(Level.ERROR, message, args);
 	}
 	
 	/**
-	 * Prints an exception to the console.
-	 * @param o
-	 * is some instantiated object or a class (or null). The class name is used in the produced error message.
+	 * Prints an exception.
+	 * @param id
+	 * the object to use for generating an identifier
 	 * @param e
 	 * the exception to be printed
 	 */
-	private static void printException(Object o, Throwable e) {
-		String identifier = null;
-		if (o != null) {
-			try {
-				identifier = ((Class<?>)o).getName();
-			} catch(Exception x) {
-				identifier = o.getClass().getName();
-			}
-		}
+	private static void printException(Object id, Throwable e) {
+		String identifier = getIdentifier(id);
 		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
 		logger.catching(Level.ERROR, e);
-//		System.err.printf("Exception message: %s%n", e.getMessage());
-//		System.err.println();
-//		e.printStackTrace();
 	}
 	
 	/**
-	 * Prints an abort message to {@code System.err}.
-	 * @param o
-	 * is some instantiated object or a class (or null). The class name is used in the produced message.
+	 * Prints an abort message.
+	 * @param id
+	 * the object to use for generating an identifier
 	 */
-	private static void printAbort(Object o) {
-		String identifier = null;
-		if (o != null) {
-			try {
-				identifier = ((Class<?>)o).getName();
-			} catch(Exception e) {
-				identifier = o.getClass().getName();
-			}
-		}
+	private static void printAbort(Object id) {
+		String identifier = getIdentifier(id);
 		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
 		logger.fatal("aborting...");
 	}
@@ -170,36 +181,29 @@ public class Log {
 	}
 	
 	/**
-	 * Prints the given message to {@code System.out}.
-	 * @param o
-	 * is some instantiated object. The class name is used in the produced message.
+	 * Prints the given message.
+	 * @param id
+	 * the object to use for generating an identifier
 	 * @param message
 	 * a message
 	 * @param args
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void out(Object o, String message, Object... args) {
-		printfMessage(o, message, args);
+	public static void out(Object id, String message, Object... args) {
+		printfMessage(id, message, args);
 	}
 	
 	/**
-	 * Helper method that prints the given message to {@code System.out}.
-	 * @param o
-	 * is some instantiated object or a class (or null). The class name is used in the produced message.
+	 * Helper method that prints the given message.
+	 * @param id
+	 * the object to use for generating an identifier
 	 * @param message
 	 * a message
 	 * @param args
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
-	private static void printfMessage(Object o, String message, Object... args) {
-		String identifier = null;
-		if (o != null) {
-			try {
-				identifier = ((Class<?>)o).getName();
-			} catch(Exception e) {
-				identifier = o.getClass().getName();
-			}
-		}
+	private static void printfMessage(Object id, String message, Object... args) {
+		String identifier = getIdentifier(id);
 		Logger logger = identifier == null ? LogManager.getRootLogger() : LogManager.getLogger(identifier);
 		logger.printf(Level.INFO, message, args);
 	}
