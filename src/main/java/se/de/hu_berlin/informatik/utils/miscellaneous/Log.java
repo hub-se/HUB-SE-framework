@@ -47,20 +47,20 @@ public class Log {
 	 * an identifier
 	 */
 	private static String getIdentifier(Object id) {
-		if (id != null) {
-			if (id instanceof String) {
-				return (String)id; 
-			} else {
-				try {
-					return ((Class<?>)id).getName();
-				} catch(Exception e) {
-					return id.getClass().getName();
-				}
+		if (id == null) {
+			return null;
+		}
+		if (id instanceof String) {
+			return (String)id; 
+		} else {
+			try {
+				return ((Class<?>)id).getName();
+			} catch(Exception e) {
+				return id.getClass().getName();
 			}
 		}
-		return null;
 	}
-	
+
 	/**
 	 * Prints the given error message and exits the application with status code {@code 1}.
 	 * @param id

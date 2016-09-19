@@ -17,20 +17,6 @@ public class Misc {
 	private Misc() {
 		throw new AssertionError();
 	}
-
-	/**
-	 * Generates an array of a generic type that is only known at runtime.
-	 * @param clazz
-	 * the type of the items in the array
-	 * @param arrayLength
-	 * the length of the array
-	 * @return
-	 * the created array
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T[] createGenericArray(Class<T> clazz, int arrayLength) {
-        return (T[]) Array.newInstance(clazz, arrayLength);
-    }
 	
 	/**
 	 * searches for a method with the given name in the given class.
@@ -187,11 +173,27 @@ public class Misc {
 		}
 		Class<?> type = a.getClass().getComponentType();
 		@SuppressWarnings("unchecked")
-		T[] joinedArray = (T[]) Array.newInstance(type, a.length + items.length);
+		T[] joinedArray = (T[]) Array.newInstance((Class<T>)type, a.length + items.length);
 		System.arraycopy(a, 0, joinedArray, 0, a.length);
 		System.arraycopy(items, 0, joinedArray, a.length, items.length);
 		return joinedArray;
 	}
+	
+	/**
+	 * Generates an array of a generic type that is only known at runtime.
+	 * @param clazz
+	 * the type of the items in the array
+	 * @param arrayLength
+	 * the length of the array
+	 * @return
+	 * the created array
+	 * @param <T>
+	 * the type of the items in the array
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] createGenericArray(Class<T> clazz, int arrayLength) {
+        return (T[]) Array.newInstance(clazz, arrayLength);
+    }
 	
 	/**
 	 * Blocks further execution until the given thread is dead.

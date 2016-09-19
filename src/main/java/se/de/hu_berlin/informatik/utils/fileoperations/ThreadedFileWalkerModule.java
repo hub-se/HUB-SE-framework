@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.AThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.CallableWithPaths;
 import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
@@ -107,7 +106,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	 */
 	public Boolean processItem(Path input) {
 		//declare a threaded FileWalker
-		Builder builder = new Builder(pattern, threadCount);
+		ThreadedFileWalker.Builder builder = new Builder(pattern, threadCount);
 		if (includeRootDir) {
 			builder.includeRootDir();
 		}
@@ -122,7 +121,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		}
 		builder.call(callableFactory);
 		
-		AThreadedFileWalker walker = builder.build();
+		ThreadedFileWalker walker = builder.build();
 		delegateTrackingTo(walker);
 		
 		//traverse the file tree

@@ -5,17 +5,20 @@ package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
 
+import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
+
 /**
- * {@link AThreadedFileWalker} extension that takes a callable class 
+ * {@link AFileWalker} extension that takes a callable class 
  * and calls it on every file visited that matches the given pattern.
  * 
  * @author Simon Heiden
  * 
- * @see AThreadedFileWalker
  * @see CallableWithPaths
  */
-public class ThreadedFileWalker extends AThreadedFileWalker {
+public class ThreadedFileWalker extends AFileWalker {
 	
+	private DisruptorProvider<Path> disruptorProvider;
+
 	private ThreadedFileWalker(Builder builder) {
 		super(builder);
 		
@@ -23,16 +26,26 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 			throw new IllegalStateException("No callable class given.");
 		}
 		
-		getDisruptorProvider().connectHandlers(builder.threadCount, builder.callableFactory);
+		disruptorProvider = new DisruptorProvider<>(8);
+		disruptorProvider.connectHandlers(builder.threadCount, builder.callableFactory);
 	}
 
-	@Override
-	public void processMatchedFileOrDir(Path fileOrDir) {
-//		Misc.out(this, "\tsubmitting task for: " + file);
-		getDisruptorProvider().submit(fileOrDir);
+	/**
+	 * @return
+	 * the disruptor provider
+	 */
+	public DisruptorProvider<Path> getDisruptorProvider() {
+		return disruptorProvider;
 	}
 	
-	public static class Builder extends AThreadedFileWalker.Builder {
+	@Override
+	public void processMatchedFileOrDir(Path fileOrDir) {
+//		Log.out(this, "\tsubmitting task for: " + file);
+		disruptorProvider.submit(fileOrDir);
+		disruptorProvider.shutdown();
+	}
+	
+	public static class Builder extends AFileWalker.Builder {
 
 		public IDisruptorEventHandlerFactory<Path> callableFactory;
 		public int threadCount;
@@ -43,7 +56,7 @@ public class ThreadedFileWalker extends AThreadedFileWalker {
 		}
 
 		@Override
-		public AThreadedFileWalker build() {
+		public ThreadedFileWalker build() {
 			return new ThreadedFileWalker(this);
 		}
 		

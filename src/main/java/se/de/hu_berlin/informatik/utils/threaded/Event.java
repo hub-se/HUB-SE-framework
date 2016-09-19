@@ -40,6 +40,8 @@ public class Event<T> {
 	 * the event's sequence
 	 * @param item
 	 * the item to wrap in the event
+	 * @param <T>
+	 * the type of the items
 	 */
 	public static <T> void translate(Event<T> event, long sequence, T item) {
 		event.set(item);

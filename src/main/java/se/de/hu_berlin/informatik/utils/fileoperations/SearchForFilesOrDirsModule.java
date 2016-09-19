@@ -6,20 +6,20 @@ package se.de.hu_berlin.informatik.utils.fileoperations;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import se.de.hu_berlin.informatik.utils.miscellaneous.SearchFileOrDirWalker;
-import se.de.hu_berlin.informatik.utils.miscellaneous.SearchFileOrDirWalker.Builder;
+
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Starts a file walker that searches for files and directories that 
- * match a given pattern, starting from a submitted input path.
+ * match a given pattern, starting from a submitted input path. Returns a
+ * list of matched files and/or directories.
  * 
  * @author Simon Heiden
- * 
- * @see SearchFileOrDirWalker
  */
 public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 
@@ -109,7 +109,12 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 			Log.abort(this, "Path '%s' doesn't exist.", input.toString());
 		}
 		
-		Builder builder = new Builder();
+		SearchFileWalker.Builder builder = new Builder(pattern) {
+			@Override
+			public SearchFileWalker build() {
+				return new SearchFileWalker(this);
+			}
+		};
 		if (includeRootDir) {
 			builder.includeRootDir();
 		}
@@ -122,12 +127,9 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 		if (skipAfterFind) {
 			builder.skipSubTreeAfterMatch();
 		}
-		if (pattern != null) {
-			builder.pattern(pattern);
-		}
 		
-		//declare a search for files FileWalker
-		SearchFileOrDirWalker walker = builder.build();
+		//declare the file walker
+		SearchFileWalker walker = (SearchFileWalker) builder.build();
 		delegateTrackingTo(walker);
 		
 		//traverse the file tree
@@ -137,7 +139,26 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 			Log.abort(this, e, "IOException thrown.");
 		}
 
-		return walker.getResult();
+		return walker.getMatchedPaths();
 	}
 
+	public class SearchFileWalker extends AFileWalker {
+
+		final private List<Path> matchedPaths;
+		
+		protected SearchFileWalker(Builder builder) {
+			super(builder);
+			this.matchedPaths = new ArrayList<>();
+		}
+
+		@Override
+		public void processMatchedFileOrDir(Path fileOrDir) {
+			matchedPaths.add(fileOrDir);
+		}
+		
+		public List<Path> getMatchedPaths() {
+			return matchedPaths;
+		}
+		
+	}
 }

@@ -1,38 +1,39 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.miscellaneous;
+package se.de.hu_berlin.informatik.utils.fileoperations;
 
-import java.nio.file.*;
-import java.nio.file.attribute.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
-
-import static java.nio.file.FileVisitResult.*;
+import static java.nio.file.FileVisitResult.CONTINUE;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
+
+import se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
- * FileVisitor implementation that searches for and returns files
- * whose file paths match the given pattern.
+ * Extendable {@link FileVisitor} implementation.
  * 
  * @author Simon Heiden
  * 
  * @see FileVisitor
  */
-public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path> {
+public abstract class AFileWalker extends Trackable implements FileVisitor<Path> {
 	
 	final private PathMatcher matcher;
-	final private List<Path> matchedPaths;
 	final private boolean searchDirectories;
 	final private boolean searchFiles;
 	final private boolean skipAfterFind;
 	
-	private boolean isFirst = true;
-
-	private SearchFileOrDirWalker(Builder builder) {
+	private boolean isFirst;
+	
+	protected AFileWalker(Builder builder) {
 		matcher = builder.matcher;
 		searchDirectories = builder.searchDirectories;
 		searchFiles = builder.searchFiles;
@@ -42,28 +43,20 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 		if (searchDirectories == false && searchFiles == false) {
 			throw new IllegalStateException("Define whether files or directories shall be searched.");
 		}
-		
-		this.matchedPaths = new ArrayList<>();
 	}
 	
 	/**
-	 * Convenience method to match the given path against the pattern.
+	 * Convenience method to be used in actual implementations of this class
 	 * @param path
-	 * path to be matched against the pattern.
+	 * Path to be matched against the global pattern.
 	 * @return
-	 * true if path is not null and matches the pattern.
+	 * true if path is not null and matches the global pattern.
 	 */
-	private boolean match(Path path) {
+	protected boolean match(Path path) {
 		return path != null && matcher.matches(path);
 	}
 	
-	/**
-	 * @return
-	 * a list of matching files that can be obtained after using the file walker
-	 */
-	public List<Path> getResult() {
-		return matchedPaths;
-	}
+	abstract public void processMatchedFileOrDir(Path fileOrDir);
 	
 	/* (non-Javadoc)
 	 * @see java.nio.file.SimpleFileVisitor#visitFile(java.lang.Object, java.nio.file.attribute.BasicFileAttributes)
@@ -74,10 +67,10 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 			if (searchDirectories) {
 				if (matcher == null) {
 					track();
-					matchedPaths.add(file);
+					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
 					track();
-					matchedPaths.add(file);
+					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 					if (skipAfterFind) {
 						return FileVisitResult.SKIP_SUBTREE;
@@ -87,11 +80,10 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 		} else {
 			if (searchFiles) {
 				if (matcher == null) {
-					track();
-					matchedPaths.add(file);
+					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
 					track();
-					matchedPaths.add(file);
+					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 				}
 			}
@@ -108,10 +100,10 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 			if (searchDirectories) {
 				if (matcher == null) {
 					track();
-					matchedPaths.add(dir);
+					processMatchedFileOrDir(dir);
 				} else if (match(dir.toAbsolutePath())) {
 					track();
-					matchedPaths.add(dir);
+					processMatchedFileOrDir(dir);
 //					Misc.out(dir.toString());
 					if (skipAfterFind) {
 						return FileVisitResult.SKIP_SUBTREE;
@@ -123,8 +115,9 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 		}
 		return CONTINUE;
 	}
+	
 
-	/**
+    /**
      * Invoked for a file that could not be visited.
      *
      * <p> Unless overridden, this method re-throws the I/O exception that prevented
@@ -157,30 +150,27 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
         return FileVisitResult.CONTINUE;
     }
     
-    
-    public static class Builder implements se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder<SearchFileOrDirWalker> {
+    public static abstract class Builder implements IBuilder<AFileWalker> {
 		
-		private PathMatcher matcher;
+		private final PathMatcher matcher;
 		
 		private boolean searchDirectories = false;
 		private boolean searchFiles = false;
 		private boolean skipAfterFind = false;
 		private boolean isFirst = true;
 		
-		public Builder() {
-			super();
-		}
-		
 		/**
-		 * Sets a search pattern.
+		 * Creates an {@link Builder} object with the given parameters.
 		 * @param pattern
 		 * holds a global pattern against which the visited files (more specific: their file names) should be matched
-		 * @return
-		 * this
 		 */
-		public Builder pattern(String pattern) {
-			this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-			return this;
+		public Builder(String pattern) {
+			super();
+			if (pattern == null) {
+				this.matcher = null;
+			} else {
+				this.matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+			}
 		}
 		
 		/**
@@ -222,12 +212,7 @@ public class SearchFileOrDirWalker extends Trackable implements FileVisitor<Path
 			isFirst = false;
 			return this;
 		}
-
-		@Override
-		public SearchFileOrDirWalker build() {
-			return new SearchFileOrDirWalker(this);
-		}
     	
     }
-	
+    
 }
