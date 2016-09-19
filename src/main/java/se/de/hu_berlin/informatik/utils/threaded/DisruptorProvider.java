@@ -1,6 +1,5 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import java.lang.reflect.Array;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,6 +10,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
@@ -134,8 +134,8 @@ public class DisruptorProvider<T> extends Trackable {
 	}
 	
 	/**
-	 * Connects the given event handlers with the disruptor. The handlers process submitted events
-	 * in parallel.
+	 * Connects the given event handlers to the disruptor. The handlers process submitted events
+	 * in parallel. If no disruptor instance is available, a new one is created beforehand.
 	 * @param handlers
 	 * the handlers to connect
 	 */
@@ -163,7 +163,7 @@ public class DisruptorProvider<T> extends Trackable {
 	}
 	
 	/**
-	 * Connects the given number of event handlers with the disruptor. The handlers are
+	 * Connects the given number of event handlers to the disruptor. The handlers are
 	 * instantiated with the given factory.
 	 * @param numberOfThreads
 	 * the number of handlers (threads) to create
@@ -176,16 +176,16 @@ public class DisruptorProvider<T> extends Trackable {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
-
-		// Use Array native method to create array
-        // of a type only known at run time
-        @SuppressWarnings("unchecked")
-        final DisruptorEventHandler<T>[] handlers = (DisruptorEventHandler<T>[]) Array.newInstance(factory.getEventHandlerClass(), numberOfThreads);
+		
+		//create generic array for the handlers to be instantiated
+        final DisruptorEventHandler<T>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
         
+        //instantiate the desired number of handlers
 		for (int i = 0; i < numberOfThreads; ++i) {
 			handlers[i] = factory.newInstance();
 		}
 		
+		//connect the handlers to the disruptor
 		connectHandlers(handlers);
 		
 		return this;
@@ -209,20 +209,13 @@ public class DisruptorProvider<T> extends Trackable {
 	 */
 	private synchronized void startIfNotRunning() {
 		if (!isRunning) {
-			if (disruptor == null) {
+			if (disruptor == null || !isConnectedToHandlers) {
 				if (handlers == null) {
 					throw new IllegalStateException("No handlers given. Cannot start the disruptor.");
 				}
-				createNewDisruptorInstance();
 				connectHandlers(handlers);
 			}
 
-			if (!isConnectedToHandlers) {
-				if (handlers == null) {
-					throw new IllegalStateException("No handlers given. Cannot start the disruptor.");
-				}
-				connectHandlers(handlers);
-			}
 			// Start the Disruptor, starts all threads running
 			disruptor.start();
 			isRunning = true;

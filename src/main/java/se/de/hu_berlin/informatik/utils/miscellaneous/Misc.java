@@ -19,6 +19,20 @@ public class Misc {
 	}
 
 	/**
+	 * Generates an array of a generic type that is only known at runtime.
+	 * @param clazz
+	 * the type of the items in the array
+	 * @param arrayLength
+	 * the length of the array
+	 * @return
+	 * the created array
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] createGenericArray(Class<T> clazz, int arrayLength) {
+        return (T[]) Array.newInstance(clazz, arrayLength);
+    }
+	
+	/**
 	 * searches for a method with the given name in the given class.
 	 * @param target
 	 * class in which to search for the method
