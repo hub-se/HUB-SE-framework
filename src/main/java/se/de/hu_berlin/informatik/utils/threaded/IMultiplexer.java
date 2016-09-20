@@ -55,8 +55,7 @@ public interface IMultiplexer<B> extends Runnable {
 	public void initiateCheckForPendingItems();
 	
 	/**
-	 * Checks for any pending items and calls {@link #processNewOutputItem(B item)}
-	 * on any item that is valid.
+	 * Checks for any pending items and processes each item that is valid.
 	 * @param handlers
 	 * the connected handlers
 	 */
