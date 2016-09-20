@@ -35,7 +35,7 @@ public class IntArrayToCSVFileWriterModule extends AModule<int[], int[]> {
 	 * determines if files and directories should be overwritten
 	 */
 	public IntArrayToCSVFileWriterModule(Path outputPath, int columnCount, boolean overwrite) {
-		super(true, true);
+		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

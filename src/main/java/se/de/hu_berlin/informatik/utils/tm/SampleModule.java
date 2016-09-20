@@ -22,7 +22,7 @@ public class SampleModule<A,B> extends AModule<A,B> {
 	
 	public SampleModule() {
 		//if this module needs an input item
-		super(true, false);
+		super(true);
 		//if it doesn't need an item use
 		//super(false);
 		// TODO initialize needed fields, etc.

@@ -24,7 +24,7 @@ public class InvokeMethodInNewThreadModule extends AModule<Object[],Thread> {
 	private Class<?> argType;
 	
 	public InvokeMethodInNewThreadModule(Object caller, final String className, final String methodName, Class<?> argType, boolean waitForFinish) {
-		super(true, true);
+		super(true);
 		this.caller = caller;
 		this.className = className;
 		this.methodName = methodName;

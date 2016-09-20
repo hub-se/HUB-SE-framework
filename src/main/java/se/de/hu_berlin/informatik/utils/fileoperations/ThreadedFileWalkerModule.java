@@ -44,7 +44,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 	 * the number of threads that shall be run in parallel
 	 */
 	public ThreadedFileWalkerModule(String pattern, int threadCount) {
-		super(true, false);
+		super(true);
 		this.pattern = pattern;
 		this.threadCount = threadCount;
 	}

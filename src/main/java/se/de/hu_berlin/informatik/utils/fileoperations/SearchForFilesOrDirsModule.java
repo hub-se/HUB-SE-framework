@@ -53,7 +53,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 	 * maximum depth in which to search
 	 */
 	public SearchForFilesOrDirsModule(String pattern, int depth) {
-		super(true, true);
+		super(true);
 		this.pattern = pattern;
 		if (depth < 0) {
 			Log.abort(this, "Search depth has negative value.");

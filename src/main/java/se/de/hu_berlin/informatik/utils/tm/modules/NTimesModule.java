@@ -20,7 +20,7 @@ public class NTimesModule extends AModule<Object,Object> {
 	 * the number of times that the item should be submitted to the linked module
 	 */
 	public NTimesModule(int n) {
-		super(true, true);
+		super(true);
 		this.n = n;
 	}
 	

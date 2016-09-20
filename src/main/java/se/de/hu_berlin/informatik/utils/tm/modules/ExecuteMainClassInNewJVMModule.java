@@ -68,7 +68,7 @@ public class ExecuteMainClassInNewJVMModule extends AModule<String[],Integer> {
 	 */
 	public ExecuteMainClassInNewJVMModule(String javaHome,  
 			String clazz, String cp, File executionDir, String... properties) {
-		super(true, true);
+		super(true);
 		this.executionDir = executionDir;
 		this.clazz = clazz;
 		if (cp != null) {

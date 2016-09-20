@@ -18,7 +18,7 @@ public class ReadZipFileModule extends AModule<Path,ZipFileWrapper> {
 	
 	public ReadZipFileModule() {
 		//if this module needs an input item
-		super(true, true);
+		super(true);
 	}
 
 	/* (non-Javadoc)

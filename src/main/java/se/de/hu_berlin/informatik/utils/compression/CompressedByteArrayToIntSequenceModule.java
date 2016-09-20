@@ -23,7 +23,7 @@ public class CompressedByteArrayToIntSequenceModule extends AModule<byte[],List<
 	
 	public CompressedByteArrayToIntSequenceModule() {
 		//if this module needs an input item
-		super(true, true);
+		super(true);
 	}
 	
 	/* (non-Javadoc)

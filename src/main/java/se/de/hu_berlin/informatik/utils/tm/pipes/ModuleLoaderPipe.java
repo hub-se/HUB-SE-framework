@@ -30,7 +30,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * the module to load
 	 */
 	public ModuleLoaderPipe(AModule<A, B> module) {
-		super(module.isSingleWriter());
+		super(true);
 		this.module = module;
 	}
 
@@ -43,7 +43,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * the size of the output pipe
 	 */
 	public ModuleLoaderPipe(AModule<A, B> module, int pipeSize) {
-		super(pipeSize, module.isSingleWriter());
+		super(pipeSize, true);
 		this.module = module;
 	}
 

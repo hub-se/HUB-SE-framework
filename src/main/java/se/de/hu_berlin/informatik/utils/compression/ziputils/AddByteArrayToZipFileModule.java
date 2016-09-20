@@ -27,7 +27,7 @@ public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
 	
 	public AddByteArrayToZipFileModule(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
-		super(true, true);
+		super(true);
 		if (deleteExisting) {
 			FileUtils.delete(zipFilePath);
 		}

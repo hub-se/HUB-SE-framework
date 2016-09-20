@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
 public class PathToFileConverterModule extends AModule<Path,File> {
 	
 	public PathToFileConverterModule() {
-		super(true, true);
+		super(true);
 	}
 
 	/* (non-Javadoc)

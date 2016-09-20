@@ -43,7 +43,7 @@ public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 	 * is the extension of the automatically generated output paths
 	 */
 	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
-		super(true, true);
+		super(true);
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
 		this.extension = extension;
@@ -68,7 +68,7 @@ public class ByteArrayToFileWriterModule extends AModule<byte[], byte[]> {
 	 * determines if files and directories should be overwritten
 	 */
 	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite) {
-		super(true, true);
+		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

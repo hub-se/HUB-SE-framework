@@ -5,27 +5,31 @@ package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.util.concurrent.Callable;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
-
 /**
- * An abstract class that implements the {@link Callable} interface and
- * is enriched with fields for input and output paths. The user has to
- * make sure that input and/or output paths are set before use if needed.
+ * An abstract class that implements the {@link Callable} and the 
+ * {@link IMultiplexerInput} interface. The user has to
+ * make sure that an input item is set before trying to process it.
  * 
  * @author Simon Heiden
  * 
- * 
  * @see Callable
  */
-public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A>  implements Callable<Boolean> {
+public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
 
 	/**
 	 * The input object.
 	 */
 	private A input = null;
 	
-	APipe<?, B> pipe = null;
+	/**
+	 * The output object.
+	 */
+	private B output = null;
 	
+	private boolean hasNewOutput = false;
+	private final Object lock = new Object();
+	private IMultiplexer<B> multiplexer = null;
+
 	/**
 	 * Creates a new {@link CallableWithReturn} object with the given path.
 	 * @param input
@@ -58,20 +62,24 @@ public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A>  
 	public A getInput() {
 		return input;
 	}
-
-	public void setPipe(APipe<?, B> pipe) {
-		this.pipe = pipe;
-	}
 	
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Callable#call()
 	 */
 	@Override
 	public Boolean call() {
-		pipe.submitProcessedItem(processInput(input));
+		setOutputAndNotifyMultiplexer(processInput(input));
 		return true;
 	}
 
+	/**
+	 * Processes a single item of type A and returns an item of type B (or {@code null}).
+	 * Has to be instantiated by implementing classes.
+	 * @param input
+	 * the input item
+	 * @return
+	 * an item of type B
+	 */
 	abstract public B processInput(A input);
 
 	@Override
@@ -85,5 +93,73 @@ public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A>  
 	 * Should be used to reset or to initialize fields. Gets called before processing each event.
 	 */
 	abstract public void resetAndInit(); 
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setMultiplexer(se.de.hu_berlin.informatik.utils.threaded.NToOneMultiplexer)
+	 */
+	@Override
+	public void setMultiplexer(IMultiplexer<B> multiplexer) {
+		if (multiplexer == null) {
+			throw new IllegalStateException("No multiplexer given (null).");
+		}
+		this.multiplexer = multiplexer;
+	}
+
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#getLock()
+	 */
+	@Override
+	public Object getLock() {
+		return lock;
+	}
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#getOutput()
+	 */
+	@Override
+	public B getOutput() {
+		return output;
+	}
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setOutput(java.lang.Object)
+	 */
+	@Override
+	public boolean setOutput(B item) {
+		output = item;
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#outputItemIsValid()
+	 */
+	@Override
+	public boolean outputItemIsValid() {
+		return hasNewOutput;
+	}
+
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setOutputItemValid()
+	 */
+	@Override
+	public void setOutputItemValid() {
+		hasNewOutput = true;
+	}
+
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setOutputItemInvalid()
+	 */
+	@Override
+	public void setOutputItemInvalid() {
+		hasNewOutput = false;
+	}
+
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#getMultiplexer()
+	 */
+	@Override
+	public IMultiplexer<B> getMultiplexer() {
+		return multiplexer;
+	}
 	
 }

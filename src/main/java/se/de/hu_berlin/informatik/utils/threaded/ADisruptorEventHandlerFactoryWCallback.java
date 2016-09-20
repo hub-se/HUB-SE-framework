@@ -1,23 +1,21 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
-
 public abstract class ADisruptorEventHandlerFactoryWCallback<A,B> implements IDisruptorEventHandlerFactoryWCallback<A,B> {
 
-	private APipe<?, B> pipe;
+	private IMultiplexer<B> multiplexer;
 
 	@Override
 	public DisruptorEventHandler<A> newInstance() {
 		CallableWithReturn<A,B> call = getNewInstance();
-		call.setPipe(pipe);
+		call.setMultiplexer(multiplexer);
 		return call;
 	}
 
 	public abstract CallableWithReturn<A,B> getNewInstance();
 
 	@Override
-	public void setCallbackPipe(APipe<?, B> pipe) {
-		this.pipe = pipe;
+	public void setMultiplexer(IMultiplexer<B> multiplexer) {
+		this.multiplexer = multiplexer;
 	}
-		
+	
 }

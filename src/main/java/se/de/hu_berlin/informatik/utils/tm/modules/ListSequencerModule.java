@@ -18,7 +18,7 @@ public class ListSequencerModule<A extends List<B>,B> extends AModule<A,B> {
 	 * Creates a new {@link ListSequencerModule} object.
 	 */
 	public ListSequencerModule() {
-		super(true, true);
+		super(true);
 	}
 
 	/* (non-Javadoc)

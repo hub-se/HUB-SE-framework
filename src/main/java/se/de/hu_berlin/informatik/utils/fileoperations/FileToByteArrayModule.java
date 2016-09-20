@@ -21,7 +21,7 @@ public class FileToByteArrayModule extends AModule<Path, byte[]> {
 	 * Creates a new {@link FileToByteArrayModule} with the given parameters.
 	 */
 	public FileToByteArrayModule() {
-		super(true, true);
+		super(true);
 	}
 	
 	/* (non-Javadoc)

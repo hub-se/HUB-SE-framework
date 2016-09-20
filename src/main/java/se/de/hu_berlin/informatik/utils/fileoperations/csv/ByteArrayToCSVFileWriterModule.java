@@ -40,7 +40,7 @@ public class ByteArrayToCSVFileWriterModule extends AModule<byte[], byte[]> {
 	 * determines if files and directories should be overwritten
 	 */
 	public ByteArrayToCSVFileWriterModule(Path outputPath, int columnCount, boolean overwrite) {
-		super(true, true);
+		super(true);
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

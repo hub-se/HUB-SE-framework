@@ -19,7 +19,7 @@ public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
 	private DisruptorProvider<A> disruptorProvider;
 
 	public ThreadedListProcessorModule(Integer threadCount, IDisruptorEventHandlerFactory<A> callableFactory) {
-		super(true, false);
+		super(true);
 		disruptorProvider = new DisruptorProvider<>(8);
 		disruptorProvider.connectHandlers(threadCount, callableFactory);
 	}
@@ -36,11 +36,5 @@ public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
 		disruptorProvider.shutdown();
 		return null;
 	}
-
-//	@Override
-//	public boolean finalShutdown() {
-//		disruptorProvider.shutdown();
-//		return true;
-//	}	
 
 }

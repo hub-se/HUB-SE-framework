@@ -44,7 +44,7 @@ public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? exten
 	 * is the extension of the automatically generated output paths
 	 */
 	public MultiFileWriterModule(Path outputdir, boolean overwrite, String extension) {
-		super(true, true);
+		super(true);
 		this.extension = extension;
 		this.generator = new OutputPathGenerator(outputdir, overwrite);
 		this.generateOutputPaths = true;
@@ -58,7 +58,7 @@ public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? exten
 	 * is a sequence of output paths that are used by the file writer
 	 */
 	public MultiFileWriterModule(boolean overwrite, Path... paths) {
-		super(true, true);
+		super(true);
 		this.paths = paths;
 		this.overwrite = overwrite;
 	}

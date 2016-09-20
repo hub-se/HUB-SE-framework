@@ -52,20 +52,15 @@ public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B
 	private AModule<?,?> linkedModule = null;
 	
 	private boolean needsInput = false;
-	private final boolean singleWriter;
 	
 	/**
 	 * Creates a new module with the given parameter.
 	 * @param needsInput
 	 * determines if the module needs an input item to function
-	 * @param singleWriter
-	 * whether this module writes to the output with only a single thread 
-	 * (if not sure, set this to false)
 	 */
-	public AModule(boolean needsInput, boolean singleWriter) {
+	public AModule(boolean needsInput) {
 		super();
 		this.needsInput = needsInput;
-		this.singleWriter = singleWriter;
 	}
 	
 	/* (non-Javadoc)
@@ -196,11 +191,5 @@ public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B
 		super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
-
-	public boolean isSingleWriter() {
-		return singleWriter;
-	}
-	
-	
 	
 }

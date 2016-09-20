@@ -96,6 +96,14 @@ public class DisruptorProvider<T> extends Trackable {
 	}
 	
 	/**
+	 * @return
+	 * the associated handlers (may be null if not yet specified)
+	 */
+	public DisruptorEventHandler<T>[] getHandlers() {
+		return handlers;
+	}
+	
+	/**
 	 * @param singleWriter
 	 * whether only a single thread is writing to this disruptor
 	 */
