@@ -36,39 +36,42 @@ public class DisruptorProvider<T> extends Trackable {
 	private Disruptor<Event<T>> disruptor = null;
 	private RingBuffer<Event<T>> ringBuffer = null;
 	private DisruptorEventHandler<T>[] handlers = null;
-	private int bufferSize;
+	private int bufferSize = 0;
 	
 	private ProducerType producerType = ProducerType.MULTI;
 	
 	private boolean isRunning = false;
 	private boolean isConnectedToHandlers = false;
-	
+	private int minimalBufferSize = 0;
+
 	/**
-	 * Creates a new disruptor provider with the given buffer size. The actual
-	 * buffer size may be enlarged later if the number of handlers/threads that
-	 * will be connected to this disruptor is larger than the buffer size.
-	 * @param bufferSize
-	 * the buffer size (must be a power of 2)
+	 * Creates a new disruptor provider with the minimal given buffer size. 
+	 * The actual buffer size will be set to m, where m is a power of 2 such that
+	 * <p> {@code m >= 2*#handlers}, if {@code  minimalBufferSize < 2*#handlers}, and
+	 * <p> {@code m >= minimalBufferSize}, otherwise.
+	 * @param minimalBufferSize
+	 * a minimal buffer size
 	 */
-	public DisruptorProvider(int bufferSize) {
+	public DisruptorProvider(int minimalBufferSize) {
 		super();
-		this.bufferSize = bufferSize;
-		if (Integer.bitCount(bufferSize) != 1) {
-            throw new IllegalArgumentException("bufferSize must be a power of 2");
-        }
+		this.minimalBufferSize  = minimalBufferSize;
 		mainThread = Thread.currentThread();
 	}
 	
 	/**
-	 * Creates a new disruptor provider with a buffer size of 8. The actual
-	 * buffer size will be determined by the number of handlers/threads that
-	 * will be connected to this disruptor.
+	 * Creates a new disruptor provider with a minimal buffer size of 8.
 	 */
 	public DisruptorProvider() {
 		this(8);
 	}
 
 	private int getContainingPowerOfTwo(int value) {
+		if (value > (int)Math.pow(2,30)) {
+			return (int)Math.pow(2,30);
+		}
+		if (value < 0) {
+			throw new IllegalStateException("Buffer size must be positive.");
+		}
 		return value > 1 ? Integer.highestOneBit(value-1) << 1 : 1;
 	}
 	
@@ -82,32 +85,6 @@ public class DisruptorProvider<T> extends Trackable {
 
 		// Get the ring buffer from the Disruptor to be used for publishing.
 		ringBuffer = disruptor.getRingBuffer();
-	}
-	
-	/**
-	 * Returns the disruptor instance. Creates one if
-	 * none exists.
-	 * @return
-	 * the disruptor instance
-	 */
-	public Disruptor<Event<T>> getOrCreateDisruptor() {
-		if (disruptor == null) {
-			createNewDisruptorInstance();
-		}
-		return disruptor;
-	}
-	
-	/**
-	 * Returns the ring buffer of a disruptor instance. Creates one if
-	 * none exists.
-	 * @return
-	 * the ring buffer
-	 */
-	public RingBuffer<Event<T>> getOrCreateRingBuffer() {
-		if (ringBuffer == null) {
-			createNewDisruptorInstance();
-		}
-		return ringBuffer;
 	}
 	
 	/**
@@ -168,12 +145,16 @@ public class DisruptorProvider<T> extends Trackable {
 		}
 		
 		if (disruptor == null) {
-			if (handlers.length > bufferSize) {
-				bufferSize = getContainingPowerOfTwo(handlers.length);
-//				Log.out(this, "new buffer size: %d", bufferSize);
-				if (Integer.bitCount(bufferSize) != 1) {
-		            throw new IllegalArgumentException("bufferSize must be a power of 2");
-		        }
+			//get a reasonable buffer size, such that it is at least twice
+			//as big as the number ot handlers, but at least as big as the
+			//specified minimal buffer size
+			bufferSize = getContainingPowerOfTwo(handlers.length * 2);
+			if (bufferSize < minimalBufferSize) {
+				bufferSize = getContainingPowerOfTwo(minimalBufferSize);
+			}
+//			Log.out(this, "buffer size: %d", bufferSize);
+			if (Integer.bitCount(bufferSize) != 1) {
+				throw new IllegalArgumentException("Buffer size must be a power of 2.");
 			}
 			createNewDisruptorInstance();
 		} else if (isConnectedToHandlers) {
@@ -220,19 +201,6 @@ public class DisruptorProvider<T> extends Trackable {
 		
 		return this;
 	}
-	
-//	/**
-//	 * Starts the disruptor manually. This is normally not needed.
-//	 * @return
-//	 * this
-//	 */
-//	public DisruptorProvider<T> start() {
-//		//avoid synchronized method call if already running
-//		if (!isRunning) {
-//			startIfNotRunning();
-//		}
-//		return this;
-//	}
 	
 	/**
 	 * Starts the disruptor if it is not already running.
@@ -293,7 +261,7 @@ public class DisruptorProvider<T> extends Trackable {
 	 * the item to submit
 	 */
 	public void submit(T item) {
-		//avoid synchronized method call if already running
+		//avoid calling synchronized method call if already running
 		if (!isRunning) {
 			startIfNotRunning();
 		}
