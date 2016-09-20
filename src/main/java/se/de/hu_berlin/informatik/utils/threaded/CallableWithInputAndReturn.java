@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * 
  * @see Callable
  */
-public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
+public abstract class CallableWithInputAndReturn<A,B> extends DisruptorEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
 
 	/**
 	 * The input object.
@@ -31,19 +31,19 @@ public abstract class CallableWithReturn<A,B> extends DisruptorEventHandler<A> i
 	private IMultiplexer<B> multiplexer = null;
 
 	/**
-	 * Creates a new {@link CallableWithReturn} object with the given path.
+	 * Creates a new {@link CallableWithInputAndReturn} object with the given path.
 	 * @param input
 	 * an input path
 	 */
-	public CallableWithReturn(A input) {
+	public CallableWithInputAndReturn(A input) {
 		super();
 		this.input = input;
 	}
 	
 	/**
-	 * Creates a new {@link CallableWithReturn} object with no paths set.
+	 * Creates a new {@link CallableWithInputAndReturn} object with no paths set.
 	 */
-	public CallableWithReturn() {
+	public CallableWithInputAndReturn() {
 		super();
 	}
 	

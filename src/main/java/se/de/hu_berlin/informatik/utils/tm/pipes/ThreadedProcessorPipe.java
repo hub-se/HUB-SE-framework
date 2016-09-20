@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.threaded.ADisruptorEventHandlerFactoryWCallback;
+import se.de.hu_berlin.informatik.utils.threaded.ADisruptorEventHandlerFactoryWMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.AMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.IMultiplexer;
@@ -24,7 +24,7 @@ public class ThreadedProcessorPipe<A,B> extends APipe<A,B> {
 	private IMultiplexer<B> multiplexer;
 
 	@SuppressWarnings("unchecked")
-	public ThreadedProcessorPipe(int threadCount, ADisruptorEventHandlerFactoryWCallback<A,B> callableFactory) {
+	public ThreadedProcessorPipe(int threadCount, ADisruptorEventHandlerFactoryWMultiplexer<A,B> callableFactory) {
 		super(true);
 		disruptorProvider = new DisruptorProvider<>(8);
 		//starts a multiplexer without any connected handlers (the handlers must have

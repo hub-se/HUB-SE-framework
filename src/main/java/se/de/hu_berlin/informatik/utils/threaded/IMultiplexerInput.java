@@ -1,5 +1,14 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
+/**
+ * Provides an interface for a multiplexer to obtain new outputs of an
+ * underlying thread with all necessary access methods.
+ * 
+ * @author Simon
+ *
+ * @param <B>
+ * the type of output items
+ */
 public interface IMultiplexerInput<B> {
 
 	public Object getLock();
@@ -92,7 +101,7 @@ public interface IMultiplexerInput<B> {
 	}
 	
 	/**
-	 * Sets a reference to a connected multiplexer.
+	 * Sets a reference to a multiplexer.
 	 * @param multiplexer
 	 * the multiplexer
 	 */
@@ -100,7 +109,7 @@ public interface IMultiplexerInput<B> {
 	
 	/**
 	 * @return
-	 * the multiplexer
+	 * the associated multiplexer
 	 */
 	public IMultiplexer<B> getMultiplexer();
 	

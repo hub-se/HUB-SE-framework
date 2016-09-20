@@ -19,12 +19,10 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
  * 
  * @param <A>
  * the type of the input objects
- * @param <T>
- * the type of the return function of the call() method
  * 
  * @see Callable
  */
-public abstract class CallableWithPaths<A,T> extends DisruptorEventHandler<A> implements Callable<T> {
+public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> implements Callable<Boolean> {
 
 	/**
 	 * The input object.
@@ -39,42 +37,42 @@ public abstract class CallableWithPaths<A,T> extends DisruptorEventHandler<A> im
 	private PipeLinker pipeCallback = null;
 	
 	/**
-	 * Creates a new {@link CallableWithPaths} object with no paths set.
+	 * Creates a new {@link CallableWithInput} object with no paths set.
 	 * @param outputPathGenerator
 	 * a generator to automatically create output paths
 	 */
-	public CallableWithPaths(IOutputPathGenerator<Path> outputPathGenerator) {
+	public CallableWithInput(IOutputPathGenerator<Path> outputPathGenerator) {
 		super();
 		output = outputPathGenerator.getNewOutputPath();
 	}
 	
 	/**
-	 * Creates a new {@link CallableWithPaths} object with no paths set and no
+	 * Creates a new {@link CallableWithInput} object with no paths set and no
 	 * output path generator attached.
 	 */
-	public CallableWithPaths() {
+	public CallableWithInput() {
 		super();
 	}
 	
 	/**
-	 * Creates a new {@link CallableWithPaths} object with no paths set.
+	 * Creates a new {@link CallableWithInput} object with no paths set.
 	 * @param outputPathGenerator
 	 * a generator to automatically create output paths
 	 * @param pipeCallback
 	 * a callback object that may for example be used to submit items to
 	 */
-	public CallableWithPaths(IOutputPathGenerator<Path> outputPathGenerator, PipeLinker pipeCallback) {
+	public CallableWithInput(IOutputPathGenerator<Path> outputPathGenerator, PipeLinker pipeCallback) {
 		this(pipeCallback);
 		output = outputPathGenerator.getNewOutputPath();
 	}
 	
 	/**
-	 * Creates a new {@link CallableWithPaths} object with no paths set and no
+	 * Creates a new {@link CallableWithInput} object with no paths set and no
 	 * output path generator attached.
 	 * @param pipeCallback
 	 * a callback object that may for example be used to submit items to
 	 */
-	public CallableWithPaths(PipeLinker pipeCallback) {
+	public CallableWithInput(PipeLinker pipeCallback) {
 		super();
 		this.pipeCallback = pipeCallback;
 	}
@@ -85,7 +83,7 @@ public abstract class CallableWithPaths<A,T> extends DisruptorEventHandler<A> im
 	 * @return
 	 * this object to enable chaining
 	 */
-	public CallableWithPaths<A,T> setInput(A input) {
+	public CallableWithInput<A> setInput(A input) {
 		this.input = input;
 		return this;
 	}
