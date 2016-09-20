@@ -44,7 +44,9 @@ public class DisruptorProvider<T> extends Trackable {
 	private boolean isConnectedToHandlers = false;
 	
 	/**
-	 * Creates a new disruptor provider with the given buffer size.
+	 * Creates a new disruptor provider with the given buffer size. The actual
+	 * buffer size may be enlarged later if the number of handlers/threads that
+	 * will be connected to this disruptor is larger than the buffer size.
 	 * @param bufferSize
 	 * the buffer size (must be a power of 2)
 	 */
@@ -56,7 +58,20 @@ public class DisruptorProvider<T> extends Trackable {
         }
 		mainThread = Thread.currentThread();
 	}
+	
+	/**
+	 * Creates a new disruptor provider with a buffer size of 8. The actual
+	 * buffer size will be determined by the number of handlers/threads that
+	 * will be connected to this disruptor.
+	 */
+	public DisruptorProvider() {
+		this(8);
+	}
 
+	private int getContainingPowerOfTwo(int value) {
+		return value > 1 ? Integer.highestOneBit(value-1) << 1 : 1;
+	}
+	
 	/**
 	 * Creates a new disruptor instance.
 	 */
@@ -148,14 +163,21 @@ public class DisruptorProvider<T> extends Trackable {
 	 * the handlers to connect
 	 */
 	public void connectHandlers(@SuppressWarnings("unchecked") DisruptorEventHandler<T>... handlers) {
+		if (handlers == null || handlers.length <= 0) {
+			throw new IllegalStateException("No Handlers given.");
+		}
+		
 		if (disruptor == null) {
+			if (handlers.length > bufferSize) {
+				bufferSize = getContainingPowerOfTwo(handlers.length);
+//				Log.out(this, "new buffer size: %d", bufferSize);
+				if (Integer.bitCount(bufferSize) != 1) {
+		            throw new IllegalArgumentException("bufferSize must be a power of 2");
+		        }
+			}
 			createNewDisruptorInstance();
 		} else if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
-		}
-		
-		if (handlers == null || handlers.length <= 0) {
-			throw new IllegalStateException("No Handlers given.");
 		}
 		
 		for (int i = 0; i < handlers.length; ++i) {
@@ -199,18 +221,18 @@ public class DisruptorProvider<T> extends Trackable {
 		return this;
 	}
 	
-	/**
-	 * Starts the disruptor manually. This is normally not needed.
-	 * @return
-	 * this
-	 */
-	public DisruptorProvider<T> start() {
-		//avoid synchronized method call if already running
-		if (!isRunning) {
-			startIfNotRunning();
-		}
-		return this;
-	}
+//	/**
+//	 * Starts the disruptor manually. This is normally not needed.
+//	 * @return
+//	 * this
+//	 */
+//	public DisruptorProvider<T> start() {
+//		//avoid synchronized method call if already running
+//		if (!isRunning) {
+//			startIfNotRunning();
+//		}
+//		return this;
+//	}
 	
 	/**
 	 * Starts the disruptor if it is not already running.

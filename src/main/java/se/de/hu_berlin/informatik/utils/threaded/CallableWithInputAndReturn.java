@@ -54,14 +54,6 @@ public abstract class CallableWithInputAndReturn<A,B> extends DisruptorEventHand
 	public void setInput(A input) {
 		this.input = input;
 	}
-
-	/**
-	 * @return 
-	 * the input path
-	 */
-	public A getInput() {
-		return input;
-	}
 	
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Callable#call()

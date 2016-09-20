@@ -8,7 +8,6 @@ import java.util.concurrent.Callable;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IOutputPathGenerator;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
 /**
  * An abstract class that implements the {@link Callable} interface and
@@ -34,8 +33,6 @@ public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> impl
 	 */
 	private Path output = null;
 	
-	private PipeLinker pipeCallback = null;
-	
 	/**
 	 * Creates a new {@link CallableWithInput} object with no paths set.
 	 * @param outputPathGenerator
@@ -55,26 +52,21 @@ public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> impl
 	}
 	
 	/**
-	 * Creates a new {@link CallableWithInput} object with no paths set.
-	 * @param outputPathGenerator
-	 * a generator to automatically create output paths
-	 * @param pipeCallback
-	 * a callback object that may for example be used to submit items to
+	 * Processes a single item of type A and returns a boolean value.
+	 * Has to be instantiated by implementing classes.
+	 * @param input
+	 * the input item
+	 * @return
+	 * true if successful, false otherwise
 	 */
-	public CallableWithInput(IOutputPathGenerator<Path> outputPathGenerator, PipeLinker pipeCallback) {
-		this(pipeCallback);
-		output = outputPathGenerator.getNewOutputPath();
-	}
+	abstract public boolean processInput(A input);
 	
-	/**
-	 * Creates a new {@link CallableWithInput} object with no paths set and no
-	 * output path generator attached.
-	 * @param pipeCallback
-	 * a callback object that may for example be used to submit items to
+	/* (non-Javadoc)
+	 * @see java.util.concurrent.Callable#call()
 	 */
-	public CallableWithInput(PipeLinker pipeCallback) {
-		super();
-		this.pipeCallback = pipeCallback;
+	@Override
+	public Boolean call() {
+		return processInput(input);
 	}
 	
 	/**
@@ -90,14 +82,6 @@ public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> impl
 
 	/**
 	 * @return 
-	 * the input object
-	 */
-	public A getInput() {
-		return input;
-	}
-	
-	/**
-	 * @return 
 	 * the output path
 	 */
 	public Path getOutputPath() {
@@ -105,19 +89,6 @@ public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> impl
 			return output;
 		} else {
 			Log.err(this, "No output path available.");
-			return null;
-		}
-	}
-	
-	/**
-	 * @return 
-	 * the PipeLinker callback object, or null it isn't set
-	 */
-	public PipeLinker getCallback() {
-		if (pipeCallback != null) {
-			return pipeCallback;
-		} else {
-			Log.err(this, "No PipeLinker callback available.");
 			return null;
 		}
 	}
