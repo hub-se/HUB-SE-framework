@@ -23,7 +23,6 @@ public class Log {
 			
 	static {
 		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-//		ConfigurationFactory.setConfigurationFactory(new CustomConfigurationFactory());
 		ctx = configure();
 	}
 	
@@ -45,6 +44,7 @@ public class Log {
         AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").
             addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
         appenderBuilder.add(builder.newLayout("PatternLayout").
+        		addAttribute("noConsoleNoAnsi", true).
             addAttribute("pattern", "%highlight{%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
             		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}}"));
         appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
@@ -139,7 +139,7 @@ public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	public static void err(Object id, Throwable e, String message, Object... args) {
-		printfWarnMessage(id, message, args);
+		printfErrorMessage(id, message, args);
 		printException(id, e);
 	}
 	
@@ -155,6 +155,19 @@ public class Log {
 	}
 	
 	/**
+	 * Prints the given warning message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * a warning message
+	 * @param args
+	 * some arguments for the warning message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void warn(Object id, String message, Object... args) {
+		printfWarnMessage(id, message, args);
+	}
+	
+	/**
 	 * Prints the given error message.
 	 * @param id
 	 * the object to use for generating an identifier
@@ -164,7 +177,7 @@ public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	public static void err(Object id, String message, Object... args) {
-		printfWarnMessage(id, message, args);
+		printfErrorMessage(id, message, args);
 	}
 	
 	/**
@@ -245,46 +258,5 @@ public class Log {
 	private static void printfMessage(Object id, String message, Object... args) {
 		getLogger(id).printf(Level.INFO, message, args);
 	}
-	
-//	@Plugin(name = "CustomConfigurationFactory", category = ConfigurationFactory.CATEGORY)
-//	@Order(50)
-//	private static class CustomConfigurationFactory extends ConfigurationFactory {
-//
-//	    private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
-//	        builder.setConfigurationName(name);
-//	        builder.setStatusLevel(Level.ERROR);
-//	        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL).
-//	            addAttribute("level", Level.DEBUG));
-//	        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").
-//	            addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
-//	        appenderBuilder.add(builder.newLayout("PatternLayout").
-//	            addAttribute("pattern", "%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
-//	            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}"));
-//	        appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
-//	            Filter.Result.NEUTRAL).addAttribute("marker", "FLOW"));
-//	        builder.add(appenderBuilder);
-//	        builder.add(builder.newLogger("org.apache.logging.log4j", Level.DEBUG).
-//	            add(builder.newAppenderRef("Stdout")).
-//	            addAttribute("additivity", false));
-//	        builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
-//	        return builder.build();
-//	    }
-//
-//	    @Override
-//	    public Configuration getConfiguration(ConfigurationSource source) {
-//	        return getConfiguration(source.toString(), null);
-//	    }
-//
-//	    @Override
-//	    public Configuration getConfiguration(final String name, final URI configLocation) {
-//	        ConfigurationBuilder<BuiltConfiguration> builder = newConfigurationBuilder();
-//	        return createConfiguration(name, builder);
-//	    }
-//
-//	    @Override
-//	    protected String[] getSupportedTypes() {
-//	        return new String[] {"*"};
-//	    }
-//	}
 	
 }

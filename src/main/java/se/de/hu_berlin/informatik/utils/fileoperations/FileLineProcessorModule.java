@@ -73,7 +73,7 @@ public class FileLineProcessorModule<A> extends AModule<Path, A> {
 						if (abortOnError) {
 							Log.abort(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 						} else {
-							Log.err(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
+							Log.warn(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 						}
 					}
 				}
