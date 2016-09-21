@@ -1,41 +1,39 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import com.lmax.disruptor.EventHandler;
-
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-
 /**
- * Abstract event handler that is used by a {@link DisruptorProvider}.
+ * Abstract event handler that is used by a {@link DisruptorProvider}. Uses a
+ * "round robin" strategy to assign a handler to a single event. An event with a
+ * specific sequence number will only be processed by a single, unique event handler
+ * which may block other handlers from proceeding, even if they are idle and there
+ * are pending events that could be processed.
  * 
  * @author Simon Heiden
  * @param <T>
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class DisruptorEventHandler<T> implements EventHandler<Event<T>> {
+public abstract class DisruptorRoundRobinEventHandler<T> extends ADisruptorEventHandler<T> {
 
 	private long ordinal;
     private long numberOfConsumers;
     
-    private DisruptorProvider<T> callback = null;
-    
     private boolean single = false;
 
     /**
-     * Creates a {@link DisruptorEventHandler}.
+     * Creates a {@link DisruptorRoundRobinEventHandler}.
      */
-    public DisruptorEventHandler() {
+    public DisruptorRoundRobinEventHandler() {
         this(-1, -1);
     }
     
     /**
-     * Creates a {@link DisruptorEventHandler}.
+     * Creates a {@link DisruptorRoundRobinEventHandler}.
      * @param ordinal
      * the index of this handler
      * @param numberOfConsumers
      * the total number of consumers
      */
-    public DisruptorEventHandler(long ordinal, long numberOfConsumers) {
+    public DisruptorRoundRobinEventHandler(long ordinal, long numberOfConsumers) {
     	super();
         this.ordinal = ordinal;
         this.numberOfConsumers = numberOfConsumers;
@@ -54,16 +52,7 @@ public abstract class DisruptorEventHandler<T> implements EventHandler<Event<T>>
     protected void setIndex(long ordinal) {
     	this.ordinal = ordinal;
     }
-    
-    /**
-     * Sets a disruptor provider instance as a callback.
-     * @param callback
-     * a disruptor provider
-     */
-    protected void setCallback(DisruptorProvider<T> callback) {
-    	this.callback = callback;
-    }
-    
+
     /**
      * Sets the total number of parallel handlers.
      * @param numberOfConsumers
@@ -81,27 +70,8 @@ public abstract class DisruptorEventHandler<T> implements EventHandler<Event<T>>
 	@Override
 	public void onEvent(Event<T> event, long sequence, boolean endOfBatch) throws Exception {
 		if (single || (sequence % numberOfConsumers) == ordinal) {
-//			Log.out(this, event.get().toString() + " " + sequence);
-			try {
-				processEvent(event.get());
-			} catch (Throwable t) {
-				Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
-			}
-			if (callback != null) {
-				callback.onEventEnd();
-			}
+			super.onEvent(event, sequence, endOfBatch);
         }
 	}
 	
-	/**
-	 * Processes a single item that is provided by an event. Has to be implemented
-	 * by extending classes.
-	 * @param input
-	 * the item to be processed
-	 * @throws Exception
-	 * if an error occurs. Any exception gets caught and produces an error message.
-	 * This doesn't abort execution.
-	 */
-	abstract public void processEvent(T input) throws Exception;
-    
 }

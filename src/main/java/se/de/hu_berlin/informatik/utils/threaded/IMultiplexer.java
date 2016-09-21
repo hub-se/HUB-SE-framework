@@ -11,18 +11,22 @@ public interface IMultiplexer<B> extends Runnable {
 	public void connectHandlers(IMultiplexerInput<B>[] handlers);
 
 	/**
-	 * Creates a new multiplexer thread if not already a running thread exists.
-	 * Then starts the created thread and returns it.
-	 * @return
-	 * the started thread
+	 * Creates a new multiplexer thread if a running thread does not exists.
+	 * Then starts the created thread.
 	 */
-	public Thread start();
+	public void start();
 	
 	/**
 	 * @return
 	 * this multiplexer's thread
 	 */
 	public Thread getThread();
+	
+	/**
+	 * @return
+	 * whether this multiplexer's thread is running
+	 */
+	public boolean isRunning();
 
 	/**
 	 * Shuts down the multiplexer thread. Waits until the thread

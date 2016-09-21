@@ -4,7 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
@@ -78,7 +78,14 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	public APipe(int bufferSize, boolean singleWriter) {
 		super();
 		disruptorProvider = new DisruptorProvider<>(bufferSize);
-		disruptorProvider.connectHandlers(new PipeEventHandler());
+		//event handler used for transmitting items from one pipe to another
+		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
+			@Override
+			public void processEvent(A input) throws Exception {
+				track();
+				submitProcessedItem(processItem(input));
+			}
+		});
 		this.singleWriter = singleWriter;
 	}
 	
@@ -260,20 +267,5 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 		super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
-
-	/**
-	 * The event handler used for transmitting items from one pipe to another.
-	 * 
-	 * @author Simon Heiden
-	 */
-	public class PipeEventHandler extends DisruptorEventHandler<A> {
-
-		@Override
-		public void processEvent(A input) throws Exception {
-			track();
-			submitProcessedItem(processItem(input));
-		}
-
-	}
-
+	
 }

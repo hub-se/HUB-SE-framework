@@ -21,7 +21,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * 
  * @see Callable
  */
-public abstract class CallableWithInput<A> extends DisruptorEventHandler<A> implements Callable<Boolean> {
+public abstract class CallableWithInput<A> extends DisruptorFCFSEventHandler<A> implements Callable<Boolean> {
 
 	/**
 	 * The input object.

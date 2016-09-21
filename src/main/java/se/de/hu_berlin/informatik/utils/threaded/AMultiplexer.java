@@ -20,11 +20,6 @@ public abstract class AMultiplexer<B> implements IMultiplexer<B> {
 	
 	private boolean isRunning = false;
 	
-	public AMultiplexer(IMultiplexerInput<B>[] handlers) {
-		this();
-		connectHandlers(handlers);
-	}
-	
 	public AMultiplexer() {
 		super();
 	}
@@ -37,17 +32,22 @@ public abstract class AMultiplexer<B> implements IMultiplexer<B> {
 		this.handlers = handlers;
 	}
 
+	
+	@Override
+	public boolean isRunning() {
+		return isRunning;
+	}
+
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexer#start()
 	 */
 	@Override
-	public Thread start() {
+	public void start() {
 		if (!isRunning) {
 			thread = new Thread(this);
 			thread.start();
 			isRunning = true;
 		}
-		return thread;
 	}
 	
 	@Override

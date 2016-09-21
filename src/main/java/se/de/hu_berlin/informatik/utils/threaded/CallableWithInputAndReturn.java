@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * 
  * @see Callable
  */
-public abstract class CallableWithInputAndReturn<A,B> extends DisruptorEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
+public abstract class CallableWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
 
 	/**
 	 * The input object.

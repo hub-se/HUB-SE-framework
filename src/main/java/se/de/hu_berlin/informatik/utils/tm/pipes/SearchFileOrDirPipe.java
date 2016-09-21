@@ -69,7 +69,8 @@ public class SearchFileOrDirPipe extends APipe<Path,Path> {
 	}
 	
 	/**
-	 * Includes the root directory in the search.
+	 * Includes the root directory in the search. Only matters
+	 * if directories are being searched.
 	 * @return
 	 * this
 	 */

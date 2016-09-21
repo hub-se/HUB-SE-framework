@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A wrapper for elements to be processed by a disruptor...
@@ -12,6 +13,8 @@ package se.de.hu_berlin.informatik.utils.threaded;
 public class Event<T> {
 	
 	private T item;
+	
+	private AtomicBoolean isFirstAccess = new AtomicBoolean(false);
 
 	/**
 	 * Sets this event's contained element to the given item.
@@ -20,6 +23,7 @@ public class Event<T> {
 	 */
 	public void set(T item) {
 		this.item = item;
+		isFirstAccess.set(true);
 	}
 
 	/**
@@ -45,6 +49,21 @@ public class Event<T> {
 	 */
 	public static <T> void translate(Event<T> event, long sequence, T item) {
 		event.set(item);
+	}
+	
+	/**
+	 * Tells whether this event hasn't been processed by any handler yet. This method
+	 * is ensured to return true only once for every new element. If this method
+	 * returns true to a handler, then this handler has to process this event.
+	 * @return
+	 * whether the wrapped element has not yet been accessed
+	 */
+	public boolean isFirstAccess() {
+		if (isFirstAccess.get()) {
+			return isFirstAccess.compareAndSet(true, false);
+		} else {
+			return false;
+		}
 	}
 
 }

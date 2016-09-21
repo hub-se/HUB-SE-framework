@@ -35,7 +35,7 @@ public class DisruptorProvider<T> extends Trackable {
 	
 	private Disruptor<Event<T>> disruptor = null;
 	private RingBuffer<Event<T>> ringBuffer = null;
-	private DisruptorEventHandler<T>[] handlers = null;
+	private DisruptorFCFSEventHandler<T>[] handlers = null;
 	private int bufferSize = 0;
 	
 	private ProducerType producerType = ProducerType.MULTI;
@@ -47,8 +47,10 @@ public class DisruptorProvider<T> extends Trackable {
 	/**
 	 * Creates a new disruptor provider with the minimal given buffer size. 
 	 * The actual buffer size will be set to m, where m is a power of 2 such that
-	 * <p> {@code m >= 2*#handlers}, if {@code  minimalBufferSize < 2*#handlers}, and
+	 * <p> {@code m >= 3*#handlers}, if {@code  minimalBufferSize < 3*#handlers}, and
 	 * <p> {@code m >= minimalBufferSize}, otherwise.
+	 * <p> This means that the buffer size is at least three times as big as the 
+	 * number ot handlers, but at least as big as the specified minimal buffer size
 	 * @param minimalBufferSize
 	 * a minimal buffer size
 	 */
@@ -91,7 +93,7 @@ public class DisruptorProvider<T> extends Trackable {
 	 * @return
 	 * the associated handlers (may be null if not yet specified)
 	 */
-	public DisruptorEventHandler<T>[] getHandlers() {
+	public DisruptorFCFSEventHandler<T>[] getHandlers() {
 		return handlers;
 	}
 	
@@ -139,16 +141,16 @@ public class DisruptorProvider<T> extends Trackable {
 	 * @param handlers
 	 * the handlers to connect
 	 */
-	public void connectHandlers(@SuppressWarnings("unchecked") DisruptorEventHandler<T>... handlers) {
+	public void connectHandlers(@SuppressWarnings("unchecked") DisruptorFCFSEventHandler<T>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}
 		
 		if (disruptor == null) {
-			//get a reasonable buffer size, such that it is at least twice
+			//get a reasonable buffer size, such that it is at least three times
 			//as big as the number ot handlers, but at least as big as the
 			//specified minimal buffer size
-			bufferSize = getContainingPowerOfTwo(handlers.length * 2);
+			bufferSize = getContainingPowerOfTwo(handlers.length * 3);
 			if (bufferSize < minimalBufferSize) {
 				bufferSize = getContainingPowerOfTwo(minimalBufferSize);
 			}
@@ -161,9 +163,9 @@ public class DisruptorProvider<T> extends Trackable {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
 		
+		boolean isSingle = handlers.length == 1;
 		for (int i = 0; i < handlers.length; ++i) {
-			handlers[i].setIndex(i);
-			handlers[i].setNumberOfConsumers(handlers.length);
+			handlers[i].setSingleConsumer(isSingle);
 			handlers[i].setCallback(this);
 		}
 		// Connect the handlers
@@ -189,7 +191,7 @@ public class DisruptorProvider<T> extends Trackable {
 		}
 		
 		//create generic array for the handlers to be instantiated
-        final DisruptorEventHandler<T>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
+        final DisruptorFCFSEventHandler<T>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
         
         //instantiate the desired number of handlers
 		for (int i = 0; i < numberOfThreads; ++i) {

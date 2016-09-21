@@ -32,6 +32,31 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUt
  */
 public class OptionParser {
 	
+	public final static String STRAT_AGGRESSIVE = "AGGRESSIVE";
+	public final static String STRAT_NICE = "NICE";
+	public final static String STRAT_DEFENSIVE = "DEFENSIVE";
+	
+	public enum ThreadingStrategy { AGGRESSIVE(0), NICE(1), DEFENSIVE(2);
+		private final int id;
+		private ThreadingStrategy(int id) {
+			this.id = id;
+		}
+
+		@Override
+		public String toString() {
+			switch(id) {
+			case 0:
+				return STRAT_AGGRESSIVE;
+			case 1:
+				return STRAT_NICE;
+			case 2:
+				return STRAT_DEFENSIVE;
+			default:
+				return STRAT_NICE;
+			}
+		}
+	}
+	
 	final private HelpFormatter lvFormatter;
     final private CommandLineParser lvParser;
     final private Options lvOptions;
@@ -39,6 +64,8 @@ public class OptionParser {
     final private String[] args;
     
     private CommandLine lvCmd;
+    
+    private boolean isThreaded = false;
 	
     /**
      * Creates an object to easily add and parse options. Creates several
@@ -50,10 +77,12 @@ public class OptionParser {
      * <br> '{@code -zz}' silences both standard and error output channel.
      * @param tool
      * the name of the tool
+     * @param isThreaded
+     * whether the calling application intends to use threads
      * @param args
      * the command line arguments that were given to a main function
      */
-	public OptionParser(final String tool, final String[] args) {
+	public OptionParser(final String tool, boolean isThreaded, final String[] args) {
 		super();
 		this.tool = tool;
 		this.args = args;
@@ -64,6 +93,16 @@ public class OptionParser {
 		this.add("h", "help", false, "Shows this help.");
 		this.add("z", "silence", false, "Disallows outputs to standard out.");
 		this.add("zz", "silenceAll", false, "Disallows outputs to standard AND error out.");
+		
+		this.isThreaded = isThreaded;
+		if (isThreaded) {
+			this.addGroup("tc", "threadCount", true, "Sets a desired thread count manually. Overwrites the default"
+					+ " strategy for thread creation.",
+					"ts", "threadStrategy", true, "Sets a strategy to use regarding the number of threads to create. "
+							+ "'AGGRESSIVE' will try to use up to 90% of available processors. "
+							+ "'NICE' (default) will try to use up to 50% of available processors. "
+							+ "'DEFENSIVE' will only try to use up to 20% of available processors.");
+		}
 	}
 	
 	/**
@@ -101,6 +140,73 @@ public class OptionParser {
 			Log.abort(this, "No command line available. (Maybe forgot parsing the options?)");
 		}
 		return lvCmd;
+	}
+	
+	/**
+	 * @return
+	 * the number of threads according to the given options
+	 */
+	public int getNumberOfThreads() {
+		return getNumberOfThreads(0);
+	}
+	
+	/**
+	 * @param minusThreads
+	 * a number of threads that are already running
+	 * (will be subtracted from the actual returned number)
+	 * @return
+	 * the number of threads according to the given options
+	 */
+	public int getNumberOfThreads(int minusThreads) {
+		if (!isThreaded) {
+			return 1;
+		}
+		if (this.hasOption("tc")) {
+			int threads = Integer.parseInt(this.getOptionValue("tc")) - minusThreads;
+			if (threads < 1) {
+				return 1;
+			} else {
+				return threads;
+			}
+		}
+		
+		ThreadingStrategy strategy = ThreadingStrategy.NICE;
+		if (this.hasOption("ts")) {
+			switch(this.getOptionValue("ts")) {
+			case STRAT_NICE:
+				strategy = ThreadingStrategy.NICE;
+				break;
+			case STRAT_AGGRESSIVE:
+				strategy = ThreadingStrategy.AGGRESSIVE;
+				break;
+			case STRAT_DEFENSIVE:
+				strategy = ThreadingStrategy.DEFENSIVE;
+				break;
+			default:
+				Log.abort(this, "Unknown strategy: '%s'", this.getOptionValue("ts"));
+			}
+		}
+		
+		int processors = Runtime.getRuntime().availableProcessors();
+		double processorsToUse = 1;		
+		switch(strategy) {
+		case AGGRESSIVE:
+			processorsToUse = (double)processors * 0.9;
+			break;
+		case DEFENSIVE:
+			processorsToUse = (double)processors * 0.2;
+			break;
+		case NICE:
+		default:
+			processorsToUse = (double)processors * 0.5;
+			break;
+		}
+		int threads = (int)Math.round(processorsToUse) - minusThreads;
+		if (threads < 1) {
+			return 1;
+		} else {
+			return threads;
+		}
 	}
 	
 	/**
