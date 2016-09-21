@@ -31,6 +31,7 @@ public class Log {
 	
 	private static void initializeLogger() {
 		if (ctx == null) {
+			System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
 			ctx = configure();
 		}
 	}
@@ -44,8 +45,8 @@ public class Log {
         AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").
             addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
         appenderBuilder.add(builder.newLayout("PatternLayout").
-            addAttribute("pattern", "%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
-            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}"));
+            addAttribute("pattern", "%highlight{%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
+            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}}"));
         appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
             Filter.Result.NEUTRAL).addAttribute("marker", "FLOW"));
         builder.add(appenderBuilder);
@@ -138,7 +139,7 @@ public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	public static void err(Object id, Throwable e, String message, Object... args) {
-		printfErrorMessage(id, message, args);
+		printfWarnMessage(id, message, args);
 		printException(id, e);
 	}
 	
@@ -163,7 +164,7 @@ public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	public static void err(Object id, String message, Object... args) {
-		printfErrorMessage(id, message, args);
+		printfWarnMessage(id, message, args);
 	}
 	
 	/**
@@ -177,6 +178,19 @@ public class Log {
 	 */
 	private static void printfErrorMessage(Object id, String message, Object... args) {
 		getLogger(id).printf(Level.ERROR, message, args);
+	}
+	
+	/**
+	 * Helper method that prints the given error message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * an error message
+	 * @param args
+	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 */
+	private static void printfWarnMessage(Object id, String message, Object... args) {
+		getLogger(id).printf(Level.WARN, message, args);
 	}
 	
 	/**
