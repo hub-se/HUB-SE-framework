@@ -34,9 +34,8 @@ public class Log {
 			ctx = configure();
 		}
 	}
-	
 
-	public static LoggerContext configure() {
+	private static LoggerContext configure() {
 		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
 		builder.setConfigurationName("Log-config");
         builder.setStatusLevel(Level.ERROR);
@@ -57,9 +56,16 @@ public class Log {
 		
 		return Configurator.initialize(builder.build());
 	}
+	
 	//suppress default constructor (class should not be instantiated)
 	private Log() {
 		throw new AssertionError();
+	}
+	
+	private static Logger getLogger(Object id) {
+		String identifier = getIdentifier(id);
+		initializeLogger();
+		return identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
 	}
 	
 	/**
@@ -170,10 +176,7 @@ public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfErrorMessage(Object id, String message, Object... args) {
-		String identifier = getIdentifier(id);
-		initializeLogger();
-		Logger logger = identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
-		logger.printf(Level.ERROR, message, args);
+		getLogger(id).printf(Level.ERROR, message, args);
 	}
 	
 	/**
@@ -184,10 +187,7 @@ public class Log {
 	 * the exception to be printed
 	 */
 	private static void printException(Object id, Throwable e) {
-		String identifier = getIdentifier(id);
-		initializeLogger();
-		Logger logger = identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
-		logger.catching(Level.ERROR, e);
+		getLogger(id).catching(Level.ERROR, e);
 	}
 	
 	/**
@@ -196,10 +196,7 @@ public class Log {
 	 * the object to use for generating an identifier
 	 */
 	private static void printAbort(Object id) {
-		String identifier = getIdentifier(id);
-		initializeLogger();
-		Logger logger = identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
-		logger.fatal("aborting...");
+		getLogger(id).fatal("aborting...");
 	}
 	
 	/**
@@ -232,10 +229,7 @@ public class Log {
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfMessage(Object id, String message, Object... args) {
-		String identifier = getIdentifier(id);
-		initializeLogger();
-		Logger logger = identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
-		logger.printf(Level.INFO, message, args);
+		getLogger(id).printf(Level.INFO, message, args);
 	}
 	
 //	@Plugin(name = "CustomConfigurationFactory", category = ConfigurationFactory.CATEGORY)
