@@ -15,7 +15,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 
 /**
  * Extendable {@link FileVisitor} implementation.
@@ -24,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see FileVisitor
  */
-public abstract class AFileWalker extends Trackable implements FileVisitor<Path> {
+public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
 	
 	final private PathMatcher matcher;
 	final private boolean searchDirectories;
@@ -32,6 +33,7 @@ public abstract class AFileWalker extends Trackable implements FileVisitor<Path>
 	final private boolean skipAfterFind;
 	
 	private boolean isFirst;
+	private ProgressTracker tracker;
 	
 	protected AFileWalker(Builder builder) {
 		matcher = builder.matcher;
@@ -150,7 +152,17 @@ public abstract class AFileWalker extends Trackable implements FileVisitor<Path>
         return FileVisitResult.CONTINUE;
     }
     
-    public static abstract class Builder implements IBuilder<AFileWalker> {
+    @Override
+	public ProgressTracker getTracker() {
+		return tracker;
+	}
+
+	@Override
+	public void setTracker(ProgressTracker tracker) {
+		this.tracker = tracker;
+	}
+
+	public static abstract class Builder implements IBuilder<AFileWalker> {
 		
 		private final PathMatcher matcher;
 		

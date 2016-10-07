@@ -23,5 +23,10 @@ public class StepWiseTracker implements ITrackingStrategy {
 			writeTrackMsg(count, msg);
 		}
 	}
+	
+	@Override
+	public void reset() {
+		count = 0;
+	}
 
 }

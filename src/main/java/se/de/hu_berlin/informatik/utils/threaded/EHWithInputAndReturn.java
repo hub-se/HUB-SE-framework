@@ -6,21 +6,21 @@ package se.de.hu_berlin.informatik.utils.threaded;
 import java.util.concurrent.Callable;
 
 /**
- * An abstract class that implements the {@link Callable} and the 
- * {@link IMultiplexerInput} interface. The user has to
- * make sure that an input item is set before trying to process it.
+ * An abstract class that provides a simple API for a disruptor event handler
+ * that processes a single input object at a time and produces output objects
+ * that may be collected by a multiplexer thread.
  * 
  * @author Simon Heiden
  * 
+ * @param <A>
+ * the type of the input objects
+ * @param <B>
+ * the type of the output objects
+ * 
  * @see Callable
  */
-public abstract class CallableWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements Callable<Boolean>, IMultiplexerInput<B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements IMultiplexerInput<B> {
 
-	/**
-	 * The input object.
-	 */
-	private A input = null;
-	
 	/**
 	 * The output object.
 	 */
@@ -29,40 +29,6 @@ public abstract class CallableWithInputAndReturn<A,B> extends DisruptorFCFSEvent
 	private boolean hasNewOutput = false;
 	private final Object lock = new Object();
 	private IMultiplexer<B> multiplexer = null;
-
-	/**
-	 * Creates a new {@link CallableWithInputAndReturn} object with the given path.
-	 * @param input
-	 * an input path
-	 */
-	public CallableWithInputAndReturn(A input) {
-		super();
-		this.input = input;
-	}
-	
-	/**
-	 * Creates a new {@link CallableWithInputAndReturn} object with no paths set.
-	 */
-	public CallableWithInputAndReturn() {
-		super();
-	}
-	
-	/**
-	 * @param input
-	 * an input path
-	 */
-	public void setInput(A input) {
-		this.input = input;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.util.concurrent.Callable#call()
-	 */
-	@Override
-	public Boolean call() {
-		setOutputAndNotifyMultiplexer(processInput(input));
-		return true;
-	}
 
 	/**
 	 * Processes a single item of type A and returns an item of type B (or {@code null}).
@@ -77,14 +43,14 @@ public abstract class CallableWithInputAndReturn<A,B> extends DisruptorFCFSEvent
 	@Override
 	public void processEvent(A input) throws Exception {
 		resetAndInit();
-		this.input = input;
-		call();
+		setOutputAndNotifyMultiplexer(processInput(input));
 	}
 	
 	/**
 	 * Should be used to reset or to initialize fields. Gets called before processing each event.
 	 */
 	abstract public void resetAndInit(); 
+	
 	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setMultiplexer(se.de.hu_berlin.informatik.utils.threaded.NToOneMultiplexer)

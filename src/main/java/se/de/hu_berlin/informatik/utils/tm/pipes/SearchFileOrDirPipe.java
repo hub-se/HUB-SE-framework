@@ -114,6 +114,8 @@ public class SearchFileOrDirPipe extends APipe<Path,Path> {
 		} catch (IOException e) {
 			Log.abort(this, e, "IOException thrown.");
 		}
+		
+		walker.delegateTrackingTo(this);
 		return null;
 	}
     

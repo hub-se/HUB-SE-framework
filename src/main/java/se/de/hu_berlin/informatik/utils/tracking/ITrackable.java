@@ -1,16 +1,25 @@
 package se.de.hu_berlin.informatik.utils.tracking;
 
-public abstract class Trackable {
+public interface ITrackable {
 
-	private ProgressTracker tracker = null;
-	private boolean isTracking = false;
-
+	/**
+	 * @return
+	 * the tracker object, or null if none exists
+	 */
+	public ProgressTracker getTracker();
+	
+	/**
+	 * @param tracker
+	 * sets a tracker
+	 */
+	public void setTracker(ProgressTracker tracker);
+	
 	/**
 	 * Enables tracking of progress. Doesn't use a progress bar.
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable enableTracking() {
+	default public ITrackable enableTracking() {
 		return enableTracking(false);
 	}
 	
@@ -21,11 +30,8 @@ public abstract class Trackable {
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable enableTracking(boolean useProgressBar) {
-		if (tracker == null) {
-			tracker = new ProgressTracker(useProgressBar);
-		}
-		isTracking = true;
+	default public ITrackable enableTracking(boolean useProgressBar) {
+		setTracker(new ProgressTracker(useProgressBar));
 		return this;
 	}
 	
@@ -39,7 +45,7 @@ public abstract class Trackable {
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable enableTracking(int stepWidth) {
+	default public ITrackable enableTracking(int stepWidth) {
 		return enableTracking(false, stepWidth);
 	}
 	
@@ -54,11 +60,8 @@ public abstract class Trackable {
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable enableTracking(boolean useProgressBar, int stepWidth) {
-		if (tracker == null) {
-			tracker = new ProgressTracker(useProgressBar, stepWidth);
-		}
-		isTracking = true;
+	default public ITrackable enableTracking(boolean useProgressBar, int stepWidth) {
+		setTracker(new ProgressTracker(useProgressBar, stepWidth));
 		return this;
 	}
 	
@@ -67,8 +70,8 @@ public abstract class Trackable {
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable disableTracking() {
-		isTracking = false;
+	default public ITrackable disableTracking() {
+		setTracker(null);
 		return this;
 	}
 	
@@ -81,13 +84,12 @@ public abstract class Trackable {
 	 * @return
 	 * this object for chaining
 	 */
-	public Trackable enableTracking(ProgressTracker tracker) {
+	default public ITrackable enableTracking(ProgressTracker tracker) {
 		if (tracker != null) {
-			this.tracker = tracker;
+			setTracker(tracker);
 		} else {
-			this.tracker = new ProgressTracker(false);
+			setTracker(new ProgressTracker(false));
 		}
-		isTracking = true;
 		return this;
 	}
 	
@@ -95,25 +97,17 @@ public abstract class Trackable {
 	 * @return
 	 * whether this transmitter's progress tracking is enabled
 	 */
-	public boolean isTracking() {
-		return isTracking;
-	}
-	
-	/**
-	 * @return
-	 * the tracker object, or null if none exists
-	 */
-	public ProgressTracker getTracker() {
-		return tracker;
+	default public boolean isTracking() {
+		return (getTracker() != null);
 	}
 	
 	/**
 	 * Tracks the progress for a processed element if tracking
 	 * has been enabled.
 	 */
-	public void track() {
-		if (isTracking) {
-			tracker.track();
+	default public void track() {
+		if (isTracking()) {
+			getTracker().track();
 		}
 	}
 	
@@ -123,20 +117,24 @@ public abstract class Trackable {
 	 * @param msg
 	 * a message to display
 	 */
-	public void track(String msg) {
-		if (isTracking) {
-			tracker.track(msg);
+	default public void track(String msg) {
+		if (isTracking()) {
+			getTracker().track(msg);
 		}
 	}
 	
 	/**
 	 * Delegates the tracking tasks from this object to the given
-	 * target trackable object.
+	 * target trackable object. After delegation to another object,
+	 * tracking will not work any more for this object and all
+	 * properties will be moved to the target object. Additionally,
+	 * the tracker will be reset.
 	 * @param target
 	 * the Trackable object to delegate the tracking to
 	 */
-	public void delegateTrackingTo(Trackable target) {
-		if (this.isTracking()) {
+	default public void delegateTrackingTo(ITrackable target) {
+		if (isTracking()) {
+			this.getTracker().reset();
 			target.enableTracking(this.getTracker());
 			this.disableTracking();
 		}

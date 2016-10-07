@@ -38,4 +38,6 @@ public interface ITrackingStrategy {
 			return msg;
 		}
 	}
+
+	public void reset();
 }

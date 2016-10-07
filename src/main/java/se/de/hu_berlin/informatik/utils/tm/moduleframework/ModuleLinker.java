@@ -4,8 +4,9 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 
 /**
  * Provides more general and easy access methods for the linking of modules,
@@ -16,7 +17,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  *
  * @see AModule
  */
-public class ModuleLinker extends Trackable {
+public class ModuleLinker implements ITrackable {
 
 	private AModule<?,?> startModule = null;
 	private AModule<?,?> endModule = null;
@@ -24,19 +25,22 @@ public class ModuleLinker extends Trackable {
 	/**
 	 * Links the given modules together. If the modules don't match, then
 	 * execution stops and the application aborts.
-	 * @param modules
+	 * @param transmitters
 	 * modules to be linked together
 	 * @return
 	 * this module linker
 	 */
-	public ModuleLinker link(AModule<?,?>... modules) {
-		if (modules.length != 0) {
-			startModule = modules[0];
-			for (int i = 0; i < modules.length-1; ++i) {
-				modules[i].linkTo(modules[i+1]);
-			}
-			endModule = modules[modules.length-1];
-			
+	public ModuleLinker link(ITransmitterProvider<?,?>... transmitters) {
+		if (transmitters.length != 0) {
+			try {
+				startModule = transmitters[0].asModule();
+				for (int i = 0; i < transmitters.length-1; ++i) {
+					transmitters[i].asModule().linkTo(transmitters[i+1].asModule());
+				}
+				endModule = transmitters[transmitters.length-1].asModule();
+			} catch(IllegalStateException e) {
+			Log.abort(this, e, "Unable to get module from a given transmitter.");
+		}
 			if (isTracking()) {
 				startModule.enableTracking(getTracker());
 			}
@@ -101,25 +105,22 @@ public class ModuleLinker extends Trackable {
 	
 	@Override
 	public ModuleLinker enableTracking() {
-		super.enableTracking();
 		if (startModule != null) {
-			startModule.enableTracking(this.getTracker());
+			startModule.enableTracking();
 		}
 		return this;
 	}
 	
 	@Override
 	public ModuleLinker enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
 		if (startModule != null) {
-			startModule.enableTracking(this.getTracker());
+			startModule.enableTracking(stepWidth);
 		}
 		return this;
 	}
 
 	@Override
 	public ModuleLinker disableTracking() {
-		super.disableTracking();
 		if (startModule != null) {
 			startModule.disableTracking();
 		}
@@ -128,10 +129,69 @@ public class ModuleLinker extends Trackable {
 
 	@Override
 	public ModuleLinker enableTracking(ProgressTracker tracker) {
-		super.enableTracking(tracker);
 		if (startModule != null) {
-			startModule.enableTracking(this.getTracker());
+			startModule.enableTracking(tracker);
 		}
 		return this;
+	}
+
+	@Override
+	public ModuleLinker enableTracking(boolean useProgressBar) {
+		if (startModule != null) {
+			startModule.enableTracking(useProgressBar);
+		}
+		return this;
+	}
+
+	@Override
+	public ModuleLinker enableTracking(boolean useProgressBar, int stepWidth) {
+		if (startModule != null) {
+			startModule.enableTracking(useProgressBar, stepWidth);
+		}
+		return this;
+	}
+
+	@Override
+	public boolean isTracking() {
+		if (startModule != null) {
+			startModule.isTracking();
+		}
+		return false;
+	}
+
+	@Override
+	public void track() {
+		if (startModule != null) {
+			startModule.track();
+		}
+	}
+
+	@Override
+	public void track(String msg) {
+		if (startModule != null) {
+			startModule.track(msg);
+		}
+	}
+
+	@Override
+	public void delegateTrackingTo(ITrackable target) {
+		if (startModule != null) {
+			startModule.delegateTrackingTo(target);
+		}
+	}
+
+	@Override
+	public ProgressTracker getTracker() {
+		if (startModule != null) {
+			return startModule.getTracker();
+		}
+		return null;
+	}
+
+	@Override
+	public void setTracker(ProgressTracker tracker) {
+		if (startModule != null) {
+			startModule.setTracker(tracker);
+		}
 	}
 }

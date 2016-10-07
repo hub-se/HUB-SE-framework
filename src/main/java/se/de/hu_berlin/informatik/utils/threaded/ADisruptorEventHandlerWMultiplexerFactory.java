@@ -14,12 +14,12 @@ public abstract class ADisruptorEventHandlerWMultiplexerFactory<A,B> extends ADi
 
 	@Override
 	public DisruptorFCFSEventHandler<A> newInstance() {
-		CallableWithInputAndReturn<A,B> call = getNewInstance();
+		EHWithInputAndReturn<A,B> call = getNewInstance();
 		call.setMultiplexer(multiplexer);
 		return call;
 	}
 
-	public abstract CallableWithInputAndReturn<A,B> getNewInstance();
+	public abstract EHWithInputAndReturn<A,B> getNewInstance();
 
 	public void setMultiplexer(IMultiplexer<B> multiplexer) {
 		this.multiplexer = multiplexer;

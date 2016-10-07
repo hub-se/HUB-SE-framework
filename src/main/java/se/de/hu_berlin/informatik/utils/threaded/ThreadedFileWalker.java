@@ -13,7 +13,7 @@ import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
  * 
  * @author Simon Heiden
  * 
- * @see CallableWithInput
+ * @see EHWithInput
  */
 public class ThreadedFileWalker extends AFileWalker {
 	

@@ -5,9 +5,12 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
+import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -44,7 +47,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see ModuleLinker
  */
-public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B> {
+public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
 	
 	private A input = null;
 	private B output = null;
@@ -52,6 +55,22 @@ public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B
 	private AModule<?,?> linkedModule = null;
 	
 	private boolean needsInput = false;
+	private ProgressTracker tracker;
+	
+	private APipe<A,B> pipeView = null;
+	
+	private ModuleFactory<A,B> moduleProvider = new ModuleFactory<A,B>() {
+		@Override
+		public AModule<A, B> getModule() throws IllegalStateException {
+			//simply return the actual module
+			return AModule.this;
+		}
+		@Override
+		public AModule<A, B> newModule() throws IllegalStateException {
+			//should not be accessed
+			throw new IllegalStateException("Trying to create new module when one already exists.");
+		}
+	};
 	
 	/**
 	 * Creates a new module with the given parameter.
@@ -158,38 +177,64 @@ public abstract class AModule<A,B> extends Trackable implements ITransmitter<A,B
 
 	@Override
 	public AModule<A,B> enableTracking() {
-		super.enableTracking();
+		ITrackable.super.enableTracking();
 		return this;
 	}
 	
 	@Override
 	public AModule<A,B> enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
+		ITrackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
 	public AModule<A,B> disableTracking() {
-		super.disableTracking();
+		ITrackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
 	public AModule<A,B> enableTracking(ProgressTracker tracker) {
-		super.enableTracking(tracker);
+		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
 	public AModule<A,B> enableTracking(boolean useProgressBar) {
-		super.enableTracking(useProgressBar);
+		ITrackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
 	public AModule<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		super.enableTracking(useProgressBar, stepWidth);
+		ITrackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
+	}
+
+	@Override
+	public ModuleFactory<A, B> getModuleProvider() {
+		return moduleProvider;
+	}
+	
+	@Override
+	public ProgressTracker getTracker() {
+		return tracker;
+	}
+
+	@Override
+	public void setTracker(ProgressTracker tracker) {
+		this.tracker = tracker;
+	}
+	
+	/* (non-Javadoc)
+	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider#asPipe()
+	 */
+	@Override
+	public APipe<A,B> asPipe() {
+		if (pipeView == null) {
+			pipeView = new ModuleLoaderPipe<>(this);
+		}
+		return pipeView;
 	}
 	
 }

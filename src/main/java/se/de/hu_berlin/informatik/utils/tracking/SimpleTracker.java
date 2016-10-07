@@ -13,5 +13,10 @@ public class SimpleTracker implements ITrackingStrategy {
 	public void track(String msg) {
 		writeTrackMsg(++count, msg);
 	}
+	
+	@Override
+	public void reset() {
+		count = 0;
+	}
 
 }

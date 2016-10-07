@@ -35,6 +35,8 @@ public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
 			disruptorProvider.submit(element);
 		}
 		disruptorProvider.shutdown();
+		
+		disruptorProvider.delegateTrackingTo(this);
 		return null;
 	}
 

@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.CallableWithInput;
+import se.de.hu_berlin.informatik.utils.threaded.EHWithInput;
 import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
@@ -21,7 +21,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * @author Simon Heiden
  * 
  * @see ThreadedFileWalker
- * @see CallableWithInput
+ * @see EHWithInput
  * @see Callable
  */
 public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
@@ -133,6 +133,7 @@ public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
 		
 		//we are done! Shutdown is necessary!
 		walker.getDisruptorProvider().shutdown();
+		walker.delegateTrackingTo(this);
 		return true;
 	}
 

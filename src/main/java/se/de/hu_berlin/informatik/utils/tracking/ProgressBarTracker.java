@@ -109,5 +109,10 @@ public class ProgressBarTracker implements ITrackingStrategy {
 		} catch (IOException e) { //do nothing
 		}
 	}
+
+	@Override
+	public void reset() {
+		count = 0;
+	}
 	
 }

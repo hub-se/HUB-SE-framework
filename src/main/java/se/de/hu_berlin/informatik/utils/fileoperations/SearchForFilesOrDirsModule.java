@@ -139,6 +139,7 @@ public class SearchForFilesOrDirsModule extends AModule<Path,List<Path>> {
 			Log.abort(this, e, "IOException thrown.");
 		}
 
+		walker.delegateTrackingTo(this);
 		return walker.getMatchedPaths();
 	}
 

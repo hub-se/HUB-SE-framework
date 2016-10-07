@@ -7,8 +7,9 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
+import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -47,7 +48,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see PipeLinker
  */
-public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> {
+public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
@@ -55,7 +56,22 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 	private APipe<B,?> output = null;
 
 	private final boolean singleWriter;
+	
+	private ProgressTracker tracker = null;
 
+	private PipeFactory<A,B> pipeProvider = new PipeFactory<A,B>() {
+		@Override
+		public APipe<A, B> getPipe() throws IllegalStateException {
+			//simply return the actual module
+			return APipe.this;
+		}
+		@Override
+		public APipe<A, B> newPipe() throws IllegalStateException {
+			//should not be accessed
+			throw new IllegalStateException("Trying to create new pipe when one already exists.");
+		}
+	};
+	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
 	 * @param singleWriter
@@ -234,38 +250,52 @@ public abstract class APipe<A,B> extends Trackable implements ITransmitter<A,B> 
 
 	@Override
 	public APipe<A,B> enableTracking() {
-		super.enableTracking();
+		ITrackable.super.enableTracking();
 		return this;
 	}
 
 	@Override
 	public APipe<A,B> enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
+		ITrackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
 	public APipe<A,B> disableTracking() {
-		super.disableTracking();
+		ITrackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
 	public APipe<A,B> enableTracking(ProgressTracker tracker) {
-		super.enableTracking(tracker);
+		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
 	public APipe<A,B> enableTracking(boolean useProgressBar) {
-		super.enableTracking(useProgressBar);
+		ITrackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
 	public APipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		super.enableTracking(useProgressBar, stepWidth);
+		ITrackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
 	
+	@Override
+	public PipeFactory<A, B> getPipeProvider() {
+		return pipeProvider;
+	}
+	
+	@Override
+	public ProgressTracker getTracker() {
+		return tracker;
+	}
+
+	@Override
+	public void setTracker(ProgressTracker tracker) {
+		this.tracker = tracker;
+	}
 }

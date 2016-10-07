@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
-import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
+import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 
 /**
  * Provides more general and easy access methods for the linking of pipes
@@ -20,7 +18,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * @author Simon Heiden
  *
  */
-public class PipeLinker extends Trackable {
+public class PipeLinker implements ITrackable {
 	
 	/**
 	 * Creates a new pipe linker. Assumes that input items are
@@ -54,11 +52,15 @@ public class PipeLinker extends Trackable {
 	 * @return
 	 * this linker
 	 */
-	public PipeLinker link(ITransmitter<?,?>... transmitters) {	
+	public PipeLinker link(ITransmitterProvider<?,?>... transmitters) {	
 		if (transmitters.length != 0) {
 			List<APipe<?,?>> pipes = new ArrayList<>(transmitters.length);
-			for (int i = 0; i < transmitters.length; ++i) {
-				pipes.add(getPipeFromTransmitter(transmitters[i]));
+			try {
+				for (int i = 0; i < transmitters.length; ++i) {
+					pipes.add(transmitters[i].asPipe());
+				}
+			} catch(IllegalStateException e) {
+				Log.abort(this, e, "Unable to get pipe from a given transmitter.");
 			}
 
 			startPipe = pipes.get(0);
@@ -74,26 +76,6 @@ public class PipeLinker extends Trackable {
 			}
 		}
 		return this;
-	}
-	
-	/**
-	 * Converts a transmitter to a pipe. If the transmitter is a pipe, then
-	 * it is simply returned. If it is a module, then it is adapted via a
-	 * {@link ModuleLoaderPipe}.
-	 * @param transmitter
-	 * the transmitter to be converted to a pipe
-	 * @return
-	 * the converted transmitter
-	 */
-	private <A,B> APipe<A,B> getPipeFromTransmitter(ITransmitter<A,B> transmitter) {
-		if (transmitter instanceof APipe) {
-			return (APipe<A,B>)transmitter;
-		} else if (transmitter instanceof AModule) {
-			return new ModuleLoaderPipe<A,B>((AModule<A,B>)transmitter);
-		} else {
-			Log.abort(this, "Unable to obtain type of transmitter %s.", transmitter.toString());
-		}
-		return null;
 	}
 	
 	/**
@@ -147,25 +129,22 @@ public class PipeLinker extends Trackable {
 	
 	@Override
 	public PipeLinker enableTracking() {
-		super.enableTracking();
 		if (startPipe != null) {
-			startPipe.enableTracking(this.getTracker());
+			startPipe.enableTracking();
 		}
 		return this;
 	}
 	
 	@Override
 	public PipeLinker enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
 		if (startPipe != null) {
-			startPipe.enableTracking(this.getTracker());
+			startPipe.enableTracking(stepWidth);
 		}
 		return this;
 	}
 
 	@Override
 	public PipeLinker disableTracking() {
-		super.disableTracking();
 		if (startPipe != null) {
 			startPipe.disableTracking();
 		}
@@ -174,11 +153,70 @@ public class PipeLinker extends Trackable {
 
 	@Override
 	public PipeLinker enableTracking(ProgressTracker tracker) {
-		super.enableTracking(tracker);
 		if (startPipe != null) {
-			startPipe.enableTracking(this.getTracker());
+			startPipe.enableTracking(tracker);
 		}
 		return this;
+	}
+
+	@Override
+	public PipeLinker enableTracking(boolean useProgressBar) {
+		if (startPipe != null) {
+			startPipe.enableTracking(useProgressBar);
+		}
+		return this;
+	}
+
+	@Override
+	public PipeLinker enableTracking(boolean useProgressBar, int stepWidth) {
+		if (startPipe != null) {
+			startPipe.enableTracking(useProgressBar, stepWidth);
+		}
+		return this;
+	}
+
+	@Override
+	public boolean isTracking() {
+		if (startPipe != null) {
+			return startPipe.isTracking();
+		}
+		return false;
+	}
+
+	@Override
+	public void track() {
+		if (startPipe != null) {
+			startPipe.track();
+		}
+	}
+
+	@Override
+	public void track(String msg) {
+		if (startPipe != null) {
+			startPipe.track(msg);
+		}
+	}
+
+	@Override
+	public void delegateTrackingTo(ITrackable target) {
+		if (startPipe != null) {
+			startPipe.delegateTrackingTo(target);
+		}
+	}
+
+	@Override
+	public ProgressTracker getTracker() {
+		if (startPipe != null) {
+			return startPipe.getTracker();
+		}
+		return null;
+	}
+
+	@Override
+	public void setTracker(ProgressTracker tracker) {
+		if (startPipe != null) {
+			startPipe.setTracker(tracker);
+		}
 	}
 	
 }

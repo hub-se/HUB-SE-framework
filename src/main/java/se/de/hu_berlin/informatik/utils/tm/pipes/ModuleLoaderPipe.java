@@ -51,7 +51,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public B processItem(A item) {		
-		return getModule().submit(item).getResult();
+		return getInternalModule().submit(item).getResult();
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @return
 	 * the loaded module
 	 */
-	private AModule<A, B> getModule() {
+	private AModule<A, B> getInternalModule() {
 		if (module == null) {
 			Log.abort(this, "No module loaded.");
 		}
@@ -84,12 +84,12 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 */
 	@Override
 	public B getResultFromCollectedItems() {
-		return getModule().getResultFromCollectedItems();
+		return getInternalModule().getResultFromCollectedItems();
 	}
 
 	@Override
 	public boolean finalShutdown() {
-		return getModule().finalShutdown();
+		return getInternalModule().finalShutdown();
 	}	
 
 }

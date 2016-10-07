@@ -7,8 +7,8 @@ package se.de.hu_berlin.informatik.utils.tracking;
  */
 public class ProgressTracker {
 	
-	ITrackingStrategy tracker;
-	
+	private ITrackingStrategy tracker;
+
 	public ProgressTracker(boolean useProgressBar) {
 		if (useProgressBar) {
 			tracker = new ProgressBarTracker(1);
@@ -33,5 +33,8 @@ public class ProgressTracker {
 	public void track(String msg) {
 		tracker.track(msg);
 	}
-	
+
+	public void reset() {
+		tracker.reset();
+	}
 }
