@@ -5,6 +5,13 @@ package se.de.hu_berlin.informatik.utils.optionparser;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -31,6 +38,53 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUt
  * @see Option
  */
 public class OptionParser {
+	
+	public static enum DefaultCmdOptions implements IOptions {
+		/* add options here according to your needs */
+		HELP("h", "help", false, "Shows this help.", false),
+		SILENCE("z", "silence", false, "Disallows outputs to standard out.", false),
+		SILENCE_ALL("zz", "silenceAll", false, "Disallows outputs to standard AND error out.", false),
+
+		THREAD_COUNT("tc", "threadCount", true, "Sets a desired thread count manually. Overwrites the default"
+				+ " strategy for thread creation.", false),
+		THREAD_STRATEGY("ts", "threadStrategy", true, "Sets a strategy to use regarding the number of threads to create. "
+						+ "'AGGRESSIVE' will try to use up to 90% of available processors. "
+						+ "'NICE' (default) will try to use up to 50% of available processors. "
+						+ "'DEFENSIVE' will only try to use up to 20% of available processors.", false);
+		
+		/* the following code blocks should not need to be changed */
+		final private Option option;
+		final private int groupId;
+
+		//adds an option that is not part of any group
+		DefaultCmdOptions(final String opt, final String longOpt, final boolean hasArg, final String description, final boolean required) {
+			this.option = Option.builder(opt).longOpt(longOpt).required(required).hasArg(hasArg).desc(description).build();
+			this.groupId = NO_GROUP;
+		}
+		
+		//adds an option that is part of the group with the specified index (positive integer)
+		//a negative index means that this option is part of no group
+		//this option will not be required, however, the group itself will be
+		DefaultCmdOptions(final String opt, final String longOpt, final boolean hasArg, final String description, int groupId) {
+			this.option = Option.builder(opt).longOpt(longOpt).required(false).hasArg(hasArg).desc(description).build();
+			this.groupId = groupId;
+		}
+		
+		//adds the given option that will be part of the group with the given id
+		DefaultCmdOptions(Option option, int groupId) {
+			this.option = option;
+			this.groupId = groupId;
+		}
+		
+		//adds the given option that will be part of no group
+		DefaultCmdOptions(Option option) {
+			this(option, NO_GROUP);
+		}
+		
+		@Override public Option option() { return option; }
+		@Override public int groupId() { return groupId; }
+		@Override public String toString() { return option.getOpt(); }
+	}
 	
 	public final static String STRAT_AGGRESSIVE = "AGGRESSIVE";
 	public final static String STRAT_NICE = "NICE";
@@ -68,6 +122,29 @@ public class OptionParser {
     private boolean isThreaded = false;
 	
     /**
+	 * Parses the options from the command line. This method should be used by applications to get an OptionParser object.
+	 * @param toolName
+	 * the name of the tool
+	 * @param isThreaded
+	 * whether the tool uses threads that run in parallel (provides related options)
+	 * @param options
+	 * an Enum containing all the options
+	 * @param args
+	 * the application's arguments
+	 * @return
+	 * an {@link OptionParser} object that provides access to all parsed options and their values
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	public static <T extends Enum<T> & IOptions> OptionParser getOptions(String toolName, boolean isThreaded, Class<T> options, String[] args) {
+		final OptionParser optionParser = new OptionParser(toolName, isThreaded, args);
+		optionParser.add(options);
+        optionParser.parseCommandLine();
+        
+        return optionParser;
+	}
+	
+    /**
      * Creates an object to easily add and parse options. Creates several
      * standard options that can be used in any application which uses this
      * option parser:
@@ -82,7 +159,7 @@ public class OptionParser {
      * @param args
      * the command line arguments that were given to a main function
      */
-	public OptionParser(final String tool, boolean isThreaded, final String[] args) {
+	private OptionParser(final String tool, boolean isThreaded, final String[] args) {
 		super();
 		this.tool = tool;
 		this.args = args;
@@ -90,37 +167,32 @@ public class OptionParser {
 		lvParser = new DefaultParser();
 		lvOptions = new Options();
 		
-		this.add("h", "help", false, "Shows this help.");
-		this.add("z", "silence", false, "Disallows outputs to standard out.");
-		this.add("zz", "silenceAll", false, "Disallows outputs to standard AND error out.");
+		this.add(DefaultCmdOptions.HELP.option());
+		this.add(DefaultCmdOptions.SILENCE.option());
+		this.add(DefaultCmdOptions.SILENCE_ALL.option());
 		
 		this.isThreaded = isThreaded;
 		if (isThreaded) {
-			this.addGroup("tc", "threadCount", true, "Sets a desired thread count manually. Overwrites the default"
-					+ " strategy for thread creation.",
-					"ts", "threadStrategy", true, "Sets a strategy to use regarding the number of threads to create. "
-							+ "'AGGRESSIVE' will try to use up to 90% of available processors. "
-							+ "'NICE' (default) will try to use up to 50% of available processors. "
-							+ "'DEFENSIVE' will only try to use up to 20% of available processors.");
+			this.addGroup(false, DefaultCmdOptions.THREAD_COUNT, DefaultCmdOptions.THREAD_STRATEGY);
 		}
 	}
 	
 	/**
 	 * Parses the given options.
 	 */
-	public void parseCommandLine() {
+	private void parseCommandLine() {
 		try {
 			lvCmd = this.lvParser.parse(this.lvOptions, this.args);
 
-            if (lvCmd.hasOption('h')) {
+            if (this.hasOption(DefaultCmdOptions.HELP)) {
             	printHelp(0);
             }
             
-            if (lvCmd.hasOption('z')) {
+            if (this.hasOption(DefaultCmdOptions.SILENCE)) {
             	OutputStreamManipulationUtilities.switchOffStdOutFINAL();
             }
             
-            if (lvCmd.hasOption("zz")) {
+            if (this.hasOption(DefaultCmdOptions.SILENCE_ALL)) {
             	OutputStreamManipulationUtilities.switchOffStdOutFINAL();
             	OutputStreamManipulationUtilities.switchOffStdErrFINAL();
             }
@@ -161,8 +233,8 @@ public class OptionParser {
 		if (!isThreaded) {
 			return 1;
 		}
-		if (this.hasOption("tc")) {
-			int threads = Integer.parseInt(this.getOptionValue("tc")) - minusThreads;
+		if (this.hasOption(DefaultCmdOptions.THREAD_COUNT)) {
+			int threads = Integer.parseInt(this.getOptionValue(DefaultCmdOptions.THREAD_COUNT)) - minusThreads;
 			if (threads < 1) {
 				return 1;
 			} else {
@@ -171,8 +243,8 @@ public class OptionParser {
 		}
 		
 		ThreadingStrategy strategy = ThreadingStrategy.NICE;
-		if (this.hasOption("ts")) {
-			switch(this.getOptionValue("ts")) {
+		if (this.hasOption(DefaultCmdOptions.THREAD_STRATEGY)) {
+			switch(this.getOptionValue(DefaultCmdOptions.THREAD_STRATEGY)) {
 			case STRAT_NICE:
 				strategy = ThreadingStrategy.NICE;
 				break;
@@ -183,7 +255,7 @@ public class OptionParser {
 				strategy = ThreadingStrategy.DEFENSIVE;
 				break;
 			default:
-				Log.abort(this, "Unknown strategy: '%s'", this.getOptionValue("ts"));
+				Log.abort(this, "Unknown strategy: '%s'", this.getOptionValue(DefaultCmdOptions.THREAD_STRATEGY));
 			}
 		}
 		
@@ -210,45 +282,38 @@ public class OptionParser {
 	}
 	
 	/**
+	 * Adds all options declared in the given Enum.
+	 * @param options
+	 * the options to be added
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	private <T extends Enum<T> & IOptions> void add(Class<T> options) {
+		Map<Integer, List<T>> groups = new HashMap<>();
+		for (T option : EnumSet.allOf(options)) {
+			if (option.groupId() < 0) {
+				add(option.option());
+			} else {
+				if (groups.containsKey(option.groupId())) {
+					groups.get(option.groupId()).add(option);
+				} else {
+					List<T> list = new ArrayList<>();
+					list.add(option);
+					groups.put(option.groupId(), list);
+				}
+			}
+		}
+		for (Entry<Integer, List<T>> group : groups.entrySet()) {
+			addGroup(true, group.getValue());
+		}
+	}
+	
+	/**
 	 * Adds an {@link Option} object.
 	 * @param option
 	 * the option to be added
 	 */
-	public void add(final Option option) {
-		this.lvOptions.addOption(option);
-	}
-	
-	/**
-	 * Adds an optional (not required) option with the specified attributes.
-	 * @param opt
-	 * short descriptor
-	 * @param longOpt
-	 * long descriptor
-	 * @param hasArg
-	 * does the option expect an argument?
-	 * @param description
-	 * description of the option
-	 */
-	public void add(final String opt, final String longOpt, final boolean hasArg, final String description) {
-		this.lvOptions.addOption(new Option(opt, longOpt, hasArg, description));
-	}
-	
-	/**
-	 * Adds an option with the specified attributes and also sets the 'required' attribute.
-	 * @param opt
-	 * short descriptor
-	 * @param longOpt
-	 * long descriptor
-	 * @param hasArg
-	 * does the option expect an argument?
-	 * @param description
-	 * description of the option
-	 * @param required
-	 * is the option required?
-	 */
-	public void add(final String opt, final String longOpt, final boolean hasArg, final String description, final boolean required) {
-		Option option = new Option(opt, longOpt, hasArg, description);
-		option.setRequired(required);
+	private void add(final Option option) {
 		this.lvOptions.addOption(option);
 	}
 	
@@ -259,22 +324,11 @@ public class OptionParser {
 	 * exit status code
 	 * @param opt
 	 * the option parameter which produced the error.
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public void printHelp(final int status, String opt) {
-		Log.err(this, "Error with option '-%s'.", opt);
-		printHelp(status);
-	}
-	
-	/**
-	 * Prints the help message and exits with the given status code
-	 * and an error message concerning the given option parameter.
-	 * @param status
-	 * exit status code
-	 * @param opt
-	 * the option parameter which produced the error.
-	 */
-	public void printHelp(final int status, char opt) {
-		Log.err(this, "Error with option '-%s'.", opt);
+	public <T extends Enum<T> & IOptions> void printHelp(final int status, T opt) {
+		Log.err(this, "Error with option '-%s'.", opt.option().getOpt());
 		printHelp(status);
 	}
 	
@@ -283,32 +337,25 @@ public class OptionParser {
 	 * @param status
 	 * exit status code
 	 */
-	public void printHelp(final int status) {
+	private void printHelp(final int status) {
 		this.lvFormatter.printHelp(this.tool, this.lvOptions, true);
         System.exit(status);
 	}
 
 	/**
-	 * Adds the given {@link OptionGroup}.
-	 * @param lvGroup
-	 * the option group to be added
-	 */
-	public void addGroup(final OptionGroup lvGroup) {
-        lvOptions.addOptionGroup(lvGroup);
-	}
-	
-	/**
-	 * Adds the given {@link Option} objects to a group and adds the group to the available options.
+	 * Adds the given option objects to a group and adds the group to the available options.
 	 * @param required
 	 * is the option group required?
-	 * @param options
+	 * @param group
 	 * the options to be added to the group
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public void addGroup(boolean required, Option... options) {
-		if (options.length > 0) {
+	private <T extends Enum<T> & IOptions> void addGroup(boolean required, List<T> group) {
+		if (group.size() > 0) {
 			OptionGroup lvGroup = new OptionGroup();
-			for (int i = 0; i < options.length; ++i) {
-				lvGroup.addOption(options[i]);
+			for (T option : group) {
+				lvGroup.addOption(option.option());
 			}
 			lvGroup.setRequired(required);
 			lvOptions.addOptionGroup(lvGroup);
@@ -316,167 +363,73 @@ public class OptionParser {
 	}
 	
 	/**
-	 * Adds the given {@link Option} objects to a group and adds the group to the available options.
-	 * The group is not required.
-	 * @param options
-	 * the options to be added to the group
-	 */
-	public void addGroup(Option... options) {
-		addGroup(false, options);
-	}
-	
-	/**
-	 * Adds the given option group that is specified by the two sets of attributes. The group is not required.
-	 * @param opt1
-	 * short descriptor of option 1
-	 * @param longOpt1
-	 * long descriptor of option 1
-	 * @param hasArg1
-	 * does option 1 expect an argument?
-	 * @param description1
-	 * description of option 1
-	 * @param opt2
-	 * short descriptor of option 2
-	 * @param longOpt2
-	 * long descriptor of option 2
-	 * @param hasArg2
-	 * does option 2 expect an argument?
-	 * @param description2
-	 * description of option 2
-	 */
-	public void addGroup(final String opt1, final String longOpt1, final boolean hasArg1, final String description1, 
-			final String opt2, final String longOpt2, final boolean hasArg2, final String description2) {
-		addGroup(opt1, longOpt1, hasArg1, description1, opt2, longOpt2, hasArg2, description2, false);
-	}
-	
-	/**
-	 * Adds the given option group that is specified by the two sets of attributes and the 'required' attribute.
-	 * @param opt1
-	 * short descriptor of option 1
-	 * @param longOpt1
-	 * long descriptor of option 1
-	 * @param hasArg1
-	 * does option 1 expect an argument?
-	 * @param description1
-	 * description of option 1
-	 * @param opt2
-	 * short descriptor of option 2
-	 * @param longOpt2
-	 * long descriptor of option 2
-	 * @param hasArg2
-	 * does option 2 expect an argument?
-	 * @param description2
-	 * description of option 2
+	 * Adds the given option objects to a group and adds the group to the available options.
 	 * @param required
 	 * is the option group required?
+	 * @param group
+	 * the options to be added to the group
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public void addGroup(final String opt1, final String longOpt1, final boolean hasArg1, final String description1, 
-			final String opt2, final String longOpt2, final boolean hasArg2, final String description2, final boolean required) {
-		OptionGroup lvGroup = new OptionGroup();
-        Option opt_one = new Option(opt1, longOpt1, hasArg1, description1);
-        Option opt_two = new Option(opt2, longOpt2, hasArg2, description2);
-        lvGroup.addOption(opt_one);
-        lvGroup.addOption(opt_two);
-        lvGroup.setRequired(required);
-        lvOptions.addOptionGroup(lvGroup);
+	private <T extends Enum<T> & IOptions> void addGroup(boolean required, @SuppressWarnings("unchecked") T... group) {
+		addGroup(required, new ArrayList<T>(Arrays.asList(group)));
 	}
 	
 	/**
 	 * Query to see if an option has been set.
 	 * @param opt
-	 * the character name of the option
+	 * an option set with an Enum
 	 * @return
 	 * true if set, false if not
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public boolean hasOption(char opt) {
-		return getCmdLine().hasOption(opt);
-	}
-	
-	/**
-	 * Query to see if an option has been set.
-	 * @param opt
-	 * the name of the option
-	 * @return
-	 * true if set, false if not
-	 */
-	public boolean hasOption(String opt) {
-		return getCmdLine().hasOption(opt);
+	public <T extends Enum<T> & IOptions> boolean hasOption(T opt) {
+		return getCmdLine().hasOption(opt.option().getOpt());
 	}
 	
 	/**
 	 * Retrieve the first argument, if any, of this option.
 	 * @param opt
-	 * the character name of the option
+	 * an option set with an Enum
 	 * @return
 	 * Value of the argument if option is set and has an argument, 
 	 * otherwise null.
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public String getOptionValue(char opt) {
-		return getCmdLine().getOptionValue(opt);
+	public <T extends Enum<T> & IOptions> String getOptionValue(T opt) {
+		return getCmdLine().getOptionValue(opt.option().getOpt());
 	}
 	
 	/**
 	 * Retrieve the first argument, if any, of the given option.
 	 * @param opt
-	 * the name of the option
-	 * @return
-	 * Value of the argument if option is set and has an argument, 
-	 * otherwise null.
-	 */
-	public String getOptionValue(String opt) {
-		return getCmdLine().getOptionValue(opt);
-	}
-	
-	/**
-	 * Retrieve the first argument, if any, of the given option.
-	 * @param opt
-	 * the character name of the option
+	 * an option set with an Enum
 	 * @param defaultValue
 	 * is the default value to be returned if the option is not specified
 	 * @return
 	 * Value of the argument if option is set and has an argument,
 	 * otherwise {@code defaultValue}.
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public String getOptionValue(char opt, String defaultValue) {
-		return getCmdLine().getOptionValue(opt, defaultValue);
-	}
-	
-	/**
-	 * Retrieve the first argument, if any, of the given option.
-	 * @param opt
-	 * the name of the option
-	 * @param defaultValue
-	 * is the default value to be returned if the option is not specified
-	 * @return
-	 * Value of the argument if option is set and has an argument,
-	 * otherwise {@code defaultValue}.
-	 */
-	public String getOptionValue(String opt, String defaultValue) {
-		return getCmdLine().getOptionValue(opt, defaultValue);
+	public <T extends Enum<T> & IOptions> String getOptionValue(T opt, String defaultValue) {
+		return getCmdLine().getOptionValue(opt.option().getOpt(), defaultValue);
 	}
 	
 	/**
 	 * Retrieves the array of values, if any, of the given option.
 	 * @param opt
-	 * the character name of the option
+	 * an option set with an Enum
 	 * @return
 	 * Values of the argument if option is set and has an argument, 
 	 * otherwise null.
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public String[] getOptionValues(char opt) {
-		return getCmdLine().getOptionValues(opt);
-	}
-	
-	/**
-	 * Retrieves the array of values, if any, of the given option.
-	 * @param opt
-	 * the name of the option
-	 * @return
-	 * Values of the argument if option is set and has an argument, 
-	 * otherwise null.
-	 */
-	public String[] getOptionValues(String opt) {
-		return getCmdLine().getOptionValues(opt);
+	public <T extends Enum<T> & IOptions> String[] getOptionValues(T opt) {
+		return getCmdLine().getOptionValues(opt.option().getOpt());
 	}
 	
 	/**
@@ -486,13 +439,15 @@ public class OptionParser {
 	 * @param prefix
 	 * a prefix path
 	 * @param opt
-	 * an option parameter whose value should be a relative path
+	 * an option set with an Enum whose value should be a relative path
 	 * @param ensureExistence
 	 * whether to ensure existence of the directory
 	 * @return
 	 * the path corresponding to the option
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public Path isDirectory(Path prefix, String opt, boolean ensureExistence) {
+	public <T extends Enum<T> & IOptions> Path isDirectory(Path prefix, T opt, boolean ensureExistence) {
 		Path path = null;
 		if (prefix != null) {
 			path = prefix.resolve(Paths.get(getOptionValue(opt)));
@@ -515,13 +470,15 @@ public class OptionParser {
 	 * @param prefix
 	 * a prefix path
 	 * @param opt
-	 * an option parameter whose value should be a relative path
+	 * an option set with an Enum whose value should be a relative path
 	 * @param ensureExistence
 	 * whether to ensure existence of the file
 	 * @return
 	 * the path corresponding to the option
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public Path isFile(Path prefix, String opt, boolean ensureExistence) {
+	public <T extends Enum<T> & IOptions> Path isFile(Path prefix, T opt, boolean ensureExistence) {
 		Path path = null;
 		if (prefix != null) {
 			path = prefix.resolve(Paths.get(getOptionValue(opt)));
@@ -542,13 +499,15 @@ public class OptionParser {
 	 * the corresponding path. Aborts the application if the path
 	 * is a file (or doesn't exist if the specific option is set).
 	 * @param opt
-	 * an option parameter whose value should be a relative path
+	 * an option set with an Enum whose value should be a relative path
 	 * @param ensureExistence
 	 * whether to ensure existence of the directory
 	 * @return
 	 * the path corresponding to the option
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public Path isDirectory(String opt, boolean ensureExistence) {
+	public <T extends Enum<T> & IOptions> Path isDirectory(T opt, boolean ensureExistence) {
 		return isDirectory(null, opt, ensureExistence);
 	}
 	
@@ -557,45 +516,16 @@ public class OptionParser {
 	 * the corresponding path. Aborts the application if the path
 	 * is a directory (or doesn't exist if the specific option is set).
 	 * @param opt
-	 * an option parameter whose value should be a relative path
+	 * an option set with an Enum whose value should be a relative path
 	 * @param ensureExistence
 	 * whether to ensure existence of the file
 	 * @return
 	 * the path corresponding to the option
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
-	public Path isFile(String opt, boolean ensureExistence) {
+	public <T extends Enum<T> & IOptions> Path isFile(T opt, boolean ensureExistence) {
 		return isFile(null, opt, ensureExistence);
 	}
-	
-	/**
-	 * Checks whether the given option is a directory and returns
-	 * the corresponding path. Aborts the application if the path
-	 * is a file (or doesn't exist if the specific option is set).
-	 * @param opt
-	 * an option parameter whose value should be a relative path
-	 * @param ensureExistence
-	 * whether to ensure existence of the directory
-	 * @return
-	 * the path corresponding to the option
-	 */
-	public Path isDirectory(char opt, boolean ensureExistence) {
-		return isDirectory(null, String.valueOf(opt), ensureExistence);
-	}
-	
-	/**
-	 * Checks whether the given option is a file and returns
-	 * the corresponding path. Aborts the application if the path
-	 * is a directory (or doesn't exist if the specific option is set).
-	 * @param opt
-	 * an option parameter whose value should be a relative path
-	 * @param ensureExistence
-	 * whether to ensure existence of the file
-	 * @return
-	 * the path corresponding to the option
-	 */
-	public Path isFile(char opt, boolean ensureExistence) {
-		return isFile(null, String.valueOf(opt), ensureExistence);
-	}
-	
 	
 }
