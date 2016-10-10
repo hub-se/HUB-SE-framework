@@ -3,16 +3,12 @@
  */
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 /**
  * Provides methods for creating error messages and other output, etc. 
@@ -20,42 +16,14 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
  * @author Simon Heiden
  */
 public class Log {
+	
+	//intended to store already created loggers
+	private static Map<String,Logger> loggerCache;
 			
 	static {
+		System.setProperty("log4j.configurationFactory", LogConfigurationFactory.class.getCanonicalName());
 		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-		ctx = configure();
-	}
-	
-	private static LoggerContext ctx = null;
-	
-	private static void initializeLogger() {
-		if (ctx == null) {
-			System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-			ctx = configure();
-		}
-	}
-
-	private static LoggerContext configure() {
-		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-		builder.setConfigurationName("Log-config");
-        builder.setStatusLevel(Level.ERROR);
-        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL).
-            addAttribute("level", Level.DEBUG));
-        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").
-            addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
-        appenderBuilder.add(builder.newLayout("PatternLayout").
-        		addAttribute("noConsoleNoAnsi", true).
-            addAttribute("pattern", "%highlight{%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
-            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect)}}"));
-        appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
-            Filter.Result.NEUTRAL).addAttribute("marker", "FLOW"));
-        builder.add(appenderBuilder);
-        builder.add(builder.newLogger("org.apache.logging.log4j", Level.DEBUG).
-            add(builder.newAppenderRef("Stdout")).
-            addAttribute("additivity", false));
-        builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
-		
-		return Configurator.initialize(builder.build());
+		loggerCache = new ConcurrentHashMap<>();
 	}
 	
 	//suppress default constructor (class should not be instantiated)
@@ -64,36 +32,26 @@ public class Log {
 	}
 	
 	private static Logger getLogger(Object id) {
-		String identifier = getIdentifier(id);
-		initializeLogger();
-		return identifier == null ? ctx.getRootLogger() : ctx.getLogger(identifier);
+		if (id == null) {
+			return LogManager.getRootLogger();
+		}
+		String identifier = null;
+		if (id instanceof String) {
+			identifier = (String)id; 
+		} else if (id instanceof Class<?>) {
+			identifier = ((Class<?>)id).getName(); 
+		} else {
+			identifier = id.getClass().getName();
+		}
+		Logger logger = loggerCache.get(identifier);
+		if (logger == null) {
+			return loggerCache.computeIfAbsent(identifier, k -> LogManager.getLogger(k));
+		} else {
+			return logger;
+		}
+		
 	}
 	
-	/**
-	 * Returns an identifier for the given object. If the object is a String, then
-	 * the String will simply be returned. If it is a Class object, then the class 
-	 * name will be returned. In all other cases, the name of the class of the given
-	 * object will be returned.
-	 * @param id
-	 * the object for which to return an identifier
-	 * @return
-	 * an identifier
-	 */
-	private static String getIdentifier(Object id) {
-		if (id == null) {
-			return null;
-		}
-		if (id instanceof String) {
-			return (String)id; 
-		} else {
-			try {
-				return ((Class<?>)id).getName();
-			} catch(Exception e) {
-				return id.getClass().getName();
-			}
-		}
-	}
-
 	/**
 	 * Prints the given error message and exits the application with status code {@code 1}.
 	 * @param id
@@ -155,6 +113,33 @@ public class Log {
 	}
 	
 	/**
+	 * Prints an exception.
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param e
+	 * the exception to be printed
+	 */
+	private static void printException(Object id, Throwable e) {
+		getLogger(id).catching(Level.ERROR, e);
+	}
+	
+	/**
+	 * Prints an abort message.
+	 * @param id
+	 * the object to use for generating an identifier
+	 */
+	private static void printAbort(Object id) {
+		getLogger(id).fatal("aborting...");
+	}
+	
+	/**
+	 * Exits the application with status code 1.
+	 */
+	private static void exitWithError(){
+		System.exit(1);
+	}
+	
+	/**
 	 * Prints the given warning message.
 	 * @param id
 	 * the object to use for generating an identifier
@@ -207,33 +192,6 @@ public class Log {
 	}
 	
 	/**
-	 * Prints an exception.
-	 * @param id
-	 * the object to use for generating an identifier
-	 * @param e
-	 * the exception to be printed
-	 */
-	private static void printException(Object id, Throwable e) {
-		getLogger(id).catching(Level.ERROR, e);
-	}
-	
-	/**
-	 * Prints an abort message.
-	 * @param id
-	 * the object to use for generating an identifier
-	 */
-	private static void printAbort(Object id) {
-		getLogger(id).fatal("aborting...");
-	}
-	
-	/**
-	 * Exits the application with status code 1.
-	 */
-	private static void exitWithError(){
-		System.exit(1);
-	}
-	
-	/**
 	 * Prints the given message.
 	 * @param id
 	 * the object to use for generating an identifier
@@ -258,5 +216,6 @@ public class Log {
 	private static void printfMessage(Object id, String message, Object... args) {
 		getLogger(id).printf(Level.INFO, message, args);
 	}
+	
 	
 }

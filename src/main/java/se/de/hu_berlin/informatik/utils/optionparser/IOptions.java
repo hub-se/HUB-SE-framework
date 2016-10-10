@@ -6,17 +6,23 @@ public interface IOptions {
 	
 	public static final int NO_GROUP = -1;
 
+	public OptionWrapper getOptionWrapper();
+	
 	/**
 	 * @return
 	 * the associated Option object
 	 */
-	public Option option();
+	default public Option option() {
+		return getOptionWrapper().getOption();
+	}
 	
 	/**
 	 * @return
 	 * the associated group id; if this value is negative, then the option is not part of any group
 	 */
-	public int groupId();
+	default public int groupId() {
+		return getOptionWrapper().getGroupId();
+	}
 	
 	/**
 	 * @return
