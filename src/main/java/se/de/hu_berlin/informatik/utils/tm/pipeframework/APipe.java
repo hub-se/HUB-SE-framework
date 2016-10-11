@@ -101,6 +101,8 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 				track();
 				submitProcessedItem(processItem(input));
 			}
+			@Override
+			public void resetAndInit() { /*not needed*/ }
 		});
 		this.singleWriter = singleWriter;
 	}

@@ -18,24 +18,19 @@ import java.util.concurrent.Callable;
  */
 public abstract class EHWithInput<A> extends DisruptorFCFSEventHandler<A> {
 	
+	@Override
+	public void processEvent(A input) throws Exception {
+		processInput(input);
+	}
+
 	/**
-	 * Processes a single item of type A and returns a boolean value.
+	 * Processes a single item of type A.
 	 * Has to be instantiated by implementing classes.
 	 * @param input
 	 * the input item
 	 * @return
-	 * true if successful, false otherwise
+	 * true if successfull, false otherwise
 	 */
-	abstract public boolean processInput(A input);
-
-	@Override
-	public void processEvent(A input) throws Exception {
-		resetAndInit();
-		processInput(input);
-	}
+	public abstract boolean processInput(A input);
 	
-	/**
-	 * Should be used to reset or to initialize fields. Gets called before processing each event.
-	 */
-	abstract public void resetAndInit(); 
 }

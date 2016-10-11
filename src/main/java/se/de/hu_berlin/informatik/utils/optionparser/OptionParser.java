@@ -171,8 +171,7 @@ public class OptionParser {
 		lvOptions = new Options();
 		
 		this.add(DefaultCmdOptions.HELP.option());
-		this.add(DefaultCmdOptions.SILENCE.option());
-		this.add(DefaultCmdOptions.SILENCE_ALL.option());
+		this.addGroup(false, DefaultCmdOptions.SILENCE, DefaultCmdOptions.SILENCE_ALL);
 		
 		this.isThreaded = isThreaded;
 		if (isThreaded) {

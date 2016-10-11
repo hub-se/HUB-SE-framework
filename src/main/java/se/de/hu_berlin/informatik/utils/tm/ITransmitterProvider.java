@@ -30,12 +30,12 @@ public interface ITransmitterProvider<A,B> {
 	 * specified, by default.
 	 * @return
 	 * a pipe, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public APipe<A,B> asPipe() throws IllegalStateException {
+	default public APipe<A,B> asPipe() throws UnsupportedOperationException {
 		if (getPipeProvider() == null) {
-			throw new IllegalStateException("No pipe provider given.");
+			throw new UnsupportedOperationException("No pipe provider given.");
 		}
 		return getPipeProvider().getPipe();
 	}
@@ -45,12 +45,12 @@ public interface ITransmitterProvider<A,B> {
 	 * specified, by default.
 	 * @return
 	 * a module, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public AModule<A,B> asModule() throws IllegalStateException {
+	default public AModule<A,B> asModule() throws UnsupportedOperationException {
 		if (getModuleProvider() == null) {
-			throw new IllegalStateException("No module provider given.");
+			throw new UnsupportedOperationException("No module provider given.");
 		}
 		return getModuleProvider().getModule();
 	}

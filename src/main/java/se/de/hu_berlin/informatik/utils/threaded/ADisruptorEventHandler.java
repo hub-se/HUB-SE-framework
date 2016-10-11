@@ -7,20 +7,42 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}.
  * 
+ * <p> This implementation may further restrict the total number of running threads
+ * in the application by setting an {@link IThreadLimit} object. This will probably come
+ * with additional synchronization cost, of course, 
+ * but limits the amount of parallel threads to a set number. If no thread limit object
+ * is set, then access to threads will be unrestricted with practically no additional 
+ * costs (no synchronization will take place). 
+ * 
  * @author Simon Heiden
- * @param <T>
+ * @param <A>
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class ADisruptorEventHandler<T> implements EventHandler<Event<T>> {
+public abstract class ADisruptorEventHandler<A> implements EventHandler<Event<A>> {
 
-    private DisruptorProvider<T> callback = null;
+    private DisruptorProvider<A> callback = null;
+    private IThreadLimit limit = ThreadLimitDummy.getInstance();
+	private boolean singleConsumer = false;
     
     /**
      * Creates a {@link ADisruptorEventHandler}.
+     * @param isSingle
+     * whether this consumer is the only one which is
+     * connected to the disruptor
+     */
+    public ADisruptorEventHandler(boolean isSingle) {
+        super();
+        singleConsumer = isSingle;
+    }
+    
+    /**
+     * Creates a {@link ADisruptorEventHandler} which
+     * is set to be not a single producer
      */
     public ADisruptorEventHandler() {
         super();
+        singleConsumer = false;
     }
     
     /**
@@ -28,22 +50,28 @@ public abstract class ADisruptorEventHandler<T> implements EventHandler<Event<T>
      * @param callback
      * a disruptor provider
      */
-    protected void setCallback(DisruptorProvider<T> callback) {
+    protected void setCallback(DisruptorProvider<A> callback) {
     	this.callback = callback;
+    }
+    
+    protected void setThreadLimit(IThreadLimit limit) {
+    	this.limit = limit;
     }
     
     /**
      * @return
      * the callback disruptor provider
      */
-    protected DisruptorProvider<T> getCallback() {
+    protected DisruptorProvider<A> getCallback() {
     	return callback;
     }
     
     @Override
-    public void onEvent(Event<T> event, long sequence, boolean endOfBatch) throws Exception {
+    public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+    	limit.acquireSlot();
 //		Log.out(this, event.get().toString() + " " + sequence);
     	try {
+    		resetAndInit();
     		processEvent(event.get());
     	} catch (Throwable t) {
     		Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
@@ -51,8 +79,22 @@ public abstract class ADisruptorEventHandler<T> implements EventHandler<Event<T>
     	if (callback != null) {
     		callback.onEventEnd();
     	}
+    	limit.releaseSlot();
 	}
 	
+    /**
+     * @param isSingle
+     * whether this consumer is the only one which is
+     * connected to the disruptor
+     */
+    protected void setSingleConsumer(boolean isSingle) {
+    	singleConsumer  = isSingle;
+    }
+    
+    protected boolean isSingleConsumer() {
+		return singleConsumer;
+	}
+    
 	/**
 	 * Processes a single item that is provided by an event. Has to be implemented
 	 * by extending classes.
@@ -62,6 +104,11 @@ public abstract class ADisruptorEventHandler<T> implements EventHandler<Event<T>
 	 * if an error occurs. Any exception gets caught and produces an error message.
 	 * This doesn't abort execution.
 	 */
-	abstract public void processEvent(T input) throws Exception;
+	public abstract void processEvent(A input) throws Exception;
+	
+	/**
+	 * Should be used to reset or to initialize fields. Gets called before processing each event.
+	 */
+	public abstract void resetAndInit(); 
     
 }

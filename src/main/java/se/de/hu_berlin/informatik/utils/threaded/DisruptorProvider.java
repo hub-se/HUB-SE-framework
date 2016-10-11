@@ -18,10 +18,10 @@ import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
  * Provides convenient creation and access tools for a disruptor.
  * 
  * @author Simon Heiden
- * @param <T>
+ * @param <A>
  * the type of items that may be submitted and processed by the disruptor
  */
-public class DisruptorProvider<T> implements ITrackable {
+public class DisruptorProvider<A> implements ITrackable {
 
 	private static ThreadFactory threadFactory;
 	private Thread mainThread;
@@ -34,9 +34,9 @@ public class DisruptorProvider<T> implements ITrackable {
 	//holds the amount of pending items that were submitted but not yet processed
 	private AtomicInteger pendingItems = new AtomicInteger(0); 
 	
-	private Disruptor<Event<T>> disruptor = null;
-	private RingBuffer<Event<T>> ringBuffer = null;
-	private DisruptorFCFSEventHandler<T>[] handlers = null;
+	private Disruptor<Event<A>> disruptor = null;
+	private RingBuffer<Event<A>> ringBuffer = null;
+	private ADisruptorEventHandler<A>[] handlers = null;
 	private int bufferSize = 0;
 	
 	private ProducerType producerType = ProducerType.MULTI;
@@ -85,7 +85,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 */
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
-		disruptor = new Disruptor<>(Event<T>::new, bufferSize, threadFactory,
+		disruptor = new Disruptor<>(Event<A>::new, bufferSize, threadFactory,
 				producerType, new BlockingWaitStrategy());
 
 		// Get the ring buffer from the Disruptor to be used for publishing.
@@ -96,7 +96,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @return
 	 * the associated handlers (may be null if not yet specified)
 	 */
-	public DisruptorFCFSEventHandler<T>[] getHandlers() {
+	public ADisruptorEventHandler<A>[] getHandlers() {
 		return handlers;
 	}
 	
@@ -129,7 +129,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @return
 	 * this
 	 */
-	private DisruptorProvider<T> cleanup() {
+	private DisruptorProvider<A> cleanup() {
 		if (!isRunning) {
 			disruptor = null;
 			ringBuffer = null;
@@ -144,7 +144,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @param handlers
 	 * the handlers to connect
 	 */
-	public void connectHandlers(@SuppressWarnings("unchecked") DisruptorFCFSEventHandler<T>... handlers) {
+	public void connectHandlers(@SuppressWarnings("unchecked") ADisruptorEventHandler<A>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}
@@ -188,14 +188,14 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @return
 	 * this
 	 */
-	public DisruptorProvider<T> connectHandlers(int numberOfThreads, IDisruptorEventHandlerFactory<T> factory) {
+	public DisruptorProvider<A> connectHandlers(int numberOfThreads, IDisruptorEventHandlerFactory<A> factory) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
 		
 		//create generic array for the handlers to be instantiated
-        final DisruptorFCFSEventHandler<T>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
-        
+        final ADisruptorEventHandler<A>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
+		
         //instantiate the desired number of handlers
 		for (int i = 0; i < numberOfThreads; ++i) {
 			handlers[i] = factory.newInstance();
@@ -230,7 +230,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @return
 	 * this
 	 */
-	public DisruptorProvider<T> waitForPendingEventsToFinish() {
+	public DisruptorProvider<A> waitForPendingEventsToFinish() {
 		if (disruptor != null && isRunning) {
 //			Log.out(this, "waiting for pending items...");
 			//wait for pending operations to finish
@@ -246,7 +246,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @return
 	 * this
 	 */
-	public DisruptorProvider<T> shutdown() {
+	public DisruptorProvider<A> shutdown() {
 		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
 //			Log.out(this, "shutting down...");
@@ -265,7 +265,7 @@ public class DisruptorProvider<T> implements ITrackable {
 	 * @param item
 	 * the item to submit
 	 */
-	public void submit(T item) {
+	public void submit(A item) {
 		//avoid calling synchronized method call if already running
 		if (!isRunning) {
 			startIfNotRunning();

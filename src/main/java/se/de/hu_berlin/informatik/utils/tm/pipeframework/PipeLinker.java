@@ -3,9 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
@@ -42,37 +39,39 @@ public class PipeLinker implements ITrackable {
 
 	private boolean singleWriter = true;
 	private APipe<?,?> startPipe = null;
+	private APipe<?,?> endPipe = null;
 
 	/**
-	 * Links the given transmitters together to a chain of pipes. 
+	 * Links the given transmitters together to a chain of pipes 
+	 * and appends them to former appended pipes, if any. 
 	 * If the transmitters don't match, then
 	 * execution stops and the application aborts.
 	 * @param transmitters
 	 * transmitters (pipes or modules) to be linked together
 	 * @return
-	 * this linker
+	 * this pipe linker
 	 */
-	public PipeLinker link(ITransmitterProvider<?,?>... transmitters) {	
+	public PipeLinker append(ITransmitterProvider<?,?>... transmitters) {	
 		if (transmitters.length != 0) {
-			List<APipe<?,?>> pipes = new ArrayList<>(transmitters.length);
 			try {
-				for (int i = 0; i < transmitters.length; ++i) {
-					pipes.add(transmitters[i].asPipe());
+				if (startPipe == null) {
+					startPipe = transmitters[0].asPipe();
+					//set whether input items are submitted with a single thread
+					startPipe.setProducerType(singleWriter);
+					if (isTracking()) {
+						startPipe.enableTracking(getTracker());
+					}
+				} else {
+					endPipe.linkTo(transmitters[0].asPipe());
 				}
-			} catch(IllegalStateException e) {
+
+				for (int i = 0; i < transmitters.length-1; ++i) {
+					transmitters[i].asPipe().linkTo(transmitters[i+1].asPipe());
+				}
+
+				endPipe = transmitters[transmitters.length-1].asPipe();
+			} catch(UnsupportedOperationException e) {
 				Log.abort(this, e, "Unable to get pipe from a given transmitter.");
-			}
-
-			startPipe = pipes.get(0);
-			//input items are submitted with a single thread
-			startPipe.setProducerType(singleWriter);
-
-			for (int i = 0; i < pipes.size()-1; ++i) {
-				pipes.get(i).linkTo(pipes.get(i+1));
-			}
-			
-			if (isTracking()) {
-				startPipe.enableTracking(getTracker());
 			}
 		}
 		return this;

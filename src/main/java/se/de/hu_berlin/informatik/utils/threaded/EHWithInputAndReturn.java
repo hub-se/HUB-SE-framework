@@ -30,6 +30,11 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	private final Object lock = new Object();
 	private IMultiplexer<B> multiplexer = null;
 
+	@Override
+	public void processEvent(A input) throws Exception {
+		setOutputAndNotifyMultiplexer(processInput(input));
+	}
+	
 	/**
 	 * Processes a single item of type A and returns an item of type B (or {@code null}).
 	 * Has to be instantiated by implementing classes.
@@ -38,19 +43,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 * @return
 	 * an item of type B
 	 */
-	abstract public B processInput(A input);
-
-	@Override
-	public void processEvent(A input) throws Exception {
-		resetAndInit();
-		setOutputAndNotifyMultiplexer(processInput(input));
-	}
-	
-	/**
-	 * Should be used to reset or to initialize fields. Gets called before processing each event.
-	 */
-	abstract public void resetAndInit(); 
-	
+	public abstract B processInput(A input);
 	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setMultiplexer(se.de.hu_berlin.informatik.utils.threaded.NToOneMultiplexer)

@@ -26,25 +26,11 @@ public abstract class CallableEHWithInput<A> implements Callable<Boolean> {
 	
 	private final EHWithInput<A> eventHandler;
 	
-	public A getInput() {
-		return input;
-	}
-	
 	public CallableEHWithInput(EHWithInput<A> eventHandler) {
 		super();
 		this.eventHandler = eventHandler;
 	}
-	
-	/**
-	 * Processes a single item of type A and returns a boolean value.
-	 * Has to be instantiated by implementing classes.
-	 * @param input
-	 * the input item
-	 * @return
-	 * true if successful, false otherwise
-	 */
-	abstract public boolean processInput(A input);
-	
+
 	/* (non-Javadoc)
 	 * @see java.util.concurrent.Callable#call()
 	 */
@@ -65,8 +51,4 @@ public abstract class CallableEHWithInput<A> implements Callable<Boolean> {
 		return this;
 	}
 	
-	/**
-	 * Should be used to reset or to initialize fields. Gets called before processing each event.
-	 */
-	abstract public void resetAndInit(); 
 }

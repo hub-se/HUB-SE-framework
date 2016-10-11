@@ -8,17 +8,15 @@ package se.de.hu_berlin.informatik.utils.threaded;
  * are pending events that could be processed.
  * 
  * @author Simon Heiden
- * @param <T>
+ * @param <A>
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class DisruptorRoundRobinEventHandler<T> extends ADisruptorEventHandler<T> {
+public abstract class DisruptorRoundRobinEventHandler<A> extends ADisruptorEventHandler<A> {
 
 	private long ordinal;
     private long numberOfConsumers;
     
-    private boolean single = false;
-
     /**
      * Creates a {@link DisruptorRoundRobinEventHandler}.
      */
@@ -38,9 +36,9 @@ public abstract class DisruptorRoundRobinEventHandler<T> extends ADisruptorEvent
         this.ordinal = ordinal;
         this.numberOfConsumers = numberOfConsumers;
         if (numberOfConsumers == 1) {
-    		single = true;
+    		setSingleConsumer(true);
     	} else {
-    		single = false;
+    		setSingleConsumer(false);
     	}
     }
     
@@ -61,15 +59,15 @@ public abstract class DisruptorRoundRobinEventHandler<T> extends ADisruptorEvent
     protected void setNumberOfConsumers(long numberOfConsumers) {
     	this.numberOfConsumers = numberOfConsumers;
     	if (numberOfConsumers == 1) {
-    		single = true;
+    		setSingleConsumer(true);
     	} else {
-    		single = false;
+    		setSingleConsumer(false);
     	}
     }
     
 	@Override
-	public void onEvent(Event<T> event, long sequence, boolean endOfBatch) throws Exception {
-		if (single || (sequence % numberOfConsumers) == ordinal) {
+	public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+		if (isSingleConsumer() || (sequence % numberOfConsumers) == ordinal) {
 			super.onEvent(event, sequence, endOfBatch);
         }
 	}

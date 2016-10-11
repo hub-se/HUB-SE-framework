@@ -23,31 +23,36 @@ public class ModuleLinker implements ITrackable {
 	private AModule<?,?> endModule = null;
 	
 	/**
-	 * Links the given modules together. If the modules don't match, then
+	 * Links the given modules together and appends them to former appended 
+	 * modules, if any. If the modules don't match, then
 	 * execution stops and the application aborts.
 	 * @param transmitters
 	 * modules to be linked together
 	 * @return
 	 * this module linker
 	 */
-	public ModuleLinker link(ITransmitterProvider<?,?>... transmitters) {
+	public ModuleLinker append(ITransmitterProvider<?,?>... transmitters) {
 		if (transmitters.length != 0) {
 			try {
-				startModule = transmitters[0].asModule();
+				if (startModule == null) {
+					startModule = transmitters[0].asModule();
+					if (isTracking()) {
+						startModule.enableTracking(getTracker());
+					}
+				} else {
+					endModule.linkTo(transmitters[0].asModule());
+				}
 				for (int i = 0; i < transmitters.length-1; ++i) {
 					transmitters[i].asModule().linkTo(transmitters[i+1].asModule());
 				}
 				endModule = transmitters[transmitters.length-1].asModule();
-			} catch(IllegalStateException e) {
-			Log.abort(this, e, "Unable to get module from a given transmitter.");
-		}
-			if (isTracking()) {
-				startModule.enableTracking(getTracker());
+			} catch(UnsupportedOperationException e) {
+				Log.abort(this, e, "Unable to get module from a given transmitter.");
 			}
 		}
 		return this;
 	}
-	
+
 	/**
 	 * @return 
 	 * the start module
