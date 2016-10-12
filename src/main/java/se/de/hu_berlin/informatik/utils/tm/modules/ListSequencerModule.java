@@ -5,14 +5,14 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Module that sequences a given input List.
  * 
  * @author Simon Heiden
  */
-public class ListSequencerModule<A extends List<B>,B> extends AModule<A,B> {
+public class ListSequencerModule<A extends List<B>,B> extends AbstractModule<A,B> {
 
 	/**
 	 * Creates a new {@link ListSequencerModule} object.

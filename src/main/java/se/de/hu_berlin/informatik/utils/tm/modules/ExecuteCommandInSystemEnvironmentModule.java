@@ -11,14 +11,14 @@ import java.util.Map.Entry;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Starts the given command as a new process.
  * 
  * @author Simon Heiden
  */
-public class ExecuteCommandInSystemEnvironmentModule extends AModule<String[],Integer> {
+public class ExecuteCommandInSystemEnvironmentModule extends AbstractModule<String[],Integer> {
 
 	private File executionDir;
 	private String[] paths = null;

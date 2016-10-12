@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.fileoperations;
 import java.nio.file.Path;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringsToListProcessor;
 
 /**
@@ -14,7 +14,7 @@ import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringsToList
  * 
  * @author Simon Heiden
  */
-public class FileToListModule extends AModule<Path, List<String>> {
+public class FileToListModule extends AbstractModule<Path, List<String>> {
 	
 	/**
 	 * Creates a new {@link FileToListModule} with the given parameters.

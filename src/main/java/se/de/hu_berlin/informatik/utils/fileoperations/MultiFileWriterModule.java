@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * A file writer module for multiple files that gets for example a list 
@@ -25,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @see OutputPathGenerator
  */
-public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? extends CharSequence>> > extends AModule<A, A> {
+public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? extends CharSequence>> > extends AbstractModule<A, A> {
 
 	private boolean generateOutputPaths = false;
 	private Path[] paths = null;

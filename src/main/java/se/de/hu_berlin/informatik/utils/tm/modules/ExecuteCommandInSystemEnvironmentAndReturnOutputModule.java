@@ -14,14 +14,14 @@ import java.util.Map.Entry;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Starts the given command as a new process and returns the output as a String.
  * 
  * @author Simon Heiden
  */
-public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AModule<String[],String> {
+public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AbstractModule<String[],String> {
 
 	private File executionDir;
 	private String[] paths = null;

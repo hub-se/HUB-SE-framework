@@ -12,14 +12,14 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Adds byte arrays to a zip file.
  * 
  * @author Simon Heiden
  */
-public class AddByteArrayToZipFileModule extends AModule<byte[],byte[]> {
+public class AddByteArrayToZipFileModule extends AbstractModule<byte[],byte[]> {
 
 	private ZipFile zipFile;
 	private ZipParameters parameters;

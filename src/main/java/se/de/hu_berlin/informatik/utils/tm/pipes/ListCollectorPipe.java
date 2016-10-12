@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipes;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Pipe that collects items from input lists until a minimum number
@@ -17,7 +17,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @author Simon Heiden
  *
  */
-public class ListCollectorPipe<A> extends APipe<List<A>,List<A>> {
+public class ListCollectorPipe<A> extends AbstractPipe<List<A>,List<A>> {
 	
 	final private int minEntries;
 	private List<A> collectedItems;

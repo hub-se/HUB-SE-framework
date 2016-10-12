@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Encodes a byte array into a compressed byte array, depending on the maximum
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @author Simon Heiden
  */
-public class ByteArrayToCompressedByteArrayModule extends AModule<byte[],byte[] > {
+public class ByteArrayToCompressedByteArrayModule extends AbstractModule<byte[],byte[] > {
 
 	private List<Byte> result;
 	

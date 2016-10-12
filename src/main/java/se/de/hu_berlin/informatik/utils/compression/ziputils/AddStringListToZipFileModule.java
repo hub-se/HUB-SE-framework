@@ -14,7 +14,7 @@ import net.lingala.zip4j.util.Zip4jConstants;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Adds lists of char sequences (strings) to a zip file.
@@ -24,7 +24,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * @param A
  * the type of iterable char sequence 
  */
-public class AddStringListToZipFileModule<A extends Iterable<? extends CharSequence>> extends AModule<A,A> {
+public class AddStringListToZipFileModule<A extends Iterable<? extends CharSequence>> extends AbstractModule<A,A> {
 
 	private ZipFile zipFile;
 	private ZipParameters parameters;

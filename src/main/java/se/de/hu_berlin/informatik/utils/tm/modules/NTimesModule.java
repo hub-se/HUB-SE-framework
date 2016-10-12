@@ -3,14 +3,14 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.modules;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Module that submits the input item n times to a linked module.
  * 
  * @author Simon Heiden
  */
-public class NTimesModule extends AModule<Object,Object> {
+public class NTimesModule extends AbstractModule<Object,Object> {
 
 	private int n;
 	

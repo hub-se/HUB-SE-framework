@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 public abstract class ModuleFactory<A,B> {
 	
-	AModule<A,B> module = null;
+	AbstractModule<A,B> module = null;
 
 	/**
 	 * Tries to get or create a module.
@@ -11,7 +11,7 @@ public abstract class ModuleFactory<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public AModule<A,B> getModule() throws UnsupportedOperationException {
+	public AbstractModule<A,B> getModule() throws UnsupportedOperationException {
 		if (module == null) {
 			module = newModule();
 		}
@@ -25,6 +25,6 @@ public abstract class ModuleFactory<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	abstract public AModule<A,B> newModule() throws UnsupportedOperationException;
+	abstract public AbstractModule<A,B> newModule() throws UnsupportedOperationException;
 	
 }

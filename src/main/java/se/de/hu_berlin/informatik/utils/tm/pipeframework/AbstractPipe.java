@@ -49,12 +49,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see PipeLinker
  */
-public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
+public abstract class AbstractPipe<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
 	private boolean hasInput = false;
-	private APipe<B,?> output = null;
+	private AbstractPipe<B,?> output = null;
 
 	private final boolean singleWriter;
 	
@@ -62,12 +62,12 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 
 	private PipeFactory<A,B> pipeProvider = new PipeFactory<A,B>() {
 		@Override
-		public APipe<A, B> getPipe() {
+		public AbstractPipe<A, B> getPipe() {
 			//simply return the actual module
-			return APipe.this;
+			return AbstractPipe.this;
 		}
 		@Override
-		public APipe<A, B> newPipe() throws UnsupportedOperationException {
+		public AbstractPipe<A, B> newPipe() throws UnsupportedOperationException {
 			//should not be accessed
 			throw new UnsupportedOperationException("Trying to create new pipe when one already exists.");
 		}
@@ -79,7 +79,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	 * whether this pipe writes to the output with only a single thread 
 	 * (if not sure, set this to false)
 	 */
-	public APipe(boolean singleWriter) {
+	public AbstractPipe(boolean singleWriter) {
 		this(8, singleWriter);
 	}
 	
@@ -92,7 +92,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	 * (if not sure, set this to false)
 	 */
 	@SuppressWarnings("unchecked")
-	public APipe(int bufferSize, boolean singleWriter) {
+	public AbstractPipe(int bufferSize, boolean singleWriter) {
 		super();
 		disruptorProvider = new DisruptorProvider<>(bufferSize);
 		//event handler used for transmitting items from one pipe to another
@@ -139,7 +139,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	 * @param pipe
 	 * the output pipe
 	 */
-	private void setOutput(APipe<B,?> pipe) {
+	private void setOutput(AbstractPipe<B,?> pipe) {
 		output = pipe;
 	}
 
@@ -162,8 +162,8 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	 */
 	@Override
 	public <C, D> ITransmitter<C, D> linkTo(ITransmitter<C, D> transmitter) {
-		if (transmitter instanceof APipe) {
-			return linkPipeTo((APipe<C, D>)transmitter, singleWriter);
+		if (transmitter instanceof AbstractPipe) {
+			return linkPipeTo((AbstractPipe<C, D>)transmitter, singleWriter);
 		} else {
 			Log.abort(this, "Can only link to other pipes.");
 		}
@@ -184,11 +184,11 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	 * the pipe to be linked to
 	 */
 	@SuppressWarnings("unchecked")
-	private <C,D> APipe<C, D> linkPipeTo(APipe<C, D> pipe, boolean singleWriter) {
+	private <C,D> AbstractPipe<C, D> linkPipeTo(AbstractPipe<C, D> pipe, boolean singleWriter) {
 		if (!pipe.hasInput()) {
 			//output pipe has no input yet
 			try {				
-				setOutput((APipe<B, ?>) pipe);
+				setOutput((AbstractPipe<B, ?>) pipe);
 				pipe.setInput(singleWriter);
 			} catch (ClassCastException e) {
 				Log.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
@@ -252,37 +252,37 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	}
 
 	@Override
-	public APipe<A,B> enableTracking() {
+	public AbstractPipe<A,B> enableTracking() {
 		ITrackable.super.enableTracking();
 		return this;
 	}
 
 	@Override
-	public APipe<A,B> enableTracking(int stepWidth) {
+	public AbstractPipe<A,B> enableTracking(int stepWidth) {
 		ITrackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
-	public APipe<A,B> disableTracking() {
+	public AbstractPipe<A,B> disableTracking() {
 		ITrackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
-	public APipe<A,B> enableTracking(ITrackingStrategy tracker) {
+	public AbstractPipe<A,B> enableTracking(ITrackingStrategy tracker) {
 		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
-	public APipe<A,B> enableTracking(boolean useProgressBar) {
+	public AbstractPipe<A,B> enableTracking(boolean useProgressBar) {
 		ITrackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
-	public APipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
+	public AbstractPipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
 		ITrackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}

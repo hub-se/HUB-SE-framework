@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * A file writer module that gets a byte array 
@@ -20,7 +20,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @see OutputPathGenerator
  */
-public class ByteArrayToCSVFileWriterModule extends AModule<byte[], byte[]> {
+public class ByteArrayToCSVFileWriterModule extends AbstractModule<byte[], byte[]> {
 
 	/**
      * used CSV delimiter

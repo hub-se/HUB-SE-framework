@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Encodes sequences of integers into compressed sequences of integers, depending on the maximum
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @author Simon Heiden
  */
-public class NumberArrayToCompressedByteArrayModule<T extends Number> extends AModule<T[],byte[] > {
+public class NumberArrayToCompressedByteArrayModule<T extends Number> extends AbstractModule<T[],byte[] > {
 
 	private List<Byte> result;
 	

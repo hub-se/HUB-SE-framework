@@ -1,8 +1,8 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleFactory;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeFactory;
 
 public interface ITransmitterProvider<A,B> {
@@ -33,7 +33,7 @@ public interface ITransmitterProvider<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public APipe<A,B> asPipe() throws UnsupportedOperationException {
+	default public AbstractPipe<A,B> asPipe() throws UnsupportedOperationException {
 		if (getPipeProvider() == null) {
 			throw new UnsupportedOperationException("No pipe provider given.");
 		}
@@ -48,7 +48,7 @@ public interface ITransmitterProvider<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public AModule<A,B> asModule() throws UnsupportedOperationException {
+	default public AbstractModule<A,B> asModule() throws UnsupportedOperationException {
 		if (getModuleProvider() == null) {
 			throw new UnsupportedOperationException("No module provider given.");
 		}

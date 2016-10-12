@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Pipe that outputs every input item n times.
@@ -11,7 +11,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @author Simon Heiden
  *
  */
-public class NTimesPipe extends APipe<Object,Object> {
+public class NTimesPipe extends AbstractPipe<Object,Object> {
 
 	private int n;
 	

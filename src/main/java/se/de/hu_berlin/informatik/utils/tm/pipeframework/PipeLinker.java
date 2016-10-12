@@ -39,8 +39,8 @@ public class PipeLinker implements ITrackable {
 	}
 
 	private boolean singleWriter = true;
-	private APipe<?,?> startPipe = null;
-	private APipe<?,?> endPipe = null;
+	private AbstractPipe<?,?> startPipe = null;
+	private AbstractPipe<?,?> endPipe = null;
 
 	/**
 	 * Links the given transmitters together to a chain of pipes 
@@ -83,7 +83,7 @@ public class PipeLinker implements ITrackable {
 	 * @return
 	 * the start pipe
 	 */
-	private APipe<?, ?> getStartPipe() {
+	private AbstractPipe<?, ?> getStartPipe() {
 		if (startPipe == null) {
 			Log.abort(this, "No start pipe available.");
 		}

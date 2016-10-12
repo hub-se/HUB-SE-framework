@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
@@ -25,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * @param A
  * the type of the return objects of the used {@link IStringProcessor}
  */
-public class FileLineProcessorModule<A> extends AModule<Path, A> {
+public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 
 	public static Charset[] charsets = { 
 			StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, 

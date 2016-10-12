@@ -7,14 +7,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Decodes...
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToIntSequenceModule extends AModule<byte[],List<List<Integer>>> {
+public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[],List<List<Integer>>> {
 	
 	private byte usedBits;
 	private int sequenceLength;

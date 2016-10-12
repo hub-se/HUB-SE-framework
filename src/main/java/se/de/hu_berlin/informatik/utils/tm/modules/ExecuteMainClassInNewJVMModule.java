@@ -9,14 +9,14 @@ import java.io.IOException;
 import se.de.hu_berlin.informatik.utils.miscellaneous.ClassPathParser;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Starts the given Java Class in a new process.
  * 
  * @author Simon Heiden
  */
-public class ExecuteMainClassInNewJVMModule extends AModule<String[],Integer> {
+public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Integer> {
 
 	private File executionDir;
 	private String clazz;

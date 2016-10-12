@@ -7,7 +7,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
@@ -48,26 +48,26 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see ModuleLinker
  */
-public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
+public abstract class AbstractModule<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
 	
 	private A input = null;
 	private B output = null;
 	
-	private AModule<?,?> linkedModule = null;
+	private AbstractModule<?,?> linkedModule = null;
 	
 	private boolean needsInput = false;
 	private ITrackingStrategy tracker = TrackerDummy.getInstance();
 	
-	private APipe<A,B> pipeView = null;
+	private AbstractPipe<A,B> pipeView = null;
 	
 	private ModuleFactory<A,B> moduleProvider = new ModuleFactory<A,B>() {
 		@Override
-		public AModule<A, B> getModule() {
+		public AbstractModule<A, B> getModule() {
 			//simply return the actual module
-			return AModule.this;
+			return AbstractModule.this;
 		}
 		@Override
-		public AModule<A, B> newModule() throws UnsupportedOperationException {
+		public AbstractModule<A, B> newModule() throws UnsupportedOperationException {
 			//should not be accessed
 			throw new UnsupportedOperationException("Trying to create new module when one already exists.");
 		}
@@ -78,7 +78,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * @param needsInput
 	 * determines if the module needs an input item to function
 	 */
-	public AModule(boolean needsInput) {
+	public AbstractModule(boolean needsInput) {
 		super();
 		this.needsInput = needsInput;
 	}
@@ -88,8 +88,8 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 */
 	@Override
 	public <C, D> ITransmitter<C, D> linkTo(ITransmitter<C, D> transmitter) {
-		if (transmitter instanceof AModule) {
-			return linkModuleTo((AModule<C, D>)transmitter);
+		if (transmitter instanceof AbstractModule) {
+			return linkModuleTo((AbstractModule<C, D>)transmitter);
 		} else {
 			Log.abort(this, "Can only link to other modules.");
 		}
@@ -107,7 +107,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * @return
 	 * the module to be linked to
 	 */
-	private <C,D> AModule<C,D> linkModuleTo(AModule<C,D> module) {
+	private <C,D> AbstractModule<C,D> linkModuleTo(AbstractModule<C,D> module) {
 		this.linkedModule = module;
 		return module;
 	}
@@ -120,7 +120,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * this module
 	 */
 	@SuppressWarnings("unchecked")
-	public AModule<A,B> submit(Object item) {
+	public AbstractModule<A,B> submit(Object item) {
 		try {
 			input = (A)item;
 		} catch (ClassCastException e) {
@@ -138,7 +138,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * @return
 	 * this module
 	 */
-	public AModule<A,B> start() {
+	public AbstractModule<A,B> start() {
 		return submit(null);
 	}
 
@@ -156,7 +156,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * @return
 	 * the module that this module is linked to
 	 */
-	public AModule<?,?> getLinkedModule() {
+	public AbstractModule<?,?> getLinkedModule() {
 		if (linkedModule == null) {
 			Log.abort(this, "No module linked to.");
 		}
@@ -177,37 +177,37 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	}
 
 	@Override
-	public AModule<A,B> enableTracking() {
+	public AbstractModule<A,B> enableTracking() {
 		ITrackable.super.enableTracking();
 		return this;
 	}
 	
 	@Override
-	public AModule<A,B> enableTracking(int stepWidth) {
+	public AbstractModule<A,B> enableTracking(int stepWidth) {
 		ITrackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
-	public AModule<A,B> disableTracking() {
+	public AbstractModule<A,B> disableTracking() {
 		ITrackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
-	public AModule<A,B> enableTracking(ITrackingStrategy tracker) {
+	public AbstractModule<A,B> enableTracking(ITrackingStrategy tracker) {
 		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
-	public AModule<A,B> enableTracking(boolean useProgressBar) {
+	public AbstractModule<A,B> enableTracking(boolean useProgressBar) {
 		ITrackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
-	public AModule<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
+	public AbstractModule<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
 		ITrackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
@@ -231,7 +231,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider#asPipe()
 	 */
 	@Override
-	public APipe<A,B> asPipe() {
+	public AbstractPipe<A,B> asPipe() {
 		if (pipeView == null) {
 			pipeView = new ModuleLoaderPipe<>(this);
 		}

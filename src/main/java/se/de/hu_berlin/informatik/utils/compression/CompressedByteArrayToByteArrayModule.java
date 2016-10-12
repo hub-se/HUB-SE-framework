@@ -5,14 +5,14 @@ package se.de.hu_berlin.informatik.utils.compression;
 
 import java.nio.ByteBuffer;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Decodes...
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToByteArrayModule extends AModule<byte[],byte[]> {
+public class CompressedByteArrayToByteArrayModule extends AbstractModule<byte[],byte[]> {
 	
 	private byte usedBits;
 	private int sequenceLength;

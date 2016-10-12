@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 public abstract class PipeFactory<A,B> {
 	
-	APipe<A,B> pipe = null;
+	AbstractPipe<A,B> pipe = null;
 
 	/**
 	 * Tries to get or create a pipe.
@@ -11,7 +11,7 @@ public abstract class PipeFactory<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public APipe<A,B> getPipe() throws UnsupportedOperationException {
+	public AbstractPipe<A,B> getPipe() throws UnsupportedOperationException {
 		if (pipe == null) {
 			pipe = newPipe();
 		}
@@ -25,6 +25,6 @@ public abstract class PipeFactory<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	abstract public APipe<A,B> newPipe() throws UnsupportedOperationException;
+	abstract public AbstractPipe<A,B> newPipe() throws UnsupportedOperationException;
 	
 }

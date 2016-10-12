@@ -16,12 +16,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @author Simon Heiden
  *
- * @see AModule
+ * @see AbstractModule
  */
 public class ModuleLinker implements ITrackable {
 
-	private AModule<?,?> startModule = null;
-	private AModule<?,?> endModule = null;
+	private AbstractModule<?,?> startModule = null;
+	private AbstractModule<?,?> endModule = null;
 	
 	/**
 	 * Links the given modules together and appends them to former appended 
@@ -58,7 +58,7 @@ public class ModuleLinker implements ITrackable {
 	 * @return 
 	 * the start module
 	 */
-	private AModule<?, ?> getStartModule() {
+	private AbstractModule<?, ?> getStartModule() {
 		if (startModule == null) {
 			Log.abort(this, "No start module available.");
 		}
@@ -69,7 +69,7 @@ public class ModuleLinker implements ITrackable {
 	 * @return 
 	 * the end module
 	 */
-	private AModule<?, ?> getEndModule() {
+	private AbstractModule<?, ?> getEndModule() {
 		if (endModule == null) {
 			Log.abort(this, "No end module available.");
 		}

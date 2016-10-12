@@ -17,7 +17,7 @@ import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * A file writer module that gets for example a List object
@@ -33,7 +33,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @see OutputPathGenerator
  */
-public class ListToFileWriterModule<A extends Iterable<?> > extends AModule<A, A> {
+public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractModule<A, A> {
 
 	private Path outputPath;
 	private Path outputdir;

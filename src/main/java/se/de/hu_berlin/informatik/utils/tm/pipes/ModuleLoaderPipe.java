@@ -4,8 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Convenience class that is able to load a module into a pipe object.
@@ -17,11 +17,11 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @param <B>
  * is the type of the output objects
  * 
- * @see AModule
+ * @see AbstractModule
  */
-public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
+public class ModuleLoaderPipe<A,B> extends AbstractPipe<A,B> {
 
-	private AModule<A,B> module = null;
+	private AbstractModule<A,B> module = null;
 	
 	/**
 	 * Creates a new {@link ModuleLoaderPipe} object and loads the
@@ -29,7 +29,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @param module
 	 * the module to load
 	 */
-	public ModuleLoaderPipe(AModule<A, B> module) {
+	public ModuleLoaderPipe(AbstractModule<A, B> module) {
 		super(true);
 		this.module = module;
 	}
@@ -42,7 +42,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @param pipeSize
 	 * the size of the output pipe
 	 */
-	public ModuleLoaderPipe(AModule<A, B> module, int pipeSize) {
+	public ModuleLoaderPipe(AbstractModule<A, B> module, int pipeSize) {
 		super(pipeSize, true);
 		this.module = module;
 	}
@@ -59,7 +59,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @param module
 	 * the module to load
 	 */
-	public void loadModule(AModule<A,B> module) {
+	public void loadModule(AbstractModule<A,B> module) {
 		this.module = module;
 	}
 	
@@ -69,7 +69,7 @@ public class ModuleLoaderPipe<A,B> extends APipe<A,B> {
 	 * @return
 	 * the loaded module
 	 */
-	private AModule<A, B> getInternalModule() {
+	private AbstractModule<A, B> getInternalModule() {
 		if (module == null) {
 			Log.abort(this, "No module loaded.");
 		}
