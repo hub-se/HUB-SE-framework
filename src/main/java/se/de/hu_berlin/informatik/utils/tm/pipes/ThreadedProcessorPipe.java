@@ -9,7 +9,7 @@ import se.de.hu_berlin.informatik.utils.threaded.EHWithInputAndReturnFactory;
 import se.de.hu_berlin.informatik.utils.threaded.IMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.IThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Starts a provided callable class on each submitted input element, using
@@ -19,7 +19,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * 
  * @author Simon Heiden
  */
-public class ThreadedProcessorPipe<A,B> extends APipe<A,B> {
+public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
 	private IMultiplexer<B> multiplexer;

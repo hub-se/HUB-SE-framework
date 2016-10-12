@@ -13,7 +13,7 @@ import se.de.hu_berlin.informatik.utils.threaded.EHWithInput;
 import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.
@@ -24,7 +24,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * @see EHWithInput
  * @see Callable
  */
-public class ThreadedFileWalkerModule extends AModule<Path,Boolean> {
+public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 
 	final private String pattern;
 	final private int threadCount;

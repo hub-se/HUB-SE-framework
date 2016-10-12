@@ -4,7 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Sample module for convenience. (Copy and implement the needed functions)
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * @param <B>
  * is the type of the output object
  */
-public class SampleModule<A,B> extends AModule<A,B> {
+public class SampleModule<A,B> extends AbstractModule<A,B> {
 
 	// TODO create needed fields
 	

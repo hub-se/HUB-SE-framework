@@ -4,7 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Sample pipe for convenience. (Copy and implement the needed functions)
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
  * @param <B>
  * is the type of the output objects
  */
-public class SamplePipe<A,B> extends APipe<A,B> {
+public class SamplePipe<A,B> extends AbstractPipe<A,B> {
 
 	// TODO create needed fields
 	

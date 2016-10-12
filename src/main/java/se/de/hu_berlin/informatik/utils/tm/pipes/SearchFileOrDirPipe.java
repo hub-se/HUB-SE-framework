@@ -11,14 +11,14 @@ import java.util.Collections;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * Pipe that searches for matching files or directories and submits them to a linked pipe.
  * 
  * @author Simon Heiden
  */
-public class SearchFileOrDirPipe extends APipe<Path,Path> {
+public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 
 	final private String pattern;
 

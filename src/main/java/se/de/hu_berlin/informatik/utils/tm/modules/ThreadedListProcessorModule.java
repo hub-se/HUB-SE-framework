@@ -7,7 +7,7 @@ import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Starts a threaded element processor with a provided callable class on each
@@ -15,7 +15,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @author Simon Heiden
  */
-public class ThreadedListProcessorModule<A> extends AModule<List<A>,Boolean> {
+public class ThreadedListProcessorModule<A> extends AbstractModule<List<A>,Boolean> {
 
 	private DisruptorProvider<A> disruptorProvider;
 

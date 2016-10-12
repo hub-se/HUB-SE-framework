@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.XFileWrapper;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * A file writer module that gets an {@link XFileWrapper} and writes it to the hard 
@@ -17,7 +17,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
  * 
  * @author Simon Heiden
  */
-public class XFileWriterModule extends AModule<XFileWrapper<Iterable<? extends CharSequence>>, XFileWrapper<Iterable<? extends CharSequence>>> {
+public class XFileWriterModule extends AbstractModule<XFileWrapper<Iterable<? extends CharSequence>>, XFileWrapper<Iterable<? extends CharSequence>>> {
 	
 	private boolean overwrite = false;
 	/**

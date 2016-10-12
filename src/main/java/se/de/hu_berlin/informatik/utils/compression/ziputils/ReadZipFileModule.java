@@ -7,14 +7,14 @@ import java.nio.file.Path;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * Adds byte arrays to a zip file.
  * 
  * @author Simon Heiden
  */
-public class ReadZipFileModule extends AModule<Path,ZipFileWrapper> {
+public class ReadZipFileModule extends AbstractModule<Path,ZipFileWrapper> {
 	
 	public ReadZipFileModule() {
 		//if this module needs an input item
