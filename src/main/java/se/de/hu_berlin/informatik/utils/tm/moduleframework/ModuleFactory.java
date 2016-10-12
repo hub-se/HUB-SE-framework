@@ -8,10 +8,10 @@ public abstract class ModuleFactory<A,B> {
 	 * Tries to get or create a module.
 	 * @return
 	 * a module, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public AModule<A,B> getModule() throws IllegalStateException {
+	public AModule<A,B> getModule() throws UnsupportedOperationException {
 		if (module == null) {
 			module = newModule();
 		}
@@ -22,9 +22,9 @@ public abstract class ModuleFactory<A,B> {
 	 * Tries to create a module.
 	 * @return
 	 * a module, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	abstract public AModule<A,B> newModule() throws IllegalStateException;
+	abstract public AModule<A,B> newModule() throws UnsupportedOperationException;
 	
 }

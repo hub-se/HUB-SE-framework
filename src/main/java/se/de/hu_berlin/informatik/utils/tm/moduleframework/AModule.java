@@ -9,8 +9,9 @@ import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.APipe;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
-import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -55,20 +56,20 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	private AModule<?,?> linkedModule = null;
 	
 	private boolean needsInput = false;
-	private ProgressTracker tracker;
+	private ITrackingStrategy tracker = TrackerDummy.getInstance();
 	
 	private APipe<A,B> pipeView = null;
 	
 	private ModuleFactory<A,B> moduleProvider = new ModuleFactory<A,B>() {
 		@Override
-		public AModule<A, B> getModule() throws IllegalStateException {
+		public AModule<A, B> getModule() {
 			//simply return the actual module
 			return AModule.this;
 		}
 		@Override
-		public AModule<A, B> newModule() throws IllegalStateException {
+		public AModule<A, B> newModule() throws UnsupportedOperationException {
 			//should not be accessed
-			throw new IllegalStateException("Trying to create new module when one already exists.");
+			throw new UnsupportedOperationException("Trying to create new module when one already exists.");
 		}
 	};
 	
@@ -194,7 +195,7 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	}
 
 	@Override
-	public AModule<A,B> enableTracking(ProgressTracker tracker) {
+	public AModule<A,B> enableTracking(ITrackingStrategy tracker) {
 		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
@@ -217,12 +218,12 @@ public abstract class AModule<A,B> implements ITransmitter<A,B>, ITransmitterPro
 	}
 	
 	@Override
-	public ProgressTracker getTracker() {
+	public ITrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ProgressTracker tracker) {
+	public void setTracker(ITrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 	

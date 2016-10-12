@@ -5,8 +5,9 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * Provides more general and easy access methods for the linking of pipes
@@ -151,7 +152,7 @@ public class PipeLinker implements ITrackable {
 	}
 
 	@Override
-	public PipeLinker enableTracking(ProgressTracker tracker) {
+	public PipeLinker enableTracking(ITrackingStrategy tracker) {
 		if (startPipe != null) {
 			startPipe.enableTracking(tracker);
 		}
@@ -204,15 +205,15 @@ public class PipeLinker implements ITrackable {
 	}
 
 	@Override
-	public ProgressTracker getTracker() {
+	public ITrackingStrategy getTracker() {
 		if (startPipe != null) {
 			return startPipe.getTracker();
 		}
-		return null;
+		return TrackerDummy.getInstance();
 	}
 
 	@Override
-	public void setTracker(ProgressTracker tracker) {
+	public void setTracker(ITrackingStrategy tracker) {
 		if (startPipe != null) {
 			startPipe.setTracker(tracker);
 		}

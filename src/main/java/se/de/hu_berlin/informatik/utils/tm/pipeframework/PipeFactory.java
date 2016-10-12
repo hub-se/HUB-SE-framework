@@ -8,10 +8,10 @@ public abstract class PipeFactory<A,B> {
 	 * Tries to get or create a pipe.
 	 * @return
 	 * a pipe, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public APipe<A,B> getPipe() throws IllegalStateException {
+	public APipe<A,B> getPipe() throws UnsupportedOperationException {
 		if (pipe == null) {
 			pipe = newPipe();
 		}
@@ -22,9 +22,9 @@ public abstract class PipeFactory<A,B> {
 	 * Tries to create a pipe.
 	 * @return
 	 * a pipe, if possible
-	 * @throws IllegalStateException
+	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	abstract public APipe<A,B> newPipe() throws IllegalStateException;
+	abstract public APipe<A,B> newPipe() throws UnsupportedOperationException;
 	
 }

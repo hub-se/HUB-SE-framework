@@ -8,8 +8,9 @@ import se.de.hu_berlin.informatik.utils.threaded.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
 import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -57,18 +58,18 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 
 	private final boolean singleWriter;
 	
-	private ProgressTracker tracker = null;
+	private ITrackingStrategy tracker = TrackerDummy.getInstance();
 
 	private PipeFactory<A,B> pipeProvider = new PipeFactory<A,B>() {
 		@Override
-		public APipe<A, B> getPipe() throws IllegalStateException {
+		public APipe<A, B> getPipe() {
 			//simply return the actual module
 			return APipe.this;
 		}
 		@Override
-		public APipe<A, B> newPipe() throws IllegalStateException {
+		public APipe<A, B> newPipe() throws UnsupportedOperationException {
 			//should not be accessed
-			throw new IllegalStateException("Trying to create new pipe when one already exists.");
+			throw new UnsupportedOperationException("Trying to create new pipe when one already exists.");
 		}
 	};
 	
@@ -269,7 +270,7 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	}
 
 	@Override
-	public APipe<A,B> enableTracking(ProgressTracker tracker) {
+	public APipe<A,B> enableTracking(ITrackingStrategy tracker) {
 		ITrackable.super.enableTracking(tracker);
 		return this;
 	}
@@ -292,12 +293,12 @@ public abstract class APipe<A,B> implements ITransmitter<A,B>, ITransmitterProvi
 	}
 	
 	@Override
-	public ProgressTracker getTracker() {
+	public ITrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ProgressTracker tracker) {
+	public void setTracker(ITrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 }

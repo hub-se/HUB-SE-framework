@@ -11,8 +11,9 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * Provides convenient creation and access tools for a disruptor.
@@ -45,7 +46,7 @@ public class DisruptorProvider<A> implements ITrackable {
 	private boolean isConnectedToHandlers = false;
 	private int minimalBufferSize = 0;
 	
-	private ProgressTracker tracker;
+	private ITrackingStrategy tracker = TrackerDummy.getInstance();
 
 	/**
 	 * Creates a new disruptor provider with the minimal given buffer size. 
@@ -285,12 +286,12 @@ public class DisruptorProvider<A> implements ITrackable {
 	}
 
 	@Override
-	public ProgressTracker getTracker() {
+	public ITrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ProgressTracker tracker) {
+	public void setTracker(ITrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 }

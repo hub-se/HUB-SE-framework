@@ -3,16 +3,20 @@ package se.de.hu_berlin.informatik.utils.tracking;
 public interface ITrackable {
 
 	/**
+	 * This method should always return a valid
+	 * tracker object, otherwise a NullPointerException will be thrown
+	 * if track() is called. If tracking shall be disabled, set this to a
+	 * TrackerDummy instance. 
 	 * @return
-	 * the tracker object, or null if none exists
+	 * the tracker object
 	 */
-	public ProgressTracker getTracker();
+	public ITrackingStrategy getTracker();
 	
 	/**
 	 * @param tracker
 	 * sets a tracker
 	 */
-	public void setTracker(ProgressTracker tracker);
+	public void setTracker(ITrackingStrategy tracker);
 	
 	/**
 	 * Enables tracking of progress. Doesn't use a progress bar.
@@ -71,7 +75,7 @@ public interface ITrackable {
 	 * this object for chaining
 	 */
 	default public ITrackable disableTracking() {
-		setTracker(null);
+		setTracker(TrackerDummy.getInstance());
 		return this;
 	}
 	
@@ -84,7 +88,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking(ProgressTracker tracker) {
+	default public ITrackable enableTracking(ITrackingStrategy tracker) {
 		if (tracker != null) {
 			setTracker(tracker);
 		} else {
@@ -98,17 +102,19 @@ public interface ITrackable {
 	 * whether this transmitter's progress tracking is enabled
 	 */
 	default public boolean isTracking() {
-		return (getTracker() != null);
+		return (getTracker() != null && getTracker() != TrackerDummy.getInstance());
 	}
 	
 	/**
 	 * Tracks the progress for a processed element if tracking
 	 * has been enabled.
+	 * @throws NullPointerException
+	 * if getTracker() returns null
 	 */
-	default public void track() {
-		if (isTracking()) {
+	default public void track() throws NullPointerException {
+//		if (isTracking()) {
 			getTracker().track();
-		}
+//		}
 	}
 	
 	/**
@@ -116,11 +122,13 @@ public interface ITrackable {
 	 * has been enabled.
 	 * @param msg
 	 * a message to display
+	 * @throws NullPointerException
+	 * if getTracker() returns null
 	 */
-	default public void track(String msg) {
-		if (isTracking()) {
+	default public void track(String msg) throws NullPointerException {
+//		if (isTracking()) {
 			getTracker().track(msg);
-		}
+//		}
 	}
 	
 	/**

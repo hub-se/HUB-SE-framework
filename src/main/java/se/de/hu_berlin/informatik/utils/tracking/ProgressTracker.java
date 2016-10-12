@@ -5,7 +5,7 @@ package se.de.hu_berlin.informatik.utils.tracking;
  * 
  * @author Simon
  */
-public class ProgressTracker {
+public class ProgressTracker implements ITrackingStrategy {
 	
 	private ITrackingStrategy tracker;
 
@@ -26,14 +26,17 @@ public class ProgressTracker {
 		}
 	}
 
+	@Override
 	public void track() {
 		tracker.track();
 	}
 	
+	@Override
 	public void track(String msg) {
 		tracker.track(msg);
 	}
 
+	@Override
 	public void reset() {
 		tracker.reset();
 	}

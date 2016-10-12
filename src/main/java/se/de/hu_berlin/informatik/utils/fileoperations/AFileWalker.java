@@ -15,8 +15,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder;
-import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
+import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * Extendable {@link FileVisitor} implementation.
@@ -33,7 +34,7 @@ public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
 	final private boolean skipAfterFind;
 	
 	private boolean isFirst;
-	private ProgressTracker tracker;
+	private ITrackingStrategy tracker = TrackerDummy.getInstance();
 	
 	protected AFileWalker(Builder builder) {
 		matcher = builder.matcher;
@@ -153,12 +154,12 @@ public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
     }
     
     @Override
-	public ProgressTracker getTracker() {
+	public ITrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ProgressTracker tracker) {
+	public void setTracker(ITrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 
