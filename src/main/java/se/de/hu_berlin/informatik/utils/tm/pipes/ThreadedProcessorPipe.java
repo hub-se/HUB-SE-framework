@@ -60,7 +60,6 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	public B processItem(A input) {
-		Log.out(this, "" + input);
 		//restart the multiplexer if it has been shut down
 		if (!multiplexer.isRunning()) {
 			multiplexer.start();
