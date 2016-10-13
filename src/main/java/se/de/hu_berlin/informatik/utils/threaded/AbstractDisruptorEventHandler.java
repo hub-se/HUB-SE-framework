@@ -19,7 +19,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<Event<A>> {
+public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<SingleUseEvent<A>> {
 
     private DisruptorProvider<A> callback = null;
     private ThreadLimit limit = ThreadLimitDummy.getInstance();
@@ -67,7 +67,7 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<E
     }
     
     @Override
-    public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+    public void onEvent(SingleUseEvent<A> event, long sequence, boolean endOfBatch) throws Exception {
     	limit.acquireSlot();
 //		Log.out(this, event.get().toString() + " " + sequence);
     	try {

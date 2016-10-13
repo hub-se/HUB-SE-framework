@@ -66,7 +66,7 @@ public abstract class DisruptorRREventHandler<A> extends AbstractDisruptorEventH
     }
     
 	@Override
-	public void onEvent(Event<A> event, long sequence, boolean endOfBatch) throws Exception {
+	public void onEvent(SingleUseEvent<A> event, long sequence, boolean endOfBatch) throws Exception {
 		if (isSingleConsumer() || (sequence % numberOfConsumers) == ordinal) {
 			super.onEvent(event, sequence, endOfBatch);
         }
