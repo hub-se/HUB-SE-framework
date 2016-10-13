@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.EHWithInputAndReturnFactory;
