@@ -14,7 +14,7 @@ public class Event<T> {
 	
 	private T item;
 	
-	private AtomicBoolean isFirstAccess = new AtomicBoolean(false);
+	private AtomicBoolean isFirstAccess = new AtomicBoolean(true);
 
 	/**
 	 * Sets this event's contained element to the given item.
@@ -23,7 +23,6 @@ public class Event<T> {
 	 */
 	public void set(T item) {
 		this.item = item;
-		isFirstAccess.set(true);
 	}
 
 	/**
