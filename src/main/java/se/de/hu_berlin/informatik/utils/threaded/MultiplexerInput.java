@@ -9,7 +9,7 @@ package se.de.hu_berlin.informatik.utils.threaded;
  * @param <B>
  * the type of output items
  */
-public interface IMultiplexerInput<B> {
+public interface MultiplexerInput<B> {
 
 	public Object getLock();
 	
@@ -105,13 +105,13 @@ public interface IMultiplexerInput<B> {
 	 * @param multiplexer
 	 * the multiplexer
 	 */
-	public void setMultiplexer(IMultiplexer<B> multiplexer);
+	public void setMultiplexer(Multiplexer<B> multiplexer);
 	
 	/**
 	 * @return
 	 * the associated multiplexer
 	 */
-	public IMultiplexer<B> getMultiplexer();
+	public Multiplexer<B> getMultiplexer();
 	
 	/**
 	 * Notifies the connected multiplexer about new output items being available.

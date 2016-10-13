@@ -15,15 +15,15 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Simon Heiden
  */
-public class Log {
+final public class Log {
 	
 	//intended to store already created loggers
-	private static Map<String,Logger> loggerCache;
+	final private static Map<String,Logger> LOGGER_CACHE;
 			
 	static {
 		System.setProperty("log4j.configurationFactory", LogConfigurationFactory.class.getCanonicalName());
 		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
-		loggerCache = new ConcurrentHashMap<>();
+		LOGGER_CACHE = new ConcurrentHashMap<>();
 	}
 	
 	//suppress default constructor (class should not be instantiated)
@@ -31,11 +31,11 @@ public class Log {
 		throw new AssertionError();
 	}
 	
-	private static Logger getLogger(Object id) {
+	private static Logger getLogger(final Object id) {
 		if (id == null) {
 			return LogManager.getRootLogger();
 		}
-		String identifier = null;
+		String identifier;
 		if (id instanceof String) {
 			identifier = (String)id; 
 		} else if (id instanceof Class<?>) {
@@ -43,9 +43,9 @@ public class Log {
 		} else {
 			identifier = id.getClass().getName();
 		}
-		Logger logger = loggerCache.get(identifier);
+		final Logger logger = LOGGER_CACHE.get(identifier);
 		if (logger == null) {
-			return loggerCache.computeIfAbsent(identifier, k -> LogManager.getLogger(k));
+			return LOGGER_CACHE.computeIfAbsent(identifier, k -> LogManager.getLogger(k));
 		} else {
 			return logger;
 		}
@@ -63,7 +63,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void abort(Object id, Exception e, String message, Object... args) {
+	public static void abort(final Object id, final Exception e, final String message, final Object... args) {
 		printfErrorMessage(id, message, args);
 		printException(id, e);
 		printAbort(id);
@@ -79,7 +79,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void abort(Object id, String message, Object... args) {
+	public static void abort(final Object id, final String message, final Object... args) {
 		printfErrorMessage(id, message, args);
 		printAbort(id);
 		exitWithError();
@@ -96,7 +96,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void err(Object id, Throwable e, String message, Object... args) {
+	public static void err(final Object id, final Throwable e, final String message, final Object... args) {
 		printfErrorMessage(id, message, args);
 		printException(id, e);
 	}
@@ -108,7 +108,7 @@ public class Log {
 	 * @param e
 	 * a caught exception from which will be printed a stack trace
 	 */
-	public static void err(Object id, Throwable e) {
+	public static void err(final Object id, final Throwable e) {
 		printException(id, e);
 	}
 	
@@ -119,7 +119,7 @@ public class Log {
 	 * @param e
 	 * the exception to be printed
 	 */
-	private static void printException(Object id, Throwable e) {
+	private static void printException(final Object id, final Throwable e) {
 		getLogger(id).catching(Level.ERROR, e);
 	}
 	
@@ -128,7 +128,7 @@ public class Log {
 	 * @param id
 	 * the object to use for generating an identifier
 	 */
-	private static void printAbort(Object id) {
+	private static void printAbort(final Object id) {
 		getLogger(id).fatal("aborting...");
 	}
 	
@@ -148,7 +148,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the warning message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void warn(Object id, String message, Object... args) {
+	public static void warn(final Object id, final String message, final Object... args) {
 		printfWarnMessage(id, message, args);
 	}
 	
@@ -161,7 +161,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void err(Object id, String message, Object... args) {
+	public static void err(final Object id, final String message, final Object... args) {
 		printfErrorMessage(id, message, args);
 	}
 	
@@ -174,7 +174,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	private static void printfErrorMessage(Object id, String message, Object... args) {
+	private static void printfErrorMessage(final Object id, final String message, final Object... args) {
 		getLogger(id).printf(Level.ERROR, message, args);
 	}
 	
@@ -187,7 +187,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	private static void printfWarnMessage(Object id, String message, Object... args) {
+	private static void printfWarnMessage(final Object id, final String message, final Object... args) {
 		getLogger(id).printf(Level.WARN, message, args);
 	}
 	
@@ -200,7 +200,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void out(Object id, String message, Object... args) {
+	public static void out(final Object id, final String message, final Object... args) {
 		printfMessage(id, message, args);
 	}
 	
@@ -213,7 +213,7 @@ public class Log {
 	 * @param args
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
-	private static void printfMessage(Object id, String message, Object... args) {
+	private static void printfMessage(final Object id, final String message, final Object... args) {
 		getLogger(id).printf(Level.INFO, message, args);
 	}
 	

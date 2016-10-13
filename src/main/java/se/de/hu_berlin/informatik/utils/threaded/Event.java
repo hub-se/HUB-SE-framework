@@ -32,9 +32,7 @@ public class Event<T> {
 	 * the contained element
 	 */
 	public T get() {
-		T temp = item;
-		item = null;
-		return temp;
+		return item;
 	}
 
 	/**

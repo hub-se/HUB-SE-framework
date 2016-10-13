@@ -1,27 +1,9 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import java.util.concurrent.Semaphore;
-
-public class ThreadLimit implements IThreadLimit {
-
-	final private Semaphore threads;
+public interface ThreadLimit {
 	
-	public ThreadLimit(int threads, boolean fair) {
-		this.threads = new Semaphore(threads, fair);
-	}
+	public void acquireSlot();
 	
-	public ThreadLimit(int threads) {
-		this.threads = new Semaphore(threads);
-	}
-	
-	@Override
-	public void acquireSlot() {
-		threads.acquireUninterruptibly();
-	}
-	
-	@Override
-	public void releaseSlot() {
-		threads.release();
-	}
+	public void releaseSlot();
 	
 }

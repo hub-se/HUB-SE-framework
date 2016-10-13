@@ -13,7 +13,7 @@ package se.de.hu_berlin.informatik.utils.tm;
  * @param <B>
  * is the type of the output object
  */
-public interface ITransmitter<A,B> {
+public interface Transmitter<A,B> {
 	
 	/**
 	 * Processes an item of type {@code A} and produces an item of type {@code B}.
@@ -35,7 +35,7 @@ public interface ITransmitter<A,B> {
 	 * @return
 	 * the transmitter to be linked to
 	 */
-	public <C,D> ITransmitter<C,D> linkTo(ITransmitter<C,D> transmitter);
+	public <C,D> Transmitter<C,D> linkTo(Transmitter<C,D> transmitter);
 	
 	/**
 	 * Should be overwritten by implementing transmitters that may collect

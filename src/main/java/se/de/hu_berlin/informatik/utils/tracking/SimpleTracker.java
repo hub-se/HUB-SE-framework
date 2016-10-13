@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tracking;
 
-public class SimpleTracker implements ITrackingStrategy {
+public class SimpleTracker implements TrackingStrategy {
 
 	private int count = 0;
 	

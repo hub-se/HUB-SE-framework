@@ -5,14 +5,14 @@ package se.de.hu_berlin.informatik.utils.fileoperations.csv;
 
 import java.util.ArrayList;
 import java.util.List;
-import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
+import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 
 /**
  * Takes Strings in CSV format and generates a list of String arrays.
  * 
  * @author Simon Heiden
  */
-public class CSVStringsToMirroredStringArrayListProcessor implements IStringProcessor<List<String[]>> {
+public class CSVStringsToMirroredStringArrayListProcessor implements StringProcessor<List<String[]>> {
 
 	private List<String[]> lines;
 	

@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  * 
  * @author Simon Heiden
  */
-public class Misc {
+final public class Misc {
 	
 	//suppress default constructor (class should not be instantiated)
 	private Misc() {
@@ -27,13 +27,11 @@ public class Misc {
 	 * @return
 	 * the method or null if no match was found
 	 */
-	public static Method getMethod(Class<?> target, String name) {
-		Method[] mts = target.getDeclaredMethods();
+	public static Method getMethod(
+			final Class<?> target, final String name) {
+		final Method[] mts = target.getDeclaredMethods();
 
-		for (Method m : mts) {
-			//String st = m.getName();
-			// System.out.println(st + " - " + m);
-
+		for (final Method m : mts) {
 			if (m.getName().compareTo(name) == 0) {
 				return m;
 			}
@@ -51,7 +49,8 @@ public class Misc {
 	 * @return
 	 * the result String
 	 */
-	public static String replaceWhitespacesInString(String aString, String replaceString) {
+	public static String replaceWhitespacesInString(
+			final String aString, final String replaceString) {
 		return replaceNewLinesInString(aString, replaceString)
 				.replace(" ", replaceString)
 				.replace("\t", replaceString);
@@ -67,7 +66,8 @@ public class Misc {
 	 * @return
 	 * the result String
 	 */
-	public static String replaceNewLinesInString(String aString, String replaceString) {
+	public static String replaceNewLinesInString(
+			final String aString, final String replaceString) {
 		return aString
 				.replace("\n", replaceString)
 				.replace("\r", replaceString)
@@ -84,7 +84,7 @@ public class Misc {
 	 * @param <T>
 	 * the type of the array
 	 */
-	public static <T> String arrayToString(T[] array) {
+	public static <T> String arrayToString(final T[] array) {
 		return arrayToString(array, ",", "[", "]");
 	}
 	
@@ -104,11 +104,13 @@ public class Misc {
 	 * @param <T>
 	 * the type of the array
 	 */
-	public static <T> String arrayToString(T[] array, String sepElement, String start, String end) {
-		StringBuilder builder = new StringBuilder();
+	public static <T> String arrayToString(
+			final T[] array, final String sepElement, 
+			final String start, final String end) {
+		final StringBuilder builder = new StringBuilder();
 		builder.append(start);
 		boolean isFirst = true;
-		for (T element : array) {
+		for (final T element : array) {
 			if (isFirst) {
 				isFirst = false;
 			} else {
@@ -132,16 +134,16 @@ public class Misc {
 	 * @param <T>
 	 * the type of the arrays
 	 */
-	public static <T> T[] joinArrays(T[] a, T[] b) {
+	public static <T> T[] joinArrays(final T[] a, final T[] b) {
 		if (a == null) {
 			return b;
 		}
 		if (b == null) {
 			return a;
 		}
-		Class<?> type = a.getClass().getComponentType();
+		final Class<?> type = a.getClass().getComponentType();
 		@SuppressWarnings("unchecked")
-		T[] joinedArray = (T[]) Array.newInstance(type, a.length + b.length);
+		final T[] joinedArray = createGenericArray((Class<T>)type, a.length + b.length);
 		System.arraycopy(a, 0, joinedArray, 0, a.length);
 		System.arraycopy(b, 0, joinedArray, a.length, b.length);
 		return joinedArray;
@@ -160,23 +162,8 @@ public class Misc {
 	 * the type of the arrays
 	 */
 	@SafeVarargs
-	public static <T> T[] addToArrayAndReturnResult(T[] a, T... items) {
-		if (items == null || items.length == 0) {
-			return a;
-		}
-		if (a == null) {
-			Class<?> type = items[0].getClass();
-			@SuppressWarnings("unchecked")
-			T[] array = (T[]) Array.newInstance(type, items.length);
-			System.arraycopy(items, 0, array, 0, items.length);
-			return array;
-		}
-		Class<?> type = a.getClass().getComponentType();
-		@SuppressWarnings("unchecked")
-		T[] joinedArray = (T[]) Array.newInstance((Class<T>)type, a.length + items.length);
-		System.arraycopy(a, 0, joinedArray, 0, a.length);
-		System.arraycopy(items, 0, joinedArray, a.length, items.length);
-		return joinedArray;
+	public static <T> T[] addToArrayAndReturnResult(final T[] a, final T... items) {
+		return joinArrays(a, items);
 	}
 	
 	/**
@@ -191,7 +178,7 @@ public class Misc {
 	 * the type of the items in the array
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T[] createGenericArray(Class<T> clazz, int arrayLength) {
+	public static <T> T[] createGenericArray(final Class<T> clazz, final int arrayLength) {
         return (T[]) Array.newInstance(clazz, arrayLength);
     }
 	
@@ -200,7 +187,7 @@ public class Misc {
 	 * @param thread
 	 * the thread to wait on
 	 */
-	public static void waitOnThread(Thread thread) {
+	public static void waitOnThread(final Thread thread) {
 		while (thread.isAlive()) {
 			try {
 				thread.join();
@@ -218,7 +205,7 @@ public class Misc {
 	 * @return
 	 * the corresponding simple type array
 	 */
-	public static byte[] toPrimitives(Byte[] oBytes)
+	public static byte[] toPrimitives(final Byte[] oBytes)
 	{
 	    byte[] bytes = new byte[oBytes.length];
 

@@ -5,9 +5,9 @@ package se.de.hu_berlin.informatik.utils.tracking;
  * 
  * @author Simon
  */
-public class ProgressTracker implements ITrackingStrategy {
+public class ProgressTracker implements TrackingStrategy {
 	
-	private ITrackingStrategy tracker;
+	private TrackingStrategy tracker;
 
 	public ProgressTracker(boolean useProgressBar) {
 		if (useProgressBar) {

@@ -5,14 +5,14 @@ package se.de.hu_berlin.informatik.utils.fileoperations.csv;
 
 import java.util.ArrayList;
 import java.util.List;
-import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
+import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 
 /**
  * Takes Strings in CSV format and generates a list of Double arrays.
  * 
  * @author Simon Heiden
  */
-public class CSVStringsToDoubleArrayListProcessor implements IStringProcessor<List<Double[]>> {
+public class CSVStringsToDoubleArrayListProcessor implements StringProcessor<List<Double[]>> {
 
 	private List<Double[]> lines;
 	

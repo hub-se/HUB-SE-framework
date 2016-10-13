@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-public abstract class EHWithInputFactory<A> extends ADisruptorEventHandlerFactory<A> {
+public abstract class EHWithInputFactory<A> extends AbstractDisruptorEventHandlerFactory<A> {
 
 	/**
 	 * @param eventHandlerClass

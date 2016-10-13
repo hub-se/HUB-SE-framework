@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
-public abstract class ModuleFactory<A,B> {
+public abstract class AbstractModuleFactory<A,B> {
 	
 	AbstractModule<A,B> module = null;
 

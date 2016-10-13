@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
-public abstract class PipeFactory<A,B> {
+public abstract class AbstractPipeFactory<A,B> {
 	
 	AbstractPipe<A,B> pipe = null;
 

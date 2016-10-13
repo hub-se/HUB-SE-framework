@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
-public class SystemUtils {
+final public class SystemUtils {
 	
 	//suppress default constructor (class should not be instantiated)
 	private SystemUtils() {
@@ -20,11 +20,11 @@ public class SystemUtils {
 	}
 	
 	public static long getTotalFreeMem() {
-		Runtime runtime = Runtime.getRuntime();
+		final Runtime runtime = Runtime.getRuntime();
 
-		long maxMemory = runtime.maxMemory();
-		long allocatedMemory = runtime.totalMemory();
-		long freeMemory = runtime.freeMemory();
+		final long maxMemory = runtime.maxMemory();
+		final long allocatedMemory = runtime.totalMemory();
+		final long freeMemory = runtime.freeMemory();
 		
 		return freeMemory + (maxMemory - allocatedMemory);
 	}

@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tracking;
 
-public interface ITrackable {
+public interface Trackable {
 
 	/**
 	 * This method should always return a valid
@@ -10,20 +10,20 @@ public interface ITrackable {
 	 * @return
 	 * the tracker object
 	 */
-	public ITrackingStrategy getTracker();
+	public TrackingStrategy getTracker();
 	
 	/**
 	 * @param tracker
 	 * sets a tracker
 	 */
-	public void setTracker(ITrackingStrategy tracker);
+	public void setTracker(TrackingStrategy tracker);
 	
 	/**
 	 * Enables tracking of progress. Doesn't use a progress bar.
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking() {
+	default public Trackable enableTracking() {
 		return enableTracking(false);
 	}
 	
@@ -34,7 +34,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking(boolean useProgressBar) {
+	default public Trackable enableTracking(boolean useProgressBar) {
 		setTracker(new ProgressTracker(useProgressBar));
 		return this;
 	}
@@ -49,7 +49,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking(int stepWidth) {
+	default public Trackable enableTracking(int stepWidth) {
 		return enableTracking(false, stepWidth);
 	}
 	
@@ -64,7 +64,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking(boolean useProgressBar, int stepWidth) {
+	default public Trackable enableTracking(boolean useProgressBar, int stepWidth) {
 		setTracker(new ProgressTracker(useProgressBar, stepWidth));
 		return this;
 	}
@@ -74,7 +74,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable disableTracking() {
+	default public Trackable disableTracking() {
 		setTracker(TrackerDummy.getInstance());
 		return this;
 	}
@@ -88,7 +88,7 @@ public interface ITrackable {
 	 * @return
 	 * this object for chaining
 	 */
-	default public ITrackable enableTracking(ITrackingStrategy tracker) {
+	default public Trackable enableTracking(TrackingStrategy tracker) {
 		if (tracker != null) {
 			setTracker(tracker);
 		} else {
@@ -140,7 +140,7 @@ public interface ITrackable {
 	 * @param target
 	 * the Trackable object to delegate the tracking to
 	 */
-	default public void delegateTrackingTo(ITrackable target) {
+	default public void delegateTrackingTo(Trackable target) {
 		if (isTracking()) {
 			this.getTracker().reset();
 			target.enableTracking(this.getTracker());

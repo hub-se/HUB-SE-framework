@@ -12,26 +12,26 @@ package se.de.hu_berlin.informatik.utils.threaded;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class DisruptorRoundRobinEventHandler<A> extends ADisruptorEventHandler<A> {
+public abstract class DisruptorRREventHandler<A> extends AbstractDisruptorEventHandler<A> {
 
 	private long ordinal;
     private long numberOfConsumers;
     
     /**
-     * Creates a {@link DisruptorRoundRobinEventHandler}.
+     * Creates a {@link DisruptorRREventHandler}.
      */
-    public DisruptorRoundRobinEventHandler() {
+    public DisruptorRREventHandler() {
         this(-1, -1);
     }
     
     /**
-     * Creates a {@link DisruptorRoundRobinEventHandler}.
+     * Creates a {@link DisruptorRREventHandler}.
      * @param ordinal
      * the index of this handler
      * @param numberOfConsumers
      * the total number of consumers
      */
-    public DisruptorRoundRobinEventHandler(long ordinal, long numberOfConsumers) {
+    public DisruptorRREventHandler(long ordinal, long numberOfConsumers) {
     	super();
         this.ordinal = ordinal;
         this.numberOfConsumers = numberOfConsumers;

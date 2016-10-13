@@ -15,8 +15,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.IBuilder;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -26,7 +26,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see FileVisitor
  */
-public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
+public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	
 	final private PathMatcher matcher;
 	final private boolean searchDirectories;
@@ -34,7 +34,7 @@ public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
 	final private boolean skipAfterFind;
 	
 	private boolean isFirst;
-	private ITrackingStrategy tracker = TrackerDummy.getInstance();
+	private TrackingStrategy tracker = TrackerDummy.getInstance();
 	
 	protected AFileWalker(Builder builder) {
 		matcher = builder.matcher;
@@ -154,12 +154,12 @@ public abstract class AFileWalker implements FileVisitor<Path>, ITrackable {
     }
     
     @Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 

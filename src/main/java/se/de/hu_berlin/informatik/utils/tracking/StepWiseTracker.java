@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tracking;
 
-public class StepWiseTracker implements ITrackingStrategy {
+public class StepWiseTracker implements TrackingStrategy {
 
 	private int stepWidth = 0;
 	private int count = 0;

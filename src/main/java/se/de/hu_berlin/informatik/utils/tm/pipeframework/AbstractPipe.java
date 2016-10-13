@@ -6,10 +6,10 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -49,7 +49,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see PipeLinker
  */
-public abstract class AbstractPipe<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
+public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, TransmitterProvider<A,B>, Trackable {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
@@ -58,9 +58,9 @@ public abstract class AbstractPipe<A,B> implements ITransmitter<A,B>, ITransmitt
 
 	private final boolean singleWriter;
 	
-	private ITrackingStrategy tracker = TrackerDummy.getInstance();
+	private TrackingStrategy tracker = TrackerDummy.getInstance();
 
-	private PipeFactory<A,B> pipeProvider = new PipeFactory<A,B>() {
+	private AbstractPipeFactory<A,B> pipeProvider = new AbstractPipeFactory<A,B>() {
 		@Override
 		public AbstractPipe<A, B> getPipe() {
 			//simply return the actual module
@@ -161,7 +161,7 @@ public abstract class AbstractPipe<A,B> implements ITransmitter<A,B>, ITransmitt
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
 	 */
 	@Override
-	public <C, D> ITransmitter<C, D> linkTo(ITransmitter<C, D> transmitter) {
+	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) {
 		if (transmitter instanceof AbstractPipe) {
 			return linkPipeTo((AbstractPipe<C, D>)transmitter, singleWriter);
 		} else {
@@ -253,52 +253,52 @@ public abstract class AbstractPipe<A,B> implements ITransmitter<A,B>, ITransmitt
 
 	@Override
 	public AbstractPipe<A,B> enableTracking() {
-		ITrackable.super.enableTracking();
+		Trackable.super.enableTracking();
 		return this;
 	}
 
 	@Override
 	public AbstractPipe<A,B> enableTracking(int stepWidth) {
-		ITrackable.super.enableTracking(stepWidth);
+		Trackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
 	public AbstractPipe<A,B> disableTracking() {
-		ITrackable.super.disableTracking();
+		Trackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
-	public AbstractPipe<A,B> enableTracking(ITrackingStrategy tracker) {
-		ITrackable.super.enableTracking(tracker);
+	public AbstractPipe<A,B> enableTracking(TrackingStrategy tracker) {
+		Trackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
 	public AbstractPipe<A,B> enableTracking(boolean useProgressBar) {
-		ITrackable.super.enableTracking(useProgressBar);
+		Trackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
 	public AbstractPipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		ITrackable.super.enableTracking(useProgressBar, stepWidth);
+		Trackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
 	
 	@Override
-	public PipeFactory<A, B> getPipeProvider() {
+	public AbstractPipeFactory<A, B> getPipeProvider() {
 		return pipeProvider;
 	}
 	
 	@Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 }

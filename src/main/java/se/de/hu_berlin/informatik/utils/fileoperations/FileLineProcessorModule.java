@@ -11,19 +11,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
+import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Module that reads a submitted file and processes each line with the given
- * instance of a class that implements the interface {@link IStringProcessor}.
+ * instance of a class that implements the interface {@link StringProcessor}.
  * In the end, a result object is returned to the output.
  * 
  * <br><br> Returns null in case of an error.
  * 
  * @author Simon Heiden
  * @param A
- * the type of the return objects of the used {@link IStringProcessor}
+ * the type of the return objects of the used {@link StringProcessor}
  */
 public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 
@@ -32,28 +32,28 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 			StandardCharsets.US_ASCII, StandardCharsets.UTF_16,
 			StandardCharsets.UTF_16BE, StandardCharsets.UTF_16LE};
 	
-	private IStringProcessor<A> processor;
+	private StringProcessor<A> processor;
 	private boolean abortOnError = false;
 	
 	/**
 	 * Creates a new {@link FileLineProcessorModule} object with the given parameters.
 	 * Will continue execution if a line can't be processed or produces an error.
 	 * @param processor
-	 * {@link IStringProcessor} object that takes a String and processes it 
+	 * {@link StringProcessor} object that takes a String and processes it 
 	 * or null
 	 */
-	public FileLineProcessorModule(IStringProcessor<A> processor) {
+	public FileLineProcessorModule(StringProcessor<A> processor) {
 		this(processor, false);
 	}
 	
 	/**
 	 * Creates a new {@link FileLineProcessorModule} object with the given parameters.
 	 * @param processor
-	 * {@link IStringProcessor} object that takes a String and processes it
+	 * {@link StringProcessor} object that takes a String and processes it
 	 * @param abortOnError
 	 * whether the execution should be aborted when encountering an error
 	 */
-	public FileLineProcessorModule(IStringProcessor<A> processor, boolean abortOnError) {
+	public FileLineProcessorModule(StringProcessor<A> processor, boolean abortOnError) {
 		super(true);
 		this.processor = processor;
 		this.abortOnError = abortOnError;

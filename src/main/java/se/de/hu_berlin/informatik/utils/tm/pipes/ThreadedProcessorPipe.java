@@ -3,11 +3,11 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.threaded.ADisruptorMultiplexer;
+import se.de.hu_berlin.informatik.utils.threaded.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.EHWithInputAndReturnFactory;
-import se.de.hu_berlin.informatik.utils.threaded.IMultiplexer;
-import se.de.hu_berlin.informatik.utils.threaded.IThreadLimit;
+import se.de.hu_berlin.informatik.utils.threaded.Multiplexer;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
@@ -22,14 +22,14 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
-	private IMultiplexer<B> multiplexer;
+	private Multiplexer<B> multiplexer;
 
-	public ThreadedProcessorPipe(int threadCount, IThreadLimit limit, 
+	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, 
 			EHWithInputAndReturnFactory<A,B> callableFactory) {
 		super(true);
 		disruptorProvider = new DisruptorProvider<>(8);
 		//starts a multiplexer with the created disruptor
-		multiplexer = new ADisruptorMultiplexer<B>(disruptorProvider) {
+		multiplexer = new AbstractDisruptorMultiplexer<B>(disruptorProvider) {
 			@Override
 			public void processNewOutputItem(B item) {
 				//submit results that are not null to the ouput pipe

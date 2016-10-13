@@ -47,7 +47,7 @@ public class ThreadedFileWalker extends AFileWalker {
 	
 	public static class Builder extends AFileWalker.Builder {
 
-		public IDisruptorEventHandlerFactory<Path> callableFactory;
+		public DisruptorEventHandlerFactory<Path> callableFactory;
 		public int threadCount;
 		
 		public Builder(String pattern, int threadCount) {
@@ -67,7 +67,7 @@ public class ThreadedFileWalker extends AFileWalker {
 		 * @return
 		 * this
 		 */
-		public Builder call(IDisruptorEventHandlerFactory<Path> callableFactory) {
+		public Builder call(DisruptorEventHandlerFactory<Path> callableFactory) {
 			this.callableFactory = callableFactory;
 			return this;
 		}

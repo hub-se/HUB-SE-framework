@@ -32,7 +32,7 @@ public class InputStreamConsumer extends Thread {
                 out.println(line);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Log.err(this, ex);
             exp = ex;
         }
     }

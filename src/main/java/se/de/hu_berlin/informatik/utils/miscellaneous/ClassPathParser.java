@@ -8,6 +8,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Simon
@@ -16,10 +18,10 @@ import java.util.HashSet;
 public class ClassPathParser {
 
 	/** The unique elements of the classpath, as an ordered list. */
-	private final ArrayList<File> classpathElements;
+	private final List<File> classpathElements;
 
 	/** The unique elements of the classpath, as a set. */
-	private final HashSet<String> classpathElementsSet;
+	private final Set<String> classpathElementsSet;
 
 	
 	
@@ -40,7 +42,7 @@ public class ClassPathParser {
 	/** 
 	 * Add a classpath element. 
 	 */
-	private void addClasspathElement(String pathElement) {
+	private void addClasspathElement(final String pathElement) {
 	    if (classpathElementsSet.add(pathElement)) {
 	        final File file = new File(pathElement);
 	        if (file.exists()) {
@@ -57,8 +59,8 @@ public class ClassPathParser {
 	public ClassPathParser parseSystemClasspath() {
 	    // Look for all unique classloaders.
 	    // Keep them in an order that (hopefully) reflects the order in which class resolution occurs.
-	    ArrayList<ClassLoader> classLoaders = new ArrayList<>();
-	    HashSet<ClassLoader> classLoadersSet = new HashSet<>();
+		final List<ClassLoader> classLoaders = new ArrayList<>();
+		final Set<ClassLoader> classLoadersSet = new HashSet<>();
 	    classLoadersSet.add(ClassLoader.getSystemClassLoader());
 	    classLoaders.add(ClassLoader.getSystemClassLoader());
 	    if (classLoadersSet.add(Thread.currentThread().getContextClassLoader())) {
@@ -67,12 +69,12 @@ public class ClassPathParser {
 	    // Dirty method for looking for any other classloaders on the call stack
 	    try {
 	        // Generate stacktrace
-	        throw new Exception();
-	    } catch (Exception e) {
-	        StackTraceElement[] stacktrace = e.getStackTrace();
-	        for (StackTraceElement elt : stacktrace) {
+	        throw new IllegalAccessException();
+	    } catch (IllegalAccessException e) {
+	    	final StackTraceElement[] stacktrace = e.getStackTrace();
+	        for (final StackTraceElement elt : stacktrace) {
 	            try {
-	                ClassLoader cl = Class.forName(elt.getClassName()).getClassLoader();
+	            	final ClassLoader cl = Class.forName(elt.getClassName()).getClassLoader();
 	                if (classLoadersSet.add(cl)) {
 	                    classLoaders.add(cl);
 	                }
@@ -83,9 +85,9 @@ public class ClassPathParser {
 
 	    // Get file paths for URLs of each classloader.
 	    clearClasspath();
-	    for (ClassLoader cl : classLoaders) {
+	    for (final ClassLoader cl : classLoaders) {
 	        if (cl != null) {
-	            for (URL url : ((URLClassLoader) cl).getURLs()) {
+	            for (final URL url : ((URLClassLoader) cl).getURLs()) {
 	                if ("file".equals(url.getProtocol())) {
 	                    addClasspathElement(url.getFile());
 	                }
@@ -101,7 +103,7 @@ public class ClassPathParser {
 	 * list of unique elements on the classpath (directories and files) as File objects, preserving order.
 	 * Class path elements that do not exist are not included in the list.
 	 */
-	public ArrayList<File> getUniqueClasspathElements() {
+	public List<File> getUniqueClasspathElements() {
 	    return classpathElements;
 	}
 	
@@ -112,7 +114,7 @@ public class ClassPathParser {
 	 * @return
 	 * this {@link ClassPathParser} object (for method chaining)
 	 */
-	public ClassPathParser addElementAtStartOfClassPath(File element) {
+	public ClassPathParser addElementAtStartOfClassPath(final File element) {
 		classpathElements.add(0, element);
 		return this;
 	}
@@ -124,7 +126,7 @@ public class ClassPathParser {
 	 * @return
 	 * this {@link ClassPathParser} object (for method chaining)
 	 */
-	public ClassPathParser addElementToClassPath(File element) {
+	public ClassPathParser addElementToClassPath(final File element) {
 		classpathElements.add(element);
 		return this;
 	}
@@ -137,9 +139,9 @@ public class ClassPathParser {
 	 * Unix-based systems) 
 	 */
 	public String getClasspath() {
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		boolean first = true;
-		for (File element : classpathElements) {
+		for (final File element : classpathElements) {
 			if (first) {
 				first = false;
 			} else {

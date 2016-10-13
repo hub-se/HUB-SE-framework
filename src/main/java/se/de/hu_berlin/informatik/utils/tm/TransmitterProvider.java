@@ -1,18 +1,18 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleFactory;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModuleFactory;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeFactory;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipeFactory;
 
-public interface ITransmitterProvider<A,B> {
+public interface TransmitterProvider<A,B> {
 
 	/**
 	 * May return instances of a pipe. Returns null by default.
 	 * @return
 	 * a pipe factory, or null if none is specified
 	 */
-	default public PipeFactory<A,B> getPipeProvider() {
+	default public AbstractPipeFactory<A,B> getPipeProvider() {
 		return null;
 	}
 	
@@ -21,7 +21,7 @@ public interface ITransmitterProvider<A,B> {
 	 * @return
 	 * a module factory, or null if none is specified
 	 */
-	default public ModuleFactory<A,B> getModuleProvider() {
+	default public AbstractModuleFactory<A,B> getModuleProvider() {
 		return null;
 	}
 	

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.EHWithInput;
-import se.de.hu_berlin.informatik.utils.threaded.IDisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.DisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
@@ -34,7 +34,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private IDisruptorEventHandlerFactory<Path> callableFactory;
+	private DisruptorEventHandlerFactory<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -56,7 +56,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(IDisruptorEventHandlerFactory<Path> callableFactory) {
+	public ThreadedFileWalkerModule call(DisruptorEventHandlerFactory<Path> callableFactory) {
 		this.callableFactory = callableFactory;
 		return this;
 	}

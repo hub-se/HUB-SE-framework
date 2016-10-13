@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.optionparser;
 
 import org.apache.commons.cli.Option;
 
-public interface IOptions {
+public interface OptionWrapperInterface {
 	
 	public static final int NO_GROUP = -1;
 

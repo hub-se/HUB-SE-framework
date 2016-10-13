@@ -4,9 +4,9 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -18,7 +18,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  *
  * @see AbstractModule
  */
-public class ModuleLinker implements ITrackable {
+public class ModuleLinker implements Trackable {
 
 	private AbstractModule<?,?> startModule = null;
 	private AbstractModule<?,?> endModule = null;
@@ -32,7 +32,7 @@ public class ModuleLinker implements ITrackable {
 	 * @return
 	 * this module linker
 	 */
-	public ModuleLinker append(ITransmitterProvider<?,?>... transmitters) {
+	public ModuleLinker append(TransmitterProvider<?,?>... transmitters) {
 		if (transmitters.length != 0) {
 			try {
 				if (startModule == null) {
@@ -134,7 +134,7 @@ public class ModuleLinker implements ITrackable {
 	}
 
 	@Override
-	public ModuleLinker enableTracking(ITrackingStrategy tracker) {
+	public ModuleLinker enableTracking(TrackingStrategy tracker) {
 		if (startModule != null) {
 			startModule.enableTracking(tracker);
 		}
@@ -180,14 +180,14 @@ public class ModuleLinker implements ITrackable {
 	}
 
 	@Override
-	public void delegateTrackingTo(ITrackable target) {
+	public void delegateTrackingTo(Trackable target) {
 		if (startModule != null) {
 			startModule.delegateTrackingTo(target);
 		}
 	}
 
 	@Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		if (startModule != null) {
 			return startModule.getTracker();
 		}
@@ -195,7 +195,7 @@ public class ModuleLinker implements ITrackable {
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		if (startModule != null) {
 			startModule.setTracker(tracker);
 		}

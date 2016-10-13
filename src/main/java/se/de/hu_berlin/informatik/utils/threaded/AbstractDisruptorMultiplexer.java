@@ -9,11 +9,11 @@ package se.de.hu_berlin.informatik.utils.threaded;
  * @param <B>
  * the type of objects that are processed
  */
-public abstract class ADisruptorMultiplexer<B> extends AMultiplexer<B> {
+public abstract class AbstractDisruptorMultiplexer<B> extends AbstractMultiplexer<B> {
 
 	private DisruptorProvider<?> disruptor;
 	
-	public ADisruptorMultiplexer(DisruptorProvider<?> disruptor) {
+	public AbstractDisruptorMultiplexer(DisruptorProvider<?> disruptor) {
 		super();
 		this.disruptor = disruptor;
 	}
@@ -25,7 +25,7 @@ public abstract class ADisruptorMultiplexer<B> extends AMultiplexer<B> {
 	@Override
 	public void start() {
 		if (!isRunning()) {
-			connectHandlers((IMultiplexerInput<B>[]) disruptor.getHandlers());
+			connectHandlers((MultiplexerInput<B>[]) disruptor.getHandlers());
 		}
 		super.start();
 	}

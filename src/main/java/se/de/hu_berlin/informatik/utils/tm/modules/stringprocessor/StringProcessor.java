@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
  * @param T
  * the type of the returned objects
  */
-public interface IStringProcessor<T> {
+public interface StringProcessor<T> {
 
 	/**
 	 * Takes a {@link String} and processes it in some way.

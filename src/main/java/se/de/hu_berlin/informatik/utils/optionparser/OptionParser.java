@@ -37,9 +37,9 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUt
  * @see Options
  * @see Option
  */
-public class OptionParser {
+final public class OptionParser {
 	
-	public static enum DefaultCmdOptions implements IOptions {
+	public static enum DefaultCmdOptions implements OptionWrapperInterface {
 		/* add options here according to your needs */
 		HELP("h", "help", false, "Shows this help.", false),
 		SILENCE("z", "silence", false, "Disallows outputs to standard out.", false),
@@ -68,7 +68,7 @@ public class OptionParser {
 		//a negative index means that this option is part of no group
 		//this option will not be required, however, the group itself will be
 		DefaultCmdOptions(final String opt, final String longOpt, 
-				final boolean hasArg, final String description, int groupId) {
+				final boolean hasArg, final String description, final int groupId) {
 			this.option = new OptionWrapper(
 					Option.builder(opt).longOpt(longOpt).required(false).
 					hasArg(hasArg).desc(description).build(),
@@ -76,12 +76,12 @@ public class OptionParser {
 		}
 		
 		//adds the given option that will be part of the group with the given id
-		DefaultCmdOptions(Option option, int groupId) {
+		DefaultCmdOptions(final Option option, final int groupId) {
 			this.option = new OptionWrapper(option, groupId);
 		}
 		
 		//adds the given option that will be part of no group
-		DefaultCmdOptions(Option option) {
+		DefaultCmdOptions(final Option option) {
 			this(option, NO_GROUP);
 		}
 
@@ -139,7 +139,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public static <T extends Enum<T> & IOptions> OptionParser getOptions(String toolName, boolean isThreaded, Class<T> options, String[] args) {
+	public static <T extends Enum<T> & OptionWrapperInterface> OptionParser getOptions(
+			final String toolName, final boolean isThreaded, final Class<T> options, final String... args) {
 		final OptionParser optionParser = new OptionParser(toolName, isThreaded, args);
 		optionParser.add(options);
         optionParser.parseCommandLine();
@@ -162,7 +163,7 @@ public class OptionParser {
      * @param args
      * the command line arguments that were given to a main function
      */
-	private OptionParser(final String tool, boolean isThreaded, final String[] args) {
+	private OptionParser(final String tool, final boolean isThreaded, final String... args) {
 		super();
 		this.tool = tool;
 		this.args = args;
@@ -231,12 +232,12 @@ public class OptionParser {
 	 * @return
 	 * the number of threads according to the given options
 	 */
-	public int getNumberOfThreads(int minusThreads) {
+	public int getNumberOfThreads(final int minusThreads) {
 		if (!isThreaded) {
 			return 1;
 		}
 		if (this.hasOption(DefaultCmdOptions.THREAD_COUNT)) {
-			int threads = Integer.parseInt(this.getOptionValue(DefaultCmdOptions.THREAD_COUNT)) - minusThreads;
+			final int threads = Integer.parseInt(this.getOptionValue(DefaultCmdOptions.THREAD_COUNT)) - minusThreads;
 			if (threads < 1) {
 				return 1;
 			} else {
@@ -257,12 +258,13 @@ public class OptionParser {
 				strategy = ThreadingStrategy.DEFENSIVE;
 				break;
 			default:
+				//should not happen
 				Log.abort(this, "Unknown strategy: '%s'", this.getOptionValue(DefaultCmdOptions.THREAD_STRATEGY));
 			}
 		}
 		
-		int processors = Runtime.getRuntime().availableProcessors();
-		double processorsToUse = 1;		
+		final int processors = Runtime.getRuntime().availableProcessors();
+		double processorsToUse;		
 		switch(strategy) {
 		case AGGRESSIVE:
 			processorsToUse = (double)processors * 0.9;
@@ -275,7 +277,7 @@ public class OptionParser {
 			processorsToUse = (double)processors * 0.5;
 			break;
 		}
-		int threads = (int)Math.round(processorsToUse) - minusThreads;
+		final int threads = (int)Math.round(processorsToUse) - minusThreads;
 		if (threads < 1) {
 			return 1;
 		} else {
@@ -290,22 +292,16 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	private <T extends Enum<T> & IOptions> void add(Class<T> options) {
-		Map<Integer, List<T>> groups = new HashMap<>();
-		for (T option : EnumSet.allOf(options)) {
+	private <T extends Enum<T> & OptionWrapperInterface> void add(final Class<T> options) {
+		final Map<Integer, List<T>> groups = new HashMap<>();
+		for (final T option : EnumSet.allOf(options)) {
 			if (option.groupId() < 0) {
 				add(option.option());
 			} else {
-				if (groups.containsKey(option.groupId())) {
-					groups.get(option.groupId()).add(option);
-				} else {
-					List<T> list = new ArrayList<>();
-					list.add(option);
-					groups.put(option.groupId(), list);
-				}
+				groups.computeIfAbsent(option.groupId(), k -> new ArrayList<>()).add(option);
 			}
 		}
-		for (Entry<Integer, List<T>> group : groups.entrySet()) {
+		for (final Entry<Integer, List<T>> group : groups.entrySet()) {
 			addGroup(true, group.getValue());
 		}
 	}
@@ -329,7 +325,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> void printHelp(final int status, T opt) {
+	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(
+			final int status, final T opt) {
 		Log.err(this, "Error with option '-%s'.", opt.option().getOpt());
 		printHelp(status);
 	}
@@ -353,10 +350,11 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	private <T extends Enum<T> & IOptions> void addGroup(boolean required, List<T> group) {
-		if (group.size() > 0) {
-			OptionGroup lvGroup = new OptionGroup();
-			for (T option : group) {
+	private <T extends Enum<T> & OptionWrapperInterface> void addGroup(
+			final boolean required, final List<T> group) {
+		if (!group.isEmpty()) {
+			final OptionGroup lvGroup = new OptionGroup();
+			for (final T option : group) {
 				lvGroup.addOption(option.option());
 			}
 			lvGroup.setRequired(required);
@@ -373,7 +371,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	private <T extends Enum<T> & IOptions> void addGroup(boolean required, @SuppressWarnings("unchecked") T... group) {
+	private <T extends Enum<T> & OptionWrapperInterface> void addGroup(
+			final boolean required, @SuppressWarnings("unchecked") final T... group) {
 		addGroup(required, new ArrayList<T>(Arrays.asList(group)));
 	}
 	
@@ -386,7 +385,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> boolean hasOption(T opt) {
+	public <T extends Enum<T> & OptionWrapperInterface> boolean hasOption(
+			final T opt) {
 		return getCmdLine().hasOption(opt.option().getOpt());
 	}
 	
@@ -400,7 +400,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> String getOptionValue(T opt) {
+	public <T extends Enum<T> & OptionWrapperInterface> String getOptionValue(
+			final T opt) {
 		return getCmdLine().getOptionValue(opt.option().getOpt());
 	}
 	
@@ -416,7 +417,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> String getOptionValue(T opt, String defaultValue) {
+	public <T extends Enum<T> & OptionWrapperInterface> String getOptionValue(
+			final T opt, final String defaultValue) {
 		return getCmdLine().getOptionValue(opt.option().getOpt(), defaultValue);
 	}
 	
@@ -430,7 +432,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> String[] getOptionValues(T opt) {
+	public <T extends Enum<T> & OptionWrapperInterface> String[] getOptionValues(
+			final T opt) {
 		return getCmdLine().getOptionValues(opt.option().getOpt());
 	}
 	
@@ -449,8 +452,9 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> Path isDirectory(Path prefix, T opt, boolean ensureExistence) {
-		Path path = null;
+	public <T extends Enum<T> & OptionWrapperInterface> Path isDirectory(
+			final Path prefix, final T opt, final boolean ensureExistence) {
+		Path path;
 		if (prefix != null) {
 			path = prefix.resolve(Paths.get(getOptionValue(opt)));
 		} else {
@@ -480,8 +484,9 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> Path isFile(Path prefix, T opt, boolean ensureExistence) {
-		Path path = null;
+	public <T extends Enum<T> & OptionWrapperInterface> Path isFile(
+			final Path prefix, final T opt, final boolean ensureExistence) {
+		Path path;
 		if (prefix != null) {
 			path = prefix.resolve(Paths.get(getOptionValue(opt)));
 		} else {
@@ -509,7 +514,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> Path isDirectory(T opt, boolean ensureExistence) {
+	public <T extends Enum<T> & OptionWrapperInterface> Path isDirectory(
+			final T opt, final boolean ensureExistence) {
 		return isDirectory(null, opt, ensureExistence);
 	}
 	
@@ -526,7 +532,8 @@ public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & IOptions> Path isFile(T opt, boolean ensureExistence) {
+	public <T extends Enum<T> & OptionWrapperInterface> Path isFile(
+			final T opt, final boolean ensureExistence) {
 		return isFile(null, opt, ensureExistence);
 	}
 	

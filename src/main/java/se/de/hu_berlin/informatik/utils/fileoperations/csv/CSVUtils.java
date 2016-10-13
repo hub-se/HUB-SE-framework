@@ -9,7 +9,7 @@ import org.junit.Assert;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
-import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor;
+import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 
 /**
  * Contains utility methods to cope with reading and writing CSV files.
@@ -64,7 +64,7 @@ public final class CSVUtils {
      * a list of String arrays
      */
     public static List<String[]> readCSVFileToListOfStringArrays(Path csvFile, boolean mirrored) {
-    	 IStringProcessor<List<String[]>> processor;
+    	 StringProcessor<List<String[]>> processor;
     	if (mirrored) {
     		processor = new CSVStringsToMirroredStringArrayListProcessor();
     	} else {

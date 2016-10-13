@@ -10,7 +10,7 @@ package se.de.hu_berlin.informatik.utils.threaded;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class DisruptorFCFSEventHandler<A> extends ADisruptorEventHandler<A> {
+public abstract class DisruptorFCFSEventHandler<A> extends AbstractDisruptorEventHandler<A> {
 
     /**
      * Creates a {@link DisruptorFCFSEventHandler}.

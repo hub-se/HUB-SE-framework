@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-public interface IDisruptorEventHandlerFactory<A> {
+public interface DisruptorEventHandlerFactory<A> {
 
 	/**
 	 * @return
@@ -10,8 +10,8 @@ public interface IDisruptorEventHandlerFactory<A> {
 	 * creation of an event handler is very time consuming or may cause errors.
 	 */
 	@SuppressWarnings("unchecked")
-	default public Class<? extends ADisruptorEventHandler<A>> getEventHandlerClass() {
-		return (Class<? extends ADisruptorEventHandler<A>>) newFreshInstance().getClass();
+	default public Class<? extends AbstractDisruptorEventHandler<A>> getEventHandlerClass() {
+		return (Class<? extends AbstractDisruptorEventHandler<A>>) newFreshInstance().getClass();
 	}
 	
 	/**
@@ -20,7 +20,7 @@ public interface IDisruptorEventHandlerFactory<A> {
 	 * @return
 	 * a completely finished, usable instance of an event handler
 	 */
-	public ADisruptorEventHandler<A> newInstance();
+	public AbstractDisruptorEventHandler<A> newInstance();
 	
 	/**
 	 * Should return an instance of an event handler which
@@ -29,20 +29,20 @@ public interface IDisruptorEventHandlerFactory<A> {
 	 * @return
 	 * a new instance of an event handler
 	 */
-	public ADisruptorEventHandler<A> newFreshInstance();
+	public AbstractDisruptorEventHandler<A> newFreshInstance();
 	
 	/**
 	 * @return
 	 * an object that limits the amount of threads that
 	 * run in parallel.
 	 */
-	public IThreadLimit getThreadLimit();
+	public ThreadLimit getThreadLimit();
 	
 	/** 
 	 * @param limit
 	 * an object that limits the amount of threads that
 	 * run in parallel. 
 	 */
-	public void setThreadLimit(IThreadLimit limit);
+	public void setThreadLimit(ThreadLimit limit);
 	
 }

@@ -4,9 +4,9 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * @author Simon Heiden
  *
  */
-public class PipeLinker implements ITrackable {
+public class PipeLinker implements Trackable {
 	
 	/**
 	 * Creates a new pipe linker. Assumes that input items are
@@ -52,7 +52,7 @@ public class PipeLinker implements ITrackable {
 	 * @return
 	 * this pipe linker
 	 */
-	public PipeLinker append(ITransmitterProvider<?,?>... transmitters) {	
+	public PipeLinker append(TransmitterProvider<?,?>... transmitters) {	
 		if (transmitters.length != 0) {
 			try {
 				if (startPipe == null) {
@@ -152,7 +152,7 @@ public class PipeLinker implements ITrackable {
 	}
 
 	@Override
-	public PipeLinker enableTracking(ITrackingStrategy tracker) {
+	public PipeLinker enableTracking(TrackingStrategy tracker) {
 		if (startPipe != null) {
 			startPipe.enableTracking(tracker);
 		}
@@ -198,14 +198,14 @@ public class PipeLinker implements ITrackable {
 	}
 
 	@Override
-	public void delegateTrackingTo(ITrackable target) {
+	public void delegateTrackingTo(Trackable target) {
 		if (startPipe != null) {
 			startPipe.delegateTrackingTo(target);
 		}
 	}
 
 	@Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		if (startPipe != null) {
 			return startPipe.getTracker();
 		}
@@ -213,7 +213,7 @@ public class PipeLinker implements ITrackable {
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		if (startPipe != null) {
 			startPipe.setTracker(tracker);
 		}

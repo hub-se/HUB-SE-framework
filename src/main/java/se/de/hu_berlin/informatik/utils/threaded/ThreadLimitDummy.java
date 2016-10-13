@@ -1,10 +1,10 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-public class ThreadLimitDummy implements IThreadLimit {
+final public class ThreadLimitDummy implements ThreadLimit {
 
-	private static IThreadLimit INSTANCE = new ThreadLimitDummy();
+	final private static ThreadLimit INSTANCE = new ThreadLimitDummy();
 	
-	public static IThreadLimit getInstance() {
+	public static ThreadLimit getInstance() {
 		return INSTANCE;
 	}
 	

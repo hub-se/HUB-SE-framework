@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-public interface IMultiplexer<B> extends Runnable {
+public interface Multiplexer<B> extends Runnable {
 
 	/**
 	 * Sets the connected handlers that generate the output items that
@@ -8,7 +8,7 @@ public interface IMultiplexer<B> extends Runnable {
 	 * @param handlers
 	 * the handlers
 	 */
-	public void connectHandlers(IMultiplexerInput<B>[] handlers);
+	public void connectHandlers(MultiplexerInput<B>[] handlers);
 
 	/**
 	 * Creates a new multiplexer thread if a running thread does not exists.
@@ -41,7 +41,7 @@ public interface IMultiplexer<B> extends Runnable {
 	 * @param handler
 	 * the handler to notify
 	 */
-	default public void notifyHandler(IMultiplexerInput<B> handler) {
+	default public void notifyHandler(MultiplexerInput<B> handler) {
 		synchronized (handler.getLock()) {
 			handler.getLock().notify();
 		}
@@ -63,7 +63,7 @@ public interface IMultiplexer<B> extends Runnable {
 	 * @param handlers
 	 * the connected handlers
 	 */
-	default public void checkForPendingItems(IMultiplexerInput<B>[] handlers) {
+	default public void checkForPendingItems(MultiplexerInput<B>[] handlers) {
 		for (int i = 0; i < handlers.length; ++i) {
 			//get the output (will be null if not new)
 			B result = handlers[i].getOutputAndInvalidate();

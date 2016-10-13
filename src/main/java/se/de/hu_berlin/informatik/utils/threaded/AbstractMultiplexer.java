@@ -10,9 +10,9 @@ import java.util.concurrent.locks.LockSupport;
  * @param <B>
  * the type of objects that are processed
  */
-public abstract class AMultiplexer<B> implements IMultiplexer<B> {
+public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 
-	private IMultiplexerInput<B>[] handlers;
+	private MultiplexerInput<B>[] handlers;
 	
 	private Thread thread = null;
 	private boolean shouldStop;
@@ -20,7 +20,7 @@ public abstract class AMultiplexer<B> implements IMultiplexer<B> {
 	
 	private boolean isRunning = false;
 	
-	public AMultiplexer() {
+	public AbstractMultiplexer() {
 		super();
 	}
 	
@@ -28,7 +28,7 @@ public abstract class AMultiplexer<B> implements IMultiplexer<B> {
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexer#setHandlers(se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput[])
 	 */
 	@Override
-	public void connectHandlers(IMultiplexerInput<B>[] handlers) {
+	public void connectHandlers(MultiplexerInput<B>[] handlers) {
 		this.handlers = handlers;
 	}
 

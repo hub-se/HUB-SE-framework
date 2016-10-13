@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements IMultiplexerInput<B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B> {
 
 	/**
 	 * The output object.
@@ -28,7 +28,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	
 	private boolean hasNewOutput = false;
 	private final Object lock = new Object();
-	private IMultiplexer<B> multiplexer = null;
+	private Multiplexer<B> multiplexer = null;
 
 	@Override
 	public void processEvent(A input) throws Exception {
@@ -49,7 +49,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setMultiplexer(se.de.hu_berlin.informatik.utils.threaded.NToOneMultiplexer)
 	 */
 	@Override
-	public void setMultiplexer(IMultiplexer<B> multiplexer) {
+	public void setMultiplexer(Multiplexer<B> multiplexer) {
 		if (multiplexer == null) {
 			throw new IllegalStateException("No multiplexer given (null).");
 		}
@@ -109,7 +109,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#getMultiplexer()
 	 */
 	@Override
-	public IMultiplexer<B> getMultiplexer() {
+	public Multiplexer<B> getMultiplexer() {
 		return multiplexer;
 	}
 	

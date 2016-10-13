@@ -4,13 +4,13 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitter;
-import se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -48,7 +48,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see ModuleLinker
  */
-public abstract class AbstractModule<A,B> implements ITransmitter<A,B>, ITransmitterProvider<A,B>, ITrackable {
+public abstract class AbstractModule<A,B> implements Transmitter<A,B>, TransmitterProvider<A,B>, Trackable {
 	
 	private A input = null;
 	private B output = null;
@@ -56,11 +56,11 @@ public abstract class AbstractModule<A,B> implements ITransmitter<A,B>, ITransmi
 	private AbstractModule<?,?> linkedModule = null;
 	
 	private boolean needsInput = false;
-	private ITrackingStrategy tracker = TrackerDummy.getInstance();
+	private TrackingStrategy tracker = TrackerDummy.getInstance();
 	
 	private AbstractPipe<A,B> pipeView = null;
 	
-	private ModuleFactory<A,B> moduleProvider = new ModuleFactory<A,B>() {
+	private AbstractModuleFactory<A,B> moduleProvider = new AbstractModuleFactory<A,B>() {
 		@Override
 		public AbstractModule<A, B> getModule() {
 			//simply return the actual module
@@ -87,7 +87,7 @@ public abstract class AbstractModule<A,B> implements ITransmitter<A,B>, ITransmi
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter)
 	 */
 	@Override
-	public <C, D> ITransmitter<C, D> linkTo(ITransmitter<C, D> transmitter) {
+	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) {
 		if (transmitter instanceof AbstractModule) {
 			return linkModuleTo((AbstractModule<C, D>)transmitter);
 		} else {
@@ -178,52 +178,52 @@ public abstract class AbstractModule<A,B> implements ITransmitter<A,B>, ITransmi
 
 	@Override
 	public AbstractModule<A,B> enableTracking() {
-		ITrackable.super.enableTracking();
+		Trackable.super.enableTracking();
 		return this;
 	}
 	
 	@Override
 	public AbstractModule<A,B> enableTracking(int stepWidth) {
-		ITrackable.super.enableTracking(stepWidth);
+		Trackable.super.enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
 	public AbstractModule<A,B> disableTracking() {
-		ITrackable.super.disableTracking();
+		Trackable.super.disableTracking();
 		return this;
 	}
 
 	@Override
-	public AbstractModule<A,B> enableTracking(ITrackingStrategy tracker) {
-		ITrackable.super.enableTracking(tracker);
+	public AbstractModule<A,B> enableTracking(TrackingStrategy tracker) {
+		Trackable.super.enableTracking(tracker);
 		return this;
 	}
 
 	@Override
 	public AbstractModule<A,B> enableTracking(boolean useProgressBar) {
-		ITrackable.super.enableTracking(useProgressBar);
+		Trackable.super.enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
 	public AbstractModule<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		ITrackable.super.enableTracking(useProgressBar, stepWidth);
+		Trackable.super.enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
 
 	@Override
-	public ModuleFactory<A, B> getModuleProvider() {
+	public AbstractModuleFactory<A, B> getModuleProvider() {
 		return moduleProvider;
 	}
 	
 	@Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 	

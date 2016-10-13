@@ -8,7 +8,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * Abstract event handler that is used by a {@link DisruptorProvider}.
  * 
  * <p> This implementation may further restrict the total number of running threads
- * in the application by setting an {@link IThreadLimit} object. This will probably come
+ * in the application by setting an {@link ThreadLimit} object. This will probably come
  * with additional synchronization cost, of course, 
  * but limits the amount of parallel threads to a set number. If no thread limit object
  * is set, then access to threads will be unrestricted with practically no additional 
@@ -19,28 +19,28 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class ADisruptorEventHandler<A> implements EventHandler<Event<A>> {
+public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<Event<A>> {
 
     private DisruptorProvider<A> callback = null;
-    private IThreadLimit limit = ThreadLimitDummy.getInstance();
+    private ThreadLimit limit = ThreadLimitDummy.getInstance();
 	private boolean singleConsumer = false;
     
     /**
-     * Creates a {@link ADisruptorEventHandler}.
+     * Creates a {@link AbstractDisruptorEventHandler}.
      * @param isSingle
      * whether this consumer is the only one which is
      * connected to the disruptor
      */
-    public ADisruptorEventHandler(boolean isSingle) {
+    public AbstractDisruptorEventHandler(boolean isSingle) {
         super();
         singleConsumer = isSingle;
     }
     
     /**
-     * Creates a {@link ADisruptorEventHandler} which
+     * Creates a {@link AbstractDisruptorEventHandler} which
      * is set to be not a single producer
      */
-    public ADisruptorEventHandler() {
+    public AbstractDisruptorEventHandler() {
         super();
         singleConsumer = false;
     }
@@ -54,7 +54,7 @@ public abstract class ADisruptorEventHandler<A> implements EventHandler<Event<A>
     	this.callback = callback;
     }
     
-    protected void setThreadLimit(IThreadLimit limit) {
+    protected void setThreadLimit(ThreadLimit limit) {
     	this.limit = limit;
     }
     

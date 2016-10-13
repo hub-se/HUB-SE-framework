@@ -1,10 +1,10 @@
 package se.de.hu_berlin.informatik.utils.tracking;
 
-public class TrackerDummy implements ITrackingStrategy {
+final public class TrackerDummy implements TrackingStrategy {
 
-	private static ITrackingStrategy INSTANCE = new TrackerDummy();
+	final private static TrackingStrategy INSTANCE = new TrackerDummy();
 	
-	public static ITrackingStrategy getInstance() {
+	public static TrackingStrategy getInstance() {
 		return INSTANCE;
 	}
 	
@@ -18,7 +18,7 @@ public class TrackerDummy implements ITrackingStrategy {
 	}
 
 	@Override
-	public void track(String msg) {
+	public void track(final String msg) {
 		//do nothing
 	}
 	
@@ -28,17 +28,17 @@ public class TrackerDummy implements ITrackingStrategy {
 	}
 
 	@Override
-	public void writeTrackMsg(int count) {
+	public void writeTrackMsg(final int count) {
 		//do nothing
 	}
 
 	@Override
-	public void writeTrackMsg(int count, String msg) {
+	public void writeTrackMsg(final int count, final String msg) {
 		//do nothing
 	}
 
 	@Override
-	public String generateTruncatedMessage(String msg, int length) {
+	public String generateTruncatedMessage(final String msg, final int length) {
 		return msg;
 	}
 

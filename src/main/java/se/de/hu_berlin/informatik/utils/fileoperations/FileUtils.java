@@ -13,7 +13,7 @@ import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
-public class FileUtils {
+final public class FileUtils {
 
 	//suppress default constructor (class should not be instantiated)
     private FileUtils() {
@@ -27,10 +27,10 @@ public class FileUtils {
 	 * @return
 	 * true if and only if the file or directory is successfully deleted; false otherwise
 	 */
-	public static boolean delete(File fileOrDir) {
+	public static boolean delete(final File fileOrDir) {
 		if (fileOrDir.isDirectory()) {
 			try {
-				for (File file : fileOrDir.listFiles()) {
+				for (final File file : fileOrDir.listFiles()) {
 					delete(file);
 				}
 			} catch(NullPointerException e) {
@@ -47,7 +47,7 @@ public class FileUtils {
 	 * @return
 	 * true if and only if the file or directory is successfully deleted; false otherwise
 	 */
-	public static boolean delete(Path fileOrDir) {
+	public static boolean delete(final Path fileOrDir) {
 		return delete(fileOrDir.toFile());
 	}
 	
@@ -60,7 +60,7 @@ public class FileUtils {
 	 * @return
 	 * the found file, or null if no file was found that contains the pattern
 	 */
-	public static File searchFileContainingPattern(File startDir, String pattern) {
+	public static File searchFileContainingPattern(final File startDir, final String pattern) {
 		return searchFileContainingPattern(startDir, pattern, Integer.MAX_VALUE);
 	}
 	
@@ -75,7 +75,7 @@ public class FileUtils {
 	 * @return
 	 * the found file, or null if no file was found that contains the pattern
 	 */
-	public static File searchFileContainingPattern(File startDir, String pattern, int depth) {
+	public static File searchFileContainingPattern(final File startDir, final String pattern, final int depth) {
 		if (depth < 0) {
 			return null;
 		}
@@ -84,8 +84,8 @@ public class FileUtils {
 				return null;
 			}
 			try {
-				for (File file : startDir.listFiles()) {
-					File result = searchFileContainingPattern(file, pattern, depth-1);
+				for (final File file : startDir.listFiles()) {
+					final File result = searchFileContainingPattern(file, pattern, depth-1);
 					if (result != null) {
 						return result;
 					}
@@ -111,10 +111,11 @@ public class FileUtils {
 	 * @throws IOException
 	 * thrown in case of an error
 	 */
-	public static void copyFileOrDir(File source, File dest, CopyOption...  options) throws IOException {
-	    if (source.isDirectory())
+	public static void copyFileOrDir(
+			final File source, final File dest, final CopyOption...  options) throws IOException {
+	    if (source.isDirectory()) {
 	        copyDir(source, dest, options);
-	    else {
+	    } else {
 	        ensureParentDir(dest);
 	        copyFile(source, dest, options);
 	    }
@@ -131,17 +132,20 @@ public class FileUtils {
 	 * @throws IOException
 	 * thrown in case of an error
 	 */
-	private static void copyDir(File source, File dest, CopyOption... options) throws IOException {
-	    if (!dest.exists())
+	private static void copyDir(
+			final File source, final File dest, final CopyOption... options) throws IOException {
+	    if (!dest.exists()) {
 	        dest.mkdirs();
-	    File[] contents = source.listFiles();
+	    }
+	    final File[] contents = source.listFiles();
 	    if (contents != null) {
-	        for (File f : contents) {
-	            File newFile = new File(dest.getAbsolutePath() + File.separator + f.getName());
-	            if (f.isDirectory())
+	        for (final File f : contents) {
+	        	final File newFile = new File(dest.getAbsolutePath() + File.separator + f.getName());
+	            if (f.isDirectory()) {
 	                copyDir(f, newFile, options);
-	            else
+	            } else {
 	                copyFile(f, newFile, options);
+	            }
 	        }
 	    }
 	}
@@ -157,7 +161,8 @@ public class FileUtils {
 	 * @throws IOException
 	 * thrown in case of an error
 	 */
-	private static void copyFile(File source, File dest, CopyOption... options) throws IOException {
+	private static void copyFile(
+			final File source, final File dest, final CopyOption... options) throws IOException {
 	    Files.copy(source.toPath(), dest.toPath(), options);
 	}
 
@@ -167,10 +172,11 @@ public class FileUtils {
 	 * @param file
 	 * the file
 	 */
-	public static void ensureParentDir(File file) {
-	    File parent = file.getParentFile();
-	    if (parent != null && !parent.exists())
+	public static void ensureParentDir(final File file) {
+		final File parent = file.getParentFile();
+	    if (parent != null && !parent.exists()) {
 	        parent.mkdirs();
+	    }
 	}
 	
 	/**
@@ -182,14 +188,14 @@ public class FileUtils {
 	 * @throws IOException
 	 * if the file is a directory or can not be opened or written to
 	 */
-	public static void writeString2File(String string, File file) throws IOException {
+	public static void writeString2File(final String string, final File file) throws IOException {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
+		try (final PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
 			writer.println(string);
 		} catch (IOException e) {
-			throw(e);
+			throw e;
 		}
 	}
 	
@@ -202,14 +208,14 @@ public class FileUtils {
 	 * @throws IOException
 	 * if the file is a directory or can not be opened or written to
 	 */
-	public static void appendString2File(String string, File file) throws IOException {
+	public static void appendString2File(final String string, final File file) throws IOException {
 		if (!file.exists()) {
 			file.createNewFile();
 		}
-		try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
+		try (final PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
 			writer.println(string);
 		} catch (IOException e) {
-			throw(e);
+			throw e;
 		}
 	}
 	
@@ -222,7 +228,7 @@ public class FileUtils {
 	 * @throws IOException
 	 * if the file does not exist or can not be opened
 	 */
-	public static String readFile2String(Path path) throws IOException {
+	public static String readFile2String(final Path path) throws IOException {
 		return new String(Files.readAllBytes(path));
 	}
 	
@@ -233,7 +239,7 @@ public class FileUtils {
 	 * @return
 	 * the file's contents or null if it could not be opened
 	 */
-	public static List<String> readFile2List(Path path) {
+	public static List<String> readFile2List(final Path path) {
 		return new FileToListModule().submit(path).getResult();
 	}
 	
@@ -246,7 +252,7 @@ public class FileUtils {
 	 * @throws IOException
 	 * if the file does not exist or can not be opened
 	 */
-	public static char[] readFile2CharArray(String filePath) throws IOException {
+	public static char[] readFile2CharArray(final String filePath) throws IOException {
 		return new String(Files.readAllBytes(Paths.get(filePath))).toCharArray();
 	}
 	

@@ -1,8 +1,8 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
-public abstract class EHWithInputAndReturnFactory<A,B> extends ADisruptorEventHandlerFactory<A> {
+public abstract class EHWithInputAndReturnFactory<A,B> extends AbstractDisruptorEventHandlerFactory<A> {
 
-	private IMultiplexer<B> multiplexer;
+	private Multiplexer<B> multiplexer;
 	
 	/**
 	 * @param eventHandlerClass
@@ -27,7 +27,7 @@ public abstract class EHWithInputAndReturnFactory<A,B> extends ADisruptorEventHa
 	@Override
 	public abstract EHWithInputAndReturn<A,B> newFreshInstance();
 
-	public void setMultiplexer(IMultiplexer<B> multiplexer) {
+	public void setMultiplexer(Multiplexer<B> multiplexer) {
 		this.multiplexer = multiplexer;
 	}
 	

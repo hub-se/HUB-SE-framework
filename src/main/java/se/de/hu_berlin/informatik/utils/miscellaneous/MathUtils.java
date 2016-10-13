@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
  * @author Simon
  *
  */
-public class MathUtils {
+final public class MathUtils {
 
 	//suppress default constructor (class should not be instantiated)
 	private MathUtils() {
@@ -22,11 +22,11 @@ public class MathUtils {
 	 * @return
 	 * the rounded double
 	 */
-	public static double roundToXDecimalPlaces(double numberToRound, int x) {
+	public static double roundToXDecimalPlaces(final double numberToRound, final int x) {
 		if (x < 0) {
-			x = 0;
+			throw new IllegalArgumentException("Argument has to be positive.");
 		}
-		double factor = Math.pow(10, x);
+		final double factor = Math.pow(10, x);
 		return Math.round(numberToRound*factor)/factor;
 	}
 	
@@ -39,11 +39,12 @@ public class MathUtils {
 	 * @return
 	 * the rounded double
 	 */
-	public static double roundToXDecimalPlaces(String numberToRound, int x) throws NumberFormatException {
+	public static double roundToXDecimalPlaces(final String numberToRound, final int x) 
+			throws NumberFormatException {
 		if (x < 0) {
-			x = 0;
+			throw new IllegalArgumentException("Argument has to be positive.");
 		}
-		double factor = Math.pow(10, x);
+		final double factor = Math.pow(10, x);
 		return Math.round(Double.parseDouble(numberToRound)*factor)/factor;
 	}
 	
@@ -54,12 +55,12 @@ public class MathUtils {
 	 * @return
 	 * the maximum, or NaN if no values are given
 	 */
-	public static double getMax(double... numbers) {
+	public static double getMax(final double... numbers) {
 		if (numbers.length == 0) {
 			return Double.NaN;
 		}
 		double max = Double.NEGATIVE_INFINITY;
-		for (double number : numbers) {
+		for (final double number : numbers) {
 			max = number > max ? number : max;
 		}
 		return max;
@@ -72,12 +73,12 @@ public class MathUtils {
 	 * @return
 	 * the minimum, or NaN if no values are given
 	 */
-	public static double getMin(double... numbers) {
+	public static double getMin(final double... numbers) {
 		if (numbers.length == 0) {
 			return Double.NaN;
 		}
 		double min = Double.POSITIVE_INFINITY;
-		for (double number : numbers) {
+		for (final double number : numbers) {
 			min = number < min ? number : min;
 		}
 		return min;

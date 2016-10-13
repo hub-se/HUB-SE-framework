@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.tracking;
 
 import java.io.IOException;
 
-public interface ITrackingStrategy {
+public interface TrackingStrategy {
 	
 	final public static String ANIM= "|/-\\";
 	final public static int ANIM_LENGTH = ANIM.length();

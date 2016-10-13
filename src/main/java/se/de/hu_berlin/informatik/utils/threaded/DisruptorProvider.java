@@ -11,8 +11,8 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackable;
-import se.de.hu_berlin.informatik.utils.tracking.ITrackingStrategy;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
@@ -22,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * @param <A>
  * the type of items that may be submitted and processed by the disruptor
  */
-public class DisruptorProvider<A> implements ITrackable {
+public class DisruptorProvider<A> implements Trackable {
 
 	private static ThreadFactory threadFactory;
 	private Thread mainThread;
@@ -35,9 +35,9 @@ public class DisruptorProvider<A> implements ITrackable {
 	//holds the amount of pending items that were submitted but not yet processed
 	private AtomicInteger pendingItems = new AtomicInteger(0); 
 	
-	private Disruptor<Event<A>> disruptor = null;
-	private RingBuffer<Event<A>> ringBuffer = null;
-	private ADisruptorEventHandler<A>[] handlers = null;
+	private Disruptor<SingleUseEvent<A>> disruptor = null;
+	private RingBuffer<SingleUseEvent<A>> ringBuffer = null;
+	private AbstractDisruptorEventHandler<A>[] handlers = null;
 	private int bufferSize = 0;
 	
 	private ProducerType producerType = ProducerType.MULTI;
@@ -46,7 +46,7 @@ public class DisruptorProvider<A> implements ITrackable {
 	private boolean isConnectedToHandlers = false;
 	private int minimalBufferSize = 0;
 	
-	private ITrackingStrategy tracker = TrackerDummy.getInstance();
+	private TrackingStrategy tracker = TrackerDummy.getInstance();
 
 	/**
 	 * Creates a new disruptor provider with the minimal given buffer size. 
@@ -86,7 +86,7 @@ public class DisruptorProvider<A> implements ITrackable {
 	 */
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
-		disruptor = new Disruptor<>(Event<A>::new, bufferSize, threadFactory,
+		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, threadFactory,
 				producerType, new BlockingWaitStrategy());
 
 		// Get the ring buffer from the Disruptor to be used for publishing.
@@ -97,7 +97,7 @@ public class DisruptorProvider<A> implements ITrackable {
 	 * @return
 	 * the associated handlers (may be null if not yet specified)
 	 */
-	public ADisruptorEventHandler<A>[] getHandlers() {
+	public AbstractDisruptorEventHandler<A>[] getHandlers() {
 		return handlers;
 	}
 	
@@ -145,7 +145,7 @@ public class DisruptorProvider<A> implements ITrackable {
 	 * @param handlers
 	 * the handlers to connect
 	 */
-	public void connectHandlers(@SuppressWarnings("unchecked") ADisruptorEventHandler<A>... handlers) {
+	public void connectHandlers(@SuppressWarnings("unchecked") AbstractDisruptorEventHandler<A>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}
@@ -189,13 +189,13 @@ public class DisruptorProvider<A> implements ITrackable {
 	 * @return
 	 * this
 	 */
-	public DisruptorProvider<A> connectHandlers(int numberOfThreads, IDisruptorEventHandlerFactory<A> factory) {
+	public DisruptorProvider<A> connectHandlers(int numberOfThreads, DisruptorEventHandlerFactory<A> factory) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
 		
 		//create generic array for the handlers to be instantiated
-        final ADisruptorEventHandler<A>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
+        final AbstractDisruptorEventHandler<A>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
 		
         //instantiate the desired number of handlers
 		for (int i = 0; i < numberOfThreads; ++i) {
@@ -273,7 +273,7 @@ public class DisruptorProvider<A> implements ITrackable {
 		}
 		pendingItems.incrementAndGet();
 		track();
-		ringBuffer.publishEvent(Event::translate, item);
+		ringBuffer.publishEvent(SingleUseEvent::translate, item);
 	}
 
 	/**
@@ -286,12 +286,12 @@ public class DisruptorProvider<A> implements ITrackable {
 	}
 
 	@Override
-	public ITrackingStrategy getTracker() {
+	public TrackingStrategy getTracker() {
 		return tracker;
 	}
 
 	@Override
-	public void setTracker(ITrackingStrategy tracker) {
+	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
 	}
 }

@@ -11,38 +11,38 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 public class ZipFileWrapper {
 	
-	private ZipFile zipFile;
-	private String destPath;
+	final private ZipFile zipFile;
+	final private String destPath;
 	
-	public ZipFileWrapper(ZipFile zipFile) {
+	public ZipFileWrapper(final ZipFile zipFile) {
 		super();
 		this.zipFile = zipFile;
 		destPath = zipFile.getFile().getParent() == null ? "" : zipFile.getFile().getParent();
 	}
 	
 	
-	public byte[] uncheckedGet(int index) throws ZipException {
+	public byte[] uncheckedGet(final int index) throws ZipException {
 		//extract the zip file contents to the zip file's parent folder
-		String filename = index + ".bin";
+		final String filename = index + ".bin";
 		
 		//may throw exception if file does not exist
 		zipFile.extractFile(filename, destPath);
 
 		//parse the file containing the identifiers
-		Path filePath = Paths.get(destPath, filename);
-		byte[] result = new FileToByteArrayModule().submit(filePath).getResult();
+		final Path filePath = Paths.get(destPath, filename);
+		final byte[] result = new FileToByteArrayModule().submit(filePath).getResult();
 		FileUtils.delete(filePath);
 		
 		return result;
 	}
 	
-	public byte[] get(int index) {
+	public byte[] get(final int index) {
 		try {
 			return uncheckedGet(index);
 		} catch (ZipException e) {
 			Log.abort(this, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
 		}
-		return null;
+		return new byte[0];
 	}
 
 }
