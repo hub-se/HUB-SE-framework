@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 public abstract class EHWithInputFactory<A> extends AbstractDisruptorEventHandlerFactory<A> {
 

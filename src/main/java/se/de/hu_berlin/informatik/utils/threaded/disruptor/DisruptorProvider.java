@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -11,6 +11,9 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.SingleUseEvent;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -279,7 +282,7 @@ public class DisruptorProvider<A> implements Trackable {
 	/**
 	 * Gets called for each processed event at the end.
 	 */
-	protected void onEventEnd() {
+	public void onEventEnd() {
 		if(pendingItems.decrementAndGet() <= 0) {
 			LockSupport.unpark(mainThread);
 		}

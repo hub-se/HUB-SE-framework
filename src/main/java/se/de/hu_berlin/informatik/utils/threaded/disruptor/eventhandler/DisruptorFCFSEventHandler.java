@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}. Uses

@@ -1,8 +1,11 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import com.lmax.disruptor.EventHandler;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}.
@@ -50,11 +53,11 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
      * @param callback
      * a disruptor provider
      */
-    protected void setCallback(DisruptorProvider<A> callback) {
+    public void setCallback(DisruptorProvider<A> callback) {
     	this.callback = callback;
     }
     
-    protected void setThreadLimit(ThreadLimit limit) {
+    public void setThreadLimit(ThreadLimit limit) {
     	this.limit = limit;
     }
     
@@ -87,7 +90,7 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
      * whether this consumer is the only one which is
      * connected to the disruptor
      */
-    protected void setSingleConsumer(boolean isSingle) {
+    public void setSingleConsumer(boolean isSingle) {
     	singleConsumer  = isSingle;
     }
     

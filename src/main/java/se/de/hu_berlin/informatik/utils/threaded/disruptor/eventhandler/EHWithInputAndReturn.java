@@ -1,9 +1,12 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import java.util.concurrent.Callable;
+
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 
 /**
  * An abstract class that provides a simple API for a disruptor event handler

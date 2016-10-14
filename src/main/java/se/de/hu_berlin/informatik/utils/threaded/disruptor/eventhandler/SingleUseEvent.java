@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 /**
  * A wrapper for elements to be processed by a disruptor...

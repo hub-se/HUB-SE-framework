@@ -9,10 +9,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.EHWithInput;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInput;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**

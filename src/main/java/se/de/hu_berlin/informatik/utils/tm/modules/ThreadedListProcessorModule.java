@@ -5,8 +5,8 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**

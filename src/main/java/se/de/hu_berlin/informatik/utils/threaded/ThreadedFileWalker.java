@@ -6,6 +6,9 @@ package se.de.hu_berlin.informatik.utils.threaded;
 import java.nio.file.*;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInput;
 
 /**
  * {@link AFileWalker} extension that takes a callable class 

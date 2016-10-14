@@ -4,8 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;

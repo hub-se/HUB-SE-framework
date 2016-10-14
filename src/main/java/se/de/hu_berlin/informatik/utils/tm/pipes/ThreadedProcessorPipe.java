@@ -3,12 +3,12 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.threaded.AbstractDisruptorMultiplexer;
-import se.de.hu_berlin.informatik.utils.threaded.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.EHWithInputAndReturnFactory;
-import se.de.hu_berlin.informatik.utils.threaded.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**

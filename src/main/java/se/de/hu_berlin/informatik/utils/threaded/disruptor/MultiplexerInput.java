@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor;
 
 /**
  * Provides an interface for a multiplexer to obtain new outputs of an

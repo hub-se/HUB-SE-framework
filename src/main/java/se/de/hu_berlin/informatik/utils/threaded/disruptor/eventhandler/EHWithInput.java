@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.threaded;
+package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import java.util.concurrent.Callable;
 
