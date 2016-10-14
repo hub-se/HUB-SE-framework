@@ -13,6 +13,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Event;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.SingleUseEvent;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
@@ -27,7 +28,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  */
 public class DisruptorProvider<A> implements Trackable {
 
-	private static ThreadFactory threadFactory;
+	final private static ThreadFactory threadFactory;
 	private Thread mainThread;
 	
 	static {
@@ -276,7 +277,7 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		pendingItems.incrementAndGet();
 		track();
-		ringBuffer.publishEvent(SingleUseEvent::translate, item);
+		ringBuffer.publishEvent(Event::translate, item);
 	}
 
 	/**

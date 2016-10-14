@@ -8,7 +8,7 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
  * @param <T>
  * the type of elements
  */
-public class SingleUseEvent<T> extends Event<T> {
+public class SingleUseEvent<T> extends MultiUseEvent<T> {
 	
 	/**
 	 * Gets the element contained in this event. Nullifies the reference to
