@@ -1,5 +1,7 @@
 package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}. Uses
  * a "first come, first serve" (FCFS) strategy to assign a handler to a single event.

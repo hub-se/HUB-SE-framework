@@ -1,5 +1,7 @@
 package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}. Uses a
  * "round robin" strategy to assign a handler to a single event. An event with a
