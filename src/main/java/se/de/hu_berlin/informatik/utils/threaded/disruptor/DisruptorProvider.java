@@ -28,12 +28,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  */
 public class DisruptorProvider<A> implements Trackable {
 
-	final private static ThreadFactory threadFactory;
+	final private static ThreadFactory THREAD_FACTORY;
 	private Thread mainThread;
 	
 	static {
 		//thread factory that will be used to construct new threads for consumers
-		threadFactory = Executors.defaultThreadFactory();
+		THREAD_FACTORY = Executors.defaultThreadFactory();
 	}
 	
 	//holds the amount of pending items that were submitted but not yet processed
@@ -90,7 +90,7 @@ public class DisruptorProvider<A> implements Trackable {
 	 */
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
-		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, threadFactory,
+		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, THREAD_FACTORY,
 				producerType, new BlockingWaitStrategy());
 
 		// Get the ring buffer from the Disruptor to be used for publishing.
