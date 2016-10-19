@@ -5,6 +5,7 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * Provides miscellaneous methods that are useful for various applications. 
@@ -75,6 +76,55 @@ final public class Misc {
 	}
 	
 	/**
+	 * Returns a String representation of the given list
+	 * with ',' as separation element and enclosed in parantheses.
+	 * @param list
+	 * a list
+	 * @return
+	 * a String representation of the given list
+	 * @param <T>
+	 * the type of the list elements
+	 */
+	public static <T> String listToString(final T[] list) {
+		return arrayToString(list, ",", "(", ")");
+	}
+	
+	/**
+	 * Returns a String representation of the given list.
+	 * @param list
+	 * a list
+	 * @param sepElement
+	 * a separation element that separates the different elements of
+	 * the list in the returned String representation
+	 * @param start
+	 * a String that marks the begin of the list
+	 * @param end
+	 * a String that marks the end of the list
+	 * @return
+	 * a String representation of the given list
+	 * @param <T>
+	 * the type of the list elements
+	 */
+	public static <T> String listToString(
+			final List<T> list, final String sepElement, 
+			final String start, final String end) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append(start);
+		boolean isFirst = true;
+		for (final T element : list) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(sepElement);
+			}
+			builder.append(element);
+		}
+		builder.append(end);
+		
+		return builder.toString();
+	}
+	
+	/**
 	 * Returns a String representation of the given array
 	 * with ',' as separation element and enclosed in rectangular brackets.
 	 * @param array
@@ -82,7 +132,7 @@ final public class Misc {
 	 * @return
 	 * a String representation of the given array
 	 * @param <T>
-	 * the type of the array
+	 * the type of the array elements
 	 */
 	public static <T> String arrayToString(final T[] array) {
 		return arrayToString(array, ",", "[", "]");
@@ -102,7 +152,7 @@ final public class Misc {
 	 * @return
 	 * a String representation of the given array
 	 * @param <T>
-	 * the type of the array
+	 * the type of the array elements
 	 */
 	public static <T> String arrayToString(
 			final T[] array, final String sepElement, 
