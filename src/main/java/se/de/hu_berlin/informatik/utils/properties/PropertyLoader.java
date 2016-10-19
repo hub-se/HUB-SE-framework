@@ -4,10 +4,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
 
+import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.miscellaneous.UserCommunicationUtils;
 
 public class PropertyLoader {
 
@@ -44,37 +50,42 @@ public class PropertyLoader {
 				}
 			}
 		} else {
-			Log.abort(PropertyLoader.class, "No property file exists: '" + propertyFile + "'.");
+			Log.err(PropertyLoader.class, "No property file exists: '" + propertyFile + "'.");
+			if (UserCommunicationUtils.askUser("Generate a template configuration file in this location?")) {
+				PropertyLoader.saveTemplateFile(properties, propertyFile.toPath());
+			}
 		}
 		
 		for (final T property : EnumSet.allOf(properties)) {
-			property.setPropertyValue(props.getProperty(property.getPropertyIdentifier(), null));
+			String value = props.getProperty(property.getPropertyIdentifier(), null);
+			if (value == null || value.equals("")) {
+				Log.abort(PropertyLoader.class, "Property '" + property.getPropertyIdentifier() 
+				+ "' not set in configuration file: '" + propertyFile + "'.");
+			}
+			if (value.equals(property.getPlaceHolder())) {
+				Log.abort(PropertyLoader.class, "Property '" + property.getPropertyIdentifier() 
+				+ "' is equal to the template place holder.");
+			}
+			property.setPropertyValue(value);
 		}
 		
 		return props;
 	}
 	
-//	public static void storeProperties(Properties props) {
-//	// write the updated properties file to the file system
-//	FileOutputStream fos = null;
-//	File propertyFile = new File(PROP_FILE_NAME);
-//	
-//	try {
-//		fos = new FileOutputStream(propertyFile);
-//		props.store(fos, "property file for Defects4J benchmark experiments");
-//	} catch (FileNotFoundException e) {
-//		e.printStackTrace();
-//	} catch (IOException e) {
-//		e.printStackTrace();
-//	} finally {
-//		if (fos != null) {
-//			try {
-//				fos.close();
-//			} catch (IOException e) {
-//				// nothing to do
-//			}
-//		}
-//	}
-//}
+	public static <T extends Enum<T> & PropertyTemplate> void saveTemplateFile(final Class<T> properties, Path output) {
+		List<String> lines = new ArrayList<>();
+		
+		lines.add("Property file for " + properties.getName() + ". Template creation date: " + new Date());
+		for (final T property : EnumSet.allOf(properties)) {
+			lines.add("");
+			for (String description : property.getHelpfulDescription()) {
+				lines.add("# " + description);
+			}
+			lines.add(property.getPropertyIdentifier() + "=" + property.getPlaceHolder());
+		}
+		
+		new ListToFileWriterModule<List<String>>(output, false)
+		.submit(lines);
+	}
 	
 }

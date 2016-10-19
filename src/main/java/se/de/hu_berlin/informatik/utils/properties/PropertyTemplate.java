@@ -6,7 +6,7 @@ public interface PropertyTemplate {
 	
 	public String getPlaceHolder();
 	
-	public String[] getHelpfulComment();
+	public String[] getHelpfulDescription();
 	
 	public void setPropertyValue(String value);
 	
