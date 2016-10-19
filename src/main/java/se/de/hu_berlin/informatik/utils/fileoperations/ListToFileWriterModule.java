@@ -105,7 +105,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractModu
 		return item;
 	}
 	
-	public static Path write(Path path, Iterable<?> lines,
+	private static Path write(Path path, Iterable<?> lines,
 			Charset cs, OpenOption... options) throws IOException {
 		// ensure lines is not null before opening file
 		Objects.requireNonNull(lines);

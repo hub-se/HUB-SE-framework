@@ -1,17 +1,25 @@
 package se.de.hu_berlin.informatik.utils.properties;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.UserCommunicationUtils;
 
@@ -88,8 +96,26 @@ public class PropertyLoader {
 			lines.add(property.getPropertyIdentifier() + "=" + property.getPlaceHolder());
 		}
 		
-		new ListToFileWriterModule<List<String>>(output, false)
-		.submit(lines);
+		try {
+			write(output, lines, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			Log.err(PropertyLoader.class, e, "Cannot write file \"" + output + "\".");
+		}
+		
 	}
 	
+	private static Path write(Path path, Iterable<?> lines,
+			Charset cs, OpenOption... options) throws IOException {
+		// ensure lines is not null before opening file
+		Objects.requireNonNull(lines);
+		CharsetEncoder encoder = cs.newEncoder();
+		OutputStream out = Files.newOutputStream(path, options);
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
+			for (Object line: lines) {
+				writer.append(line.toString());
+				writer.newLine();
+			}
+		}
+		return path;
+	}
 }
