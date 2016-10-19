@@ -23,6 +23,8 @@ public class PropertyLoader {
 	 * the property file
 	 * @param properties
 	 * an enum containing the required properties
+	 * @param <T>
+	 * an Enum type that represents properties
 	 * @return
 	 * a Properties object containing all loaded properties
 	 */
