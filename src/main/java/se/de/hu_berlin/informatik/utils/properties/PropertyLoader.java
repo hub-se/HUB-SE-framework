@@ -66,6 +66,7 @@ public class PropertyLoader {
 			} else {
 				Log.abort(PropertyLoader.class, "No configuration file created.");
 			}
+			Log.abort(PropertyLoader.class, "Template configuration file created.");
 		}
 		
 		for (final T property : EnumSet.allOf(properties)) {
@@ -73,10 +74,6 @@ public class PropertyLoader {
 			if (value == null || value.equals("")) {
 				Log.abort(PropertyLoader.class, "Property '" + property.getPropertyIdentifier() 
 				+ "' not set in configuration file: '" + propertyFile + "'.");
-			}
-			if (value.equals(property.getPlaceHolder())) {
-				Log.abort(PropertyLoader.class, "Property '" + property.getPropertyIdentifier() 
-				+ "' is equal to the template place holder.");
 			}
 			property.setPropertyValue(value);
 		}
