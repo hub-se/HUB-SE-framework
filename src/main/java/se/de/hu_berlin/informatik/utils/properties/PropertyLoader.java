@@ -55,6 +55,8 @@ public class PropertyLoader {
 			Log.err(PropertyLoader.class, "No property file exists: '" + propertyFile + "'.");
 			if (UserCommunicationUtils.askUser("Generate a template configuration file in this location?")) {
 				PropertyLoader.saveTemplateFile(properties, propertyFile.toPath());
+			} else {
+				Log.abort(PropertyLoader.class, "No configuration file created.");
 			}
 		}
 		
