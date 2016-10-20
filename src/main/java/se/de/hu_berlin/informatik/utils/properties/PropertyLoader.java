@@ -84,7 +84,7 @@ public class PropertyLoader {
 	public static <T extends Enum<T> & PropertyTemplate> void saveTemplateFile(final Class<T> properties, Path output) {
 		List<String> lines = new ArrayList<>();
 		
-		lines.add("Property file for " + properties.getName() + ". Template creation date: " + new Date());
+		lines.add("Property file for " + properties.getSimpleName() + ". Template creation date: " + new Date());
 		for (final T property : EnumSet.allOf(properties)) {
 			lines.add("");
 			for (String description : property.getHelpfulDescription()) {
@@ -98,7 +98,6 @@ public class PropertyLoader {
 		} catch (IOException e) {
 			Log.err(PropertyLoader.class, e, "Cannot write file \"" + output + "\".");
 		}
-		
 	}
 	
 	private static Path write(Path path, Iterable<?> lines,
