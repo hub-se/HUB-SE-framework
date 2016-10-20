@@ -56,7 +56,7 @@ public class PropertyLoader {
 						fis.close();
 					}
 				} catch (IOException e) {
-					// nothing to do
+					// nothing to do, since it is an input stream
 				}
 			}
 		} else {
