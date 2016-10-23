@@ -50,7 +50,6 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  */
 public abstract class AbstractModule<A,B> implements Transmitter<A,B>, TransmitterProvider<A,B>, Trackable {
 	
-	private A input = null;
 	private B output = null;
 	
 	private AbstractModule<?,?> linkedModule = null;
@@ -122,11 +121,10 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	@SuppressWarnings("unchecked")
 	public AbstractModule<A,B> submit(Object item) {
 		try {
-			input = (A)item;
+			process((A)item);
 		} catch (ClassCastException e) {
 			Log.abort(this, e, "Type mismatch while submitting!");
 		}
-		process();
 		if (linkedModule != null) {
 			linkedModule.submit(output);
 		}
@@ -166,8 +164,10 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	/**
 	 * Processes an available input item (if any) and sets the result as
 	 * the output item of this module.
+	 * @param input
+	 * the input item (may be null)
 	 */
-	private void process() {
+	private void process(A input) {
 		if (needsInput && input == null) {
 			Log.err(this, "No input item submitted/available.");
 			return;

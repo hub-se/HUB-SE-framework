@@ -2,9 +2,13 @@ package se.de.hu_berlin.informatik.utils.fileoperations;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -255,5 +259,71 @@ final public class FileUtils {
 	public static char[] readFile2CharArray(final String filePath) throws IOException {
 		return new String(Files.readAllBytes(Paths.get(filePath))).toCharArray();
 	}
+	
+	/**
+	 * Downloads the file that is given by the URL and writes it to the output file.
+	 * @param webSiteURL
+	 * a download URL as a String
+	 * @param output
+	 * the output file
+	 * @return
+	 * true if successful, false otherwise
+	 */
+	public static boolean downloadFile(String webSiteURL, File output) {
+		try {
+			return downloadFile(new URL(webSiteURL), output);
+		} catch (MalformedURLException e) {
+			Log.err(FileUtils.class, e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Downloads the file that is given by the URL and writes it to the output file.
+	 * @param webSiteURL
+	 * a download URL
+	 * @param output
+	 * the output file
+	 * @return
+	 * true if successful, false otherwise
+	 */
+	public static boolean downloadFile(URL webSiteURL, File output) {
+		try (FileOutputStream fos = new FileOutputStream(output)) {
+			fos.getChannel().transferFrom(
+					Channels.newChannel(webSiteURL.openStream()),
+					0, Long.MAX_VALUE);
+		} catch (Exception e) {
+			Log.err(FileUtils.class, e, "Could not download: '%s'.", webSiteURL);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+     * Returns the file extension of a file.
+     * @param file 
+     * to get extension of
+     * @return 
+     * file extension
+     */
+    public static String getFileExtension(final File file) {
+        return getFileExtension(file.getName());
+    }
+
+    /**
+     * Returns the file extension of a file.
+     * @param file 
+     * to get extension of
+     * @return 
+     * file extension
+     */
+    public static String getFileExtension(final String file) {
+        final int lastIndexOf = file.lastIndexOf('.');
+        if (lastIndexOf == -1) {
+            return ""; // empty extension
+        }
+        return file.substring(lastIndexOf + 1);
+    }
 	
 }
