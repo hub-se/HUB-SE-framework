@@ -19,6 +19,7 @@ public class MultiUseEvent<T> implements Event<T> {
 	@Override
 	public void set(T item) {
 		this.item = item;
+		isFirstAccess.set(true);
 	}
 
 	@Override
