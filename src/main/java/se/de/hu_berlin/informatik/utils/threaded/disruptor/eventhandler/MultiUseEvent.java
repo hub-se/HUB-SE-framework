@@ -21,6 +21,10 @@ public class MultiUseEvent<T> implements Event<T> {
 		this.item = item;
 		isFirstAccess.set(true);
 	}
+	
+	public void setWithoutValidation(T item) {
+		this.item = item;
+	}
 
 	@Override
 	public T get() {

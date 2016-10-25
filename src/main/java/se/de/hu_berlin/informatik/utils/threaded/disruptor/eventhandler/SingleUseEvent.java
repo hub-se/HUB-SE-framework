@@ -20,7 +20,7 @@ public class SingleUseEvent<T> extends MultiUseEvent<T> {
 	@Override
 	public T get() {
 		T temp = super.get();
-		super.set(null);
+		super.setWithoutValidation(null);
 		return temp;
 	}
 
