@@ -14,7 +14,7 @@ public class MultiUseEvent<T> implements Event<T> {
 	
 	private T item;
 	
-	private AtomicBoolean isFirstAccess = new AtomicBoolean(true);
+	private AtomicBoolean isFirstAccess = new AtomicBoolean(false);
 
 	@Override
 	public void set(T item) {
