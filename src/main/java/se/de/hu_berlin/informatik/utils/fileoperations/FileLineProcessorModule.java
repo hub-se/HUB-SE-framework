@@ -77,7 +77,7 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					if (skip > 0) {
-						++skip;
+						--skip;
 						continue;
 					}
 					if (!processor.process(line)) {
