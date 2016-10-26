@@ -30,7 +30,7 @@ public class CSVStringsToIntegerArrayListProcessor implements StringProcessor<Li
 		String[] temp = line.split(CSVUtils.CSV_DELIMITER);
 		Integer[] array = new Integer[temp.length];
 		for (int i = 0; i < temp.length; ++i) {
-			array[i] = Integer.valueOf(temp[i]);
+			array[i] = temp[i].equals("null") ? null : Integer.valueOf(temp[i]);
 		}
 		return lines.add(array);
 	}

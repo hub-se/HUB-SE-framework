@@ -30,7 +30,7 @@ public class CSVStringsToDoubleArrayListProcessor implements StringProcessor<Lis
 		String[] temp = line.split(CSVUtils.CSV_DELIMITER);
 		Double[] array = new Double[temp.length];
 		for (int i = 0; i < temp.length; ++i) {
-			array[i] = Double.valueOf(temp[i]);
+			array[i] = temp[i].equals("null") ? null : Double.valueOf(temp[i]);
 		}
 		return lines.add(array);
 	}
