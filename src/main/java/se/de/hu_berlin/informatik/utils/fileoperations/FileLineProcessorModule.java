@@ -35,6 +35,8 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 	private StringProcessor<A> processor;
 	private boolean abortOnError = false;
 	
+	private int skip = 0;
+	
 	/**
 	 * Creates a new {@link FileLineProcessorModule} object with the given parameters.
 	 * Will continue execution if a line can't be processed or produces an error.
@@ -44,6 +46,11 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 	 */
 	public FileLineProcessorModule(StringProcessor<A> processor) {
 		this(processor, false);
+	}
+	
+	public FileLineProcessorModule<A> skipFirstLines(int count) {
+		skip = count;
+		return this;
 	}
 	
 	/**
@@ -69,6 +76,10 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 			try (BufferedReader reader = Files.newBufferedReader(input , charset)) {
 				String line;
 				while ((line = reader.readLine()) != null) {
+					if (skip > 0) {
+						++skip;
+						continue;
+					}
 					if (!processor.process(line)) {
 						if (abortOnError) {
 							Log.abort(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());

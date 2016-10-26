@@ -36,7 +36,21 @@ public final class CSVUtils {
      * a list of Double arrays
      */
     public static List<Double[]> readCSVFileToListOfDoubleArrays(Path csvFile) {
+    	return readCSVFileToListOfDoubleArrays(csvFile, 0);
+    }
+    
+    /**
+     * Reads a CSV data file and parses its contents into a list of Double arrays.
+     * @param csvFile
+     * the path to the CSV file
+     * @param skipFirstLines
+     * skip the given number of lines at the start of the file
+     * @return
+     * a list of Double arrays
+     */
+    public static List<Double[]> readCSVFileToListOfDoubleArrays(Path csvFile, int skipFirstLines) {
     	return new FileLineProcessorModule<List<Double[]>>(new CSVStringsToDoubleArrayListProcessor(), false)
+    			.skipFirstLines(skipFirstLines)
     			.submit(csvFile)
     			.getResultFromCollectedItems();
     }
@@ -49,7 +63,21 @@ public final class CSVUtils {
      * a list of Integer arrays
      */
     public static List<Integer[]> readCSVFileToListOfIntegerArrays(Path csvFile) {
+    	return readCSVFileToListOfIntegerArrays(csvFile, 0);
+    }
+    
+    /**
+     * Reads a CSV data file and parses its contents into a list of Integer arrays.
+     * @param csvFile
+     * the path to the CSV file
+     * @param skipFirstLines
+     * skip the given number of lines at the start of the file
+     * @return
+     * a list of Integer arrays
+     */
+    public static List<Integer[]> readCSVFileToListOfIntegerArrays(Path csvFile, int skipFirstLines) {
     	return new FileLineProcessorModule<List<Integer[]>>(new CSVStringsToIntegerArrayListProcessor(), false)
+    			.skipFirstLines(skipFirstLines)
     			.submit(csvFile)
     			.getResultFromCollectedItems();
     }
@@ -64,7 +92,7 @@ public final class CSVUtils {
      * a list of String arrays
      */
     public static List<String[]> readCSVFileToListOfStringArrays(Path csvFile, boolean mirrored) {
-    	 StringProcessor<List<String[]>> processor;
+    	StringProcessor<List<String[]>> processor;
     	if (mirrored) {
     		processor = new CSVStringsToMirroredStringArrayListProcessor();
     	} else {
