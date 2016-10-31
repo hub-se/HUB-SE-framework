@@ -27,6 +27,8 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
+	
+	private boolean relative = false;
 
 	/**
 	 * Creates a new {@link SearchFileOrDirPipe} object with the given parameters. 
@@ -45,6 +47,16 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 	 */
 	public SearchFileOrDirPipe searchForFiles() {
 		this.searchFiles = true;
+		return this;
+	}
+	
+	/**
+	 * Puts out paths relative to the input path.
+	 * @return
+	 * this
+	 */
+	public SearchFileOrDirPipe relative() {
+		this.relative = true;
 		return this;
 	}
 	
@@ -103,6 +115,9 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 		}
 		if (skipAfterFind) {
 			builder.skipSubTreeAfterMatch();
+		}
+		if (relative) {
+			builder.relative();
 		}
 
 		AFileWalker walker = builder.build();

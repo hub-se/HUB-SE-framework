@@ -33,6 +33,9 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	final private boolean searchFiles;
 	final private boolean skipAfterFind;
 	
+	final private boolean relative;
+	private Path relativeStartingPath;
+	
 	private boolean isFirst;
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
 	
@@ -42,6 +45,7 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		searchFiles = builder.searchFiles;
 		skipAfterFind = builder.skipAfterFind;
 		isFirst = builder.isFirst;
+		relative = builder.relative;
 		
 		if (searchDirectories == false && searchFiles == false) {
 			throw new IllegalStateException("Define whether files or directories shall be searched.");
@@ -65,14 +69,23 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	 * @see java.nio.file.SimpleFileVisitor#visitFile(java.lang.Object, java.nio.file.attribute.BasicFileAttributes)
 	 */
 	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {		
+	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+		if (relativeStartingPath == null) {
+			relativeStartingPath = file.getParent();
+		}
 		if (attrs.isDirectory()) {
 			if (searchDirectories) {
 				if (matcher == null) {
 					track();
+					if (relative) {
+						file = relativeStartingPath.relativize(file);
+					}
 					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
 					track();
+					if (relative) {
+						file = relativeStartingPath.relativize(file);
+					}
 					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 					if (skipAfterFind) {
@@ -83,9 +96,16 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		} else {
 			if (searchFiles) {
 				if (matcher == null) {
+					track();
+					if (relative) {
+						file = relativeStartingPath.relativize(file);
+					}
 					processMatchedFileOrDir(file);
 				} else if (match(file.toAbsolutePath())) {
 					track();
+					if (relative) {
+						file = relativeStartingPath.relativize(file);
+					}
 					processMatchedFileOrDir(file);
 //					Misc.out(file.toString());
 				}
@@ -99,13 +119,22 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	 */
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+		if (relativeStartingPath == null) {
+			relativeStartingPath = dir;
+		}
 		if (!isFirst) {
 			if (searchDirectories) {
 				if (matcher == null) {
 					track();
+					if (relative) {
+						dir = relativeStartingPath.relativize(dir);
+					}
 					processMatchedFileOrDir(dir);
 				} else if (match(dir.toAbsolutePath())) {
 					track();
+					if (relative) {
+						dir = relativeStartingPath.relativize(dir);
+					}
 					processMatchedFileOrDir(dir);
 //					Misc.out(dir.toString());
 					if (skipAfterFind) {
@@ -163,6 +192,14 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		this.tracker = tracker;
 	}
 
+	/**
+	 * @author SimHigh
+	 *
+	 */
+	/**
+	 * @author SimHigh
+	 *
+	 */
 	public static abstract class Builder implements IBuilder<AFileWalker> {
 		
 		private final PathMatcher matcher;
@@ -171,6 +208,8 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		private boolean searchFiles = false;
 		private boolean skipAfterFind = false;
 		private boolean isFirst = true;
+		
+		private boolean relative = false;
 		
 		/**
 		 * Creates an {@link Builder} object with the given parameters.
@@ -193,6 +232,17 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		 */
 		public Builder searchForFiles() {
 			this.searchFiles = true;
+			return this;
+		}
+		
+		
+		/**
+		 * Puts out paths relative to the input path.
+		 * @return
+		 * this
+		 */
+		public Builder relative() {
+			this.relative = true;
 			return this;
 		}
 		

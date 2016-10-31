@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
+
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 final public class FileUtils {
@@ -319,11 +321,18 @@ final public class FileUtils {
      * file extension
      */
     public static String getFileExtension(final String file) {
-        final int lastIndexOf = file.lastIndexOf('.');
-        if (lastIndexOf == -1) {
-            return ""; // empty extension
-        }
-        return file.substring(lastIndexOf + 1);
+        return FilenameUtils.getExtension(file);
+    }
+    
+    /**
+     * Returns the file without an existing file extension.
+     * @param file 
+     * to get without extension
+     * @return 
+     * file without extension
+     */
+    public static String getFileNameWithoutExtension(final String file) {
+    	return FilenameUtils.removeExtension(file);
     }
 	
 }

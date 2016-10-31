@@ -32,6 +32,8 @@ public class SearchForFilesOrDirsModule extends AbstractModule<Path,List<Path>> 
 	
 	private boolean skipAfterFind = false;
 	
+	private boolean relative = false;
+	
 	/**
 	 * Creates a new {@link SearchForFilesOrDirsModule} object with the given parameter.
 	 * @param pattern
@@ -68,6 +70,16 @@ public class SearchForFilesOrDirsModule extends AbstractModule<Path,List<Path>> 
 	 */
 	public SearchForFilesOrDirsModule searchForFiles() {
 		this.searchFiles = true;
+		return this;
+	}
+	
+	/**
+	 * Puts out paths relative to the input path.
+	 * @return
+	 * this
+	 */
+	public SearchForFilesOrDirsModule relative() {
+		this.relative = true;
 		return this;
 	}
 	
@@ -126,6 +138,9 @@ public class SearchForFilesOrDirsModule extends AbstractModule<Path,List<Path>> 
 		}
 		if (skipAfterFind) {
 			builder.skipSubTreeAfterMatch();
+		}
+		if (relative) {
+			builder.relative();
 		}
 		
 		//declare the file walker
