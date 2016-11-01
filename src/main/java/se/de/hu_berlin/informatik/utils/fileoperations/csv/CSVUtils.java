@@ -199,6 +199,7 @@ public final class CSVUtils {
     /**
      * Turns a list of Object arrays into CSV lines.
      * @param <T>
+     * the type of objects in the arrays
      * @param objectArrayList 
      * an list of arrays containing the data elements
      * @return 
