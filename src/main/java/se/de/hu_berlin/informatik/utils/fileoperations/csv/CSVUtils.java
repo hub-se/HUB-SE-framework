@@ -198,12 +198,13 @@ public final class CSVUtils {
     
     /**
      * Turns a list of Object arrays into CSV lines.
+     * @param <T>
      * @param objectArrayList 
      * an list of arrays containing the data elements
      * @return 
      * the combined CSV strings to write to a file
      */
-    public static List<String> toCsv(final List<Object[]> objectArrayList) {
+    public static <T> List<String> toCsv(final List<T[]> objectArrayList) {
         List<String> lines = new ArrayList<>(objectArrayList.size());
         
         for (Object[] element : objectArrayList) {
