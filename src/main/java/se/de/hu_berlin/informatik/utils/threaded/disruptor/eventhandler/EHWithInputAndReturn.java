@@ -48,6 +48,10 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	public abstract B processInput(A input);
 	
+	public void manualOutput(B outputItem) {
+		setOutputAndNotifyMultiplexer(outputItem);
+	}
+	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexerInput#setMultiplexer(se.de.hu_berlin.informatik.utils.threaded.NToOneMultiplexer)
 	 */
