@@ -18,12 +18,6 @@ public interface Multiplexer<B> extends Runnable {
 	
 	/**
 	 * @return
-	 * this multiplexer's thread
-	 */
-	public Thread getThread();
-	
-	/**
-	 * @return
 	 * whether this multiplexer's thread is running
 	 */
 	public boolean isRunning();
@@ -35,47 +29,19 @@ public interface Multiplexer<B> extends Runnable {
 	public void shutdown();
 	
 	/**
-	 * Acquires the handler's lock and notifies him that its output 
-	 * has been collected, since it might wait, having already 
-	 * generated new output...
-	 * @param handler
-	 * the handler to notify
-	 */
-	default public void notifyHandler(MultiplexerInput<B> handler) {
-		synchronized (handler.getLock()) {
-			handler.getLock().notify();
-		}
-	}
-
-	/**
-	 * Pauses this multiplexer's thread until a check for pending items
-	 * is being intiated.
-	 */
-	public void waitForNotifications();
-	
-	/**
-	 * Starts to check for new output items being available to collect.
-	 */
-	public void initiateCheckForPendingItems();
-	
-	/**
 	 * Checks for any pending items and processes each item that is valid.
 	 * @param handlers
 	 * the connected handlers
 	 */
-	default public void checkForPendingItems(MultiplexerInput<B>[] handlers) {
+	default public void processPendingItems(MultiplexerInput<B>[] handlers) {
 		for (int i = 0; i < handlers.length; ++i) {
 			//check for validity
-			if (!handlers[i].outputItemIsValid()) {
-				continue;
+			if (handlers[i].outputItemIsValid()) {
+				//get the output and notify the handler
+				B result = handlers[i].getValidOutputAndNotifyHandler();
+				//process valid item
+				processNewOutputItem(result);
 			}
-			B result = handlers[i].getValidOutputAndInvalidate();
-			
-			//notify the handler that the output has been collected
-			notifyHandler(handlers[i]);
-			
-			//process valid item
-			processNewOutputItem(result);
 		}
 	}
 	

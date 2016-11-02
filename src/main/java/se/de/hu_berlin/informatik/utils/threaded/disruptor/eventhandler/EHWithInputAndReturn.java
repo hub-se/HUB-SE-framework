@@ -4,6 +4,7 @@
 package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
@@ -29,13 +30,13 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	private B output = null;
 	
-	private boolean hasNewOutput = false;
+	private AtomicBoolean hasNewOutput = new AtomicBoolean(false);
 	private final Object lock = new Object();
 	private Multiplexer<B> multiplexer = null;
 
 	@Override
 	public void processEvent(A input) throws Exception {
-		setOutputAndNotifyMultiplexer(processInput(input));
+		trySettingNewOutputAndValidate(processInput(input));
 	}
 	
 	/**
@@ -49,7 +50,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	public abstract B processInput(A input);
 	
 	public void manualOutput(B outputItem) {
-		setOutputAndNotifyMultiplexer(outputItem);
+		trySettingNewOutputAndValidate(outputItem);
 	}
 	
 	/* (non-Javadoc)
@@ -93,7 +94,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public boolean outputItemIsValid() {
-		return hasNewOutput;
+		return hasNewOutput.get();
 	}
 
 	/* (non-Javadoc)
@@ -101,7 +102,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public void setOutputItemValid() {
-		hasNewOutput = true;
+		hasNewOutput.set(true);
 	}
 
 	/* (non-Javadoc)
@@ -109,7 +110,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public void setOutputItemInvalid() {
-		hasNewOutput = false;
+		hasNewOutput.set(false);
 	}
 
 	/* (non-Javadoc)

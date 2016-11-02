@@ -58,10 +58,9 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 		}
 		//collect available output in an infinite loop
 		while (true) {
-			//wait until new output items are available
-//			waitForNotifications();
 			//iterate over all input threads (all handlers)
-			checkForPendingItems(handlers);
+			processPendingItems(handlers);
+			
 			//test if shutdown condition is fulfilled 
 			if (shouldStop) {
 				//test if we already checked for any pending outputs
@@ -69,19 +68,12 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 					//then we may return now...
 					return;
 				}
-				//there might still be pending output items, so better check...
+
+				//there might still be pending output items, so better check once more...
+				//but next time around, we can definitively stop!
 				shouldDefinitivelyStop = true;
-//				initiateCheckForPendingItems();
 			}
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexer#getThread()
-	 */
-	@Override
-	public Thread getThread() {
-		return thread;
 	}
 
 	/* (non-Javadoc)
@@ -90,7 +82,6 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 	@Override
 	public void shutdown() {
 		shouldStop = true;
-		initiateCheckForPendingItems();
 		while (thread.isAlive()) {
 			try {
 				thread.join();
@@ -99,16 +90,6 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 			}
 		}
 		isRunning = false;
-	}
-	
-	@Override
-	public void initiateCheckForPendingItems() {
-//		LockSupport.unpark(thread);
-	}
-
-	@Override
-	public void waitForNotifications() {
-//		LockSupport.park();
 	}
 	
 }

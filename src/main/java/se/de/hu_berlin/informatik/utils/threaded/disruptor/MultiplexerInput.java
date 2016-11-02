@@ -28,9 +28,13 @@ public interface MultiplexerInput<B> {
 	 * @return
 	 * a new output item which shall be processed by the multiplexer
 	 */
-	default public B getValidOutputAndInvalidate() {
+	default public B getValidOutputAndNotifyHandler() {
 		B temp = getOutput();
-		setOutputItemInvalid();
+		synchronized (getLock()) {
+			setOutputItemInvalid();
+			getLock().notify();
+		}
+		
 		return temp;
 	}
 	
@@ -81,17 +85,16 @@ public interface MultiplexerInput<B> {
 	
 	/**
 	 * Waits for old output items to be collected (if any). Then sets a
-	 * a new output item and notifies the multiplexer if successful.
+	 * a new output item and validates the output if successful.
 	 * If the given item is {@code null}, then this method has no effect.
 	 * @param item
 	 * a new output item (may be {@code null})
 	 */
-	default public void setOutputAndNotifyMultiplexer(B item) {
+	default public void trySettingNewOutputAndValidate(B item) {
 		if (item != null) {
 			waitForOldOutputToBeCollected();
 			if(setOutput(item)) {
 				setOutputItemValid();
-//				notifyMultiplexer();
 			}
 		}
 	}
@@ -108,12 +111,5 @@ public interface MultiplexerInput<B> {
 	 * the associated multiplexer
 	 */
 	public Multiplexer<B> getMultiplexer();
-	
-//	/**
-//	 * Notifies the connected multiplexer about new output items being available.
-//	 */
-//	default public void notifyMultiplexer() {
-//		getMultiplexer().initiateCheckForPendingItems();
-//	}
-	
+
 }
