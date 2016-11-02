@@ -21,21 +21,17 @@ public interface MultiplexerInput<B> {
 	public B getOutput();
 	
 	/**
-	 * Returns available, new output items or {@code null}, otherwise. 
+	 * Returns available, new output items. The output should be tested for
+	 * validity beforehand.
 	 * Invalidates the current output such that it can be replaced by newly
 	 * generated output items in the future.
 	 * @return
-	 * a new output item which shall be processed by the multiplexer, or
-	 * {@code null}, otherwise
+	 * a new output item which shall be processed by the multiplexer
 	 */
-	default public B getOutputAndInvalidate() {
-		if (outputItemIsValid()) {
-			B temp = getOutput();
-			setOutputItemInvalid();
-			return temp;
-		} else {
-			return null;
-		}
+	default public B getValidOutputAndInvalidate() {
+		B temp = getOutput();
+		setOutputItemInvalid();
+		return temp;
 	}
 	
 	/**
@@ -95,7 +91,7 @@ public interface MultiplexerInput<B> {
 			waitForOldOutputToBeCollected();
 			if(setOutput(item)) {
 				setOutputItemValid();
-				notifyMultiplexer();
+//				notifyMultiplexer();
 			}
 		}
 	}
@@ -113,11 +109,11 @@ public interface MultiplexerInput<B> {
 	 */
 	public Multiplexer<B> getMultiplexer();
 	
-	/**
-	 * Notifies the connected multiplexer about new output items being available.
-	 */
-	default public void notifyMultiplexer() {
-		getMultiplexer().initiateCheckForPendingItems();
-	}
+//	/**
+//	 * Notifies the connected multiplexer about new output items being available.
+//	 */
+//	default public void notifyMultiplexer() {
+//		getMultiplexer().initiateCheckForPendingItems();
+//	}
 	
 }

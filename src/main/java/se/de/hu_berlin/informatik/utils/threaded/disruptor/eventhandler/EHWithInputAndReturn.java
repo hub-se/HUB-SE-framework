@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
@@ -30,7 +29,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	private B output = null;
 	
-	private AtomicBoolean hasNewOutput = new AtomicBoolean(false);
+	private boolean hasNewOutput = false;
 	private final Object lock = new Object();
 	private Multiplexer<B> multiplexer = null;
 
@@ -94,7 +93,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public boolean outputItemIsValid() {
-		return hasNewOutput.get();
+		return hasNewOutput;
 	}
 
 	/* (non-Javadoc)
@@ -102,7 +101,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public void setOutputItemValid() {
-		hasNewOutput.set(true);;
+		hasNewOutput = true;
 	}
 
 	/* (non-Javadoc)
@@ -110,7 +109,7 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	 */
 	@Override
 	public void setOutputItemInvalid() {
-		hasNewOutput.set(false);;
+		hasNewOutput = false;
 	}
 
 	/* (non-Javadoc)

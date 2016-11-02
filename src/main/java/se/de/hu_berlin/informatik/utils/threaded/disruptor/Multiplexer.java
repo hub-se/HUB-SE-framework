@@ -65,16 +65,17 @@ public interface Multiplexer<B> extends Runnable {
 	 */
 	default public void checkForPendingItems(MultiplexerInput<B>[] handlers) {
 		for (int i = 0; i < handlers.length; ++i) {
-			//get the output (will be null if not new)
-			B result = handlers[i].getOutputAndInvalidate();
-			if (result == null) {
-				//try the next handler
+			//check for validity
+			if (!handlers[i].outputItemIsValid()) {
 				continue;
 			}
-			//process items that are not null
-			processNewOutputItem(result);
+			B result = handlers[i].getValidOutputAndInvalidate();
+			
 			//notify the handler that the output has been collected
 			notifyHandler(handlers[i]);
+			
+			//process valid item
+			processNewOutputItem(result);
 		}
 	}
 	

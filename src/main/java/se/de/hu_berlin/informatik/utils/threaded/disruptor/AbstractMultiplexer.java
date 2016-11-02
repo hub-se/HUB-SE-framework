@@ -63,7 +63,7 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 		//collect available output in an infinite loop
 		while (true) {
 			//wait until new output items are available
-			waitForNotifications();
+//			waitForNotifications();
 			//iterate over all input threads (all handlers)
 			checkForPendingItems(handlers);
 			//test if shutdown condition is fulfilled 
