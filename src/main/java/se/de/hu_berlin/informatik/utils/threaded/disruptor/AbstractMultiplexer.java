@@ -1,7 +1,5 @@
 package se.de.hu_berlin.informatik.utils.threaded.disruptor;
 
-import java.util.concurrent.locks.LockSupport;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
@@ -46,7 +44,7 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 	@Override
 	public void start() {
 		if (!isRunning) {
-			Log.out(this, "Creating new Multiplexer thread.");
+//			Log.out(this, "Creating new Multiplexer thread.");
 			thread = new Thread(this);
 			thread.start();
 			isRunning = true;
@@ -75,7 +73,7 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 				}
 				//there might still be pending output items, so better check...
 				shouldDefinitivelyStop = true;
-				initiateCheckForPendingItems();
+//				initiateCheckForPendingItems();
 			}
 		}
 	}
@@ -107,12 +105,12 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 	
 	@Override
 	public void initiateCheckForPendingItems() {
-		LockSupport.unpark(thread);
+//		LockSupport.unpark(thread);
 	}
 
 	@Override
 	public void waitForNotifications() {
-		LockSupport.park();
+//		LockSupport.park();
 	}
 	
 }

@@ -10,7 +10,6 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
@@ -34,18 +33,19 @@ public class DisruptorProvider<A> implements Trackable {
 	
 	static {
 		//thread factory that will be used to construct new threads for consumers
-		THREAD_FACTORY = new ThreadFactory() {
-			
-			ThreadFactory factory = Executors.defaultThreadFactory();
-			int counter = 0;
-			
-			@Override
-			public Thread newThread(Runnable r) {
-				++counter;
-				Log.out(this, "Creating Thread no. %d for %s.", counter, r);
-				return factory.newThread(r);
-			}
-		};
+		THREAD_FACTORY = Executors.defaultThreadFactory();
+//				new ThreadFactory() {
+//			
+//			ThreadFactory factory = Executors.defaultThreadFactory();
+//			int counter = 0;
+//			
+//			@Override
+//			public Thread newThread(Runnable r) {
+//				++counter;
+//				Log.out(this, "Creating Thread no. %d for %s.", counter, r);
+//				return factory.newThread(r);
+//			}
+//		};
 	}
 	
 	//holds the amount of pending items that were submitted but not yet processed
