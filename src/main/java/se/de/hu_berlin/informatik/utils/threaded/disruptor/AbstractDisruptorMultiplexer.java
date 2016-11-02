@@ -18,16 +18,12 @@ public abstract class AbstractDisruptorMultiplexer<B> extends AbstractMultiplexe
 		this.disruptor = disruptor;
 	}
 	
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.threaded.IMultiplexer#start()
-	 */
 	@SuppressWarnings("unchecked")
-	@Override
-	public void start() {
+	public void startAndConnectHandlers() {
 		if (!isRunning()) {
 			connectHandlers((MultiplexerInput<B>[]) disruptor.getHandlers());
 		}
-		super.start();
+		start();
 	}
 	
 }

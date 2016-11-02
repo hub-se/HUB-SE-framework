@@ -42,7 +42,7 @@ public class DisruptorProvider<A> implements Trackable {
 			@Override
 			public Thread newThread(Runnable r) {
 				++counter;
-				Log.out(this, "Created Thread no. %d.", counter);
+				Log.out(this, "Creating Thread no. %d for %s.", counter, r);
 				return factory.newThread(r);
 			}
 		};

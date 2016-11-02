@@ -7,7 +7,6 @@ import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
@@ -22,7 +21,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
-	private Multiplexer<B> multiplexer;
+	private AbstractDisruptorMultiplexer<B> multiplexer;
 
 	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, 
 			EHWithInputAndReturnFactory<A,B> callableFactory) {
@@ -47,7 +46,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 		//now that the handlers are instantiated, we can connect them to the multiplexer
 		//by starting the multiplexer thread (which will park itself until notified
 		//of any generated output
-		multiplexer.start();
+		multiplexer.startAndConnectHandlers();
 	}
 	
 	public ThreadedProcessorPipe(int threadCount, 
