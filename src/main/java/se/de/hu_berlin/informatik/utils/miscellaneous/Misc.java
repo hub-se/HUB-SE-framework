@@ -5,7 +5,11 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Provides miscellaneous methods that are useful for various applications. 
@@ -286,5 +290,23 @@ final public class Misc {
 	}
 
 	
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Map.Entry.comparingByValue(/*Collections.reverseOrder()*/))
+	              .collect(Collectors.toMap(
+	                Map.Entry::getKey, 
+	                Map.Entry::getValue, 
+	                (e1, e2) -> e1, 
+	                LinkedHashMap::new
+	              ));
+	}
 	
+	public static <K, V extends Comparable<? super V>> List<V> sortByValueToList(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Comparator.comparing(Map.Entry::getValue))
+	              .map(Map.Entry::getValue)
+	              .collect(Collectors.toList());
+	}
 }
