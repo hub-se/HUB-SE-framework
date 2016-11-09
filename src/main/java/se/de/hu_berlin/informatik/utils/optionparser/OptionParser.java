@@ -346,6 +346,8 @@ final public class OptionParser {
 	 * with an error message otherwise.
 	 * @param options
 	 * the options
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
@@ -360,6 +362,8 @@ final public class OptionParser {
 	 * with an error message otherwise.
 	 * @param options
 	 * the options
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertOneOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
@@ -374,6 +378,8 @@ final public class OptionParser {
 	 * with an error message otherwise.
 	 * @param options
 	 * the options
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertNoOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
@@ -388,6 +394,8 @@ final public class OptionParser {
 	 * with an error message otherwise.
 	 * @param options
 	 * the options
+	 * @param <T>
+	 * an Enum type that represents an option
 	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertAllOptionsSet(
 			@SuppressWarnings("unchecked") final T... options) {
