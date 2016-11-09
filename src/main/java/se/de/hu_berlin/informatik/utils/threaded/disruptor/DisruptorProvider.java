@@ -7,7 +7,6 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
@@ -45,9 +44,6 @@ public class DisruptorProvider<A> implements Trackable {
 //			}
 //		};
 	}
-	
-	//holds the amount of pending items that were submitted but not yet processed
-//	private AtomicInteger pendingItems = new AtomicInteger(0); 
 	
 	private Disruptor<SingleUseEvent<A>> disruptor = null;
 	private RingBuffer<SingleUseEvent<A>> ringBuffer = null;
@@ -240,33 +236,22 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 	}
 	
-//	/**
-//	 * Waits for any pending events to be processed.
-//	 * @return
-//	 * this
-//	 */
-//	public DisruptorProvider<A> waitForPendingEventsToFinish() {
-//		if (disruptor != null && isRunning) {
-////			Log.out(this, "waiting for pending items...");
-//			//wait for pending operations to finish
-//			while (pendingItems.get() > 0) {
-//				LockSupport.park();
-//			}
-//		}
-//		return this;
-//	}
-	
 	/**
 	 * Shuts down the disruptor.
 	 * @return
 	 * this
 	 */
 	public DisruptorProvider<A> shutdown() {
-//		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
-			Log.out(this, "shutting down disruptor...");
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+//			Log.out(this, "shutting down disruptor..., %s", Thread.currentThread());
 			// Shuts down the disruptor
 			disruptor.shutdown();
+			
 			isRunning = false;
 		}
 		cleanup();
@@ -280,24 +265,15 @@ public class DisruptorProvider<A> implements Trackable {
 	 * @param item
 	 * the item to submit
 	 */
-	public void submit(A item) {
+	public synchronized void submit(A item) {
 		//avoid calling synchronized method call if already running
 		if (!isRunning) {
 			startIfNotRunning();
 		}
-//		pendingItems.incrementAndGet();
 		track();
+//		Log.out(this, "%s, submitting %s", Thread.currentThread(), item);
 		ringBuffer.publishEvent(Event::translate, item);
 	}
-
-//	/**
-//	 * Gets called for each processed event at the end.
-//	 */
-//	public void onEventEnd() {
-//		if(pendingItems.decrementAndGet() <= 0) {
-//			LockSupport.unpark(mainThread);
-//		}
-//	}
 
 	@Override
 	public TrackingStrategy getTracker() {

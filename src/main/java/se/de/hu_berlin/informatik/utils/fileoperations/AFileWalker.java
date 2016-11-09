@@ -36,6 +36,8 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	final private boolean relative;
 	private Path relativeStartingPath;
 	
+	private int matchCount = 0;
+	
 	private boolean isFirst;
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
 	
@@ -63,6 +65,10 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		return path != null && matcher.matches(path);
 	}
 	
+	public int getNumberOfMatches() {
+		return matchCount;
+	}
+	
 	abstract public void processMatchedFileOrDir(Path fileOrDir);
 	
 	/* (non-Javadoc)
@@ -81,12 +87,14 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 						file = relativeStartingPath.relativize(file);
 					}
 					processMatchedFileOrDir(file);
+					++matchCount;
 				} else if (match(file.toAbsolutePath())) {
 					track();
 					if (relative) {
 						file = relativeStartingPath.relativize(file);
 					}
 					processMatchedFileOrDir(file);
+					++matchCount;
 //					Misc.out(file.toString());
 					if (skipAfterFind) {
 						return FileVisitResult.SKIP_SUBTREE;
@@ -101,12 +109,14 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 						file = relativeStartingPath.relativize(file);
 					}
 					processMatchedFileOrDir(file);
+					++matchCount;
 				} else if (match(file.toAbsolutePath())) {
 					track();
 					if (relative) {
 						file = relativeStartingPath.relativize(file);
 					}
 					processMatchedFileOrDir(file);
+					++matchCount;
 //					Misc.out(file.toString());
 				}
 			}
@@ -130,12 +140,14 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 						dir = relativeStartingPath.relativize(dir);
 					}
 					processMatchedFileOrDir(dir);
+					++matchCount;
 				} else if (match(dir.toAbsolutePath())) {
 					track();
 					if (relative) {
 						dir = relativeStartingPath.relativize(dir);
 					}
 					processMatchedFileOrDir(dir);
+					++matchCount;
 //					Misc.out(dir.toString());
 					if (skipAfterFind) {
 						return FileVisitResult.SKIP_SUBTREE;

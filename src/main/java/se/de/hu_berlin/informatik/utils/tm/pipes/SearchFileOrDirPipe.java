@@ -130,6 +130,7 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 			Log.abort(this, e, "IOException thrown.");
 		}
 		
+//		Log.out(this, "submitted items: %d", walker.getNumberOfMatches());
 		walker.delegateTrackingTo(this);
 		return null;
 	}

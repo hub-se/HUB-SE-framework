@@ -156,6 +156,9 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 		}
 	}
 
+	protected DisruptorProvider<A> getDisruptorProvider() {
+		return disruptorProvider;
+	}
 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
@@ -203,8 +206,7 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	 * Shuts down the pipe. Waits for all executions to terminate.
 	 */
 	public void shutdown() {
-//		disruptorProvider.waitForPendingEventsToFinish();
-		Log.out(this, "Shutting down...");
+//		Log.out(this, "Shutting down..., %s", Thread.currentThread());
 		//shut down the disruptor
 		disruptorProvider.shutdown();
 		
