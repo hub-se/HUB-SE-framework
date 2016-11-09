@@ -341,6 +341,12 @@ final public class OptionParser {
         System.exit(status);
 	}
 	
+	/**
+	 * Asserts that at least one of the given options is set. Aborts the program
+	 * with an error message otherwise.
+	 * @param options
+	 * the options
+	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
 		int count = getNumberOfSetOptions(options);
@@ -349,6 +355,12 @@ final public class OptionParser {
 		}
 	}
 	
+	/**
+	 * Asserts that exactly one of the given options is set. Aborts the program
+	 * with an error message otherwise.
+	 * @param options
+	 * the options
+	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertOneOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
 		int count = getNumberOfSetOptions(options);
@@ -357,6 +369,12 @@ final public class OptionParser {
 		}
 	}
 	
+	/**
+	 * Asserts that none of the given options is set. Aborts the program
+	 * with an error message otherwise.
+	 * @param options
+	 * the options
+	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertNoOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
 		int count = getNumberOfSetOptions(options);
@@ -365,6 +383,12 @@ final public class OptionParser {
 		}
 	}
 	
+	/**
+	 * Asserts that each of the given options is set. Aborts the program
+	 * with an error message otherwise.
+	 * @param options
+	 * the options
+	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void assertAllOptionsSet(
 			@SuppressWarnings("unchecked") final T... options) {
 		int count = getNumberOfSetOptions(options);
