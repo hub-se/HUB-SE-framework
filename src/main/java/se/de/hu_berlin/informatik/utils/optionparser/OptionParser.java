@@ -398,7 +398,7 @@ final public class OptionParser {
 	}
 
 	private <T extends Enum<T> & OptionWrapperInterface> String getOptionString(final T[] options) {
-		StringBuilder builder = new StringBuilder();
+		StringBuilder builder = new StringBuilder('[');
 		boolean isFirst = true;
 		for (T option : options) {
 			if (isFirst) {
@@ -408,6 +408,7 @@ final public class OptionParser {
 			}
 			builder.append(option.asArg());
 		}
+		builder.append(']');
 		return builder.toString();
 	}
 
