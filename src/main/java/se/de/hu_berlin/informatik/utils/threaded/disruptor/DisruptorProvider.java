@@ -2,9 +2,6 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
-
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
@@ -49,7 +46,7 @@ public class DisruptorProvider<A> implements Trackable {
 	}
 	
 	//holds the amount of pending items that were submitted but not yet processed
-	private AtomicInteger pendingItems = new AtomicInteger(0); 
+//	private AtomicInteger pendingItems = new AtomicInteger(0); 
 	
 	private Disruptor<SingleUseEvent<A>> disruptor = null;
 	private RingBuffer<SingleUseEvent<A>> ringBuffer = null;
@@ -242,21 +239,21 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 	}
 	
-	/**
-	 * Waits for any pending events to be processed.
-	 * @return
-	 * this
-	 */
-	public DisruptorProvider<A> waitForPendingEventsToFinish() {
-		if (disruptor != null && isRunning) {
-//			Log.out(this, "waiting for pending items...");
-			//wait for pending operations to finish
-			while (pendingItems.get() > 0) {
-				LockSupport.park();
-			}
-		}
-		return this;
-	}
+//	/**
+//	 * Waits for any pending events to be processed.
+//	 * @return
+//	 * this
+//	 */
+//	public DisruptorProvider<A> waitForPendingEventsToFinish() {
+//		if (disruptor != null && isRunning) {
+////			Log.out(this, "waiting for pending items...");
+//			//wait for pending operations to finish
+//			while (pendingItems.get() > 0) {
+//				LockSupport.park();
+//			}
+//		}
+//		return this;
+//	}
 	
 	/**
 	 * Shuts down the disruptor.
