@@ -29,7 +29,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 public class DisruptorProvider<A> implements Trackable {
 
 	final private static ThreadFactory THREAD_FACTORY;
-	private Thread mainThread;
+//	private Thread mainThread;
 	
 	static {
 		//thread factory that will be used to construct new threads for consumers
@@ -77,7 +77,7 @@ public class DisruptorProvider<A> implements Trackable {
 	public DisruptorProvider(int minimalBufferSize) {
 		super();
 		this.minimalBufferSize  = minimalBufferSize;
-		mainThread = Thread.currentThread();
+//		mainThread = Thread.currentThread();
 	}
 	
 	/**
@@ -264,7 +264,7 @@ public class DisruptorProvider<A> implements Trackable {
 	 * this
 	 */
 	public DisruptorProvider<A> shutdown() {
-		waitForPendingEventsToFinish();
+//		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
 //			Log.out(this, "shutting down...");
 			// Shuts down the disruptor
@@ -287,19 +287,19 @@ public class DisruptorProvider<A> implements Trackable {
 		if (!isRunning) {
 			startIfNotRunning();
 		}
-		pendingItems.incrementAndGet();
+//		pendingItems.incrementAndGet();
 		track();
 		ringBuffer.publishEvent(Event::translate, item);
 	}
 
-	/**
-	 * Gets called for each processed event at the end.
-	 */
-	public void onEventEnd() {
-		if(pendingItems.decrementAndGet() <= 0) {
-			LockSupport.unpark(mainThread);
-		}
-	}
+//	/**
+//	 * Gets called for each processed event at the end.
+//	 */
+//	public void onEventEnd() {
+//		if(pendingItems.decrementAndGet() <= 0) {
+//			LockSupport.unpark(mainThread);
+//		}
+//	}
 
 	@Override
 	public TrackingStrategy getTracker() {
