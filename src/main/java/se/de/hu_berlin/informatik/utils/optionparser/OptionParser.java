@@ -370,7 +370,7 @@ final public class OptionParser {
 	}
 	
 	/**
-	 * Asserts that none of the given options is set. Aborts the program
+	 * Asserts that none of the given options are set. Aborts the program
 	 * with an error message otherwise.
 	 * @param options
 	 * the options
