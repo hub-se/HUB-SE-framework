@@ -78,12 +78,11 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
     		processEvent(event.get());
     	} catch (Throwable t) {
     		Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
-    	} finally {
-    		if (callback != null) {
-        		callback.onEventEnd();
-        	}
-    		limit.releaseSlot();
     	}
+    	if (callback != null) {
+    		callback.onEventEnd();
+    	}
+    	limit.releaseSlot();
 	}
 	
     /**
