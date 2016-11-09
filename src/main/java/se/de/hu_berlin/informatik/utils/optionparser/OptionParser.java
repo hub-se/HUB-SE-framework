@@ -344,7 +344,7 @@ final public class OptionParser {
 	public <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
 			@SuppressWarnings("unchecked") final T... options) {
 		int count = getNumberOfSetOptions(options);
-		if (count >= 1) {
+		if (count < 1) {
 			Log.abort(this, "At least one of the options %s has to be set.", getOptionString(options));
 		}
 	}
