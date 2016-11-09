@@ -41,11 +41,14 @@ public class ThreadedFileWalker extends AFileWalker {
 		return disruptorProvider;
 	}
 	
+	public void shutdown() {
+		disruptorProvider.shutdown();
+	}
+	
 	@Override
 	public void processMatchedFileOrDir(Path fileOrDir) {
 //		Log.out(this, "\tsubmitting task for: " + file);
 		disruptorProvider.submit(fileOrDir);
-		disruptorProvider.shutdown();
 	}
 	
 	public static class Builder extends AFileWalker.Builder {

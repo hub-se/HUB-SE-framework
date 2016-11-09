@@ -132,7 +132,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 		}
 		
 		//we are done! Shutdown is necessary!
-		walker.getDisruptorProvider().shutdown();
+		walker.shutdown();
 		walker.delegateTrackingTo(this);
 		return true;
 	}

@@ -204,7 +204,7 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	 */
 	public void shutdown() {
 //		disruptorProvider.waitForPendingEventsToFinish();
-//		Log.out(this, "Shutting down...");
+		Log.out(this, "Shutting down...");
 		//shut down the disruptor
 		disruptorProvider.shutdown();
 		

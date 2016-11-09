@@ -7,6 +7,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
@@ -263,7 +264,7 @@ public class DisruptorProvider<A> implements Trackable {
 	public DisruptorProvider<A> shutdown() {
 //		waitForPendingEventsToFinish();
 		if (disruptor != null && isRunning) {
-//			Log.out(this, "shutting down...");
+			Log.out(this, "shutting down disruptor...");
 			// Shuts down the disruptor
 			disruptor.shutdown();
 			isRunning = false;
