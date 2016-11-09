@@ -327,7 +327,7 @@ final public class OptionParser {
 	 */
 	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(
 			final int status, final T opt) {
-		Log.err(this, "Error with option '-%s'.", opt.option().getOpt());
+		Log.err(this, "Error with option '%s'.", opt.asArg());
 		printHelp(status);
 	}
 	
@@ -339,6 +339,62 @@ final public class OptionParser {
 	private void printHelp(final int status) {
 		this.lvFormatter.printHelp(this.tool, this.lvOptions, true);
         System.exit(status);
+	}
+	
+	public <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
+			@SuppressWarnings("unchecked") final T... options) {
+		int count = getNumberOfSetOptions(options);
+		if (count >= 1) {
+			Log.abort(this, "At least one of the options %s has to be set.", getOptionString(options));
+		}
+	}
+	
+	public <T extends Enum<T> & OptionWrapperInterface> void assertOneOptionSet(
+			@SuppressWarnings("unchecked") final T... options) {
+		int count = getNumberOfSetOptions(options);
+		if (count == 1) {
+			Log.abort(this, "Exactly one of the options %s has to be set.", getOptionString(options));
+		}
+	}
+	
+	public <T extends Enum<T> & OptionWrapperInterface> void assertNoOptionSet(
+			@SuppressWarnings("unchecked") final T... options) {
+		int count = getNumberOfSetOptions(options);
+		if (count != 0) {
+			Log.abort(this, "No option of the options %s has to be set.", getOptionString(options));
+		}
+	}
+	
+	public <T extends Enum<T> & OptionWrapperInterface> void assertAllOptionsSet(
+			@SuppressWarnings("unchecked") final T... options) {
+		int count = getNumberOfSetOptions(options);
+		if (count != options.length) {
+			Log.abort(this, "All of the options %s have to be set.", getOptionString(options));
+		}
+	}
+
+	private <T extends Enum<T> & OptionWrapperInterface> String getOptionString(final T[] options) {
+		StringBuilder builder = new StringBuilder();
+		boolean isFirst = true;
+		for (T option : options) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(", ");
+			}
+			builder.append(option.asArg());
+		}
+		return builder.toString();
+	}
+
+	private <T extends Enum<T> & OptionWrapperInterface> int getNumberOfSetOptions(final T[] options) {
+		int count = 0;
+		for (T option : options) {
+			if (hasOption(option)) {
+				++count;
+			}
+		}
+		return count;
 	}
 
 	/**
