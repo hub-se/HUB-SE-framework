@@ -26,7 +26,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, 
 			EHWithInputAndReturnFactory<A,B> callableFactory) {
 		super(true);
-		disruptorProvider = new DisruptorProvider<>(8);
+		disruptorProvider = new DisruptorProvider<>(1024);
 		//starts a multiplexer with the created disruptor
 		multiplexer = new AbstractDisruptorMultiplexer<B>(disruptorProvider) {
 			@Override
