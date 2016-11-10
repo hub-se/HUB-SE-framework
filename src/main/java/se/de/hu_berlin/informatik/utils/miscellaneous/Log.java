@@ -63,7 +63,7 @@ final public class Log {
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
-	public static void abort(final Object id, final Exception e, final String message, final Object... args) {
+	public static void abort(final Object id, final Throwable e, final String message, final Object... args) {
 		printfErrorMessage(id, message, args);
 		printException(id, e);
 		printAbort(id);

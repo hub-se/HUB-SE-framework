@@ -123,6 +123,30 @@ public class PipeTest {
 	}
 	
 	@Test
+	public void testExceptionHandling() throws Exception {
+		final AtomicInteger processedElements = new AtomicInteger(0);
+		
+		AbstractPipe<Integer, Integer> pipe = new AbstractPipe<Integer, Integer>(true) {
+			@Override
+			public Integer processItem(Integer item) {
+				if (item == 3) {
+					throw new IllegalStateException();
+				}
+				processedElements.incrementAndGet();
+				return item;
+			}
+		};
+
+		for (int i = 0; i < 10; ++i) {
+			pipe.submit(i);
+		}
+		
+		pipe.shutdown();
+		
+		assertEquals(9, processedElements.get());
+	}
+	
+	@Test
 	public void testPipeLinker() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		PipeLinker linker = new PipeLinker();

@@ -29,7 +29,7 @@ public class ThreadedFileWalker extends AFileWalker {
 			throw new IllegalStateException("No callable class given.");
 		}
 		
-		disruptorProvider = new DisruptorProvider<>(8);
+		disruptorProvider = new DisruptorProvider<>();
 		disruptorProvider.connectHandlers(builder.threadCount, builder.callableFactory);
 	}
 

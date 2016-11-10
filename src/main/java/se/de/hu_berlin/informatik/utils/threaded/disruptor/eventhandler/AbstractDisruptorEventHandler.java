@@ -2,7 +2,6 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import com.lmax.disruptor.EventHandler;
 
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
@@ -24,7 +23,6 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
  */
 public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<SingleUseEvent<A>> {
 
-    private DisruptorProvider<A> callback = null;
     private ThreadLimit limit = ThreadLimitDummy.getInstance();
 	private boolean singleConsumer = false;
     
@@ -48,25 +46,8 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
         singleConsumer = false;
     }
     
-    /**
-     * Sets a disruptor provider instance as a callback.
-     * @param callback
-     * a disruptor provider
-     */
-    public void setCallback(DisruptorProvider<A> callback) {
-    	this.callback = callback;
-    }
-    
     public void setThreadLimit(ThreadLimit limit) {
     	this.limit = limit;
-    }
-    
-    /**
-     * @return
-     * the callback disruptor provider
-     */
-    protected DisruptorProvider<A> getCallback() {
-    	return callback;
     }
     
     @Override
@@ -76,13 +57,9 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
     	try {
     		resetAndInit();
     		processEvent(event.get());
-    	} catch (Throwable t) {
-    		Log.err(this, t, "An error occurred while processing item '%s'.", event.get());
+    	} finally {
+    		limit.releaseSlot();
     	}
-//    	if (callback != null) {
-//    		callback.onEventEnd();
-//    	}
-    	limit.releaseSlot();
 	}
 	
     /**

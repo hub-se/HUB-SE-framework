@@ -21,7 +21,7 @@ public class ThreadedListProcessorModule<A> extends AbstractModule<List<A>,Boole
 
 	public ThreadedListProcessorModule(Integer threadCount, DisruptorEventHandlerFactory<A> callableFactory) {
 		super(true);
-		disruptorProvider = new DisruptorProvider<>(8);
+		disruptorProvider = new DisruptorProvider<>();
 		disruptorProvider.connectHandlers(threadCount, callableFactory);
 	}
 

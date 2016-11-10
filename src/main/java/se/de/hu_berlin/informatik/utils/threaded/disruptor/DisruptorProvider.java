@@ -3,10 +3,12 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
@@ -51,6 +53,12 @@ public class DisruptorProvider<A> implements Trackable {
 	private int bufferSize = 0;
 	
 	private ProducerType producerType = ProducerType.MULTI;
+	
+	private boolean abortOnEventError = false;
+	private boolean abortOnStartupError = false;
+	private boolean abortOnShutdownError = false;
+	
+	private int exceptions;
 	
 	private boolean isRunning = false;
 	private boolean isConnectedToHandlers = false;
@@ -99,8 +107,50 @@ public class DisruptorProvider<A> implements Trackable {
 		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, THREAD_FACTORY,
 				producerType, new BlockingWaitStrategy());
 
+		disruptor.setDefaultExceptionHandler(new ExceptionHandler<Event<A>>() {
+			@Override
+			public void handleOnStartException(Throwable ex) {
+				if (abortOnStartupError) {
+					Log.abort(this, ex, "%s was thrown while starting.", ex);
+				} else {
+					Log.err(this, ex, "%s was thrown while starting.", ex);
+				}
+			}
+			@Override
+			public void handleOnShutdownException(Throwable ex) {
+				if (abortOnShutdownError) {
+					Log.abort(this, ex, "%s was thrown while shutting down.", ex);
+				} else {
+					Log.err(this, ex, "%s was thrown while shutting down.", ex);
+				}
+			}
+			@Override
+			public void handleEventException(Throwable ex, long sequence, Event<A> event) {
+				++exceptions;
+				if (abortOnEventError) {
+					Log.abort(this, ex, "%s was thrown while processing item #%d.", ex, sequence);
+				} else {
+					Log.err(this, ex, "%s was thrown while processing item #%d.", ex, sequence);
+				}
+			}
+		});
 		// Get the ring buffer from the Disruptor to be used for publishing.
 		ringBuffer = disruptor.getRingBuffer();
+	}
+	
+	public DisruptorProvider<A> abortOnStartupError() {
+		abortOnStartupError = true;
+		return this;
+	}
+	
+	public DisruptorProvider<A> abortOnShutdownError() {
+		abortOnShutdownError = true;
+		return this;
+	}
+	
+	public DisruptorProvider<A> abortOnEventError() {
+		abortOnEventError = true;
+		return this;
 	}
 	
 	/**
@@ -180,7 +230,6 @@ public class DisruptorProvider<A> implements Trackable {
 		boolean isSingle = handlers.length == 1;
 		for (int i = 0; i < handlers.length; ++i) {
 			handlers[i].setSingleConsumer(isSingle);
-			handlers[i].setCallback(this);
 		}
 		// Connect the handlers
 		disruptor.handleEventsWith(handlers);
@@ -253,6 +302,9 @@ public class DisruptorProvider<A> implements Trackable {
 			disruptor.shutdown();
 			
 			isRunning = false;
+			if (exceptions > 0) {
+				Log.warn(this, "%d event(s) ended by throwing an exception.", exceptions);
+			}
 		}
 		cleanup();
 		return this;
