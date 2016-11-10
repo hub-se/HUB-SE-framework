@@ -107,6 +107,56 @@ final public class FileUtils {
 	}
 	
 	/**
+	 * Searches for a directory containing the given pattern (recursively).
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @return
+	 * the found directory, or null if no directory was found that contains the pattern
+	 */
+	public static File searchDirectoryContainingPattern(final File startDir, final String pattern) {
+		return searchDirectoryContainingPattern(startDir, pattern, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Searches for a directory containing the given pattern up to a specified depth.
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param depth
+	 * recursion depth
+	 * @return
+	 * the found directory, or null if no directory was found that contains the pattern
+	 */
+	public static File searchDirectoryContainingPattern(final File startDir, final String pattern, final int depth) {
+		if (depth < 0) {
+			return null;
+		}
+		if (startDir.isDirectory()) {
+			if (startDir.getName().contains(pattern)) {
+				return startDir;
+			}
+			if (depth == 0) {
+				return null;
+			}
+			try {
+				for (final File file : startDir.listFiles()) {
+					final File result = searchDirectoryContainingPattern(file, pattern, depth-1);
+					if (result != null) {
+						return result;
+					}
+				}
+			} catch(NullPointerException e) {
+				Log.err(null, "Could not search in " + startDir.toString() + ".");
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Copies a file or a directory recursively.
 	 * @param source
 	 * the source file or directory
