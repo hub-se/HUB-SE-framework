@@ -19,6 +19,8 @@ final public class Log {
 	
 	//intended to store already created loggers
 	final private static Map<String,Logger> LOGGER_CACHE;
+	
+	private static boolean currentlyLogging = true;
 			
 	static {
 		System.setProperty("log4j.configurationFactory", LogConfigurationFactory.class.getCanonicalName());
@@ -50,6 +52,20 @@ final public class Log {
 			return logger;
 		}
 		
+	}
+	
+	/**
+	 * Enables printing of logging messages (default).
+	 */
+	public static void on() {
+		currentlyLogging = true;
+	}
+	
+	/**
+	 * Disables printing of logging messages.
+	 */
+	public static void off() {
+		currentlyLogging = false;
 	}
 	
 	/**
@@ -120,7 +136,9 @@ final public class Log {
 	 * the exception to be printed
 	 */
 	private static void printException(final Object id, final Throwable e) {
-		getLogger(id).catching(Level.ERROR, e);
+		if (currentlyLogging) {
+			getLogger(id).catching(Level.ERROR, e);
+		}
 	}
 	
 	/**
@@ -129,7 +147,9 @@ final public class Log {
 	 * the object to use for generating an identifier
 	 */
 	private static void printAbort(final Object id) {
-		getLogger(id).fatal("aborting...");
+		if (currentlyLogging) {
+			getLogger(id).fatal("aborting...");
+		}
 	}
 	
 	/**
@@ -175,7 +195,9 @@ final public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfErrorMessage(final Object id, final String message, final Object... args) {
-		getLogger(id).printf(Level.ERROR, message, args);
+		if (currentlyLogging) {
+			getLogger(id).printf(Level.ERROR, message, args);
+		}
 	}
 	
 	/**
@@ -188,7 +210,9 @@ final public class Log {
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfWarnMessage(final Object id, final String message, final Object... args) {
-		getLogger(id).printf(Level.WARN, message, args);
+		if (currentlyLogging) {
+			getLogger(id).printf(Level.WARN, message, args);
+		}
 	}
 	
 	/**
@@ -214,7 +238,9 @@ final public class Log {
 	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
 	 */
 	private static void printfMessage(final Object id, final String message, final Object... args) {
-		getLogger(id).printf(Level.INFO, message, args);
+		if (currentlyLogging) {
+			getLogger(id).printf(Level.INFO, message, args);
+		}
 	}
 	
 	

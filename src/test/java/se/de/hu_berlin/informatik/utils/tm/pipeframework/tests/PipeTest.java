@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
@@ -126,6 +127,7 @@ public class PipeTest {
 	public void testExceptionHandling() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
+		Log.off();
 		AbstractPipe<Integer, Integer> pipe = new AbstractPipe<Integer, Integer>(true) {
 			@Override
 			public Integer processItem(Integer item) {
@@ -141,6 +143,7 @@ public class PipeTest {
 			pipe.submit(i);
 		}
 		
+		Log.on();
 		pipe.shutdown();
 		
 		assertEquals(9, processedElements.get());
