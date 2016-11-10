@@ -191,7 +191,7 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
         Objects.requireNonNull(dir);
         if (exc != null)
             throw exc;
-        return FileVisitResult.CONTINUE;
+        return CONTINUE;
     }
     
     @Override
