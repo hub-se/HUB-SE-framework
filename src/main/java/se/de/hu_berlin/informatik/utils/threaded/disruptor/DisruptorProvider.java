@@ -69,9 +69,9 @@ public class DisruptorProvider<A> implements Trackable {
 	/**
 	 * Creates a new disruptor provider with the minimal given buffer size. 
 	 * The actual buffer size will be set to m, where m is a power of 2 such that
-	 * <p> {@code m >= 4*#handlers}, if {@code  minimalBufferSize < 4*#handlers}, and
+	 * <p> {@code m >= 8*#handlers}, if {@code  minimalBufferSize < 8*#handlers}, and
 	 * <p> {@code m >= minimalBufferSize}, otherwise.
-	 * <p> This means that the buffer size is at least four times as big as the 
+	 * <p> This means that the buffer size is at least eight times as big as the 
 	 * number ot handlers, but at least as big as the specified minimal buffer size
 	 * @param minimalBufferSize
 	 * a minimal buffer size
@@ -211,10 +211,10 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		
 		if (disruptor == null) {
-			//get a reasonable buffer size, such that it is at least four times
+			//get a reasonable buffer size, such that it is at least eight times
 			//as big as the number of handlers, but at least as big as the
 			//specified minimal buffer size
-			bufferSize = getContainingPowerOfTwo(handlers.length * 4);
+			bufferSize = getContainingPowerOfTwo(handlers.length * 8);
 			if (bufferSize < minimalBufferSize) {
 				bufferSize = getContainingPowerOfTwo(minimalBufferSize);
 			}
