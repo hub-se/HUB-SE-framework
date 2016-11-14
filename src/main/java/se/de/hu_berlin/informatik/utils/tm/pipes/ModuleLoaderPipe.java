@@ -50,7 +50,7 @@ public class ModuleLoaderPipe<A,B> extends AbstractPipe<A,B> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
-	public B processItem(A item) {		
+	public B processItem(A item) {
 		return getInternalModule().submit(item).getResult();
 	}
 	
