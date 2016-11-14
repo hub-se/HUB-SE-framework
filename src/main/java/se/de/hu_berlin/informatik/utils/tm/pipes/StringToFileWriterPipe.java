@@ -33,7 +33,7 @@ public class StringToFileWriterPipe extends AbstractPipe<String, String> {
 	private BufferedWriter writer = null;
 	
 	/**
-	 * Creates a new {@link ListToFileWriterModule} with the given parameters.
+	 * Creates a new {@link StringToFileWriterPipe} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
