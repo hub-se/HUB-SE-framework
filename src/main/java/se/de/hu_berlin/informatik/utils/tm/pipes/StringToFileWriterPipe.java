@@ -21,9 +21,6 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * 
  * @author Simon Heiden
  * 
- * @param A
- * the type of iterable object 
- * 
  * @see OutputPathGenerator
  */
 public class StringToFileWriterPipe extends AbstractPipe<String, String> {
