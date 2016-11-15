@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.optionparser;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -22,6 +21,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUtilities;
 
@@ -544,14 +544,13 @@ final public class OptionParser {
 	public <T extends Enum<T> & OptionWrapperInterface> Path isDirectory(
 			final Path prefix, final T opt, final boolean ensureExistence) {
 		Path path;
-		if (prefix != null) {
-			path = prefix.resolve(Paths.get(getOptionValue(opt)));
+		if (ensureExistence) {
+			path = FileUtils.checkIfAnExistingDirectory(prefix, getOptionValue(opt));
 		} else {
-			path = Paths.get(getOptionValue(opt));
+			path = FileUtils.checkIfNotAnExistingFile(prefix, getOptionValue(opt));
 		}
 		
-		if ((ensureExistence && !path.toFile().exists()) || 
-				(path.toFile().exists() && !path.toFile().isDirectory())) {
+		if (path == null) {
 			printHelp(1, opt);
 		}
 		
@@ -576,19 +575,20 @@ final public class OptionParser {
 	public <T extends Enum<T> & OptionWrapperInterface> Path isFile(
 			final Path prefix, final T opt, final boolean ensureExistence) {
 		Path path;
-		if (prefix != null) {
-			path = prefix.resolve(Paths.get(getOptionValue(opt)));
+		if (ensureExistence) {
+			path = FileUtils.checkIfAnExistingFile(prefix, getOptionValue(opt));
 		} else {
-			path = Paths.get(getOptionValue(opt));
+			path = FileUtils.checkIfNotAnExistingDirectory(prefix, getOptionValue(opt));
 		}
 		
-		if ((ensureExistence && !path.toFile().exists()) || 
-				path.toFile().isDirectory()) {
+		if (path == null) {
 			printHelp(1, opt);
 		}
 		
 		return path;
 	}
+
+	
 	
 	/**
 	 * Checks whether the given option is a directory and returns

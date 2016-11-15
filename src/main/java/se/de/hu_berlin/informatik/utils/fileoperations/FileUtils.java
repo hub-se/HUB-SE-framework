@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -25,6 +26,108 @@ final public class FileUtils {
     private FileUtils() {
     	throw new AssertionError();
     }
+    
+    public static Path getCompletePath(final Path prefix, final String filePath) {
+    	Objects.requireNonNull(filePath);
+		Path path;
+		if (prefix != null) {
+			path = prefix.resolve(Paths.get(filePath));
+		} else {
+			path = Paths.get(filePath);
+		}
+		return path;
+	}
+    
+    /**
+     * Checks whether the given path points to a (possibly not yet existing) file 
+     * (i.e. NOT to an existing directory).
+     * @param prefix
+     * a prefix path, or null if the given file path is not relative
+     * @param filePath
+     * the path to check if it points to a file
+     * @return
+     * the complete path to the (possibly not yet existing) file, or null if the path 
+     * would point to an existing directory
+     */
+    public static Path checkIfNotAnExistingDirectory(final Path prefix, 
+    		final String filePath) {
+		Path path = getCompletePath(prefix, filePath);
+		
+		if (path.toFile().isDirectory()) {
+			return null;
+		} else {
+			return path;
+		}
+	}
+    
+    /**
+     * Checks whether the given path points to an existing file.
+     * @param prefix
+     * a prefix path, or null if the given file path is not relative
+     * @param filePath
+     * the path to check if it points to a file
+     * @return
+     * the complete path to the file, or null if the path 
+     * would point to a directory or a file that does not exist
+     */
+    public static Path checkIfAnExistingFile(final Path prefix, 
+    		final String filePath) {
+		Path path = getCompletePath(prefix, filePath);
+		
+		if (path.toFile().isFile()) {
+			return path;
+		} else {
+			return null;
+		}
+	}
+
+	
+    
+    /**
+     * Checks whether the given path doesn't point to an existing file. The returned
+     * path may either point to an existing directory or to a non-existing element.
+     * The returned path is null, if the given path points to an existing file.
+     * @param prefix
+     * a prefix path, or null if the given path is not relative
+     * @param dirPath
+     * the path to check if it points not to an existing file
+     * @return
+     * the complete path, or null if the path 
+     * would point to an existing file
+     */
+    public static Path checkIfNotAnExistingFile(final Path prefix, 
+    		final String dirPath) {
+		Path path = getCompletePath(prefix, dirPath);
+		
+		if (path.toFile().isFile()) {
+			return null;
+		} else {
+			return path;
+		}
+	}
+    
+    /**
+     * Checks whether the given path points to an existing directory
+     * and returns the path if it points to an existing directory, or
+     * null otherwise.
+     * @param prefix
+     * a prefix path, or null if the given path is not relative
+     * @param dirPath
+     * the path to check if it points to an existing directory
+     * @return
+     * the complete path to the directory if it exists, 
+     * or null otherwise
+     */
+    public static Path checkIfAnExistingDirectory(final Path prefix, 
+    		final String dirPath) {
+		Path path = getCompletePath(prefix, dirPath);
+		
+		if (path.toFile().isDirectory()) {
+			return path;
+		} else {
+			return null;
+		}
+	}
     
 	/**
 	 * Deletes the given file or directory (recursively).
