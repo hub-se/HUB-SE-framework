@@ -27,7 +27,7 @@ final public class FileUtils {
     	throw new AssertionError();
     }
     
-    public static Path getCompletePath(final Path prefix, final String filePath) {
+    private static Path getCompletePath(final Path prefix, final String filePath) {
     	Objects.requireNonNull(filePath);
 		Path path;
 		if (prefix != null) {
