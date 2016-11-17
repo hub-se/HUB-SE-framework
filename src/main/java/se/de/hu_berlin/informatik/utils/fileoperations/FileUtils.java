@@ -349,6 +349,7 @@ final public class FileUtils {
 	 */
 	public static void writeString2File(final String string, final File file) throws IOException {
 		if (!file.exists()) {
+			ensureParentDir(file);
 			file.createNewFile();
 		}
 		try (final PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
@@ -369,6 +370,7 @@ final public class FileUtils {
 	 */
 	public static void appendString2File(final String string, final File file) throws IOException {
 		if (!file.exists()) {
+			ensureParentDir(file);
 			file.createNewFile();
 		}
 		try (final PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
