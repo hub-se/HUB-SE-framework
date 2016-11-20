@@ -20,7 +20,7 @@ public class Pair<A,B> {
 		this.second = second;
 	}
 
-	public A getFirst() {
+	public A first() {
 		assert first != null;
 		return first;
 	}
@@ -29,7 +29,7 @@ public class Pair<A,B> {
 		this.first = first;
 	}
 
-	public B getSecond() {
+	public B second() {
 		assert second != null;
 		return second;
 	}
