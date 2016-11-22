@@ -309,4 +309,12 @@ final public class Misc {
 	              .map(Map.Entry::getValue)
 	              .collect(Collectors.toList());
 	}
+	
+	public static <K, V extends Comparable<? super V>> List<K> sortKeysByValueToList(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Comparator.comparing(Map.Entry::getValue))
+	              .map(Map.Entry::getKey)
+	              .collect(Collectors.toList());
+	}
 }
