@@ -302,7 +302,19 @@ final public class Misc {
 	              ));
 	}
 	
-	public static <K, V extends Comparable<? super V>> List<V> sortByValueToList(Map<K, V> map) {
+	public static <K extends Comparable<? super K>, V> Map<K, V> sortByKey(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Map.Entry.comparingByKey(/*Collections.reverseOrder()*/))
+	              .collect(Collectors.toMap(
+	                Map.Entry::getKey, 
+	                Map.Entry::getValue, 
+	                (e1, e2) -> e1, 
+	                LinkedHashMap::new
+	              ));
+	}
+	
+	public static <K, V extends Comparable<? super V>> List<V> sortByValueToValueList(Map<K, V> map) {
 	    return map.entrySet()
 	              .stream()
 	              .sorted(Comparator.comparing(Map.Entry::getValue))
@@ -310,10 +322,26 @@ final public class Misc {
 	              .collect(Collectors.toList());
 	}
 	
-	public static <K, V extends Comparable<? super V>> List<K> sortKeysByValueToList(Map<K, V> map) {
+	public static <K, V extends Comparable<? super V>> List<K> sortByValueToKeyList(Map<K, V> map) {
 	    return map.entrySet()
 	              .stream()
 	              .sorted(Comparator.comparing(Map.Entry::getValue))
+	              .map(Map.Entry::getKey)
+	              .collect(Collectors.toList());
+	}
+	
+	public static <K extends Comparable<? super K>, V> List<V> sortByKeyToValueList(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Comparator.comparing(Map.Entry::getKey))
+	              .map(Map.Entry::getValue)
+	              .collect(Collectors.toList());
+	}
+	
+	public static <K extends Comparable<? super K>, V> List<K> sortByKeyToKeyList(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Comparator.comparing(Map.Entry::getKey))
 	              .map(Map.Entry::getKey)
 	              .collect(Collectors.toList());
 	}
