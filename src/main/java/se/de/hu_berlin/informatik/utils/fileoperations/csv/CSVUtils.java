@@ -21,7 +21,7 @@ public final class CSVUtils {
     /**
      * used CSV delimiter
      */
-    public static final String CSV_DELIMITER = "\t";
+    public static final String CSV_DELIMITER = ";";
 
     //suppress default constructor (class should not be instantiated)
     private CSVUtils() {
