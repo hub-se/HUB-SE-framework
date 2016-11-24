@@ -45,7 +45,7 @@ public class StringToFileWriterPipe extends AbstractPipe<String, String> {
 		if (!overwrite && outputPath.toFile().exists()) {
 			Log.abort(this, "File \"%s\" exists.", outputPath.toString());
 		}
-		outputPath.getParent().toFile().mkdirs();
+		outputPath.toAbsolutePath().getParent().toFile().mkdirs();
 		
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputPath), StandardCharsets.UTF_8.newEncoder()));
