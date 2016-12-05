@@ -480,13 +480,24 @@ final public class FileUtils {
     }
     
     /**
-     * Returns the file without an existing file extension.
+     * Returns the file name without an existing file extension.
      * @param file 
      * to get without extension
      * @return 
-     * file without extension
+     * file name without extension
      */
     public static String getFileNameWithoutExtension(final String file) {
+    	return FilenameUtils.removeExtension(new File(file).getName());
+    }
+    
+    /**
+     * Returns the file path without an existing file extension.
+     * @param file 
+     * to get without extension
+     * @return 
+     * file path without extension
+     */
+    public static String getFileWithoutExtension(final String file) {
     	return FilenameUtils.removeExtension(file);
     }
 	
