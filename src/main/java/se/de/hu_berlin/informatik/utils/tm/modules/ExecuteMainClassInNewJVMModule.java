@@ -19,7 +19,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Integer> {
 
 	private File executionDir;
-	private String clazz;
+	private Class<?> clazz;
 	private String cp;
 	private String[] properties;
 	
@@ -34,7 +34,7 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 	 * @param properties
 	 * other properties to give to the JVM
 	 */
-	public ExecuteMainClassInNewJVMModule(String clazz, File executionDir, String... properties) {
+	public ExecuteMainClassInNewJVMModule(Class<?> clazz, File executionDir, String... properties) {
 		this(null, clazz, null, executionDir, properties);
 	}
 	
@@ -49,7 +49,7 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 	 * @param properties
 	 * other properties to give to the JVM
 	 */
-	public ExecuteMainClassInNewJVMModule(String clazz, String cp, File executionDir, String... properties) {
+	public ExecuteMainClassInNewJVMModule(Class<?> clazz, String cp, File executionDir, String... properties) {
 		this(null, clazz, cp, executionDir, properties);
 	}
 	
@@ -67,7 +67,7 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 	 * other properties to give to the JVM
 	 */
 	public ExecuteMainClassInNewJVMModule(String javaHome,  
-			String clazz, String cp, File executionDir, String... properties) {
+			Class<?> clazz, String cp, File executionDir, String... properties) {
 		super(true);
 		this.executionDir = executionDir;
 		this.clazz = clazz;
@@ -96,7 +96,25 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 			tool = javaHome + File.separator + "bin" + File.separator + "java";
 		}
 		String[] fullArgs = {tool, "-server", "-cp", cp};
-		String[] clazzWrapper = { clazz };
+		String[] clazzWrapper = new String[1];
+		if (clazz.getEnclosingClass() == null) {
+			clazzWrapper[0] = clazz.getCanonicalName();
+		} else {
+			String[] clazzItems = clazz.getCanonicalName().split("\\.");
+			StringBuilder builder = new StringBuilder();
+			boolean isFirst = true;
+			for (int i = 0; i < clazzItems.length - 1; ++i) {
+				if (isFirst) {
+					isFirst = false;
+				} else {
+					builder.append('.');
+				}
+				builder.append(clazzItems[i]);
+			}
+			builder.append('$');
+			builder.append(clazzItems[clazzItems.length-1]);
+			clazzWrapper[0] = builder.toString();
+		}
 		fullArgs = Misc.joinArrays(fullArgs, properties);
 		fullArgs = Misc.joinArrays(fullArgs, clazzWrapper);
 		fullArgs = Misc.joinArrays(fullArgs, args);
