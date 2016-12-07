@@ -78,8 +78,10 @@ final public class Log {
 	 * an error message
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 * @throws Abort
+	 * when called
 	 */
-	public static void abort(final Object id, final Throwable e, final String message, final Object... args) {
+	public static void abort(final Object id, final Throwable e, final String message, final Object... args) throws Abort {
 		printfErrorMessage(id, message, args);
 		printException(id, e);
 		printAbort(id);
@@ -94,8 +96,10 @@ final public class Log {
 	 * an error message
 	 * @param args
 	 * some arguments for the error message, as in {@code System.out.printf(...)}, for example
+	 * @throws Abort
+	 * when called
 	 */
-	public static void abort(final Object id, final String message, final Object... args) {
+	public static void abort(final Object id, final String message, final Object... args) throws Abort {
 		printfErrorMessage(id, message, args);
 		printAbort(id);
 		exitWithError();
@@ -153,10 +157,12 @@ final public class Log {
 	}
 	
 	/**
-	 * Exits the application with status code 1.
+	 * Throws a runtime exception.
+	 * @throws Abort
+	 * when called
 	 */
-	private static void exitWithError(){
-		System.exit(1);
+	private static void exitWithError() throws Abort {
+		throw new Abort();
 	}
 	
 	/**
