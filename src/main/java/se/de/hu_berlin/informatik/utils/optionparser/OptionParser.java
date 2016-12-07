@@ -22,6 +22,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Abort;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUtilities;
 
@@ -188,7 +189,7 @@ final public class OptionParser {
 			lvCmd = this.lvParser.parse(this.lvOptions, this.args);
 
             if (this.hasOption(DefaultCmdOptions.HELP)) {
-            	printHelp(0);
+            	printHelp();
             }
             
             if (this.hasOption(DefaultCmdOptions.SILENCE)) {
@@ -201,7 +202,7 @@ final public class OptionParser {
             }
         } catch (ParseException pvException) {
             Log.err(this, "parse error: %s", pvException.getMessage());
-            printHelp(1);
+            printHelp();
         }
 	}
 	
@@ -316,29 +317,28 @@ final public class OptionParser {
 	}
 	
 	/**
-	 * Prints the help message and exits with the given status code
+	 * Prints the help message and exits with a runtime exception
 	 * and an error message concerning the given option parameter.
-	 * @param status
-	 * exit status code
 	 * @param opt
 	 * the option parameter which produced the error.
 	 * @param <T>
 	 * an Enum type that represents an option
+	 * @throws Abort
+	 * when called
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(
-			final int status, final T opt) {
+	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(final T opt) throws Abort {
 		Log.err(this, "Error with option '%s'.", opt.asArg());
-		printHelp(status);
+		printHelp();
 	}
 	
 	/**
-	 * Prints the help message and exits with the given status code.
-	 * @param status
-	 * exit status code
+	 * Prints the help message and throws a runtime exception.
+	 * @throws Abort
+	 * when called
 	 */
-	private void printHelp(final int status) {
+	private void printHelp() throws Abort {
 		this.lvFormatter.printHelp(this.tool, this.lvOptions, true);
-        System.exit(status);
+        throw new Abort();
 	}
 	
 	/**
@@ -551,7 +551,7 @@ final public class OptionParser {
 		}
 		
 		if (path == null) {
-			printHelp(1, opt);
+			printHelp(opt);
 		}
 		
 		return path;
@@ -582,7 +582,7 @@ final public class OptionParser {
 		}
 		
 		if (path == null) {
-			printHelp(1, opt);
+			printHelp(opt);
 		}
 		
 		return path;
