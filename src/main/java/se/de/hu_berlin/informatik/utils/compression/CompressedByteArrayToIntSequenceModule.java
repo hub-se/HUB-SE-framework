@@ -16,6 +16,8 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  */
 public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[],List<List<Integer>>> {
 	
+	public static final int DELIMITER = 0;
+	
 	private byte usedBits;
 	private int sequenceLength;
 	private int totalSequences;
@@ -77,14 +79,27 @@ public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[
 				}
 			}
 			
-			//add the next integer to the current sequence
-			currentSequence.add(currentInt);
+			if (sequenceLength == 0) {
+				if (currentInt == DELIMITER) {
+					//reset the counter (start of new sequence)
+					intCounter = 0;
+				} else {
+					//add the next integer to the current sequence
+					currentSequence.add(currentInt);
+					++intCounter;
+				}
+			} else {
+				//add the next integer to the current sequence
+				currentSequence.add(currentInt);
+				++intCounter;
+				//if the sequence ends here, reset the counter
+				if (intCounter >= sequenceLength) {
+					intCounter = 0;
+				}
+			}
 			//reset the current integer to all zeroes
 			currentInt = 0;
-			//if the sequence ends here, reset the counter
-			if (++intCounter >= sequenceLength) {
-				intCounter = 0;
-			}
+			
 			//if no bits remain in the current byte, then update the array position for the next step
 			if (remainingBits == 0) {
 				++arrayPos;
@@ -96,7 +111,7 @@ public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[
 
 	private void readHeader(byte[] array) {
 		// header should be 9 bytes:
-		// | number of bits used for one element (1 byte) | sequence length (4 bytes) | total number of sequences (4 bytes) |
+		// | number of bits used for one element (1 byte) | sequence length (4 bytes) - 0 for delimiter mode | total number of sequences (4 bytes) |
 		
 		usedBits = array[0];
 		

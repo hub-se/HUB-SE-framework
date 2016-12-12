@@ -12,12 +12,15 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import se.de.hu_berlin.informatik.utils.compression.CompressedByteArrayToIntSequenceModule;
 import se.de.hu_berlin.informatik.utils.compression.IntSequenceToCompressedByteArrayModule;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Abort;
 
 /**
  * @author SimHigh
@@ -56,6 +59,9 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	}
 
 	CompressedByteArrayToIntSequenceModule decoder;
+	
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
 	
 	@Test
 	public void testOneBitSeqLengthFourFirstZero() throws Exception {
@@ -179,5 +185,44 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 		assertEquals(2, sequence.size());		
 		assertEquals(1023, sequence.get(0).intValue());
 		assertEquals(63, sequence.get(1).intValue());
+	}
+	
+	@Test
+	public void testDelimiterMethod() throws Exception {
+		IntSequenceToCompressedByteArrayModule module = new IntSequenceToCompressedByteArrayModule(7);
+		
+		List<Integer> temp = new ArrayList<>();
+		temp.add(7);temp.add(2);temp.add(7);temp.add(3);
+		module.submit(temp);
+		temp = new ArrayList<>();
+		temp.add(7);temp.add(2);temp.add(3);temp.add(7);
+		module.submit(temp);
+		
+		List<List<Integer>> actual = decoder.submit(module.getResultFromCollectedItems()).getResult();
+		
+		assertEquals(2, actual.size());
+		List<Integer> sequence = actual.get(0);
+		assertEquals(4, sequence.size());		
+		assertEquals(7, sequence.get(0).intValue());
+		assertEquals(2, sequence.get(1).intValue());
+		assertEquals(7, sequence.get(2).intValue());
+		assertEquals(3, sequence.get(3).intValue());
+		
+		sequence = actual.get(1);
+		assertEquals(4, sequence.size());
+		assertEquals(7, sequence.get(0).intValue());
+		assertEquals(2, sequence.get(1).intValue());
+		assertEquals(3, sequence.get(2).intValue());
+		assertEquals(7, sequence.get(3).intValue());
+	}
+	
+	@Test
+	public void testDelimiterMethodWrongNumberInput() throws Exception {
+		IntSequenceToCompressedByteArrayModule module = new IntSequenceToCompressedByteArrayModule(7);
+		
+		exception.expect(Abort.class);
+		List<Integer> temp = new ArrayList<>();
+		temp.add(7);temp.add(0);temp.add(7);temp.add(3);
+		module.submit(temp);
 	}
 }

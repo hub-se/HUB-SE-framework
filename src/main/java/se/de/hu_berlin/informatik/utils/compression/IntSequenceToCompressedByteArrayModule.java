@@ -18,6 +18,8 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  */
 public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<Integer>,byte[] > {
 
+	public static final int DELIMITER = 0;
+	
 	private List<Byte> result;
 	
 	private byte neededBits;
@@ -40,10 +42,14 @@ public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<
 		addHeader(neededBits, sequenceLength);
 	}
 	
+	public IntSequenceToCompressedByteArrayModule(int maxValue) {
+		this(maxValue, 0);
+	}
+	
 	
 	private void addHeader(byte neededBits, int sequenceLength) {
 		// header should be 9 bytes:
-		// | number of bits used for one element (1 byte) | sequence length (4 bytes) | total number of sequences (4 bytes) |
+		// | number of bits used for one element (1 byte) | sequence length (4 bytes) - 0 for delimiter mode | total number of sequences (4 bytes) |
 		
 		result.add(neededBits);
 		
@@ -55,7 +61,7 @@ public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<
 			result.add(b.array()[i]);
 		}
 		
-		//stores the number of sequences in the end (gets replaced)
+		//stores the number of sequences in the end (gets replaced later)
 		for (int i = 0; i < 4; ++i) {
 			result.add((byte) 0);
 		}
@@ -67,10 +73,20 @@ public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<
 	 */
 	@Override
 	public byte[] processItem(List<Integer> intSequence) {
-		if (intSequence.size() != sequenceLength) {
-			Log.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
+		if (sequenceLength == 0) {
+			for (int element : intSequence) {
+				if (element == DELIMITER) {
+					Log.abort(this, "Cannot store numbers identical to the delimiter (%d).", DELIMITER);
+				}
+			}
+			intSequence.add(DELIMITER);
+		} else {
+			if (intSequence.size() != sequenceLength) {
+				Log.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
+			}
 		}
 		++totalSequences;
+		
 		for (Integer element : intSequence) {
 			//reset the bits left to write
 			bitsLeft = neededBits;
