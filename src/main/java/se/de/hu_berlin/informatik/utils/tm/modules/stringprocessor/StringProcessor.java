@@ -20,12 +20,12 @@ public interface StringProcessor<T> {
 
 	/**
 	 * Takes a {@link String} and processes it in some way.
-	 * @param item
+	 * @param line
 	 * an input {@link String}
 	 * @return
 	 * true if the operation succeeded, false otherwise
 	 */
-	public boolean process(String item);
+	public boolean process(String line);
 	
 	/**
 	 * @return
