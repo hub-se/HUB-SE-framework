@@ -5,6 +5,9 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.ClassPathParser;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
@@ -22,6 +25,7 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 	private Class<?> clazz;
 	private String cp;
 	private String[] properties;
+	private Map<String,String> environmentVariables;
 	
 	private String javaHome = null;
 	
@@ -81,6 +85,8 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 		this.properties = properties;
 		
 		this.javaHome = javaHome;
+		
+		this.environmentVariables = new HashMap<>();
 	}
 
 	/* (non-Javadoc)
@@ -122,6 +128,11 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
         ProcessBuilder pb = new ProcessBuilder(fullArgs);
         pb.directory(executionDir);
         pb.inheritIO();
+        
+        for (Entry<String,String> entry : environmentVariables.entrySet()) {
+        	pb.environment().put(entry.getKey(), entry.getValue());
+        }
+        
         Process p = null;
 		try {
 			p = pb.start();
@@ -159,5 +170,19 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 //        }
 
         return result;
-    }	
+    }
+	
+	/**
+	 * Sets an environment variable,
+	 * @param variable
+	 * the environment variable to be set
+	 * @param value
+	 * the desired value of the environment variable
+	 * @return
+	 * this module for method chaining
+	 */
+	public ExecuteMainClassInNewJVMModule setEnvVariable(String variable, String value) {
+		environmentVariables.put(variable, value);
+		return this;
+	}
 }
