@@ -9,7 +9,7 @@ public class DoublePrefBiggerStatisticsElement extends AbstractDoubleStatisticsE
 	@Override
 	public void mergeWith(StatisticsElement<?> element) {
 		if (this.getType() == element.getType()) {
-			double elementValue = (double)element.getValue();
+			double elementValue = (Double)element.getValue();
 			//if the other element is bigger, use it
 			if (elementValue > value) {
 				this.setValue(elementValue);

@@ -9,7 +9,7 @@ public class IntegerPrefBiggerStatisticsElement extends AbstractIntegerStatistic
 	@Override
 	public void mergeWith(StatisticsElement<?> element) {
 		if (this.getType() == element.getType()) {
-			int elementValue = (int)element.getValue();
+			int elementValue = (Integer)element.getValue();
 			//if the other element is bigger, use it
 			if (elementValue > value) {
 				this.setValue(elementValue);

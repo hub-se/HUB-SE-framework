@@ -10,7 +10,7 @@ public class BooleanPrefFalseStatisticsElement extends AbstractBooleanStatistics
 	public void mergeWith(StatisticsElement<?> element) {
 		if (this.getType() == element.getType()) {
 			//if the other element is false, then set this one to false, too
-			if (!(boolean)element.getValue()) {
+			if (!(Boolean)element.getValue()) {
 				this.setValue(false);
 			}
 		}
