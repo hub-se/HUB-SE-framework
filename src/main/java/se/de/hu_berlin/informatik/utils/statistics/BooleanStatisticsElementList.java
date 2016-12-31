@@ -19,7 +19,7 @@ public class BooleanStatisticsElementList extends AbstractStatisticsElementList 
 		if (element.getType() != this.getType()) {
 			return false;
 		}
-		elements.add((boolean)element.getValue());
+		elements.add((Boolean)element.getValue());
 		return true;
 	}
 

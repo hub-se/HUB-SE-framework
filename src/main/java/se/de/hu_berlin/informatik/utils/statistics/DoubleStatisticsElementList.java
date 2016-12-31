@@ -19,7 +19,7 @@ public class DoubleStatisticsElementList extends AbstractStatisticsElementList {
 		if (element.getType() != this.getType()) {
 			return false;
 		}
-		elements.add((double)element.getValue());
+		elements.add((Double)element.getValue());
 		return true;
 	}
 	

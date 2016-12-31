@@ -19,7 +19,7 @@ public class IntegerStatisticsElementList extends AbstractStatisticsElementList 
 		if (element.getType() != this.getType()) {
 			return false;
 		}
-		elements.add((int)element.getValue());
+		elements.add((Integer)element.getValue());
 		return true;
 	}
 	
