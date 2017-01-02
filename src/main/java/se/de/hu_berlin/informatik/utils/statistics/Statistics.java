@@ -4,14 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Statistics<T extends Enum<T> & Labeled> {
-	
-	public static enum StatisticType {
-		BOOLEAN,
-		INTEGER,
-		DOUBLE,
-		STRING
-	}
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
+
+public class Statistics<T extends Enum<T> & StatisticsAPI> {
 	
 	private Map<T, StatisticsElement<?>> elements;
 	
@@ -31,7 +27,7 @@ public class Statistics<T extends Enum<T> & Labeled> {
 		return elements;
 	}
 
-	private boolean addElement(T identifier, StatisticsElement<?> element) {
+	private boolean addStatisticsElementInstance(T identifier, StatisticsElement<?> element) {
 		if (elements.containsKey(identifier)) {
 			return false;
 		} else {
@@ -40,38 +36,42 @@ public class Statistics<T extends Enum<T> & Labeled> {
 		}
 	}
 	
-	public boolean addCountingElementPrefBigger(T identifier, int value) {
-		return addElement(identifier, new IntegerPrefBiggerStatisticsElement(value));
+	public boolean addStatisticsElement(T identifier, int value) {
+		if (identifier.getType() == StatisticType.INTEGER) {
+			return addStatisticsElementInstance(identifier, new IntegerStatisticsElement(value, identifier.getOptions()));
+		} else {
+			Log.err(this, "Values to add to statistics '%s' should not be of type INTEGER.", identifier.name());
+			return false;
+		}
 	}
 	
-	public boolean addCountingElementPrefSmaller(T identifier, int value) {
-		return addElement(identifier, new IntegerPrefSmallerStatisticsElement(value));
+	public boolean addStatisticsElement(T identifier, double value) {
+		if (identifier.getType() == StatisticType.DOUBLE) {
+			return addStatisticsElementInstance(identifier, new DoubleStatisticsElement(value, identifier.getOptions()));
+		} else {
+			Log.err(this, "Values to add to statistics '%s' should not be of type DOUBLE.", identifier.name());
+			return false;
+		}
 	}
 	
-	public boolean addBooleanElementPrefTrue(T identifier, boolean value) {
-		return addElement(identifier, new BooleanPrefTrueStatisticsElement(value));
+	public boolean addStatisticsElement(T identifier, boolean value) {
+		if (identifier.getType() == StatisticType.BOOLEAN) {
+			return addStatisticsElementInstance(identifier, new BooleanStatisticsElement(value, identifier.getOptions()));
+		} else {
+			Log.err(this, "Values to add to statistics '%s' should not be of type BOOLEAN.", identifier.name());
+			return false;
+		}
 	}
 	
-	public boolean addBooleanElementPrefFalse(T identifier, boolean value) {
-		return addElement(identifier, new BooleanPrefFalseStatisticsElement(value));
+	public boolean addStatisticsElement(T identifier, String value) {
+		if (identifier.getType() == StatisticType.STRING) {
+			return addStatisticsElementInstance(identifier, new StringStatisticsElement(value, identifier.getOptions()));
+		} else {
+			Log.err(this, "Values to add to statistics '%s' should not be of type STRING.", identifier.name());
+			return false;
+		}
 	}
-	
-	public boolean addStringElementPrefNew(T identifier, String value) {
-		return addElement(identifier, new StringPrefNewStatisticsElement(value));
-	}
-	
-	public boolean addStringElementPrefOld(T identifier, String value) {
-		return addElement(identifier, new StringPrefOldStatisticsElement(value));
-	}
-	
-	public boolean addDoubleValueElementPrefBigger(T identifier, double value) {
-		return addElement(identifier, new DoublePrefBiggerStatisticsElement(value));
-	}
-	
-	public boolean addDoubleValueElementPrefSmaller(T identifier, double value) {
-		return addElement(identifier, new DoublePrefSmallerStatisticsElement(value));
-	}
-	
+
 	public Statistics<T> mergeWith(Statistics<T> statistics) {
 		for (Entry<T, StatisticsElement<?>> entry : statistics.getElements().entrySet()) {
 			StatisticsElement<?> element = elements.get(entry.getKey());

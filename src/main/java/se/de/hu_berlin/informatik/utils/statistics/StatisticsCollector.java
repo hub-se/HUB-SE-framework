@@ -1,17 +1,20 @@
 package se.de.hu_berlin.informatik.utils.statistics;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class StatisticsContainer<T extends Enum<T> & Labeled> {
+public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	
-	private Map<T, StatisticsElementList> statisticsElements;
+	final private Map<T, StatisticsElementList> statisticsElements;
 	private int statisticsCounter;
+	final private Class<T> statisticsClazz;
 	
-	public StatisticsContainer() {
+	public StatisticsCollector(Class<T> statisticsClazz) {
 		this.statisticsElements = new HashMap<>();
 		this.statisticsCounter = 0;
+		this.statisticsClazz = statisticsClazz;
 	}
 
 	/**
@@ -22,7 +25,7 @@ public class StatisticsContainer<T extends Enum<T> & Labeled> {
 		return statisticsCounter;
 	}
 	
-	public StatisticsElementList getStatisticsElementList(String identifier) {
+	public StatisticsElementList getStatisticsElementList(T identifier) {
 		return statisticsElements.get(identifier);
 	}
 	
@@ -77,50 +80,58 @@ public class StatisticsContainer<T extends Enum<T> & Labeled> {
 		return result;
 	}
 
-	private String getStatistics(Entry<T, StatisticsElementList> statisticsEntry) {
-		switch (statisticsEntry.getValue().getType()) {
+	private String getStatistics(T statisticsEntry, StatisticsElementList list) {
+		switch (statisticsEntry.getType()) {
 		case STRING:
-			StringStatisticsElementList stringList = (StringStatisticsElementList) statisticsEntry.getValue();
 			StringBuilder builder = new StringBuilder();
-			for (String element : stringList.getElements()) {
-				if (element != null) {
-					builder.append(element);
-					builder.append(System.lineSeparator());
+			if (list != null) {
+				StringStatisticsElementList stringList = (StringStatisticsElementList) list;
+				for (String element : stringList.getElements()) {
+					if (element != null) {
+						builder.append(element);
+						builder.append(System.lineSeparator());
+					}
 				}
 			}
-			return stringStatistics(statisticsEntry.getKey().getLabel(), builder.toString());
+			return stringStatistics(statisticsEntry.getLabel(), builder.toString());
 		case BOOLEAN:
-			BooleanStatisticsElementList booleanList = (BooleanStatisticsElementList) statisticsEntry.getValue();
 			int trueCount = 0;
 			int falseCount = 0;
-			for (boolean element : booleanList.getElements()) {
-				if (element) {
-					++trueCount;
-				} else {
-					++falseCount;
+			if (list != null) {
+				BooleanStatisticsElementList booleanList = (BooleanStatisticsElementList) list;
+				for (boolean element : booleanList.getElements()) {
+					if (element) {
+						++trueCount;
+					} else {
+						++falseCount;
+					}
 				}
 			}
-			return booleanStatistics(statisticsEntry.getKey().getLabel(), trueCount, falseCount);
+			return booleanStatistics(statisticsEntry.getLabel(), trueCount, falseCount);
 		case DOUBLE:
-			DoubleStatisticsElementList doubleList = (DoubleStatisticsElementList) statisticsEntry.getValue();
 			int doubleCount = 0;
 			double doubleSum = 0;
 			double doubleMin = Double.POSITIVE_INFINITY;
 			double doubleMax = Double.NEGATIVE_INFINITY;
-			for (double element : doubleList.getElements()) {
-				++doubleCount;
-				doubleSum += element;
-				doubleMin = doubleMin > element ? element : doubleMin;
-				doubleMax = doubleMax < element ? element : doubleMax;
+			if (list != null) {
+				DoubleStatisticsElementList doubleList = (DoubleStatisticsElementList) list;
+				for (double element : doubleList.getElements()) {
+					++doubleCount;
+					doubleSum += element;
+					doubleMin = doubleMin > element ? element : doubleMin;
+					doubleMax = doubleMax < element ? element : doubleMax;
+				}
 			}
-			return doubleStatistics(statisticsEntry.getKey().getLabel(), doubleCount, doubleSum, doubleMin, doubleMax);
+			return doubleStatistics(statisticsEntry.getLabel(), doubleCount, doubleSum, doubleMin, doubleMax);
 		case INTEGER:
-			IntegerStatisticsElementList integerList = (IntegerStatisticsElementList) statisticsEntry.getValue();
 			int integerCount = 0;
-			for (int element : integerList.getElements()) {
-				integerCount += element;
+			if (list != null) {
+				IntegerStatisticsElementList integerList = (IntegerStatisticsElementList) list;
+				for (int element : integerList.getElements()) {
+					integerCount += element;
+				}
 			}
-			return integerStatistics(statisticsEntry.getKey().getLabel(), integerCount);
+			return integerStatistics(statisticsEntry.getLabel(), integerCount);
 		default:
 			break;
 		}
@@ -132,7 +143,7 @@ public class StatisticsContainer<T extends Enum<T> & Labeled> {
 	}
 
 	private String doubleStatistics(String identifier, int doubleCount, double doubleSum, double doubleMin, double doubleMax) {
-		return identifier + " -> count: " + doubleCount + ", min: " + doubleMin + ", max: " + doubleMax + ", mean: " + (doubleSum/(double)doubleCount);
+		return identifier + " -> min: " + doubleMin + ", max: " + doubleMax + ", mean: " + (doubleSum/(double)doubleCount);
 	}
 
 	private String integerStatistics(String identifier, int count) {
@@ -140,13 +151,20 @@ public class StatisticsContainer<T extends Enum<T> & Labeled> {
 	}
 
 	private String booleanStatistics(String identifier, int trueCount, int falseCount) {
-		return identifier + " -> true: " + trueCount + ", false: " + falseCount + ", unknown: " + (statisticsCounter - trueCount - falseCount);
+		String result = identifier + " -> true: " + trueCount + ", false: " + falseCount;
+		int unknown = statisticsCounter - trueCount - falseCount;
+		if (unknown == 0) {
+			return result;
+		} else {
+			return result + ", unknown: " + unknown;
+		}
 	}
 
 	public String printStatistics() {
 		StringBuilder builder = new StringBuilder();
-		for (Entry<T, StatisticsElementList> statisticsEntry : statisticsElements.entrySet()) {
-			builder.append(getStatistics(statisticsEntry));
+		for (T statisticsEntry : EnumSet.allOf(statisticsClazz)) {
+			StatisticsElementList list = statisticsElements.get(statisticsEntry);
+			builder.append(getStatistics(statisticsEntry, list));
 			builder.append(System.lineSeparator());
 		}
 		return builder.toString();

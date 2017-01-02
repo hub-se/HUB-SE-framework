@@ -1,17 +1,17 @@
 package se.de.hu_berlin.informatik.utils.statistics;
 
-import se.de.hu_berlin.informatik.utils.statistics.Statistics.StatisticType;
+import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 
 public abstract class AbstractStatisticsElement<T> implements StatisticsElement<T> {
 
-	private Statistics.StatisticType type;
+	private StatisticType type;
 	
 	public AbstractStatisticsElement(StatisticType type) {
 		super();
 		this.type = type;
 	}
 
-	public Statistics.StatisticType getType() {
+	public StatisticType getType() {
 		return type;
 	}
 	

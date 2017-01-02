@@ -3,7 +3,7 @@ package se.de.hu_berlin.informatik.utils.statistics;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.statistics.Statistics.StatisticType;
+import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 
 public class BooleanStatisticsElementList extends AbstractStatisticsElementList {
 	

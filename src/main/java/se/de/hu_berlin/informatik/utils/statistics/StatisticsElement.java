@@ -1,12 +1,12 @@
 package se.de.hu_berlin.informatik.utils.statistics;
 
+import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
+
 public interface StatisticsElement<T> {
 
-	public Statistics.StatisticType getType();
+	public StatisticType getType();
 	
 	public T getValue();
-	
-	public void setValue(T value);
 
 	public void mergeWith(StatisticsElement<?> element);
 	
