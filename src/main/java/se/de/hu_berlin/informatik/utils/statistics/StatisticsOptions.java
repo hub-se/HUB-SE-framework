@@ -18,11 +18,15 @@ public enum StatisticsOptions {
 	 */
 	PREF_FALSE,
 	/**
-	 * When merging two elements, prefer the newer (non-null) one.
+	 * When merging two String elements, prefer the newer (non-null) one.
 	 */
 	PREF_NEW,
 	/**
-	 * When merging two elements, prefer the older (non-null) one.
+	 * When merging two String elements, prefer the older (non-null) one.
 	 */
-	PREF_OLD
+	PREF_OLD,
+	/**
+	 * When merging two String elements, concat (non-null) ones.
+	 */
+	CONCAT
 }
