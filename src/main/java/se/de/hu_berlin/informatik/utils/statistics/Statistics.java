@@ -37,19 +37,27 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 	}
 	
 	public boolean addStatisticsElement(T identifier, int value) {
-		if (identifier.getType() == StatisticType.INTEGER) {
-			return addStatisticsElementInstance(identifier, new IntegerStatisticsElement(value, identifier.getOptions()));
+		if (identifier.getType() == StatisticType.COUNT) {
+			return addStatisticsElementInstance(identifier, new CountingStatisticsElement(value, identifier.getOptions()));
+		} else if (identifier.getType() == StatisticType.INTEGER_VALUE) {
+			return addStatisticsElementInstance(identifier, new IntegerValueStatisticsElement(value, identifier.getOptions()));
+		} else if (identifier.getType() == StatisticType.DOUBLE_VALUE) {
+			return addStatisticsElementInstance(identifier, new DoubleValueStatisticsElement((double)value, identifier.getOptions()));
 		} else {
-			Log.err(this, "Values to add to statistics '%s' should not be of type INTEGER.", identifier.name());
+			Log.err(this, "Can not add INTEGER to statistics '%s'.", identifier.name());
 			return false;
 		}
 	}
 	
 	public boolean addStatisticsElement(T identifier, double value) {
-		if (identifier.getType() == StatisticType.DOUBLE) {
-			return addStatisticsElementInstance(identifier, new DoubleStatisticsElement(value, identifier.getOptions()));
+		if (identifier.getType() == StatisticType.COUNT) {
+			return addStatisticsElementInstance(identifier, new CountingStatisticsElement((int)value, identifier.getOptions()));
+		} else if (identifier.getType() == StatisticType.INTEGER_VALUE) {
+			return addStatisticsElementInstance(identifier, new IntegerValueStatisticsElement((int)value, identifier.getOptions()));
+		} else if (identifier.getType() == StatisticType.DOUBLE_VALUE) {
+			return addStatisticsElementInstance(identifier, new DoubleValueStatisticsElement(value, identifier.getOptions()));
 		} else {
-			Log.err(this, "Values to add to statistics '%s' should not be of type DOUBLE.", identifier.name());
+			Log.err(this, "Can not add DOUBLE to statistics '%s'.", identifier.name());
 			return false;
 		}
 	}
@@ -58,7 +66,7 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 		if (identifier.getType() == StatisticType.BOOLEAN) {
 			return addStatisticsElementInstance(identifier, new BooleanStatisticsElement(value, identifier.getOptions()));
 		} else {
-			Log.err(this, "Values to add to statistics '%s' should not be of type BOOLEAN.", identifier.name());
+			Log.err(this, "Can not add BOOLEAN to statistics '%s'.", identifier.name());
 			return false;
 		}
 	}
@@ -67,7 +75,7 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 		if (identifier.getType() == StatisticType.STRING) {
 			return addStatisticsElementInstance(identifier, new StringStatisticsElement(value, identifier.getOptions()));
 		} else {
-			Log.err(this, "Values to add to statistics '%s' should not be of type STRING.", identifier.name());
+			Log.err(this, "Can not add String to statistics '%s'.", identifier.name());
 			return false;
 		}
 	}

@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	
-	final private Map<T, StatisticsElementList> statisticsElements;
+	final private Map<T, StatisticsElementCollector> statisticsElements;
 	private int statisticsCounter;
 	final private Class<T> statisticsClazz;
 	
@@ -25,7 +25,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 		return statisticsCounter;
 	}
 	
-	public StatisticsElementList getStatisticsElementList(T identifier) {
+	public StatisticsElementCollector getStatisticsElementList(T identifier) {
 		return statisticsElements.get(identifier);
 	}
 	
@@ -33,7 +33,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	 * @return
 	 * a map with lists of added statistics elements
 	 */
-	public Map<T, StatisticsElementList> getStatisticsElements() {
+	public Map<T, StatisticsElementCollector> getStatisticsElements() {
 		return statisticsElements;
 	}
 
@@ -51,22 +51,27 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 			switch(element.getValue().getType()) {
 			case STRING:
 				temp = statisticsElements.computeIfAbsent(element.getKey(), 
-						k -> new StringStatisticsElementList())
+						k -> new StringStatisticsElementCollector())
 						.addElement(element.getValue());
 				break;
 			case BOOLEAN:
 				temp = statisticsElements.computeIfAbsent(element.getKey(), 
-						k -> new BooleanStatisticsElementList())
+						k -> new BooleanStatisticsElementCollector())
 						.addElement(element.getValue());
 				break;
-			case DOUBLE:
+			case DOUBLE_VALUE:
 				temp = statisticsElements.computeIfAbsent(element.getKey(), 
-						k -> new DoubleStatisticsElementList())
+						k -> new DoubleValueStatisticsElementCollector())
 						.addElement(element.getValue());
 				break;
-			case INTEGER:
+			case INTEGER_VALUE:
 				temp = statisticsElements.computeIfAbsent(element.getKey(), 
-						k -> new IntegerStatisticsElementList())
+						k -> new IntegerValueStatisticsElementCollector())
+						.addElement(element.getValue());
+				break;
+			case COUNT:
+				temp = statisticsElements.computeIfAbsent(element.getKey(), 
+						k -> new CountingStatisticsElementCollector())
 						.addElement(element.getValue());
 				break;
 			default:
@@ -80,12 +85,12 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 		return result;
 	}
 
-	private String getStatistics(T statisticsEntry, StatisticsElementList list) {
+	private String getStatistics(T statisticsEntry, StatisticsElementCollector list) {
 		switch (statisticsEntry.getType()) {
 		case STRING:
 			StringBuilder builder = new StringBuilder();
 			if (list != null) {
-				StringStatisticsElementList stringList = (StringStatisticsElementList) list;
+				StringStatisticsElementCollector stringList = (StringStatisticsElementCollector) list;
 				for (String element : stringList.getElements()) {
 					if (element != null) {
 						builder.append(element);
@@ -98,7 +103,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 			int trueCount = 0;
 			int falseCount = 0;
 			if (list != null) {
-				BooleanStatisticsElementList booleanList = (BooleanStatisticsElementList) list;
+				BooleanStatisticsElementCollector booleanList = (BooleanStatisticsElementCollector) list;
 				for (boolean element : booleanList.getElements()) {
 					if (element) {
 						++trueCount;
@@ -108,13 +113,13 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 				}
 			}
 			return booleanStatistics(statisticsEntry.getLabel(), trueCount, falseCount);
-		case DOUBLE:
+		case DOUBLE_VALUE:
 			int doubleCount = 0;
 			double doubleSum = 0;
 			double doubleMin = Double.POSITIVE_INFINITY;
 			double doubleMax = Double.NEGATIVE_INFINITY;
 			if (list != null) {
-				DoubleStatisticsElementList doubleList = (DoubleStatisticsElementList) list;
+				DoubleValueStatisticsElementCollector doubleList = (DoubleValueStatisticsElementCollector) list;
 				for (double element : doubleList.getElements()) {
 					++doubleCount;
 					doubleSum += element;
@@ -123,15 +128,27 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 				}
 			}
 			return doubleStatistics(statisticsEntry.getLabel(), doubleCount, doubleSum, doubleMin, doubleMax);
-		case INTEGER:
+		case INTEGER_VALUE:
 			int integerCount = 0;
+			long integerSum = 0;
+			int integerMin = Integer.MAX_VALUE;
+			int integerMax = Integer.MIN_VALUE;
 			if (list != null) {
-				IntegerStatisticsElementList integerList = (IntegerStatisticsElementList) list;
+				IntegerValueStatisticsElementCollector integerList = (IntegerValueStatisticsElementCollector) list;
 				for (int element : integerList.getElements()) {
-					integerCount += element;
+					++integerCount;
+					integerSum += element;
+					integerMin = integerMin > element ? element : integerMin;
+					integerMax = integerMax < element ? element : integerMax;
 				}
 			}
-			return integerStatistics(statisticsEntry.getLabel(), integerCount);
+			return integerStatistics(statisticsEntry.getLabel(), integerCount, integerSum, integerMin, integerMax);
+		case COUNT:
+			long count = 0;
+			if (list != null) {
+				count = ((CountingStatisticsElementCollector) list).getElementCount();
+			}
+			return countStatistics(statisticsEntry.getLabel(), count);
 		default:
 			break;
 		}
@@ -145,8 +162,12 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	private String doubleStatistics(String identifier, int doubleCount, double doubleSum, double doubleMin, double doubleMax) {
 		return identifier + " -> min: " + doubleMin + ", max: " + doubleMax + ", mean: " + (doubleSum/(double)doubleCount);
 	}
+	
+	private String integerStatistics(String identifier, int integerCount, long integerSum, int integerMin, int integerMax) {
+		return identifier + " -> min: " + integerMin + ", max: " + integerMax + ", mean: " + ((double)integerSum/(double)integerCount);
+	}
 
-	private String integerStatistics(String identifier, int count) {
+	private String countStatistics(String identifier, long count) {
 		return identifier + " -> count: " + count;
 	}
 
@@ -163,7 +184,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	public String printStatistics() {
 		StringBuilder builder = new StringBuilder();
 		for (T statisticsEntry : EnumSet.allOf(statisticsClazz)) {
-			StatisticsElementList list = statisticsElements.get(statisticsEntry);
+			StatisticsElementCollector list = statisticsElements.get(statisticsEntry);
 			builder.append(getStatistics(statisticsEntry, list));
 			builder.append(System.lineSeparator());
 		}

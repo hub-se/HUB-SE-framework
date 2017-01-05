@@ -4,8 +4,9 @@ public interface StatisticsAPI {
 	
 	public static enum StatisticType {
 		BOOLEAN,
-		INTEGER,
-		DOUBLE,
+		COUNT,
+		INTEGER_VALUE,
+		DOUBLE_VALUE,
 		STRING
 	}
 	

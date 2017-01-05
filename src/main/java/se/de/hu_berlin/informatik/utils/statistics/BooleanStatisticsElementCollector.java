@@ -5,12 +5,12 @@ import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 
-public class StringStatisticsElementList extends AbstractStatisticsElementList {
+public class BooleanStatisticsElementCollector extends AbstractStatisticsElementCollector {
 	
-	private List<String> elements;
+	private List<Boolean> elements;
 	
-	public StringStatisticsElementList() {
-		super(StatisticType.STRING);
+	public BooleanStatisticsElementCollector() {
+		super(StatisticType.BOOLEAN);
 		this.elements = new ArrayList<>();
 	}
 	
@@ -19,11 +19,11 @@ public class StringStatisticsElementList extends AbstractStatisticsElementList {
 		if (element.getType() != this.getType()) {
 			return false;
 		}
-		elements.add((String)element.getValue());
+		elements.add((Boolean)element.getValue());
 		return true;
 	}
 
-	public List<String> getElements() {
+	public List<Boolean> getElements() {
 		return elements;
 	}
 	

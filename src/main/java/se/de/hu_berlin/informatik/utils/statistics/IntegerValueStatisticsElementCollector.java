@@ -5,12 +5,12 @@ import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 
-public class IntegerStatisticsElementList extends AbstractStatisticsElementList {
+public class IntegerValueStatisticsElementCollector extends AbstractStatisticsElementCollector {
 	
 	private List<Integer> elements;
 	
-	public IntegerStatisticsElementList() {
-		super(StatisticType.INTEGER);
+	public IntegerValueStatisticsElementCollector() {
+		super(StatisticType.INTEGER_VALUE);
 		this.elements = new ArrayList<>();
 	}
 	
