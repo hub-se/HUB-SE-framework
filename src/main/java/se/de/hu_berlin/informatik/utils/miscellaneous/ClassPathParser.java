@@ -47,6 +47,8 @@ public class ClassPathParser {
 	        final File file = new File(pathElement);
 	        if (file.exists()) {
 	            classpathElements.add(file);
+	        } else {
+	        	Log.err(this, "'%s' does not exist and is not added to class path.", file);
 	        }
 	    }
 	}
@@ -90,6 +92,8 @@ public class ClassPathParser {
 	            for (final URL url : ((URLClassLoader) cl).getURLs()) {
 	                if ("file".equals(url.getProtocol())) {
 	                    addClasspathElement(url.getFile());
+	                } else {
+	                	Log.warn(this, "'%s' was not added to class path with protocol '%s'", url, url.getProtocol());
 	                }
 	            }
 	        }

@@ -27,13 +27,20 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 		return elements;
 	}
 
-	private boolean addStatisticsElementInstance(T identifier, StatisticsElement<?> element) {
-		if (elements.containsKey(identifier)) {
-			return false;
+	private boolean addStatisticsElementInstance(T identifier, StatisticsElement<?> elementToAdd) {
+		StatisticsElement<?> element = elements.get(identifier);
+		if (element == null) {
+			elements.put(identifier, elementToAdd);
 		} else {
-			elements.put(identifier, element);
-			return true;
+			element.mergeWith(elementToAdd);
 		}
+//		if (elements.containsKey(identifier)) {
+//			return false;
+//		} else {
+//			elements.put(identifier, element);
+//			return true;
+//		}
+		return true;
 	}
 	
 	public boolean addStatisticsElement(T identifier, int value) {
