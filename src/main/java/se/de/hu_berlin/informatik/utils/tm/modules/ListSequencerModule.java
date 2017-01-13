@@ -12,7 +12,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @author Simon Heiden
  */
-public class ListSequencerModule<A extends List<B>,B> extends AbstractModule<A,B> {
+public class ListSequencerModule<B> extends AbstractModule<List<B>,B> {
 
 	/**
 	 * Creates a new {@link ListSequencerModule} object.
@@ -21,10 +21,8 @@ public class ListSequencerModule<A extends List<B>,B> extends AbstractModule<A,B
 		super(true);
 	}
 
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
-	 */
-	public B processItem(A list) {
+	@Override
+	public B processItem(List<B> list) {
 		if (list.size() == 0) {
 			//will produce an error if submitted to a linked module
 			return null;

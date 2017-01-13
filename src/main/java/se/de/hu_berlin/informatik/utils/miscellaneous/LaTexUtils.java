@@ -79,6 +79,31 @@ final public class LaTexUtils {
 		return lines;
 	}
 	
+	/**
+	 * Generates a LaTex table from the given data.
+	 * @param data
+	 * a list of list of String arrays
+	 * @return
+	 * the generated table as a list of Strings
+	 */
+	public static List<String> generateSimpleLaTexTable(final List<String[]> data) {
+		if (data == null || data.isEmpty()) {
+			Log.abort(LaTexUtils.class, "No data given.");
+		}
+		final List<String> lines = new ArrayList<>(data.size() + 2);
+		
+		lines.add(generateTableHeader(data.get(0).length));
+		
+		//fill table
+		for (final String[] row : data) {
+			lines.add(generateTableLine(row) + LATEX_TABLE_EOL + LATEX_TABLE_HLINE);
+		}
+		
+		lines.add(generateTableFooter());
+		
+		return lines;
+	}
+	
 	private static String generateTableHeader(final int numberOfColumns) {
 		final StringBuilder builder = new StringBuilder("\\begin{center}\\begin{tabular}{|");
 		for (int i = 0; i < numberOfColumns; ++i) {
