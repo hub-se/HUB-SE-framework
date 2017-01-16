@@ -55,4 +55,9 @@ public class BooleanStatisticsElement extends AbstractStatisticsElement<Boolean>
 		}
 	}
 	
+	@Override
+	public String getValueAsString() {
+		return String.valueOf(value);
+	}
+	
 }

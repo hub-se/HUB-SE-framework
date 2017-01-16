@@ -1,9 +1,14 @@
 package se.de.hu_berlin.informatik.utils.statistics;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
+import se.de.hu_berlin.informatik.utils.fileoperations.csv.CSVUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 
@@ -100,4 +105,44 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 		return this;
 	}
 
+	public void saveToCSV(Path output) {
+		List<String[]> list = new ArrayList<>();
+		for (Entry<T, StatisticsElement<?>> statisticsEntry : elements.entrySet()) {
+			String[] array = { statisticsEntry.getKey().name(), statisticsEntry.getValue().getValueAsString() };
+			list.add(array);
+		}
+		new ListToFileWriterModule<List<String>>(output, true).submit(CSVUtils.toCsv(list));
+	}
+	
+	public void loadAndMergeFromCSV(Class<T> clazz, Path input) {
+		List<String[]> list = CSVUtils.readCSVFileToListOfStringArrays(input, false);
+		for (String[] array : list) {
+			if (array.length == 2) {
+				T enumKey = Enum.valueOf(clazz, array[0]);
+				switch (enumKey.getType()) {
+				case BOOLEAN:
+					addStatisticsElement(enumKey, Boolean.parseBoolean(array[1]));
+					break;
+				case COUNT:
+					addStatisticsElement(enumKey, Integer.valueOf(array[1]));
+					break;
+				case DOUBLE_VALUE:
+					addStatisticsElement(enumKey, Double.valueOf(array[1]));
+					break;
+				case INTEGER_VALUE:
+					addStatisticsElement(enumKey, Integer.valueOf(array[1]));
+					break;
+				case STRING:
+					addStatisticsElement(enumKey, array[1]);
+					break;
+				default:
+					Log.err(this, "No strategy for type '%s' available.", enumKey.getType());
+					break;
+				}
+			} else {
+				Log.err(this, "CSV file '%s' has the wrong format.", input);
+			}
+		}
+	}
+	
 }

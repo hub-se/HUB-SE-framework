@@ -55,5 +55,10 @@ public class IntegerValueStatisticsElement extends AbstractStatisticsElement<Int
 			}
 		}
 	}
+
+	@Override
+	public String getValueAsString() {
+		return String.valueOf(value);
+	}
 	
 }

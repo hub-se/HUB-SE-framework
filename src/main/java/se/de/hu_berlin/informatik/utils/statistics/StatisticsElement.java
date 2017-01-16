@@ -9,5 +9,7 @@ public interface StatisticsElement<T> {
 	public T getValue();
 
 	public void mergeWith(StatisticsElement<?> element);
+
+	public String getValueAsString();
 	
 }

@@ -56,4 +56,9 @@ public class CountingStatisticsElement extends AbstractStatisticsElement<Integer
 		}
 	}
 	
+	@Override
+	public String getValueAsString() {
+		return String.valueOf(value);
+	}
+	
 }

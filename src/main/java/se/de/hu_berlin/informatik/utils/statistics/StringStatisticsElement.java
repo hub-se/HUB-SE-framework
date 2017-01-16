@@ -65,5 +65,10 @@ public class StringStatisticsElement extends AbstractStatisticsElement<String> {
 			}
 		}
 	}
+
+	@Override
+	public String getValueAsString() {
+		return value;
+	}
 	
 }

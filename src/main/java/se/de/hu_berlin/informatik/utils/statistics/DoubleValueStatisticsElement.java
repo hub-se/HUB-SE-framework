@@ -56,4 +56,9 @@ public class DoubleValueStatisticsElement extends AbstractStatisticsElement<Doub
 		}
 	}
 	
+	@Override
+	public String getValueAsString() {
+		return String.valueOf(value);
+	}
+	
 }
