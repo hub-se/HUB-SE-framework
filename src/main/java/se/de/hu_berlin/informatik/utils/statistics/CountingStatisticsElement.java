@@ -61,4 +61,19 @@ public class CountingStatisticsElement extends AbstractStatisticsElement<Integer
 		return String.valueOf(value);
 	}
 	
+	@Override
+	public boolean getValueAsBoolean() {
+		return value == 0 ? false : true;
+	}
+
+	@Override
+	public int getValueAsInteger() {
+		return value;
+	}
+
+	@Override
+	public double getValueAsDouble() {
+		return Double.valueOf(value);
+	}
+	
 }

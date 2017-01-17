@@ -70,5 +70,20 @@ public class StringStatisticsElement extends AbstractStatisticsElement<String> {
 	public String getValueAsString() {
 		return value;
 	}
+
+	@Override
+	public boolean getValueAsBoolean() {
+		return Boolean.parseBoolean(value);
+	}
+
+	@Override
+	public int getValueAsInteger() throws NumberFormatException {
+		return Integer.valueOf(value);
+	}
+
+	@Override
+	public double getValueAsDouble() throws NumberFormatException {
+		return Double.valueOf(value);
+	}
 	
 }

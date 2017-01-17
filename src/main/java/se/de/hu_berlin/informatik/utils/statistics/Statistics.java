@@ -114,35 +114,48 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 		new ListToFileWriterModule<List<String>>(output, true).submit(CSVUtils.toCsv(list));
 	}
 	
-	public void loadAndMergeFromCSV(Class<T> clazz, Path input) {
+	public static <T extends Enum<T> & StatisticsAPI> Statistics<T> loadAndMergeFromCSV(Class<T> clazz, Path input) {
+		Statistics<T> statistics = new Statistics<T>();
 		List<String[]> list = CSVUtils.readCSVFileToListOfStringArrays(input, false);
 		for (String[] array : list) {
 			if (array.length == 2) {
 				T enumKey = Enum.valueOf(clazz, array[0]);
 				switch (enumKey.getType()) {
 				case BOOLEAN:
-					addStatisticsElement(enumKey, Boolean.parseBoolean(array[1]));
+					statistics.addStatisticsElement(enumKey, Boolean.valueOf(array[1]));
 					break;
 				case COUNT:
-					addStatisticsElement(enumKey, Integer.valueOf(array[1]));
+					statistics.addStatisticsElement(enumKey, Integer.valueOf(array[1]));
 					break;
 				case DOUBLE_VALUE:
-					addStatisticsElement(enumKey, Double.valueOf(array[1]));
+					statistics.addStatisticsElement(enumKey, Double.valueOf(array[1]));
 					break;
 				case INTEGER_VALUE:
-					addStatisticsElement(enumKey, Integer.valueOf(array[1]));
+					statistics.addStatisticsElement(enumKey, Integer.valueOf(array[1]));
 					break;
 				case STRING:
-					addStatisticsElement(enumKey, array[1]);
+					statistics.addStatisticsElement(enumKey, array[1]);
 					break;
 				default:
-					Log.err(this, "No strategy for type '%s' available.", enumKey.getType());
+					Log.err(Statistics.class, "No strategy for type '%s' available.", enumKey.getType());
 					break;
 				}
 			} else {
-				Log.err(this, "CSV file '%s' has the wrong format.", input);
+				Log.err(Statistics.class, "CSV file '%s' has the wrong format.", input);
+				return null;
 			}
 		}
+		return statistics;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (Entry<T, StatisticsElement<?>> statisticsEntry : elements.entrySet()) {
+			builder.append(statisticsEntry.getKey().getLabel() + " -> " + statisticsEntry.getValue().getValueAsString());
+			builder.append(System.lineSeparator());
+		}
+		return builder.toString();
 	}
 	
 }

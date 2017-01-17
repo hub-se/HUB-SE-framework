@@ -60,4 +60,19 @@ public class BooleanStatisticsElement extends AbstractStatisticsElement<Boolean>
 		return String.valueOf(value);
 	}
 	
+	@Override
+	public boolean getValueAsBoolean() {
+		return value;
+	}
+
+	@Override
+	public int getValueAsInteger() {
+		return value ? 1 : 0;
+	}
+
+	@Override
+	public double getValueAsDouble() {
+		return value ? 1.0 : 0.0;
+	}
+	
 }

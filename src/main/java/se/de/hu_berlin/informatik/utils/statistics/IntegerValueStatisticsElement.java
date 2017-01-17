@@ -60,5 +60,20 @@ public class IntegerValueStatisticsElement extends AbstractStatisticsElement<Int
 	public String getValueAsString() {
 		return String.valueOf(value);
 	}
+
+	@Override
+	public boolean getValueAsBoolean() {
+		return value == 0 ? true : false;
+	}
+
+	@Override
+	public int getValueAsInteger() {
+		return value;
+	}
+
+	@Override
+	public double getValueAsDouble() {
+		return Double.valueOf(value);
+	}
 	
 }

@@ -12,4 +12,10 @@ public interface StatisticsElement<T> {
 
 	public String getValueAsString();
 	
+	public boolean getValueAsBoolean();
+	
+	public int getValueAsInteger();
+	
+	public double getValueAsDouble();
+	
 }

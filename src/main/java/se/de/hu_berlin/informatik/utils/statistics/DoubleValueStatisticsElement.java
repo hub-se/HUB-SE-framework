@@ -60,5 +60,20 @@ public class DoubleValueStatisticsElement extends AbstractStatisticsElement<Doub
 	public String getValueAsString() {
 		return String.valueOf(value);
 	}
+
+	@Override
+	public boolean getValueAsBoolean() {
+		return false;
+	}
+
+	@Override
+	public int getValueAsInteger() {
+		return (int) value;
+	}
+
+	@Override
+	public double getValueAsDouble() {
+		return value;
+	}
 	
 }
