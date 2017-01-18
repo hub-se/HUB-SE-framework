@@ -65,6 +65,7 @@ public class DisruptorProvider<A> implements Trackable {
 	private int minimalBufferSize = 0;
 	
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
+	private boolean onlyForced = false;
 
 	/**
 	 * Creates a new disruptor provider with the minimal given buffer size. 
@@ -335,5 +336,15 @@ public class DisruptorProvider<A> implements Trackable {
 	@Override
 	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
+	}
+
+	@Override
+	public boolean onlyForced() {
+		return onlyForced ;
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		onlyForced = true;
 	}
 }

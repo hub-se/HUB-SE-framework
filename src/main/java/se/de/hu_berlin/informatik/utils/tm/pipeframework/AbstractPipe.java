@@ -72,6 +72,8 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 			throw new UnsupportedOperationException("Trying to create new pipe when one already exists.");
 		}
 	};
+
+	private boolean onlyForced = false;
 	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
@@ -303,5 +305,15 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	@Override
 	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
+	}
+	
+	@Override
+	public boolean onlyForced() {
+		return onlyForced ;
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		onlyForced = true;
 	}
 }

@@ -155,6 +155,8 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
         	} catch (InterruptedException e) {
         	}
         }
+        
+        p.destroyForcibly();
 
 //        while (consumer.isAlive()) {
 //        	try {

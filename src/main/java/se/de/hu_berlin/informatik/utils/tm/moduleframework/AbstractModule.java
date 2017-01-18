@@ -71,6 +71,8 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 			throw new UnsupportedOperationException("Trying to create new module when one already exists.");
 		}
 	};
+
+	private boolean onlyForced = false;
 	
 	/**
 	 * Creates a new module with the given parameter.
@@ -227,6 +229,16 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 		this.tracker = tracker;
 	}
 	
+	@Override
+	public boolean onlyForced() {
+		return onlyForced;
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		onlyForced = true;
+	}
+
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider#asPipe()
 	 */

@@ -160,7 +160,7 @@ public class ModuleLinker implements Trackable {
 	@Override
 	public boolean isTracking() {
 		if (startModule != null) {
-			startModule.isTracking();
+			return startModule.isTracking();
 		}
 		return false;
 	}
@@ -198,6 +198,22 @@ public class ModuleLinker implements Trackable {
 	public void setTracker(TrackingStrategy tracker) {
 		if (startModule != null) {
 			startModule.setTracker(tracker);
+		}
+	}
+
+	@Override
+	public boolean onlyForced() {
+		if (startModule != null) {
+			return startModule.onlyForced();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		if (startModule != null) {
+			startModule.allowOnlyForcedTracks();
 		}
 	}
 }

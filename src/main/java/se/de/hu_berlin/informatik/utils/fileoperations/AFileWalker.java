@@ -40,6 +40,7 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	
 	private boolean isFirst;
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
+	private boolean onlyForced  = false;
 	
 	protected AFileWalker(Builder builder) {
 		matcher = builder.matcher;
@@ -202,6 +203,16 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	@Override
 	public void setTracker(TrackingStrategy tracker) {
 		this.tracker = tracker;
+	}
+	
+	@Override
+	public boolean onlyForced() {
+		return onlyForced;
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		onlyForced = true;
 	}
 
 	/**

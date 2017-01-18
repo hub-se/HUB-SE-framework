@@ -107,14 +107,51 @@ public interface Trackable {
 	
 	/**
 	 * Tracks the progress for a processed element if tracking
-	 * has been enabled.
+	 * has been enabled. Will be ignored if only forced tracks
+	 * are allowed.
 	 * @throws NullPointerException
 	 * if getTracker() returns null
 	 */
 	default public void track() throws NullPointerException {
-//		if (isTracking()) {
+		if (!onlyForced()) {
 			getTracker().track();
-//		}
+		}
+	}
+	
+	/**
+	 * @return
+	 * whether only forced tracks are allowed
+	 */
+	public boolean onlyForced();
+	
+	/**
+	 * Disallows normal tracking and only allows forced tracks.
+	 */
+	public void allowOnlyForcedTracks();
+
+	/**
+	 * Tracks the progress for a processed element if tracking
+	 * has been enabled.
+	 * @throws NullPointerException
+	 * if getTracker() returns null
+	 */
+	default public void forceTrack() throws NullPointerException {
+		getTracker().track();
+	}
+	
+	/**
+	 * Tracks the progress for a processed element if tracking
+	 * has been enabled. Will be ignored if only forced tracks
+	 * are allowed.
+	 * @param msg
+	 * a message to display
+	 * @throws NullPointerException
+	 * if getTracker() returns null
+	 */
+	default public void track(String msg) throws NullPointerException {
+		if (!onlyForced()) {
+			getTracker().track(msg);
+		}
 	}
 	
 	/**
@@ -125,10 +162,8 @@ public interface Trackable {
 	 * @throws NullPointerException
 	 * if getTracker() returns null
 	 */
-	default public void track(String msg) throws NullPointerException {
-//		if (isTracking()) {
+	default public void forceTrack(String msg) throws NullPointerException {
 			getTracker().track(msg);
-//		}
 	}
 	
 	/**

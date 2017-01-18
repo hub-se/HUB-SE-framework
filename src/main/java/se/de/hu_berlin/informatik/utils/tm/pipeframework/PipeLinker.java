@@ -219,4 +219,20 @@ public class PipeLinker implements Trackable {
 		}
 	}
 	
+	@Override
+	public boolean onlyForced() {
+		if (startPipe != null) {
+			return startPipe.onlyForced();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public void allowOnlyForcedTracks() {
+		if (startPipe != null) {
+			startPipe.allowOnlyForcedTracks();
+		}
+	}
+	
 }
