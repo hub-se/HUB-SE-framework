@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.statistics;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -182,13 +183,37 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	}
 
 	public String printStatistics() {
+		return printStatistics(EnumSet.allOf(statisticsClazz));
+	}
+	
+	public String printStatistics(EnumSet<T> statisticsEntries) {
 		StringBuilder builder = new StringBuilder();
-		for (T statisticsEntry : EnumSet.allOf(statisticsClazz)) {
-			StatisticsElementCollector list = statisticsElements.get(statisticsEntry);
-			builder.append(getStatistics(statisticsEntry, list));
-			builder.append(System.lineSeparator());
+		for (T statisticsEntry : statisticsEntries) {
+			printStatisticsForSingleEntry(builder, statisticsEntry);
 		}
 		return builder.toString();
+	}
+	
+	public String printStatistics(Collection<T> statisticsEntries) {
+		StringBuilder builder = new StringBuilder();
+		for (T statisticsEntry : statisticsEntries) {
+			printStatisticsForSingleEntry(builder, statisticsEntry);
+		}
+		return builder.toString();
+	}
+	
+	public String printStatistics(@SuppressWarnings("unchecked") T... statisticsEntries) {
+		StringBuilder builder = new StringBuilder();
+		for (T statisticsEntry : statisticsEntries) {
+			printStatisticsForSingleEntry(builder, statisticsEntry);
+		}
+		return builder.toString();
+	}
+
+	private void printStatisticsForSingleEntry(StringBuilder builder, T statisticsEntry) {
+		StatisticsElementCollector list = statisticsElements.get(statisticsEntry);
+		builder.append(getStatistics(statisticsEntry, list));
+		builder.append(System.lineSeparator());
 	}
 
 }
