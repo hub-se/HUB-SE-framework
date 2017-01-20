@@ -360,6 +360,33 @@ final public class FileUtils {
 	}
 	
 	/**
+	 * Writes the given Strings to the provided file. If the file does not exist, it will be created.
+	 * @param strings
+	 * the strings to write
+	 * @param file
+	 * the output file
+	 * @throws IOException
+	 * if the file is a directory or can not be opened or written to
+	 */
+	public static void writeStrings2File(final File file, final String... strings) throws IOException {
+		if (strings.length < 1) {
+			Log.warn(FileUtils.class, "No Strings given to write to file. Only creating an empty file...");
+		}
+		
+		if (!file.exists()) {
+			ensureParentDir(file);
+			file.createNewFile();
+		}
+		try (final PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)))) {
+			for (String string : strings) {
+				writer.println(string);
+			}
+		} catch (IOException e) {
+			throw e;
+		}
+	}
+	
+	/**
 	 * Appends a String to the provided file. If the file does not exist, it will be created.
 	 * @param string
 	 * the string to append
