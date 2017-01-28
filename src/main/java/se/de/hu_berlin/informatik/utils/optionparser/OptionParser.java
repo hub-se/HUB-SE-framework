@@ -22,7 +22,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
-import se.de.hu_berlin.informatik.utils.miscellaneous.Abort;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUtilities;
 
@@ -317,28 +316,24 @@ final public class OptionParser {
 	}
 	
 	/**
-	 * Prints the help message and exits with a runtime exception
-	 * and an error message concerning the given option parameter.
+	 * Prints the help message and exits with an error 
+	 * message concerning the given option parameter.
 	 * @param opt
 	 * the option parameter which produced the error.
 	 * @param <T>
 	 * an Enum type that represents an option
-	 * @throws Abort
-	 * when called
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(final T opt) throws Abort {
+	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(final T opt) {
 		Log.err(this, "Error with option '%s'.", opt.asArg());
 		printHelp();
 	}
 	
 	/**
-	 * Prints the help message and throws a runtime exception.
-	 * @throws Abort
-	 * when called
+	 * Prints the help message and exits the application.
 	 */
-	private void printHelp() throws Abort {
+	private void printHelp() {
 		this.lvFormatter.printHelp(this.tool, this.lvOptions, true);
-        throw new Abort();
+        System.exit(1);;
 	}
 	
 	/**
