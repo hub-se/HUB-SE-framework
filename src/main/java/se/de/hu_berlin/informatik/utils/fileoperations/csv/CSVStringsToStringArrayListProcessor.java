@@ -27,7 +27,7 @@ public class CSVStringsToStringArrayListProcessor implements StringProcessor<Lis
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#process(java.lang.String)
 	 */
 	public boolean process(String line) {
-		String[] temp = line.split(CSVUtils.CSV_DELIMITER);
+		String[] temp = line.split(CSVUtils.CSV_DELIMITER, -1);
 		return lines.add(temp);
 	}
 

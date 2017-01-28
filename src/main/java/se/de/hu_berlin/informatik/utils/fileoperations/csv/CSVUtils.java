@@ -9,6 +9,7 @@ import org.junit.Assert;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.FileLineProcessorModule;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 
 /**
@@ -202,17 +203,81 @@ public final class CSVUtils {
      * the type of objects in the arrays
      * @param objectArrayList 
      * an list of arrays containing the data elements
+     * @param mirrored
+     * whether to mirror the lines diagonally (rows to columns)
+     * @return 
+     * the combined CSV strings to write to a file
+     */
+    public static <T> List<String> toCsv(final List<T[]> objectArrayList, boolean mirrored) {
+    	if (mirrored) {
+    		if (objectArrayList.size() == 0) {
+        		return new ArrayList<>(0);
+        	}
+        	//assert same length of arrays
+        	int arrayLength = objectArrayList.get(0).length;
+        	for (Object[] element : objectArrayList) {
+                assert element.length == arrayLength;
+            }
+        	
+            List<String> lines = new ArrayList<>();
+            
+            for (int i = 0; i < arrayLength; ++i) {
+            	lines.add(toCsvLine(objectArrayList, i));
+            }
+            
+            return lines;
+    	} else {
+    		List<String> lines = new ArrayList<>(objectArrayList.size());
+
+    		for (Object[] element : objectArrayList) {
+    			lines.add(toCsvLine(element));
+    		}
+
+    		return lines;
+    	}
+    }
+    
+    /**
+     * Turns a list of Object arrays into CSV lines.
+     * @param <T>
+     * the type of objects in the arrays
+     * @param objectArrayList 
+     * an list of arrays containing the data elements
      * @return 
      * the combined CSV strings to write to a file
      */
     public static <T> List<String> toCsv(final List<T[]> objectArrayList) {
-        List<String> lines = new ArrayList<>(objectArrayList.size());
+    	return toCsv(objectArrayList, false);
+    }
+    
+    /**
+     * Turns a list of Object arrays into CSV lines.
+     * @param <T>
+     * the type of objects in the arrays
+     * @param objectArrayList 
+     * an list of arrays containing the data elements
+     * @param mirrored
+     * whether to mirror the lines diagonally (rows to columns)
+     * @param output
+     * the output path
+     */
+    public static <T> void toCsvFile(final List<T[]> objectArrayList, boolean mirrored, Path output) {
+        List<String> lines = toCsv(objectArrayList, mirrored);
         
-        for (Object[] element : objectArrayList) {
-            lines.add(toCsvLine(element));
-        }
-        
-        return lines;
+        new ListToFileWriterModule<List<String>>(output, true).submit(lines);
+    }
+    
+    /**
+     * Turns a list of Object arrays into CSV lines.
+     * @param <T>
+     * the type of objects in the arrays
+     * @param objectArrayList 
+     * an list of arrays containing the data elements
+     * @param output
+     * the output path
+     */
+    public static <T> void toCsvFile(final List<T[]> objectArrayList, Path output) {
+        toCsvFile(objectArrayList, false, output);
     }
 
     /**
@@ -233,35 +298,6 @@ public final class CSVUtils {
             }
         }
         return line.toString();
-    }
-    
-    /**
-     * Turns a list of arrays into CSV lines, mirroring
-     * rows and columns diagonally.
-     * @param <T>
-     * the type of elements in the array
-     * @param objectArrayList 
-     * an list of arrays containing the data elements
-     * @return 
-     * the combined CSV strings to write to a file
-     */
-    public static <T extends Object> List<String> toMirroredCsv(final List<T[]> objectArrayList) {
-    	if (objectArrayList.size() == 0) {
-    		return new ArrayList<>(0);
-    	}
-    	//assert same length of arrays
-    	int arrayLength = objectArrayList.get(0).length;
-    	for (Object[] element : objectArrayList) {
-            assert element.length == arrayLength;
-        }
-    	
-        List<String> lines = new ArrayList<>();
-        
-        for (int i = 0; i < arrayLength; ++i) {
-        	lines.add(toCsvLine(objectArrayList, i));
-        }
-        
-        return lines;
     }
     
     /**

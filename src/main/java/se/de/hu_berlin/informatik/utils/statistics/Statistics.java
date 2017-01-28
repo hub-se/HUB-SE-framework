@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.fileoperations.csv.CSVUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
@@ -111,7 +110,7 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 			String[] array = { statisticsEntry.getKey().name(), statisticsEntry.getValue().getValueAsString() };
 			list.add(array);
 		}
-		new ListToFileWriterModule<List<String>>(output, true).submit(CSVUtils.toCsv(list));
+		CSVUtils.toCsvFile(list, output);
 	}
 	
 	public static <T extends Enum<T> & StatisticsAPI> Statistics<T> loadAndMergeFromCSV(Class<T> clazz, Path input) {
