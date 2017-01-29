@@ -4,6 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
@@ -73,6 +74,8 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	};
 
 	private boolean onlyForced = false;
+
+	private OptionParser options = null;
 	
 	/**
 	 * Creates a new module with the given parameter.
@@ -248,6 +251,22 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 			pipeView = new ModuleLoaderPipe<>(this);
 		}
 		return pipeView;
+	}
+
+	@Override
+	public OptionParser getOptions() {
+		return options;
+	}
+
+	@Override
+	public AbstractModule<A, B> setOptions(OptionParser options) {
+		this.options = options;
+		return this;
+	}
+	
+	@Override
+	public boolean hasOptions() {
+		return options != null;
 	}
 	
 }

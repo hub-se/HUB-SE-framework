@@ -3,6 +3,8 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
+import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
+
 /**
  * An interface that provides basic functionalities of transmitters that can be linked together.
  * 
@@ -13,7 +15,7 @@ package se.de.hu_berlin.informatik.utils.tm;
  * @param <B>
  * is the type of the output object
  */
-public interface Transmitter<A,B> {
+public interface Transmitter<A,B> extends OptionCarrier {
 	
 	/**
 	 * Processes an item of type {@code A} and produces an item of type {@code B}.

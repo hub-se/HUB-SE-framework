@@ -4,6 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
@@ -74,6 +75,8 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	};
 
 	private boolean onlyForced = false;
+
+	private OptionParser options = null;
 	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
@@ -316,4 +319,21 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	public void allowOnlyForcedTracks() {
 		onlyForced = true;
 	}
+
+	@Override
+	public OptionParser getOptions() {
+		return options;
+	}
+
+	@Override
+	public AbstractPipe<A, B> setOptions(OptionParser options) {
+		this.options = options;
+		return this;
+	}
+	
+	@Override
+	public boolean hasOptions() {
+		return options != null;
+	}
+	
 }

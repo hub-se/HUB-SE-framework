@@ -4,6 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
@@ -18,11 +20,25 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  *
  * @see AbstractModule
  */
-public class ModuleLinker implements Trackable {
+public class ModuleLinker implements Trackable, OptionCarrier {
 
 	private AbstractModule<?,?> startModule = null;
 	private AbstractModule<?,?> endModule = null;
+	private OptionParser options = null;
 	
+	public ModuleLinker() {
+		super();
+	}
+	
+	/**
+	 * @param options
+	 * an options object to distribute to the modules in this linker
+	 */
+	public ModuleLinker(OptionParser options) {
+		this();
+		this.options = options;
+	}
+
 	/**
 	 * Links the given modules together and appends them to former appended 
 	 * modules, if any. If the modules don't match, then
@@ -35,6 +51,7 @@ public class ModuleLinker implements Trackable {
 	public ModuleLinker append(TransmitterProvider<?,?>... transmitters) {
 		if (transmitters.length != 0) {
 			try {
+				transmitters[0].asModule().setOptions(options);
 				if (startModule == null) {
 					startModule = transmitters[0].asModule();
 					if (isTracking()) {
@@ -45,6 +62,7 @@ public class ModuleLinker implements Trackable {
 				}
 				for (int i = 0; i < transmitters.length-1; ++i) {
 					transmitters[i].asModule().linkTo(transmitters[i+1].asModule());
+					transmitters[i+1].asModule().setOptions(options);
 				}
 				endModule = transmitters[transmitters.length-1].asModule();
 			} catch(UnsupportedOperationException e) {
@@ -216,4 +234,21 @@ public class ModuleLinker implements Trackable {
 			startModule.allowOnlyForcedTracks();
 		}
 	}
+
+	@Override
+	public OptionParser getOptions() {
+		return options;
+	}
+
+	@Override
+	public ModuleLinker setOptions(OptionParser options) {
+		this.options = options;
+		return this;
+	}
+	
+	@Override
+	public boolean hasOptions() {
+		return options != null;
+	}
+	
 }

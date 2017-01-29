@@ -4,6 +4,8 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
@@ -16,7 +18,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * @author Simon Heiden
  *
  */
-public class PipeLinker implements Trackable {
+public class PipeLinker implements Trackable, OptionCarrier {
 	
 	/**
 	 * Creates a new pipe linker. Assumes that input items are
@@ -37,10 +39,35 @@ public class PipeLinker implements Trackable {
 		super();
 		this.singleWriter = singleWriter;
 	}
+	
+	/**
+	 * Creates a new pipe linker. Assumes that input items are
+	 * submitted from a single thread. If multiple threads submit
+	 * items to this linker, use the other constructor and set
+	 * the parameter to false.
+	 * @param options
+	 * an options object to distribute to the pipes in this linker
+	 */
+	public PipeLinker(OptionParser options) {
+		this(true, options);
+	}
+
+	/**
+	 * Creates a new pipe linker.
+	 * @param singleWriter
+	 * whether input items are submitted from a single thread
+	 * @param options
+	 * an options object to distribute to the pipes in this linker
+	 */
+	public PipeLinker(boolean singleWriter, OptionParser options) {
+		this(singleWriter);
+		this.options = options;
+	}
 
 	private boolean singleWriter = true;
 	private AbstractPipe<?,?> startPipe = null;
 	private AbstractPipe<?,?> endPipe = null;
+	private OptionParser options;
 
 	/**
 	 * Links the given transmitters together to a chain of pipes 
@@ -55,6 +82,7 @@ public class PipeLinker implements Trackable {
 	public PipeLinker append(TransmitterProvider<?,?>... transmitters) {	
 		if (transmitters.length != 0) {
 			try {
+				transmitters[0].asPipe().setOptions(options);
 				if (startPipe == null) {
 					startPipe = transmitters[0].asPipe();
 					//set whether input items are submitted with a single thread
@@ -68,6 +96,7 @@ public class PipeLinker implements Trackable {
 
 				for (int i = 0; i < transmitters.length-1; ++i) {
 					transmitters[i].asPipe().linkTo(transmitters[i+1].asPipe());
+					transmitters[i+1].asPipe().setOptions(options);
 				}
 
 				endPipe = transmitters[transmitters.length-1].asPipe();
@@ -233,6 +262,22 @@ public class PipeLinker implements Trackable {
 		if (startPipe != null) {
 			startPipe.allowOnlyForcedTracks();
 		}
+	}
+
+	@Override
+	public OptionParser getOptions() {
+		return options;
+	}
+
+	@Override
+	public PipeLinker setOptions(OptionParser options) {
+		this.options = options;
+		return this;
+	}
+
+	@Override
+	public boolean hasOptions() {
+		return options != null;
 	}
 	
 }
