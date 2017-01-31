@@ -1,5 +1,7 @@
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
+import java.util.List;
+
 /**
  * Provides math-related utility methods.
  * 
@@ -82,6 +84,73 @@ final public class MathUtils {
 			min = number < min ? number : min;
 		}
 		return min;
+	}
+
+	/**
+	 * Returns the maximum of the given numbers.
+	 * @param numbers
+	 * the numbers
+	 * @return
+	 * the maximum, or NaN if no values are given
+	 */
+	public static double getMax(final List<Double> numbers) {
+		if (numbers.isEmpty()) {
+			return Double.NaN;
+		}
+		double max = Double.NEGATIVE_INFINITY;
+		for (final double number : numbers) {
+			max = number > max ? number : max;
+		}
+		return max;
+	}
+	
+	/**
+	 * Returns the minimum of the given numbers.
+	 * @param numbers
+	 * the numbers
+	 * @return
+	 * the minimum, or NaN if no values are given
+	 */
+	public static double getMin(final List<Double> numbers) {
+		if (numbers.isEmpty()) {
+			return Double.NaN;
+		}
+		double min = Double.POSITIVE_INFINITY;
+		for (final double number : numbers) {
+			min = number < min ? number : min;
+		}
+		return min;
+	}
+	
+	public static double getMedian(final List<Double> numbers) {
+		if (numbers.isEmpty()) {
+			return Double.NaN;
+		}
+		numbers.sort(null);
+		int size = numbers.size();
+		if (size % 2 == 0) {
+			//even number of elements
+			return (double)(numbers.get(size/2 - 1) + numbers.get(size/2)) / 2.0;
+		} else {
+			//odd number of elements
+			return (double)numbers.get(size/2);
+		}
+	}
+	
+	public static double getMean(final List<Double> numbers) {
+		if (numbers.isEmpty()) {
+			return Double.NaN;
+		}
+		int count = 0;
+		double sum = 0;
+		for (Double value : numbers) {
+			if (value.isNaN()) {
+				continue;
+			}
+			sum += value;
+			++count;
+		}
+		return sum / count;
 	}
 	
 }
