@@ -122,7 +122,7 @@ final public class MathUtils {
 		return min;
 	}
 	
-	public static double getMedian(final List<Double> numbers) {
+	public static <T extends Number> double getMedian(final List<T> numbers) {
 		if (numbers.isEmpty()) {
 			return Double.NaN;
 		}
@@ -130,24 +130,24 @@ final public class MathUtils {
 		int size = numbers.size();
 		if (size % 2 == 0) {
 			//even number of elements
-			return (double)(numbers.get(size/2 - 1) + numbers.get(size/2)) / 2.0;
+			return (double)(numbers.get(size/2 - 1).doubleValue() + numbers.get(size/2).doubleValue()) / 2.0;
 		} else {
 			//odd number of elements
 			return (double)numbers.get(size/2);
 		}
 	}
 	
-	public static double getMean(final List<Double> numbers) {
+	public static <T extends Number> double getMean(final List<T> numbers) {
 		if (numbers.isEmpty()) {
 			return Double.NaN;
 		}
 		int count = 0;
 		double sum = 0;
-		for (Double value : numbers) {
-			if (value.isNaN()) {
+		for (Number value : numbers) {
+			if (value.doubleValue() == Double.NaN) {
 				continue;
 			}
-			sum += value;
+			sum += value.doubleValue();
 			++count;
 		}
 		return sum / count;
