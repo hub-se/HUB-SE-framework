@@ -130,7 +130,7 @@ final public class MathUtils {
 		int size = numbers.size();
 		if (size % 2 == 0) {
 			//even number of elements
-			return numbers.get(size/2 - 1).doubleValue() + numbers.get(size/2).doubleValue() / 2.0;
+			return (numbers.get(size/2 - 1).doubleValue() + numbers.get(size/2).doubleValue()) / 2.0;
 		} else {
 			//odd number of elements
 			return numbers.get(size/2).doubleValue();
