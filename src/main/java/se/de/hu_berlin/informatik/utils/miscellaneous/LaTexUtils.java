@@ -135,7 +135,7 @@ final public class LaTexUtils {
 				builder.append(LATEX_TABLE_DELIMITER);
 			}
 			if (item != null) {
-				builder.append(item.replace("_", "\\_"));
+				builder.append(item/*.replace("_", "\\_")*/);
 			} else {
 				builder.append("");
 			}
