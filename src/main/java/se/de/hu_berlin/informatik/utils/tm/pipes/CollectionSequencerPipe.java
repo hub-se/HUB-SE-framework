@@ -3,24 +3,23 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import java.util.List;
-
+import java.util.Collection;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
- * Pipe that sequences a given input List.
+ * Pipe that sequences a given input Collection.
  * 
  * @author Simon Heiden
  *
  */
-public class ListSequencerPipe<B> extends AbstractPipe<List<B>,B> {
+public class CollectionSequencerPipe<B> extends AbstractPipe<Collection<B>,B> {
 
-	public ListSequencerPipe() {
+	public CollectionSequencerPipe() {
 		super(true);
 	}
 
 	@Override
-	public B processItem(List<B> list) {
+	public B processItem(Collection<B> list) {
 		for (B element : list) {
 			submitProcessedItem(element);
 		}
