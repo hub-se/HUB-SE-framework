@@ -294,7 +294,7 @@ public class DisruptorProvider<A> implements Trackable {
 	public DisruptorProvider<A> shutdown() {
 		if (disruptor != null && isRunning) {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
