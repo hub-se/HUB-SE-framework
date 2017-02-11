@@ -15,7 +15,7 @@ import se.de.hu_berlin.informatik.utils.experiments.evo.EvoHandlerProvider;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider;
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoResult;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoItem;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.KillStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy;
@@ -71,7 +71,7 @@ public class EvoAlgorithmTest extends TestSettings {
 		Integer[] goal = { 1, 2, 3 };
 		Random random = new Random(123456789);
 		
-		EvoLocationProvider<Integer[],Integer> locationProvider = new EvoLocationProvider<Integer[],Integer>() {
+		EvoLocationProvider<Integer[],Integer,Integer> locationProvider = new EvoLocationProvider<Integer[],Integer,Integer>() {
 			@Override
 			public Integer getNextLocation(Integer[] item, LocationSelectionStrategy strategy) {
 				return random.nextInt(item.length);
@@ -80,14 +80,15 @@ public class EvoAlgorithmTest extends TestSettings {
 		
 		EvoMutationProvider<Integer[],Integer> mutationProvider = new EvoMutationProvider<Integer[],Integer>() {
 			@Override
-			public EvoMutation<Integer[], Integer> getNextMutation(MutationSelectionStrategy strategy) {
+			public EvoMutation<Integer[],Integer> getNextMutationType(MutationSelectionStrategy strategy) {
 				return new EvoMutation<Integer[],Integer>() {
+					double nextGaussian = 0;
 					@Override
 					public Integer[] applyTo(Integer[] target, Integer location) {
 						Integer[] array = new Integer[target.length];
 						for (int i = 0; i < array.length; ++i) {
 							if (i == location) {
-								if (random.nextGaussian() >= 0) {
+								if (nextGaussian >= 0) {
 									array[i] = target[i] + 1;
 								} else {
 									array[i] = target[i] - 1;
@@ -97,6 +98,12 @@ public class EvoAlgorithmTest extends TestSettings {
 							}
 						}
 						return array;
+					}
+
+					@Override
+					public int getIDofNextMutation(Integer location) {
+						nextGaussian = random.nextGaussian();
+						return nextGaussian >= 0 ? location : -location;
 					}
 				};
 			}
@@ -117,7 +124,7 @@ public class EvoAlgorithmTest extends TestSettings {
 		EvoHandlerProvider<Integer[],Integer> evaluationHandlerFactory = new EvoHandlerProvider<Integer[],Integer>() {
 			
 			@Override
-			public EvoResult<Integer[], Integer> computeFitness(Integer[] item) {
+			public Integer computeFitness(Integer[] item) {
 				int fitness = 0;
 				if (item.length != goal.length) {
 					fitness = Integer.MAX_VALUE;
@@ -127,7 +134,7 @@ public class EvoAlgorithmTest extends TestSettings {
 					}
 				}
 
-				return new TestEvoResult(item, fitness);
+				return fitness;
 			}
 		};
 		
@@ -170,43 +177,11 @@ public class EvoAlgorithmTest extends TestSettings {
 				.setFitnessChecker(evaluationHandlerFactory, 4, 0)
 				.addToPopulation(new Integer[] {2,4,1});
 		
-		EvoResult<Integer[],Integer> result = builder.build().start();
+		EvoItem<Integer[],Integer> result = builder.build().start();
 		
 		Log.out(this, "result: %s", Misc.arrayToString(result.getItem()));
 		Log.out(this, "fitness: %d", result.getFitness().intValue());
 	}
-	
-	private static class TestEvoResult implements EvoResult<Integer[], Integer> {
 
-		private int fitness;
-		private Integer[] item;
-		
-		public TestEvoResult(Integer[] item, int fitness) {
-			this.item = item;
-			this.fitness = fitness;
-		}
-		
-		@Override
-		public int compareTo(Integer o) {
-			return o.compareTo(fitness);
-		}
-
-		@Override
-		public Integer getFitness() {
-			return fitness;
-		}
-
-		@Override
-		public Integer[] getItem() {
-			return item;
-		}
-
-		@Override
-		public boolean cleanUp() {
-			item = null;
-			return true;
-		}
-		
-	}
 
 }

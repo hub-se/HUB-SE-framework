@@ -2,9 +2,12 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Iterator;
 
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.History;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipes.CollectionSequencerPipe;
@@ -13,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipes.ThreadedProcessorPipe;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
-public class EvoAlgorithm<T,L,F> {
+public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 	
 	public static enum KillStrategy {
 		KILL_25_PERCENT,
@@ -62,7 +65,7 @@ public class EvoAlgorithm<T,L,F> {
 		RANDOM
 	}
 	
-public static class Builder<T,L,F> {
+public static class Builder<T,L,F extends Comparable<F>> {
 		
 		private int populationCount;
 		private int maxGenerationBound;
@@ -72,13 +75,13 @@ public static class Builder<T,L,F> {
 		private PopulationSelectionStrategy populationSelectionStrategy; 
 		private RecombinationSelectionStrategy recombinationSelectionStrategy;
 		private RecombinationStrategy recombinationStrategy;
-		private EvoLocationProvider<T,L> locationProvider;
+		private EvoLocationProvider<T,L,F> locationProvider;
 		private EvoMutationProvider<T,L> mutationProvider;
 		private LocationSelectionStrategy locationSelectionStrategy;
 		private MutationSelectionStrategy mutationSelectionStrategy;
 		private EvoRecombiner<T> recombiner;
 		private PipeLinker evaluationPipe;
-		private ElementCollectorPipe<EvoResult<T, F>> collectorPipe;
+		private ElementCollectorPipe<EvoItem<T, F>> collectorPipe;
 		
 		private List<T> startingPopulation = new ArrayList<>();
 		
@@ -95,18 +98,18 @@ public static class Builder<T,L,F> {
 			this.fitnessGoal = fitnessGoal;
 //			this.evaluationHandlerProvider = evaluationHandlerFactory;
 			
-			this.collectorPipe = new ElementCollectorPipe<EvoResult<T,F>>();
+			this.collectorPipe = new ElementCollectorPipe<EvoItem<T,F>>();
 			this.evaluationPipe = new PipeLinker(); 
 			this.evaluationPipe.append(
-					new CollectionSequencerPipe<T>(),
-					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerFactory),
-					this.collectorPipe
+					new CollectionSequencerPipe<EvoItem<T,F>>(),
+					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerFactory)
+//					this.collectorPipe
 					);
 			
 			return this;
 		}
 		
-		public Builder<T, L, F> setLocationProvider(EvoLocationProvider<T,L> locationProvider,
+		public Builder<T, L, F> setLocationProvider(EvoLocationProvider<T,L,F> locationProvider,
 				LocationSelectionStrategy locationSelectionStrategy) {
 			this.locationProvider = locationProvider;
 			this.locationSelectionStrategy = locationSelectionStrategy;
@@ -148,15 +151,16 @@ public static class Builder<T,L,F> {
 	private final PopulationSelectionStrategy populationSelectionStrategy; 
 	private final RecombinationSelectionStrategy recombinationSelectionStrategy;
 	private final RecombinationStrategy recombinationStrategy;
-	private final EvoLocationProvider<T,L> locationProvider;
+	private final EvoLocationProvider<T,L,F> locationProvider;
 	private final EvoMutationProvider<T,L> mutationProvider;
 	private final LocationSelectionStrategy locationSelectionStrategy;
 	private final MutationSelectionStrategy mutationSelectionStrategy;
 	private final EvoRecombiner<T> recombiner;
 	private final PipeLinker evaluationPipe;
-	private final ElementCollectorPipe<EvoResult<T, F>> collectorPipe;
+	private final ElementCollectorPipe<EvoItem<T, F>> collectorPipe;
 	
 	private List<T> startingPopulation;
+	private Set<EvoMutation.History> appliedMutations = new HashSet<>();
 	
 	TrackingStrategy tracker = new ProgressTracker(false);
 	
@@ -226,13 +230,17 @@ public static class Builder<T,L,F> {
 		}
 	}
 	
-	public EvoResult<T,F> start() {
+	public EvoItem<T,F> start() {
 		//provide initial item/initial population
 		if (startingPopulation.isEmpty()) {
 			return null;
 		}
 		//initialize current population list
-		List<T> currentPopulation = new ArrayList<>(startingPopulation);
+		List<EvoItem<T,F>> currentPopulation = new ArrayList<>(populationCount);
+		//populate with selected old population
+		for (T item : startingPopulation) {
+			currentPopulation.add(new SimpleEvoItem<>(item));
+		}
 		
 		int generationCounter= 0;
 		tracker.track("...running starting generation");
@@ -240,33 +248,26 @@ public static class Builder<T,L,F> {
 		currentPopulation.addAll(
 				produceMutationBasedOffspring(currentPopulation, populationCount,
 						mutationProvider, mutationSelectionStrategy, 
-						locationProvider, locationSelectionStrategy));
+						locationProvider, locationSelectionStrategy,
+						appliedMutations));
 		
 		//test/validate (evaluation)
-		List<EvoResult<T, F>> currentEvaluatedPop = 
-				calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
+		currentPopulation = calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
 
 		//loop while the generation bound isn't reached and the fitness goal isn't met by any item
-		while (generationCounter < maxGenerationBound && !checkIfGoalIsMet(currentEvaluatedPop, fitnessGoal)) {
+		while (generationCounter < maxGenerationBound && !checkIfGoalIsMet(currentPopulation, fitnessGoal)) {
 			++generationCounter;
 			tracker.track("...running generation " + generationCounter);
 			
 			//choose items for new population (selection)
-			currentEvaluatedPop = selectNewPopulationAndKillRemaining(currentEvaluatedPop, 
+			currentPopulation = selectNewPopulationAndKillRemaining(currentPopulation, 
 					killStrategy, populationSelectionStrategy, populationCount);
-			
-			//start a new population
-			currentPopulation = new ArrayList<>(populationCount);
-			//populate with selected old population
-			for (EvoResult<T,F> item : currentEvaluatedPop) {
-				currentPopulation.add(item.getItem());
-			}
 			
 			//produce new offspring (recombination) if possible
 			if (recombiner != null) {
 				//select for recombination
-				List<EvoResult<T, F>> parentPopulation = 
-						selectForRecombination(currentEvaluatedPop, recombinationSelectionStrategy);
+				List<EvoItem<T, F>> parentPopulation = 
+						selectForRecombination(currentPopulation, recombinationSelectionStrategy);
 				//cross-over (recombination)
 				int childrenCount = populationCount - currentPopulation.size();
 				currentPopulation.addAll(
@@ -278,23 +279,25 @@ public static class Builder<T,L,F> {
 			currentPopulation.addAll(
 					produceMutationBasedOffspring(currentPopulation, populationCount,
 							mutationProvider, mutationSelectionStrategy, 
-							locationProvider, locationSelectionStrategy));
+							locationProvider, locationSelectionStrategy,
+							appliedMutations));
 			
 			//mutate the current population
 			currentPopulation = mutatePopulation(currentPopulation, 
 					mutationProvider, mutationSelectionStrategy, 
-					locationProvider, locationSelectionStrategy);
+					locationProvider, locationSelectionStrategy,
+					appliedMutations);
 			
 			//test and validate (evaluation)
-			currentEvaluatedPop = calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
+			currentPopulation = calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
 		} //loop end
 		
 		//return best item, discard the rest
-		return selectBestItemAndCleanUpRest(currentEvaluatedPop);
+		return selectBestItemAndCleanUpRest(currentPopulation);
 	}
 
-	public static <T,F> boolean checkIfGoalIsMet(List<EvoResult<T, F>> currentEvaluatedPop, F fitnessGoal) {
-		for (EvoResult<T,F> evaluatedItem : currentEvaluatedPop) {
+	public static <T,F extends Comparable<F>> boolean checkIfGoalIsMet(List<EvoItem<T, F>> currentEvaluatedPop, F fitnessGoal) {
+		for (EvoItem<T,F> evaluatedItem : currentEvaluatedPop) {
 			if (evaluatedItem.compareTo(fitnessGoal) >= 0) {
 				return true;
 			}
@@ -302,28 +305,46 @@ public static class Builder<T,L,F> {
 		return false;
 	}
 
-	private static <L,T> List<T> produceMutationBasedOffspring(List<T> population, int populationCount,
+	private static <T,L,F extends Comparable<F>> List<EvoItem<T,F>> produceMutationBasedOffspring(List<EvoItem<T,F>> population, int populationCount,
 			EvoMutationProvider<T,L> mutationProvider, MutationSelectionStrategy mutationSelectionStrategy,
-			EvoLocationProvider<T,L> locationProvider, LocationSelectionStrategy locationSelectionStrategy) {
+			EvoLocationProvider<T,L,F> locationProvider, LocationSelectionStrategy locationSelectionStrategy,
+			Set<History> appliedMutations) {
 		int childrenCount = populationCount - population.size();
 		childrenCount = childrenCount < 0 ? 0 : childrenCount;
 		if (childrenCount == 0) {
 			return Collections.emptyList();
 		} else {
 			Log.out(EvoAlgorithm.class, "Producing mutation based offspring. (count: %d)", childrenCount);
-			List<T> children = new ArrayList<>(childrenCount);
+			List<EvoItem<T,F>> children = new ArrayList<>(childrenCount);
 
 			Collections.shuffle(population);
 			int i = 0;
 			while (i < childrenCount) {
 				//iterate through original population and generate mutants 
 				//until the population is filled to the desired count
-				Iterator<T> iterator = population.iterator();
+				Iterator<EvoItem<T,F>> iterator = population.iterator();
 				while (iterator.hasNext()) {
-					T item = iterator.next();
-					children.add(mutationProvider
-							.getNextMutation(mutationSelectionStrategy)
-							.applyTo(item, locationProvider.getNextLocation(item, locationSelectionStrategy)));
+					EvoItem<T,F> item = iterator.next();
+					//TODO: what if no new mutation can be found? infinite loop...
+					boolean mutationApplied = false;
+					int tryCount = 0;
+					while(!mutationApplied && tryCount < 1) {
+						++tryCount;
+						L nextLocation = locationProvider.getNextLocation(item.getItem(), locationSelectionStrategy);
+						EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
+						int mutationId = mutation.getIDofNextMutation(nextLocation);
+
+						if (!mutationWasAlreadyApplied(appliedMutations, item.getMutationIdHistory(), mutationId)) {
+							//apply the mutation and replace the item
+							EvoItem<T, F> mutant = new SimpleEvoItem<T, F>(mutation.applyTo(item.getItem(), nextLocation), item.getMutationIdHistory());
+							//add the mutation id to the history of the mutant
+							mutant.addToMutationIdHistory(mutationId);
+							//add the mutation history to the set of already applied mutation sequences
+							appliedMutations.add(mutant.getMutationIdHistory());
+							mutationApplied = true;
+							children.add(mutant);
+						}
+					}
 					++i;
 				}
 			}
@@ -332,12 +353,12 @@ public static class Builder<T,L,F> {
 		}
 	}
 
-	private EvoResult<T, F> selectBestItemAndCleanUpRest(List<EvoResult<T, F>> currentEvaluatedPop) {
+	private static <T, F extends Comparable<F>> EvoItem<T,F> selectBestItemAndCleanUpRest(List<EvoItem<T, F>> currentEvaluatedPop) {
 		if (currentEvaluatedPop.isEmpty()) {
 			return null;
 		}
-		EvoResult<T,F> bestItem = currentEvaluatedPop.iterator().next();
-		for (EvoResult<T,F> evaluatedItem : currentEvaluatedPop) {
+		EvoItem<T,F> bestItem = currentEvaluatedPop.iterator().next();
+		for (EvoItem<T,F> evaluatedItem : currentEvaluatedPop) {
 			if (evaluatedItem.compareTo(bestItem.getFitness()) > 0) {
 				bestItem = evaluatedItem;
 			}
@@ -346,27 +367,53 @@ public static class Builder<T,L,F> {
 		return bestItem;
 	}
 
-	private static <L,T> List<T> mutatePopulation(List<T> currentPopulation, 
+	private static <T,L,F extends Comparable<F>> List<EvoItem<T,F>> mutatePopulation(List<EvoItem<T,F>> currentPopulation, 
 			EvoMutationProvider<T,L> mutationProvider, MutationSelectionStrategy mutationSelectionStrategy,
-			EvoLocationProvider<T,L> locationProvider, LocationSelectionStrategy locationSelectionStrategy) {
+			EvoLocationProvider<T,L,F> locationProvider, LocationSelectionStrategy locationSelectionStrategy,
+			Set<History> appliedMutations) {
 		Log.out(EvoAlgorithm.class, "Mutating %d elements.", currentPopulation.size());
-		List<T> mutatedPopulation = new ArrayList<>();
-		for (T item : currentPopulation) {
-			mutatedPopulation.add(mutationProvider
-					.getNextMutation(mutationSelectionStrategy)
-					.applyTo(item, locationProvider.getNextLocation(item, locationSelectionStrategy)));
+		for (EvoItem<T,F> item : currentPopulation) {
+			//TODO: what if no new mutation can be found? infinite loop...
+			boolean mutationApplied = false;
+			int tryCount = 0;
+			while(!mutationApplied && tryCount < 50) {
+				++tryCount;
+				L nextLocation = locationProvider.getNextLocation(item.getItem(), locationSelectionStrategy);
+				EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
+				int mutationId = mutation.getIDofNextMutation(nextLocation);
+
+				if (!mutationWasAlreadyApplied(appliedMutations, item.getMutationIdHistory(), mutationId)) {
+					//apply the mutation and replace the item
+					item.setItem(mutation.applyTo(item.getItem(), nextLocation));
+					//add the mutation id to the history of the item
+					item.addToMutationIdHistory(mutationId);
+					//add the mutation history to the set of already applied mutation sequences
+					appliedMutations.add(item.getMutationIdHistory());
+					mutationApplied = true;
+				}
+			}
 		}
-		return mutatedPopulation;
+		return currentPopulation;
 	}
 
-	private static <T,F> List<T> produceRecombinationalOffspring(List<EvoResult<T, F>> parentPopulation, int childrenCount,
+	private static boolean mutationWasAlreadyApplied(Set<History> appliedMutations, History mutationIdHistory, int mutationId) {
+		History temp = new History(mutationIdHistory);
+		temp.add(mutationId);
+		if (appliedMutations.contains(temp)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private static <T,F extends Comparable<F>> List<EvoItem<T,F>> produceRecombinationalOffspring(List<EvoItem<T, F>> parentPopulation, int childrenCount,
 			RecombinationStrategy recombinationStrategy, EvoRecombiner<T> recombiner) {
 		if (parentPopulation.size() < 2) {
 			Log.warn(EvoAlgorithm.class, "Need at least 2 parents to produce offspring!");
 			return Collections.emptyList();
 		} else {
 			Log.out(EvoAlgorithm.class, "Producing recombination based offspring. (count: %d)", childrenCount);
-			List<T> children = new ArrayList<>();
+			List<EvoItem<T,F>> children = new ArrayList<>();
 
 			switch (recombinationStrategy) {
 			case MONOGAMY_BEST_TO_WORST:
@@ -397,55 +444,55 @@ public static class Builder<T,L,F> {
 			}
 
 			//maybe, we have to remove some children now...
-			removeRandomlyToSize(children, childrenCount);
+			removeRandomlyToSizeAndCleanUp(children, childrenCount);
 
 			return children;
 		}
 	}
 
-	private static <T> void removeRandomlyToSize(List<T> list, int maxNumberOfElements) {
-		//TODO: clean up needed here?
-		if (list.size() > maxNumberOfElements) {
-			//remove randomly
-			Collections.shuffle(list);
-			int killCount = list.size() - maxNumberOfElements;
-			Iterator<T> iterator = list.iterator();
-			int i = 0;
-			while (iterator.hasNext() && i < killCount) {
-				iterator.next();
-				iterator.remove();
-				++i;
-			}
-			//R.I.P.
-		}
-	}
+//	private static <T> void removeRandomlyToSize(List<T> list, int maxNumberOfElements) {
+//		//TODO: clean up needed here?
+//		if (list.size() > maxNumberOfElements) {
+//			//remove randomly
+//			Collections.shuffle(list);
+//			int killCount = list.size() - maxNumberOfElements;
+//			Iterator<T> iterator = list.iterator();
+//			int i = 0;
+//			while (iterator.hasNext() && i < killCount) {
+//				iterator.next();
+//				iterator.remove();
+//				++i;
+//			}
+//			//R.I.P.
+//		}
+//	}
 
-	private static <T,F> void polygamyChildrenProduction(List<EvoResult<T, F>> parentPopulation, int childrenCount,
-			EvoRecombiner<T> recombiner, List<T> children, double number) {
-		List<EvoResult<T, F>> bestParents = new ArrayList<>();
-		List<EvoResult<T, F>> population = new ArrayList<>(parentPopulation);
+	private static <T,F extends Comparable<F>> void polygamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
+			EvoRecombiner<T> recombiner, List<EvoItem<T,F>> children, double number) {
+		List<EvoItem<T, F>> bestParents = new ArrayList<>();
+		List<EvoItem<T, F>> population = new ArrayList<>(parentPopulation);
 		sortBestToWorst(population);
 		transferNumberOfFirstItemsToCollector(population, number, 1, bestParents);
 		Log.out(EvoAlgorithm.class, "Polygamy... strong parent count: %d, weak parent count: %d", bestParents.size(), population.size());
 		int i = 0;
-		EvoResult<T, F> parent1 = null;
-		EvoResult<T, F> parent2 = null;
+		EvoItem<T, F> parent1 = null;
+		EvoItem<T, F> parent2 = null;
 		//repeat until all children are generated
 		while (i < childrenCount) {
 			//start iterating over the best parents
-			Iterator<EvoResult<T,F>> iterator = bestParents.iterator();
+			Iterator<EvoItem<T,F>> iterator = bestParents.iterator();
 			while (iterator.hasNext()) {
 				//get parent1
 				parent1 = iterator.next();
 				
 				//start iterating over the other parents
-				Iterator<EvoResult<T,F>> iterator2 = population.iterator();
+				Iterator<EvoItem<T,F>> iterator2 = population.iterator();
 				while (iterator2.hasNext()) {
 					//get parent2
 					parent2 = iterator2.next();
 
 					//if both parents are picked, produce a child and reset the parents
-					children.add(recombiner.recombine(parent1.getItem(), parent2.getItem()));
+					children.add(new SimpleEvoItem<>(recombiner.recombine(parent1.getItem(), parent2.getItem())));
 					++i;
 				}
 			}
@@ -453,16 +500,16 @@ public static class Builder<T,L,F> {
 		}
 	}
 
-	private static <T,F> void monogamyChildrenProduction(List<EvoResult<T, F>> parentPopulation, int childrenCount,
-			EvoRecombiner<T> recombiner, List<T> children) {
+	private static <T,F extends Comparable<F>> void monogamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
+			EvoRecombiner<T> recombiner, List<EvoItem<T,F>> children) {
 		Log.out(EvoAlgorithm.class, "Monogamy... parent count: %d", parentPopulation.size());
 		int i = 0;
-		EvoResult<T, F> parent1 = null;
-		EvoResult<T, F> parent2 = null;
+		EvoItem<T, F> parent1 = null;
+		EvoItem<T, F> parent2 = null;
 		//repeat until all children are generated
 		while (i < childrenCount) {
 			//start iterating over the parents
-			Iterator<EvoResult<T,F>> iterator = parentPopulation.iterator();
+			Iterator<EvoItem<T,F>> iterator = parentPopulation.iterator();
 			while (iterator.hasNext()) {
 				//first get parent1, then parent2
 				if (parent1 == null) {
@@ -473,7 +520,7 @@ public static class Builder<T,L,F> {
 				
 				//if both parents are picked, produce a child and reset the parents
 				if (parent1 != null && parent2 != null) {
-					children.add(recombiner.recombine(parent1.getItem(), parent2.getItem()));
+					children.add(new SimpleEvoItem<>(recombiner.recombine(parent1.getItem(), parent2.getItem())));
 					++i;
 					parent1 = null;
 					parent2 = null;
@@ -482,7 +529,7 @@ public static class Builder<T,L,F> {
 		}
 	}
 	
-	private static <T,F> List<EvoResult<T, F>> selectForRecombination(List<EvoResult<T, F>> evaluatedPop,
+	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectForRecombination(List<EvoItem<T, F>> evaluatedPop,
 			RecombinationSelectionStrategy recombinationSelectionStrategy) {
 		Log.out(EvoAlgorithm.class, "Selecting parents from %d elements.", evaluatedPop.size());
 		if (evaluatedPop.size() < 2) {
@@ -544,10 +591,10 @@ public static class Builder<T,L,F> {
 		}
 	}
 	
-	private static <T,F> List<EvoResult<T, F>> selectForRecombination(List<EvoResult<T, F>> evaluatedPop,
+	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectForRecombination(List<EvoItem<T, F>> evaluatedPop,
 			double bestNumber, double randomNumber, double worstNumber) {
-		List<EvoResult<T, F>> parents = new ArrayList<>();
-		List<EvoResult<T, F>> population = new ArrayList<>(evaluatedPop);
+		List<EvoItem<T, F>> parents = new ArrayList<>();
+		List<EvoItem<T, F>> population = new ArrayList<>(evaluatedPop);
 		
 		int leastAmount = 1;
 		if ((bestNumber == 0 && randomNumber == 0) || 
@@ -575,22 +622,22 @@ public static class Builder<T,L,F> {
 		return parents;
 	}
 
-	private static <T,F> void sortWorstToBest(List<EvoResult<T, F>> evaluatedPop) {
+	private static <T,F extends Comparable<F>> void sortWorstToBest(List<EvoItem<T, F>> evaluatedPop) {
 		//sort from smallest to biggest (worst to best)
 		evaluatedPop.sort((o1,o2) -> o1.compareTo(o2.getFitness()));
 	}
 
-	private static <T,F> void sortBestToWorst(List<EvoResult<T, F>> evaluatedPop) {
+	private static <T,F extends Comparable<F>> void sortBestToWorst(List<EvoItem<T, F>> evaluatedPop) {
 		//sort from biggest to smallest (best to worst)
 		evaluatedPop.sort((o1,o2) -> o2.compareTo(o1.getFitness()));
 	}
 
-	private static <T,F> void transferNumberOfFirstItemsToCollector(
-			List<EvoResult<T, F>> sourcePopulation, double numberOfItems, int leastAmount, List<EvoResult<T, F>> collector) {
+	private static <T,F extends Comparable<F>> void transferNumberOfFirstItemsToCollector(
+			List<EvoItem<T, F>> sourcePopulation, double numberOfItems, int leastAmount, List<EvoItem<T, F>> collector) {
 		//transfer at least 'leastAmount' items
 		int transferCount = (int)numberOfItems > leastAmount ? (int)numberOfItems : leastAmount;
 		int i = 0;
-		Iterator<EvoResult<T,F>> iterator = sourcePopulation.iterator();
+		Iterator<EvoItem<T,F>> iterator = sourcePopulation.iterator();
 		while (iterator.hasNext() && i < transferCount) {
 			++i;
 			collector.add(iterator.next());
@@ -598,7 +645,7 @@ public static class Builder<T,L,F> {
 		}
 	}
 
-	private static <T,F> List<EvoResult<T, F>> selectNewPopulationAndKillRemaining(List<EvoResult<T, F>> evaluatedPop,
+	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectNewPopulationAndKillRemaining(List<EvoItem<T, F>> oldPopulation,
 			KillStrategy killStrategy, PopulationSelectionStrategy populationSelectionStrategy, int populationCount) {
 		//kill off items to only keep half of the maximal population //TODO: other strategies...
 		double selectionCount;
@@ -615,30 +662,30 @@ public static class Builder<T,L,F> {
 		default:
 			throw new UnsupportedOperationException("Not implemented, yet.");
 		}
-		Log.out(EvoAlgorithm.class, "Selecting %d from %d elements.", (int)selectionCount, evaluatedPop.size());
-		List<EvoResult<T, F>> resultPopulation = new ArrayList<>((int)selectionCount);
+		Log.out(EvoAlgorithm.class, "Selecting %d from %d elements.", (int)selectionCount, oldPopulation.size());
+		List<EvoItem<T, F>> resultPopulation = new ArrayList<>((int)selectionCount);
 
 		switch (populationSelectionStrategy) {
 		case BEST_ONLY:
-			sortBestToWorst(evaluatedPop);
-			transferNumberOfFirstItemsToCollector(evaluatedPop, selectionCount, 1, resultPopulation);
+			sortBestToWorst(oldPopulation);
+			transferNumberOfFirstItemsToCollector(oldPopulation, selectionCount, 1, resultPopulation);
 			break;
 		case HALF_BEST_HALF_RANDOM:
-			sortBestToWorst(evaluatedPop);
-			transferNumberOfFirstItemsToCollector(evaluatedPop, selectionCount * 0.5, 1, resultPopulation);
-			Collections.shuffle(evaluatedPop);
-			transferNumberOfFirstItemsToCollector(evaluatedPop, selectionCount * 0.5, 1, resultPopulation);
+			sortBestToWorst(oldPopulation);
+			transferNumberOfFirstItemsToCollector(oldPopulation, selectionCount * 0.5, 1, resultPopulation);
+			Collections.shuffle(oldPopulation);
+			transferNumberOfFirstItemsToCollector(oldPopulation, selectionCount * 0.5, 1, resultPopulation);
 			break;
 		case RANDOM:
-			Collections.shuffle(evaluatedPop);
-			transferNumberOfFirstItemsToCollector(evaluatedPop, selectionCount, 1, resultPopulation);
+			Collections.shuffle(oldPopulation);
+			transferNumberOfFirstItemsToCollector(oldPopulation, selectionCount, 1, resultPopulation);
 			break;
 		default:
 			throw new UnsupportedOperationException("Not implemented, yet.");
 		}
 		
 		//discard the remaining items
-		cleanUpAllItems(evaluatedPop);
+		cleanUpAllItems(oldPopulation);
 		
 		//maybe remove overpopulation that got through mistakenly
 		removeRandomlyToSizeAndCleanUp(resultPopulation, (int)selectionCount);
@@ -646,12 +693,12 @@ public static class Builder<T,L,F> {
 		return resultPopulation;
 	}
 	
-	private static <T,F> void removeRandomlyToSizeAndCleanUp(List<EvoResult<T, F>> list, int maxNumberOfElements) {
+	private static <T,F extends Comparable<F>> void removeRandomlyToSizeAndCleanUp(List<EvoItem<T, F>> list, int maxNumberOfElements) {
 		if (list.size() > maxNumberOfElements) {
 			//remove randomly
 			Collections.shuffle(list);
 			int killCount = list.size() - maxNumberOfElements;
-			Iterator<EvoResult<T, F>> iterator = list.iterator();
+			Iterator<EvoItem<T, F>> iterator = list.iterator();
 			int i = 0;
 			while (iterator.hasNext() && i < killCount) {
 				iterator.next();
@@ -662,28 +709,29 @@ public static class Builder<T,L,F> {
 		}
 	}
 
-	private static <T,F> void cleanUpOtherItems(List<EvoResult<T, F>> evaluatedPop, EvoResult<T, F> evaluatedItem) {
-		for (EvoResult<T,F> item : evaluatedPop) {
+	private static <T,F extends Comparable<F>> void cleanUpOtherItems(List<EvoItem<T, F>> evaluatedPop, EvoItem<T, F> evaluatedItem) {
+		for (EvoItem<T,F> item : evaluatedPop) {
 			if (evaluatedItem != item) {
 				item.cleanUp();
 			}
 		}
 	}
 	
-	private static <T,F> void cleanUpAllItems(List<EvoResult<T, F>> list) {
-		for (EvoResult<T,F> item : list) {
+	private static <T,F extends Comparable<F>> void cleanUpAllItems(List<EvoItem<T, F>> list) {
+		for (EvoItem<T,F> item : list) {
 			item.cleanUp();
 		}
 	}
 
-	private static <T,F> List<EvoResult<T, F>> calculateFitness(List<T> population,
-			PipeLinker evaluationPipe, ElementCollectorPipe<EvoResult<T,F>> collectorPipe) {
+	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> calculateFitness(List<EvoItem<T,F>> population,
+			PipeLinker evaluationPipe, ElementCollectorPipe<EvoItem<T,F>> collectorPipe) {
 		Log.out(EvoAlgorithm.class, "Checking fitness for %d elements.", population.size());
 		//check all elements in the population for their fitness values
 		evaluationPipe.submitAndShutdown(population);
 		
 		//return a list with the evaluated population
-		return collectorPipe.getCollectedItems();
+		return population;
+		//return collectorPipe.getCollectedItems();
 	}
 
 }

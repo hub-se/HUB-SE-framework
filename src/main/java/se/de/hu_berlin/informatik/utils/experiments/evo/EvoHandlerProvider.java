@@ -3,11 +3,12 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnMethodProvider;
 
-public abstract class EvoHandlerProvider<T,F> extends EHWithInputAndReturnMethodProvider<T,EvoResult<T, F>> {
+public abstract class EvoHandlerProvider<T,F extends Comparable<F>> extends EHWithInputAndReturnMethodProvider<EvoItem<T,F>,EvoItem<T, F>> {
 
 	@Override
-	public EvoResult<T, F> processInput(T input, EHWithInputAndReturn<T, EvoResult<T, F>> executingHandler) {
-		return computeFitness(input);
+	public EvoItem<T, F> processInput(EvoItem<T,F> input, EHWithInputAndReturn<EvoItem<T,F>, EvoItem<T, F>> executingHandler) {
+		input.setFitness(computeFitness(input.getItem()));
+		return input;
 	}
 
 	/**
@@ -17,6 +18,6 @@ public abstract class EvoHandlerProvider<T,F> extends EHWithInputAndReturnMethod
 	 * @return
 	 * a result item
 	 */
-	public abstract EvoResult<T, F> computeFitness(T item);
+	public abstract F computeFitness(T item);
 
 }

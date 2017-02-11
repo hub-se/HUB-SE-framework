@@ -1,6 +1,8 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-public interface EvoResult<T,F> extends Comparable<F> {
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.History;
+
+public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 
 	/**
 	 * @return
@@ -9,10 +11,22 @@ public interface EvoResult<T,F> extends Comparable<F> {
 	public F getFitness();
 	
 	/**
+	 * @param fitness
+	 * to set
+	 */
+	public void setFitness(F fitness);
+	
+	/**
 	 * @return
 	 * the item
 	 */
 	public T getItem();
+	
+	/**
+	 * @param item
+	 * to set
+	 */
+	public void setItem(T item);
 	
 	/**
 	 * Cleans up any traces of this item in case it is
@@ -22,4 +36,11 @@ public interface EvoResult<T,F> extends Comparable<F> {
 	 * true if successful; false otherwise
 	 */
 	public boolean cleanUp();
+	
+	public History getMutationIdHistory();
+	
+	public void setMutationIdHistory(History history);
+	
+	public void addToMutationIdHistory(int id);
+	
 }

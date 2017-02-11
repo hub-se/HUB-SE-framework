@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy;
 
-public interface EvoLocationProvider<T,L> {
+public interface EvoLocationProvider<T,L,F extends Comparable<F>> {
 
 	/**
 	 * Should produce a mutation location based on the given item
