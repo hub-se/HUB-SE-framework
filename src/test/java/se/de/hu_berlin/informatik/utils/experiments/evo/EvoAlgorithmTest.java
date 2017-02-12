@@ -102,7 +102,7 @@ public class EvoAlgorithmTest extends TestSettings {
 					}
 
 					@Override
-					public int getIDofNextMutation(Integer location) {
+					public int getIDofNextMutation(Integer[] target, Integer location) {
 						nextGaussian = random.nextGaussian();
 						return nextGaussian >= 0 ? location : -location;
 					}

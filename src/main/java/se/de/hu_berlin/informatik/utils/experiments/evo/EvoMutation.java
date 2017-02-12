@@ -19,7 +19,20 @@ public interface EvoMutation<T,L> {
 	 */
 	public T applyTo(T target, L location);
 	
-	public int getIDofNextMutation(L location);
+	/**
+	 * Returns an id for the next mutation that will be applied by calling 
+	 * {@link #applyTo(Object, Object)} with the given target and location.
+	 * Any random decisions within the mutation procedure should be
+	 * made by this point to be able to compute a unique id that reflects
+	 * these random decisions. This id is used to track the history of the item.
+	 * @param target
+	 * the target object
+	 * @param location
+	 * the location
+	 * @return
+	 * the id
+	 */
+	public int getIDofNextMutation(T target, L location);
 	
 	public static class MutationHistory implements List<Integer> {
 

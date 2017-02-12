@@ -335,7 +335,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 						++tryCount;
 						L nextLocation = locationProvider.getNextLocation(item.getItem(), locationSelectionStrategy);
 						EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
-						int mutationId = mutation.getIDofNextMutation(nextLocation);
+						int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
 						if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
@@ -382,7 +382,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 				++tryCount;
 				L nextLocation = locationProvider.getNextLocation(item.getItem(), locationSelectionStrategy);
 				EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
-				int mutationId = mutation.getIDofNextMutation(nextLocation);
+				int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
 				if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
