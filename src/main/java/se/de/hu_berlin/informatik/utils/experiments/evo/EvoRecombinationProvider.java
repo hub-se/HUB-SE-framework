@@ -23,7 +23,7 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	public boolean addRecombination(EvoRecombination<T> recombination);
+	public boolean addRecombinationTemplate(EvoRecombination<T> recombination);
 	
 	/**
 	 * Adds the given recombination to the collection of possible recombination.
@@ -32,10 +32,10 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutations(Collection<EvoRecombination<T>> recombinations) {
+	default public boolean addRecombinationTemplates(Collection<EvoRecombination<T>> recombinations) {
 		boolean result = true;
 		for (EvoRecombination<T> recombination : recombinations) {
-			result &= addRecombination(recombination);
+			result &= addRecombinationTemplate(recombination);
 		}
 		return result;
 	}
@@ -47,10 +47,10 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutations(@SuppressWarnings("unchecked") EvoRecombination<T>... recombinations) {
+	default public boolean addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T>... recombinations) {
 		boolean result = true;
 		for (EvoRecombination<T> recombination : recombinations) {
-			result &= addRecombination(recombination);
+			result &= addRecombinationTemplate(recombination);
 		}
 		return result;
 	}

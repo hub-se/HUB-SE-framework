@@ -1,6 +1,7 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -68,83 +69,6 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		RANDOM
 	}
 	
-public static class Builder<T,L,F extends Comparable<F>> {
-		
-		private int populationCount;
-		private int maxGenerationBound;
-		private F fitnessGoal;
-		
-		private KillStrategy killStrategy;
-		private PopulationSelectionStrategy populationSelectionStrategy;
-		private EvoRecombinationProvider<T> recombinationProvider;
-		private RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy;
-		private RecombinationParentSelectionStrategy recombinationParentSelectionStrategy;
-		private RecombinationStrategy recombinationStrategy;
-		private EvoLocationProvider<T,L,F> locationProvider;
-		private EvoMutationProvider<T,L> mutationProvider;
-		private LocationSelectionStrategy locationSelectionStrategy;
-		private MutationSelectionStrategy mutationSelectionStrategy;
-		private PipeLinker evaluationPipe;
-		
-		private List<T> startingPopulation = new ArrayList<>();
-		
-		public Builder(int populationCount, int maxGenerationBound,
-				KillStrategy killStrategy, PopulationSelectionStrategy populationSelectionStrategy) {
-			super();
-			this.populationCount = populationCount;
-			this.maxGenerationBound = maxGenerationBound;
-			this.killStrategy = killStrategy;
-			this.populationSelectionStrategy = populationSelectionStrategy;
-		}
-		
-		public Builder<T, L, F> setFitnessChecker(EvoHandlerProvider<T, F> evaluationHandlerFactory, int threadCount, F fitnessGoal) {
-			this.fitnessGoal = fitnessGoal;
-
-			this.evaluationPipe = new PipeLinker(); 
-			this.evaluationPipe.append(
-					new CollectionSequencerPipe<EvoItem<T,F>>(),
-					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerFactory)
-					);
-			
-			return this;
-		}
-		
-		public Builder<T, L, F> setLocationProvider(EvoLocationProvider<T,L,F> locationProvider,
-				LocationSelectionStrategy locationSelectionStrategy) {
-			this.locationProvider = locationProvider;
-			this.locationSelectionStrategy = locationSelectionStrategy;
-			return this;
-		}
-		
-		public Builder<T, L, F> setMutationProvider(EvoMutationProvider<T,L> mutationProvider, 
-				MutationSelectionStrategy mutationSelectionStrategy) {
-			this.mutationProvider = mutationProvider;
-			this.mutationSelectionStrategy = mutationSelectionStrategy;
-			return this;
-		}
-		
-		public Builder<T, L, F> setRecombinationProvider(EvoRecombinationProvider<T> recombinationProvider,
-				RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy,
-				RecombinationParentSelectionStrategy recombinationParentSelectionStrategy,
-				RecombinationStrategy recombinationStrategy) {
-			this.recombinationProvider = recombinationProvider;
-			this.recombinationTypeSelectionStrategy = recombinationTypeSelectionStrategy;
-			this.recombinationParentSelectionStrategy = recombinationParentSelectionStrategy;
-			this.recombinationStrategy = recombinationStrategy;
-			return this;
-		}
-		
-		public EvoAlgorithm<T, L, F> build() {
-			return new EvoAlgorithm<T,L,F>(this);
-		}
-		
-		public Builder<T, L, F> addToPopulation(T item) {
-			startingPopulation.add(item);
-			return this;
-		}
-		
-	}
-	
 	private final int populationCount;
 	private final int maxGenerationBound;
 	private final F fitnessGoal;
@@ -161,7 +85,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 	private final MutationSelectionStrategy mutationSelectionStrategy;
 	private final PipeLinker evaluationPipe;
 	
-	private List<T> startingPopulation;
+	private List<T> initialPopulation;
 	private Set<History> appliedMutations = new HashSet<>();
 	
 	TrackingStrategy tracker = new ProgressTracker(false);
@@ -214,7 +138,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		}
 		this.mutationProvider = builder.mutationProvider;
 		if (this.mutationProvider == null) {
-			throw new IllegalStateException("Mutation provider not given.");
+			throw new IllegalStateException("Mutation provider not given (or no mutation templates added).");
 		}
 		this.mutationSelectionStrategy = builder.mutationSelectionStrategy;
 		if (this.mutationProvider == null) {
@@ -226,21 +150,21 @@ public static class Builder<T,L,F extends Comparable<F>> {
 			throw new IllegalStateException("Evaluation handler (fitness checker) provider not given.");
 		}
 		
-		this.startingPopulation = builder.startingPopulation;
-		if (this.startingPopulation == null || this.startingPopulation.isEmpty()) {
-			throw new IllegalStateException("No starting population given.");
+		this.initialPopulation = builder.initialPopulation;
+		if (this.initialPopulation == null || this.initialPopulation.isEmpty()) {
+			throw new IllegalStateException("No initial population given.");
 		}
 	}
 	
 	public EvoItem<T,F> start() {
 		//provide initial item/initial population
-		if (startingPopulation.isEmpty()) {
+		if (initialPopulation.isEmpty()) {
 			return null;
 		}
 		//initialize current population list
 		List<EvoItem<T,F>> currentPopulation = new ArrayList<>(populationCount);
 		//populate with selected old population
-		for (T item : startingPopulation) {
+		for (T item : initialPopulation) {
 			currentPopulation.add(new SimpleEvoItem<>(item));
 		}
 		
@@ -778,6 +702,152 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		evaluationPipe.submitAndShutdown(population);
 		//return a list with the evaluated population
 		return population;
+	}
+
+	
+	
+	public static class Builder<T,L,F extends Comparable<F>> {
+		
+		private int populationCount;
+		private int maxGenerationBound;
+		private F fitnessGoal;
+		
+		private KillStrategy killStrategy = KillStrategy.KILL_25_PERCENT;
+		private PopulationSelectionStrategy populationSelectionStrategy = PopulationSelectionStrategy.HALF_BEST_HALF_RANDOM;
+		
+		private EvoRecombinationProvider<T> recombinationProvider;
+		private RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy = RecombinationTypeSelectionStrategy.RANDOM;
+		private RecombinationParentSelectionStrategy recombinationParentSelectionStrategy = RecombinationParentSelectionStrategy.BEST_50_PERCENT;
+		private RecombinationStrategy recombinationStrategy = RecombinationStrategy.POLYGAMY_BEST_20_PERCENT_WITH_OTHERS;
+		
+		private EvoMutationProvider<T,L> mutationProvider;
+		private MutationSelectionStrategy mutationSelectionStrategy = MutationSelectionStrategy.RANDOM;
+		
+		private EvoLocationProvider<T,L,F> locationProvider;
+		private LocationSelectionStrategy locationSelectionStrategy;
+		private PipeLinker evaluationPipe;
+		
+		private List<T> initialPopulation = new ArrayList<>();
+		
+		public Builder(int populationCount, int maxGenerationBound,
+				KillStrategy killStrategy, PopulationSelectionStrategy populationSelectionStrategy, 
+				RecombinationParentSelectionStrategy recombinationParentSelectionStrategy) {
+			super();
+			this.populationCount = populationCount;
+			this.maxGenerationBound = maxGenerationBound;
+			this.killStrategy = killStrategy;
+			this.populationSelectionStrategy = populationSelectionStrategy;
+			this.recombinationParentSelectionStrategy = recombinationParentSelectionStrategy;
+		}
+		
+		public Builder<T, L, F> setFitnessChecker(EvoHandlerProvider<T, F> evaluationHandlerProvider, int threadCount, F fitnessGoal) {
+			this.fitnessGoal = fitnessGoal;
+
+			this.evaluationPipe = new PipeLinker(); 
+			this.evaluationPipe.append(
+					new CollectionSequencerPipe<EvoItem<T,F>>(),
+					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerProvider)
+					);
+			
+			return this;
+		}
+		
+		public Builder<T, L, F> setLocationProvider(EvoLocationProvider<T,L,F> locationProvider,
+				LocationSelectionStrategy locationSelectionStrategy) {
+			this.locationProvider = locationProvider;
+			this.locationSelectionStrategy = locationSelectionStrategy;
+			return this;
+		}
+		
+		public Builder<T, L, F> setMutationProvider(EvoMutationProvider<T,L> mutationProvider, 
+				MutationSelectionStrategy mutationSelectionStrategy) {
+			this.mutationProvider = mutationProvider;
+			this.mutationSelectionStrategy = mutationSelectionStrategy;
+			return this;
+		}
+		
+		public Builder<T, L, F> addMutationTemplate(EvoMutation<T,L> mutation) {
+			initializeMutationProviderIfNull();
+			this.mutationProvider.addMutationTemplate(mutation);
+			return this;
+		}
+		
+		public Builder<T, L, F> addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L>... mutations) {
+			initializeMutationProviderIfNull();
+			for (EvoMutation<T,L> mutation : mutations) {
+				this.mutationProvider.addMutationTemplate(mutation);
+			}
+			return this;
+		}
+		
+		public Builder<T, L, F> addMutationTemplates(Collection<EvoMutation<T,L>> mutations) {
+			initializeMutationProviderIfNull();
+			for (EvoMutation<T,L> mutation : mutations) {
+				this.mutationProvider.addMutationTemplate(mutation);
+			}
+			return this;
+		}
+		
+		private void initializeMutationProviderIfNull() {
+			if (this.mutationProvider == null) {
+				this.mutationProvider = new SimpleEvoMutationProvider<>();
+			}
+		}
+		
+		public Builder<T, L, F> setRecombinationProvider(EvoRecombinationProvider<T> recombinationProvider,
+				RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy,
+				RecombinationStrategy recombinationStrategy) {
+			this.recombinationProvider = recombinationProvider;
+			this.recombinationTypeSelectionStrategy = recombinationTypeSelectionStrategy;
+			this.recombinationStrategy = recombinationStrategy;
+			return this;
+		}
+		
+		public Builder<T, L, F> setRecombinationStrategies(
+				RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy,
+				RecombinationStrategy recombinationStrategy) {
+			this.recombinationTypeSelectionStrategy = recombinationTypeSelectionStrategy;
+			this.recombinationStrategy = recombinationStrategy;
+			return this;
+		}
+		
+		public Builder<T, L, F> addRecombinationTemplate(EvoRecombination<T> recombination) {
+			initializeRecombinerIfNull();
+			this.recombinationProvider.addRecombinationTemplate(recombination);
+			return this;
+		}
+		
+		public Builder<T, L, F> addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T>... recombinations) {
+			initializeRecombinerIfNull();
+			for (EvoRecombination<T> recombination : recombinations) {
+				this.recombinationProvider.addRecombinationTemplate(recombination);
+			}
+			return this;
+		}
+		
+		public Builder<T, L, F> addRecombinationTemplates(Collection<EvoRecombination<T>> recombinations) {
+			initializeRecombinerIfNull();
+			for (EvoRecombination<T> recombination : recombinations) {
+				this.recombinationProvider.addRecombinationTemplate(recombination);
+			}
+			return this;
+		}
+		
+		private void initializeRecombinerIfNull() {
+			if (this.recombinationProvider == null) {
+				this.recombinationProvider = new SimpleEvoRecombinationProvider<>();
+			}
+		}
+		
+		public EvoAlgorithm<T, L, F> build() {
+			return new EvoAlgorithm<T,L,F>(this);
+		}
+		
+		public Builder<T, L, F> addToInitialPopulation(T item) {
+			initialPopulation.add(item);
+			return this;
+		}
+		
 	}
 
 }

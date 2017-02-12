@@ -23,7 +23,7 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	public boolean addMutation(EvoMutation<T,L> mutation);
+	public boolean addMutationTemplate(EvoMutation<T,L> mutation);
 	
 	/**
 	 * Adds the given mutations to the collection of possible mutations.
@@ -32,10 +32,10 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutations(Collection<EvoMutation<T,L>> mutations) {
+	default public boolean addMutationTemplates(Collection<EvoMutation<T,L>> mutations) {
 		boolean result = true;
 		for (EvoMutation<T,L> mutation : mutations) {
-			result &= addMutation(mutation);
+			result &= addMutationTemplate(mutation);
 		}
 		return result;
 	}
@@ -47,10 +47,10 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutations(@SuppressWarnings("unchecked") EvoMutation<T,L>... mutations) {
+	default public boolean addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L>... mutations) {
 		boolean result = true;
 		for (EvoMutation<T,L> mutation : mutations) {
-			result &= addMutation(mutation);
+			result &= addMutationTemplate(mutation);
 		}
 		return result;
 	}
