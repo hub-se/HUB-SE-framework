@@ -54,30 +54,61 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		
 		private Integer hashCode = 17;
 		
+		/**
+		 * Creates a new History object.
+		 */
 		public History() {
 			this.mutationHistory = new MutationHistory();
+			updateStaticHashCodePart();
 		}
 		
+		/**
+		 * Copy constructor.
+		 * @param c
+		 * the history to copy
+		 */
 		public History(History c) {
 			this.mutationHistory = new MutationHistory(c.getMutationHistory());
 			this.recombinationId = c.getRecombinationId();
 			this.parentHistory1 = c.getParentHistory1() == null ? null : new History(c.getParentHistory1());
 			this.parentHistory2 = c.getParentHistory2() == null ? null : new History(c.getParentHistory2());
-			this.hashCode = c.hashCode();
+			updateStaticHashCodePart();
 		}
 		
+		/**
+		 * Copy constructor that creates a new History for a child object and then 
+		 * adds the given mutation id afterwards to the new History object.
+		 * @param c
+		 * the history to copy
+		 * @param mutationId
+		 * the mutation id to add
+		 */
 		public History(History c, Integer mutationId) {
 			this(c);
 			this.addMutationId(mutationId);
 		}
 		
+		/**
+		 * Copy constructor that creates a new History for a child object and then 
+		 * adds the given recombination afterwards to the new History object.
+		 * @param parentHistory1
+		 * the first parent's history
+		 * @param parentHistory2
+		 * the second parent's history
+		 * @param recombinationId
+		 * the recombination id
+		 */
 		public History(History parentHistory1, History parentHistory2, Integer recombinationId) {
-			this();
+			this.mutationHistory = new MutationHistory();
 			this.recombinationId = recombinationId;
+			this.parentHistory1 = parentHistory1 == null ? null : new History(parentHistory1);
+			this.parentHistory2 = parentHistory2 == null ? null : new History(parentHistory2);
+			updateStaticHashCodePart();
+		}
+		
+		private void updateStaticHashCodePart() {
 			updateHashCode(this.recombinationId);
-			this.parentHistory1 = parentHistory1;
 			updateHashCode(this.parentHistory1);
-			this.parentHistory2 = parentHistory2;
 			updateHashCode(this.parentHistory2);
 		}
 
