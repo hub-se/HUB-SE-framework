@@ -1,7 +1,5 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.History;
-
 public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 
 	private T item = null;
@@ -18,9 +16,14 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 		this.fitness = fitness;
 	}
 	
-	public SimpleEvoItem(T item, History history) {
+	public SimpleEvoItem(T item, History history, int mutationId) {
 		this.item = item;
-		this.history = new History(history);
+		this.history = new History(history, mutationId);
+	}
+	
+	public SimpleEvoItem(T item, History parentHistory1, History parentHistory2, int recombinationId) {
+		this.item = item;
+		this.history = new History(parentHistory1, parentHistory2, recombinationId);
 	}
 	
 	@Override
@@ -50,23 +53,13 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 	}
 
 	@Override
-	public History getMutationIdHistory() {
+	public History getHistory() {
 		return history;
-	}
-
-	@Override
-	public void addToMutationIdHistory(int id) {
-		history.add(id);
 	}
 
 	@Override
 	public void setItem(T item) {
 		this.item = item;
-	}
-
-	@Override
-	public void setMutationIdHistory(History history) {
-		this.history = new History(history);
 	}
 
 }

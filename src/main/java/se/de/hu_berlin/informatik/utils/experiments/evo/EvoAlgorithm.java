@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.History;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoItem.History;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipes.CollectionSequencerPipe;
-import se.de.hu_berlin.informatik.utils.tm.pipes.ElementCollectorPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipes.ThreadedProcessorPipe;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
@@ -31,7 +30,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		REUSE_ALL
 	}
 	
-	public static enum RecombinationSelectionStrategy {
+	public static enum RecombinationParentSelectionStrategy {
 		BEST_10_PERCENT,
 		BEST_20_PERCENT,
 		BEST_50_PERCENT,
@@ -57,6 +56,10 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		POLYGAMY_BEST_50_PERCENT_WITH_OTHERS,
 	}
 	
+	public static enum RecombinationTypeSelectionStrategy {
+		RANDOM
+	}
+	
 	public static enum MutationSelectionStrategy {
 		RANDOM
 	}
@@ -72,16 +75,16 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		private F fitnessGoal;
 		
 		private KillStrategy killStrategy;
-		private PopulationSelectionStrategy populationSelectionStrategy; 
-		private RecombinationSelectionStrategy recombinationSelectionStrategy;
+		private PopulationSelectionStrategy populationSelectionStrategy;
+		private EvoRecombinationProvider<T> recombinationProvider;
+		private RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy;
+		private RecombinationParentSelectionStrategy recombinationParentSelectionStrategy;
 		private RecombinationStrategy recombinationStrategy;
 		private EvoLocationProvider<T,L,F> locationProvider;
 		private EvoMutationProvider<T,L> mutationProvider;
 		private LocationSelectionStrategy locationSelectionStrategy;
 		private MutationSelectionStrategy mutationSelectionStrategy;
-		private EvoRecombiner<T> recombiner;
 		private PipeLinker evaluationPipe;
-		private ElementCollectorPipe<EvoItem<T, F>> collectorPipe;
 		
 		private List<T> startingPopulation = new ArrayList<>();
 		
@@ -96,14 +99,11 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		
 		public Builder<T, L, F> setFitnessChecker(EvoHandlerProvider<T, F> evaluationHandlerFactory, int threadCount, F fitnessGoal) {
 			this.fitnessGoal = fitnessGoal;
-//			this.evaluationHandlerProvider = evaluationHandlerFactory;
-			
-			this.collectorPipe = new ElementCollectorPipe<EvoItem<T,F>>();
+
 			this.evaluationPipe = new PipeLinker(); 
 			this.evaluationPipe.append(
 					new CollectionSequencerPipe<EvoItem<T,F>>(),
 					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerFactory)
-//					this.collectorPipe
 					);
 			
 			return this;
@@ -123,11 +123,13 @@ public static class Builder<T,L,F extends Comparable<F>> {
 			return this;
 		}
 		
-		public Builder<T, L, F> setRecombiner(EvoRecombiner<T> recombiner,
-				RecombinationSelectionStrategy recombinationSelectionStrategy,
+		public Builder<T, L, F> setRecombinationProvider(EvoRecombinationProvider<T> recombinationProvider,
+				RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy,
+				RecombinationParentSelectionStrategy recombinationParentSelectionStrategy,
 				RecombinationStrategy recombinationStrategy) {
-			this.recombiner = recombiner;
-			this.recombinationSelectionStrategy = recombinationSelectionStrategy;
+			this.recombinationProvider = recombinationProvider;
+			this.recombinationTypeSelectionStrategy = recombinationTypeSelectionStrategy;
+			this.recombinationParentSelectionStrategy = recombinationParentSelectionStrategy;
 			this.recombinationStrategy = recombinationStrategy;
 			return this;
 		}
@@ -148,19 +150,19 @@ public static class Builder<T,L,F extends Comparable<F>> {
 	private final F fitnessGoal;
 	
 	private final KillStrategy killStrategy;
-	private final PopulationSelectionStrategy populationSelectionStrategy; 
-	private final RecombinationSelectionStrategy recombinationSelectionStrategy;
+	private final PopulationSelectionStrategy populationSelectionStrategy;
+	private final EvoRecombinationProvider<T> recombinationProvider;
+	private final RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy;
+	private final RecombinationParentSelectionStrategy recombinationParentSelectionStrategy;
 	private final RecombinationStrategy recombinationStrategy;
 	private final EvoLocationProvider<T,L,F> locationProvider;
 	private final EvoMutationProvider<T,L> mutationProvider;
 	private final LocationSelectionStrategy locationSelectionStrategy;
 	private final MutationSelectionStrategy mutationSelectionStrategy;
-	private final EvoRecombiner<T> recombiner;
 	private final PipeLinker evaluationPipe;
-	private final ElementCollectorPipe<EvoItem<T, F>> collectorPipe;
 	
 	private List<T> startingPopulation;
-	private Set<EvoMutation.History> appliedMutations = new HashSet<>();
+	private Set<History> appliedMutations = new HashSet<>();
 	
 	TrackingStrategy tracker = new ProgressTracker(false);
 	
@@ -186,12 +188,16 @@ public static class Builder<T,L,F extends Comparable<F>> {
 			throw new IllegalStateException("Population selection strategy not given.");
 		}
 		
-		this.recombiner = builder.recombiner;
-		this.recombinationSelectionStrategy = builder.recombinationSelectionStrategy;
+		this.recombinationProvider = builder.recombinationProvider;
+		this.recombinationTypeSelectionStrategy = builder.recombinationTypeSelectionStrategy;
+		this.recombinationParentSelectionStrategy = builder.recombinationParentSelectionStrategy;
 		this.recombinationStrategy = builder.recombinationStrategy;
-		if (this.recombiner != null) {
-			if (this.recombinationSelectionStrategy == null) {
-				throw new IllegalStateException("Recombination selection strategy not given.");
+		if (this.recombinationProvider != null) {
+			if (this.recombinationTypeSelectionStrategy == null) {
+				throw new IllegalStateException("Recombination type selection strategy not given.");
+			}
+			if (this.recombinationParentSelectionStrategy == null) {
+				throw new IllegalStateException("Recombination parent selection strategy not given.");
 			}
 			if (this.recombinationStrategy == null) {
 				throw new IllegalStateException("Recombination strategy not given.");
@@ -218,10 +224,6 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		this.evaluationPipe = builder.evaluationPipe;
 		if (this.evaluationPipe == null) {
 			throw new IllegalStateException("Evaluation handler (fitness checker) provider not given.");
-		}
-		this.collectorPipe = builder.collectorPipe;
-		if (this.collectorPipe == null) {
-			throw new IllegalStateException("Evaluation collector pipe not given.");
 		}
 		
 		this.startingPopulation = builder.startingPopulation;
@@ -252,7 +254,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 						appliedMutations));
 		
 		//test/validate (evaluation)
-		currentPopulation = calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
+		currentPopulation = calculateFitness(currentPopulation, evaluationPipe);
 
 		//loop while the generation bound isn't reached and the fitness goal isn't met by any item
 		while (generationCounter < maxGenerationBound && !checkIfGoalIsMet(currentPopulation, fitnessGoal)) {
@@ -264,15 +266,16 @@ public static class Builder<T,L,F extends Comparable<F>> {
 					killStrategy, populationSelectionStrategy, populationCount);
 			
 			//produce new offspring (recombination) if possible
-			if (recombiner != null) {
+			if (recombinationProvider != null) {
 				//select for recombination
 				List<EvoItem<T, F>> parentPopulation = 
-						selectForRecombination(currentPopulation, recombinationSelectionStrategy);
+						selectForRecombination(currentPopulation, recombinationParentSelectionStrategy);
 				//cross-over (recombination)
 				int childrenCount = populationCount - currentPopulation.size();
 				currentPopulation.addAll(
 						produceRecombinationalOffspring(parentPopulation, childrenCount, 
-								recombinationStrategy, recombiner));
+								recombinationStrategy, recombinationProvider, 
+								recombinationTypeSelectionStrategy, appliedMutations));
 			} 
 
 			//fill up with mutants if below desired population size
@@ -289,7 +292,7 @@ public static class Builder<T,L,F extends Comparable<F>> {
 					appliedMutations);
 			
 			//test and validate (evaluation)
-			currentPopulation = calculateFitness(currentPopulation, evaluationPipe, collectorPipe);
+			currentPopulation = calculateFitness(currentPopulation, evaluationPipe);
 		} //loop end
 		
 		//return best item, discard the rest
@@ -334,13 +337,12 @@ public static class Builder<T,L,F extends Comparable<F>> {
 						EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
 						int mutationId = mutation.getIDofNextMutation(nextLocation);
 
-						if (!mutationWasAlreadyApplied(appliedMutations, item.getMutationIdHistory(), mutationId)) {
+						if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
-							EvoItem<T, F> mutant = new SimpleEvoItem<T, F>(mutation.applyTo(item.getItem(), nextLocation), item.getMutationIdHistory());
-							//add the mutation id to the history of the mutant
-							mutant.addToMutationIdHistory(mutationId);
+							EvoItem<T, F> mutant = new SimpleEvoItem<T, F>(mutation.applyTo(item.getItem(), nextLocation), 
+									item.getHistory(), mutationId);
 							//add the mutation history to the set of already applied mutation sequences
-							appliedMutations.add(mutant.getMutationIdHistory());
+							appliedMutations.add(mutant.getHistory().copy());
 							mutationApplied = true;
 							children.add(mutant);
 						}
@@ -382,13 +384,13 @@ public static class Builder<T,L,F extends Comparable<F>> {
 				EvoMutation<T,L> mutation = mutationProvider.getNextMutationType(mutationSelectionStrategy);
 				int mutationId = mutation.getIDofNextMutation(nextLocation);
 
-				if (!mutationWasAlreadyApplied(appliedMutations, item.getMutationIdHistory(), mutationId)) {
+				if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
 					item.setItem(mutation.applyTo(item.getItem(), nextLocation));
 					//add the mutation id to the history of the item
-					item.addToMutationIdHistory(mutationId);
+					item.addMutationIdToHistory(mutationId);
 					//add the mutation history to the set of already applied mutation sequences
-					appliedMutations.add(item.getMutationIdHistory());
+					appliedMutations.add(item.getHistory().copy());
 					mutationApplied = true;
 				}
 			}
@@ -396,9 +398,18 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		return currentPopulation;
 	}
 
-	private static boolean mutationWasAlreadyApplied(Set<History> appliedMutations, History mutationIdHistory, int mutationId) {
-		History temp = new History(mutationIdHistory);
-		temp.add(mutationId);
+	private static boolean mutationWasAlreadyApplied(Set<History> appliedMutations, History history, int mutationId) {
+		History temp = new History(history);
+		temp.addMutationId(mutationId);
+		if (appliedMutations.contains(temp)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private static boolean recombinationWasAlreadyApplied(Set<History> appliedMutations, History history1, History history2, int recombinationId) {
+		History temp = new History(history1, history2, recombinationId);
 		if (appliedMutations.contains(temp)) {
 			return true;
 		} else {
@@ -407,7 +418,8 @@ public static class Builder<T,L,F extends Comparable<F>> {
 	}
 
 	private static <T,F extends Comparable<F>> List<EvoItem<T,F>> produceRecombinationalOffspring(List<EvoItem<T, F>> parentPopulation, int childrenCount,
-			RecombinationStrategy recombinationStrategy, EvoRecombiner<T> recombiner) {
+			RecombinationStrategy recombinationStrategy, EvoRecombinationProvider<T> recombinationProvider, 
+			RecombinationTypeSelectionStrategy recombinationSelectionStrategy, Set<History> appliedMutations) {
 		if (parentPopulation.size() < 2) {
 			Log.warn(EvoAlgorithm.class, "Need at least 2 parents to produce offspring!");
 			return Collections.emptyList();
@@ -418,26 +430,33 @@ public static class Builder<T,L,F extends Comparable<F>> {
 			switch (recombinationStrategy) {
 			case MONOGAMY_BEST_TO_WORST:
 				sortBestToWorst(parentPopulation);
-				monogamyChildrenProduction(parentPopulation, childrenCount, recombiner, children);
+				monogamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, appliedMutations);
 				break;
 			case MONOGAMY_RANDOM:
 				Collections.shuffle(parentPopulation);
-				monogamyChildrenProduction(parentPopulation, childrenCount, recombiner, children);
+				monogamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, appliedMutations);
 				break;
 			case POLYGAMY_BEST_5_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parentPopulation, childrenCount, recombiner, children, parentPopulation.size() * 0.05);
+				polygamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, parentPopulation.size() * 0.05, appliedMutations);
 				break;
 			case POLYGAMY_BEST_10_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parentPopulation, childrenCount, recombiner, children, parentPopulation.size() * 0.1);
+				polygamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, parentPopulation.size() * 0.1, appliedMutations);
 				break;
 			case POLYGAMY_BEST_20_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parentPopulation, childrenCount, recombiner, children, parentPopulation.size() * 0.2);
+				polygamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, parentPopulation.size() * 0.2, appliedMutations);
 				break;
 			case POLYGAMY_BEST_50_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parentPopulation, childrenCount, recombiner, children, parentPopulation.size() * 0.5);
+				polygamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, parentPopulation.size() * 0.5, appliedMutations);
 				break;
 			case POLYGAMY_SINGLE_BEST_WITH_OTHERS:
-				polygamyChildrenProduction(parentPopulation, childrenCount, recombiner, children, 1);
+				polygamyChildrenProduction(parentPopulation, childrenCount, recombinationProvider, recombinationSelectionStrategy, 
+						children, 1, appliedMutations);
 				break;
 			default:
 				throw new UnsupportedOperationException("Not implemented, yet.");
@@ -450,25 +469,9 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		}
 	}
 
-//	private static <T> void removeRandomlyToSize(List<T> list, int maxNumberOfElements) {
-//		//TODO: clean up needed here?
-//		if (list.size() > maxNumberOfElements) {
-//			//remove randomly
-//			Collections.shuffle(list);
-//			int killCount = list.size() - maxNumberOfElements;
-//			Iterator<T> iterator = list.iterator();
-//			int i = 0;
-//			while (iterator.hasNext() && i < killCount) {
-//				iterator.next();
-//				iterator.remove();
-//				++i;
-//			}
-//			//R.I.P.
-//		}
-//	}
-
 	private static <T,F extends Comparable<F>> void polygamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
-			EvoRecombiner<T> recombiner, List<EvoItem<T,F>> children, double number) {
+			EvoRecombinationProvider<T> recombinationProvider, RecombinationTypeSelectionStrategy recombinationSelectionStrategy, 
+			List<EvoItem<T,F>> children, double number, Set<History> appliedMutations) {
 		List<EvoItem<T, F>> bestParents = new ArrayList<>();
 		List<EvoItem<T, F>> population = new ArrayList<>(parentPopulation);
 		sortBestToWorst(population);
@@ -491,8 +494,26 @@ public static class Builder<T,L,F extends Comparable<F>> {
 					//get parent2
 					parent2 = iterator2.next();
 
-					//if both parents are picked, produce a child and reset the parents
-					children.add(new SimpleEvoItem<>(recombiner.recombine(parent1.getItem(), parent2.getItem())));
+					//TODO: what if no new recombination can be found? infinite loop...
+					boolean recombinationApplied = false;
+					int tryCount = 0;
+					while(!recombinationApplied && tryCount < 50) {
+						++tryCount;
+						//if both parents are picked, produce a child
+						EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType(recombinationSelectionStrategy);
+						int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
+
+						if (!recombinationWasAlreadyApplied(appliedMutations, parent1.getHistory(), parent1.getHistory(), recombinationId)) {
+							//apply the recombination and produce the child
+							EvoItem<T,F> child = new SimpleEvoItem<>(
+									recombination.recombine(parent1.getItem(), parent2.getItem()), 
+									parent1.getHistory(), parent2.getHistory(), recombinationId);
+							//add the child history to the set of already seen histories
+							appliedMutations.add(child.getHistory().copy());
+							recombinationApplied = true;
+							children.add(child);
+						}
+					}
 					++i;
 				}
 			}
@@ -501,7 +522,8 @@ public static class Builder<T,L,F extends Comparable<F>> {
 	}
 
 	private static <T,F extends Comparable<F>> void monogamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
-			EvoRecombiner<T> recombiner, List<EvoItem<T,F>> children) {
+			EvoRecombinationProvider<T> recombinationProvider, RecombinationTypeSelectionStrategy recombinationSelectionStrategy, 
+			List<EvoItem<T,F>> children, Set<History> appliedMutations) {
 		Log.out(EvoAlgorithm.class, "Monogamy... parent count: %d", parentPopulation.size());
 		int i = 0;
 		EvoItem<T, F> parent1 = null;
@@ -520,7 +542,8 @@ public static class Builder<T,L,F extends Comparable<F>> {
 				
 				//if both parents are picked, produce a child and reset the parents
 				if (parent1 != null && parent2 != null) {
-					children.add(new SimpleEvoItem<>(recombiner.recombine(parent1.getItem(), parent2.getItem())));
+					produceNewChild(recombinationProvider, recombinationSelectionStrategy, parent1, parent2, 
+							children, appliedMutations);
 					++i;
 					parent1 = null;
 					parent2 = null;
@@ -528,9 +551,32 @@ public static class Builder<T,L,F extends Comparable<F>> {
 			}
 		}
 	}
+
+	private static <T, F extends Comparable<F>> void produceNewChild(EvoRecombinationProvider<T> recombinationProvider,
+			RecombinationTypeSelectionStrategy recombinationSelectionStrategy, EvoItem<T, F> parent1, EvoItem<T, F> parent2,
+			List<EvoItem<T, F>> children, Set<History> appliedMutations) {
+		//TODO: what if no new recombination can be found? infinite loop...
+		boolean recombinationApplied = false;
+		int tryCount = 0;
+		while(!recombinationApplied && tryCount < 50) {
+			++tryCount;
+			//if both parents are picked, produce a child
+			EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType(recombinationSelectionStrategy);
+			int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
+
+			if (!recombinationWasAlreadyApplied(appliedMutations, parent1.getHistory(), parent1.getHistory(), recombinationId)) {
+				//apply the recombination and produce the child
+				EvoItem<T,F> child = new SimpleEvoItem<>(recombination.recombine(parent1.getItem(), parent2.getItem()), parent1.getHistory(), parent2.getHistory(), recombinationId);
+				//add the child history to the set of already seen histories
+				appliedMutations.add(child.getHistory().copy());
+				recombinationApplied = true;
+				children.add(child);
+			}
+		}
+	}
 	
 	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectForRecombination(List<EvoItem<T, F>> evaluatedPop,
-			RecombinationSelectionStrategy recombinationSelectionStrategy) {
+			RecombinationParentSelectionStrategy recombinationSelectionStrategy) {
 		Log.out(EvoAlgorithm.class, "Selecting parents from %d elements.", evaluatedPop.size());
 		if (evaluatedPop.size() < 2) {
 			Log.warn(EvoAlgorithm.class, "Population size too small to select enough parents!");
@@ -693,7 +739,8 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		return resultPopulation;
 	}
 	
-	private static <T,F extends Comparable<F>> void removeRandomlyToSizeAndCleanUp(List<EvoItem<T, F>> list, int maxNumberOfElements) {
+	private static <T,F extends Comparable<F>> void removeRandomlyToSizeAndCleanUp(
+			List<EvoItem<T, F>> list, int maxNumberOfElements) {
 		if (list.size() > maxNumberOfElements) {
 			//remove randomly
 			Collections.shuffle(list);
@@ -709,7 +756,8 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> void cleanUpOtherItems(List<EvoItem<T, F>> evaluatedPop, EvoItem<T, F> evaluatedItem) {
+	private static <T,F extends Comparable<F>> void cleanUpOtherItems(
+			List<EvoItem<T, F>> evaluatedPop, EvoItem<T, F> evaluatedItem) {
 		for (EvoItem<T,F> item : evaluatedPop) {
 			if (evaluatedItem != item) {
 				item.cleanUp();
@@ -723,15 +771,13 @@ public static class Builder<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> calculateFitness(List<EvoItem<T,F>> population,
-			PipeLinker evaluationPipe, ElementCollectorPipe<EvoItem<T,F>> collectorPipe) {
+	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> calculateFitness(
+			List<EvoItem<T,F>> population, PipeLinker evaluationPipe) {
 		Log.out(EvoAlgorithm.class, "Checking fitness for %d elements.", population.size());
 		//check all elements in the population for their fitness values
 		evaluationPipe.submitAndShutdown(population);
-		
 		//return a list with the evaluated population
 		return population;
-		//return collectorPipe.getCollectedItems();
 	}
 
 }

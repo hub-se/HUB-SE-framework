@@ -21,37 +21,43 @@ public interface EvoMutation<T,L> {
 	
 	public int getIDofNextMutation(L location);
 	
-	public static class History implements List<Integer> {
+	public static class MutationHistory implements List<Integer> {
 
 		private final List<Integer> history;
+		private Integer hashCode = 17;
 		
-		public History() {
+		public MutationHistory() {
 			history = new ArrayList<>();
 		}
 		
-		public History(Collection<? extends Integer> c) {
+		public MutationHistory(MutationHistory c) {
 			history = new ArrayList<>(c);
+			hashCode = c.hashCode();
 		}
 		
-		public History(int capacity) {
+		public MutationHistory(int capacity) {
 			history = new ArrayList<>(capacity);
+		}
+		
+		private void updateHashCode(Collection<? extends Integer> c) {
+			for (Integer e : c) {
+				updateHashCode(e);
+			}
+		}
+		
+		private void updateHashCode(Integer e) {
+			hashCode = 31 * hashCode + (e == null ? 0 : e);
 		}
 		
 		@Override
 		public int hashCode() {
-			int result = 17;
-			result = 31 * result + this.size();
-			Iterator<Integer> iterator = this.iterator();
-			while (iterator.hasNext()) {
-				result = 31 * result + iterator.next();
-			}
-			return result;
+			return hashCode;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof History) {
-				History o = (History) obj;
+			if (obj instanceof MutationHistory) {
+				MutationHistory o = (MutationHistory) obj;
 				//must have the same number of elements
 				if (this.size() != o.size()) {
 					return false;
@@ -101,12 +107,8 @@ public interface EvoMutation<T,L> {
 
 		@Override
 		public boolean add(Integer e) {
+			updateHashCode(e);
 			return history.add(e);
-		}
-
-		@Override
-		public boolean remove(Object o) {
-			return history.remove(o);
 		}
 
 		@Override
@@ -116,49 +118,14 @@ public interface EvoMutation<T,L> {
 
 		@Override
 		public boolean addAll(Collection<? extends Integer> c) {
+			updateHashCode(c);
 			return history.addAll(c);
-		}
-
-		@Override
-		public boolean addAll(int index, Collection<? extends Integer> c) {
-			return history.addAll(index, c);
-		}
-
-		@Override
-		public boolean removeAll(Collection<?> c) {
-			return history.removeAll(c);
-		}
-
-		@Override
-		public boolean retainAll(Collection<?> c) {
-			return history.retainAll(c);
-		}
-
-		@Override
-		public void clear() {
-			history.clear();
 		}
 
 		@Override
 		public Integer get(int index) {
 			return history.get(index);
 		}
-
-		@Override
-		public Integer set(int index, Integer element) {
-			return history.set(index, element);
-		}
-
-		@Override
-		public void add(int index, Integer element) {
-			history.add(index, element);
-		}
-
-		@Override
-		public Integer remove(int index) {
-			return history.remove(index);
-		}
-
 		@Override
 		public int indexOf(Object o) {
 			return history.indexOf(o);
@@ -178,10 +145,50 @@ public interface EvoMutation<T,L> {
 		public ListIterator<Integer> listIterator(int index) {
 			return history.listIterator(index);
 		}
+		
+		@Override
+		public boolean remove(Object o) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public boolean addAll(int index, Collection<? extends Integer> c) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
 
 		@Override
-		public List<Integer> subList(int fromIndex, int toIndex) {
-			return history.subList(fromIndex, toIndex);
+		public boolean removeAll(Collection<?> c) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> c) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Integer set(int index, Integer element) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void add(int index, Integer element) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Integer remove(int index) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public List<Integer> subList(int fromIndex, int toIndex) throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
 		}
 		
 	}

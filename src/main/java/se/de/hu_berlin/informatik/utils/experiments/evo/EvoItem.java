@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.History;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.MutationHistory;
 
 public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 
@@ -37,10 +37,128 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 	 */
 	public boolean cleanUp();
 	
-	public History getMutationIdHistory();
+	public History getHistory();
 	
-	public void setMutationIdHistory(History history);
+	default public void addMutationIdToHistory(int id) {
+		this.getHistory().addMutationId(id);
+	}
 	
-	public void addToMutationIdHistory(int id);
+	public static class History {
+		
+		private MutationHistory mutationHistory;
+		
+		private Integer recombinationId = null;
+		
+		private History parentHistory1 = null;
+		private History parentHistory2 = null;
+		
+		private Integer hashCode = 17;
+		
+		public History() {
+			this.mutationHistory = new MutationHistory();
+		}
+		
+		public History(History c) {
+			this.mutationHistory = new MutationHistory(c.getMutationHistory());
+			this.recombinationId = c.getRecombinationId();
+			this.parentHistory1 = c.getParentHistory1() == null ? null : new History(c.getParentHistory1());
+			this.parentHistory2 = c.getParentHistory2() == null ? null : new History(c.getParentHistory2());
+			this.hashCode = c.hashCode();
+		}
+		
+		public History(History c, Integer mutationId) {
+			this(c);
+			this.addMutationId(mutationId);
+		}
+		
+		public History(History parentHistory1, History parentHistory2, Integer recombinationId) {
+			this();
+			this.recombinationId = recombinationId;
+			updateHashCode(this.recombinationId);
+			this.parentHistory1 = parentHistory1;
+			updateHashCode(this.parentHistory1);
+			this.parentHistory2 = parentHistory2;
+			updateHashCode(this.parentHistory2);
+		}
+
+		public boolean addMutationId(int id) {
+			return mutationHistory.add(id);
+		}
+		
+		public Integer getRecombinationId() {
+			return recombinationId;
+		}
+		
+		public MutationHistory getMutationHistory() {
+			return mutationHistory;
+		}
+		
+		public boolean hasParents() {
+			return parentHistory1 != null && parentHistory2 != null;
+		}
+		
+		public History getParentHistory1() {
+			return parentHistory1;
+		}
+		
+		public History getParentHistory2() {
+			return parentHistory2;
+		}
+		
+		private void updateHashCode(Integer e) {
+			hashCode = 31 * hashCode + (e == null ? 0 : e);
+		}
+		
+		private void updateHashCode(History h) {
+			hashCode = 31 * hashCode + (h == null ? 0 : h.hashCode());
+		}
+		
+		@Override
+		public int hashCode() {
+			return 31 * hashCode + mutationHistory.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof History) {
+				History o = (History) obj;
+				//must have the same recombination IDs (or both null)
+				if (this.getRecombinationId() != o.getRecombinationId()) {
+					return false;
+				}
+				//mutation histories must be equal
+				if (!this.getMutationHistory().equals(o.getMutationHistory())) {
+					return false;
+				}
+				//both must have parents (histories not null) or no parents (all null)
+				if (!this.hasParents() && !o.hasParents()) {
+					return true;
+				}
+				if (this.hasParents() && !o.hasParents()) {
+					return false;
+				}
+				if (!this.hasParents() && o.hasParents()) {
+					return false;
+				}
+				//both parent histories have to be equal
+				if (!this.getParentHistory1().equals(o.getParentHistory1())) {
+					return false;
+				}
+				if (!this.getParentHistory2().equals(o.getParentHistory2())) {
+					return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		public History copy() {
+			return new History(this);
+		}
+		
+		
+		
+	}
 	
 }

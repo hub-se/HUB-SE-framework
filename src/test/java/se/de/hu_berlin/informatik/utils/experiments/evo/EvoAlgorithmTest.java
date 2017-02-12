@@ -21,8 +21,9 @@ import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.KillStrateg
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy;
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationSelectionStrategy;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationParentSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationTypeSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.miscellaneous.TestSettings;
@@ -64,7 +65,7 @@ public class EvoAlgorithmTest extends TestSettings {
 	}
 
 	/**
-	 * Test method for {@link se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm#EvolutionaryAlgorithm(int, int, int, java.lang.Object, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoRecombiner, se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory)}.
+	 * Test method for {@link se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm#EvolutionaryAlgorithm(int, int, int, java.lang.Object, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationParentSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoRecombination, se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory)}.
 	 */
 	@Test
 	public void testEvolutionaryAlgorithm() throws Exception {
@@ -139,37 +140,64 @@ public class EvoAlgorithmTest extends TestSettings {
 		};
 		
 		//recombiner is optional
-		EvoRecombiner<Integer[]> recombiner = new EvoRecombiner<Integer[]>() {
-			
+		EvoRecombinationProvider<Integer[]> recombiner = new EvoRecombinationProvider<Integer[]>() {
+
 			@Override
-			public Integer[] recombine(Integer[] parent1, Integer[] parent2) {
-				int switchIndex = random.nextInt(parent1.length-1) + 1;
-				Integer[] child = new Integer[parent1.length];
-				
-				if (random.nextGaussian() >= 0) {
-					for (int i = 0; i < child.length; ++i) {
-						if (i < switchIndex) {
-							child[i] = parent1[i];
+			public EvoRecombination<Integer[]> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy) {
+				return new EvoRecombination<Integer[]>() {
+					
+					private double nextGaussian;
+					private int switchIndex;
+
+					@Override
+					public Integer[] recombine(Integer[] parent1, Integer[] parent2) {
+						Integer[] child = new Integer[parent1.length];
+						
+						if (nextGaussian >= 0) {
+							for (int i = 0; i < child.length; ++i) {
+								if (i < switchIndex) {
+									child[i] = parent1[i];
+								} else {
+									child[i] = parent2[i];
+								}
+							}
 						} else {
-							child[i] = parent2[i];
+							for (int i = 0; i < child.length; ++i) {
+								if (i < switchIndex) {
+									child[i] = parent2[i];
+								} else {
+									child[i] = parent1[i];
+								}
+							}
 						}
+						return child;
 					}
-				} else {
-					for (int i = 0; i < child.length; ++i) {
-						if (i < switchIndex) {
-							child[i] = parent2[i];
-						} else {
-							child[i] = parent1[i];
-						}
+					
+					@Override
+					public int getIDofNextRecombination(Integer[] parent1, Integer[] parent2) {
+						switchIndex = random.nextInt(parent1.length-1) + 1;
+						nextGaussian = random.nextGaussian();
+						return nextGaussian >= 0 ? switchIndex : -switchIndex;
 					}
-				}
-				return child;
+				};
+			}
+
+			@Override
+			public boolean addRecombination(EvoRecombination<Integer[]> recombination) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public Collection<EvoRecombination<Integer[]>> getRecombinations() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 		
 		EvoAlgorithm.Builder<Integer[], Integer, Integer> builder = 
 				new EvoAlgorithm.Builder<Integer[], Integer, Integer>(50, 20, KillStrategy.KILL_75_PERCENT, PopulationSelectionStrategy.BEST_ONLY)
-				.setRecombiner(recombiner , RecombinationSelectionStrategy.BEST_75_PERCENT,
+				.setRecombinationProvider(recombiner, RecombinationTypeSelectionStrategy.RANDOM, RecombinationParentSelectionStrategy.BEST_75_PERCENT,
 //						RecombinationStrategy.MONOGAMY_BEST_TO_WORST)
 						RecombinationStrategy.POLYGAMY_BEST_20_PERCENT_WITH_OTHERS)
 				.setMutationProvider(mutationProvider, MutationSelectionStrategy.RANDOM)

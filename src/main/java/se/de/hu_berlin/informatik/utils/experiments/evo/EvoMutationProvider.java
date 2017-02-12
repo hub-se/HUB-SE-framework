@@ -17,7 +17,7 @@ public interface EvoMutationProvider<T,L> {
 	public EvoMutation<T,L> getNextMutationType(MutationSelectionStrategy strategy);
 	
 	/**
-	 * Adds the given mutation to the collection of possible mutations,
+	 * Adds the given mutation to the collection of possible mutations.
 	 * @param mutation
 	 * the mutation to add
 	 * @return
@@ -26,7 +26,7 @@ public interface EvoMutationProvider<T,L> {
 	public boolean addMutation(EvoMutation<T,L> mutation);
 	
 	/**
-	 * Adds the given mutations to the collection of possible mutations,
+	 * Adds the given mutations to the collection of possible mutations.
 	 * @param mutations
 	 * the mutations to add
 	 * @return
@@ -41,7 +41,7 @@ public interface EvoMutationProvider<T,L> {
 	}
 	
 	/**
-	 * Adds the given mutations to the collection of possible mutations,
+	 * Adds the given mutations to the collection of possible mutations.
 	 * @param mutations
 	 * the mutations to add
 	 * @return
