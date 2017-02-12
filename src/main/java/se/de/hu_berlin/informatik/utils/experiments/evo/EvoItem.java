@@ -37,28 +37,30 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 	 */
 	public boolean cleanUp();
 	
-	public History getHistory();
+	public History<T> getHistory();
 	
 	default public void addMutationIdToHistory(int id) {
 		this.getHistory().addMutationId(id);
 	}
 	
-	public static class History {
+	public static class History<T> {
 		
 		private MutationHistory mutationHistory;
+		private T ancestor = null;
 		
 		private Integer recombinationId = null;
 		
-		private History parentHistory1 = null;
-		private History parentHistory2 = null;
+		private History<T> parentHistory1 = null;
+		private History<T> parentHistory2 = null;
 		
 		private Integer hashCode = 17;
 		
 		/**
 		 * Creates a new History object.
 		 */
-		public History() {
+		public History(T origin) {
 			this.mutationHistory = new MutationHistory();
+			this.ancestor = origin;
 			updateStaticHashCodePart();
 		}
 		
@@ -67,11 +69,12 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param c
 		 * the history to copy
 		 */
-		public History(History c) {
+		public History(History<T> c) {
 			this.mutationHistory = new MutationHistory(c.getMutationHistory());
+			this.ancestor = c.getAncestor();
 			this.recombinationId = c.getRecombinationId();
-			this.parentHistory1 = c.getParentHistory1() == null ? null : new History(c.getParentHistory1());
-			this.parentHistory2 = c.getParentHistory2() == null ? null : new History(c.getParentHistory2());
+			this.parentHistory1 = c.getParentHistory1() == null ? null : new History<>(c.getParentHistory1());
+			this.parentHistory2 = c.getParentHistory2() == null ? null : new History<>(c.getParentHistory2());
 			updateStaticHashCodePart();
 		}
 		
@@ -83,7 +86,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param mutationId
 		 * the mutation id to add
 		 */
-		public History(History c, Integer mutationId) {
+		public History(History<T> c, Integer mutationId) {
 			this(c);
 			this.addMutationId(mutationId);
 		}
@@ -98,15 +101,17 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param recombinationId
 		 * the recombination id
 		 */
-		public History(History parentHistory1, History parentHistory2, Integer recombinationId) {
+		public History(History<T> parentHistory1, History<T> parentHistory2, Integer recombinationId) {
 			this.mutationHistory = new MutationHistory();
+			this.ancestor = null;
 			this.recombinationId = recombinationId;
-			this.parentHistory1 = parentHistory1 == null ? null : new History(parentHistory1);
-			this.parentHistory2 = parentHistory2 == null ? null : new History(parentHistory2);
+			this.parentHistory1 = parentHistory1 == null ? null : new History<>(parentHistory1);
+			this.parentHistory2 = parentHistory2 == null ? null : new History<>(parentHistory2);
 			updateStaticHashCodePart();
 		}
 		
 		private void updateStaticHashCodePart() {
+			updateHashCode(this.ancestor);
 			updateHashCode(this.recombinationId);
 			updateHashCode(this.parentHistory1);
 			updateHashCode(this.parentHistory2);
@@ -128,11 +133,15 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			return parentHistory1 != null && parentHistory2 != null;
 		}
 		
-		public History getParentHistory1() {
+		public T getAncestor() {
+			return ancestor;
+		}
+		
+		public History<T> getParentHistory1() {
 			return parentHistory1;
 		}
 		
-		public History getParentHistory2() {
+		public History<T> getParentHistory2() {
 			return parentHistory2;
 		}
 		
@@ -140,7 +149,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			hashCode = 31 * hashCode + (e == null ? 0 : e);
 		}
 		
-		private void updateHashCode(History h) {
+		private void updateHashCode(Object h) {
 			hashCode = 31 * hashCode + (h == null ? 0 : h.hashCode());
 		}
 		
@@ -152,7 +161,11 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof History) {
-				History o = (History) obj;
+				History<?> o = (History<?>) obj;
+				//must have the same ancestor (or both null)
+				if (this.getAncestor() != o.getAncestor()) {
+					return false;
+				}
 				//must have the same recombination IDs (or both null)
 				if (this.getRecombinationId() != o.getRecombinationId()) {
 					return false;
@@ -184,8 +197,8 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			}
 		}
 
-		public History copy() {
-			return new History(this);
+		public History<T> copy() {
+			return new History<>(this);
 		}
 		
 		

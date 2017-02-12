@@ -4,11 +4,11 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 
 	private T item = null;
 	private F fitness = null;
-	private History history;
+	private History<T> history;
 	
 	public SimpleEvoItem(T item) {
 		this.item = item;
-		this.history = new History();
+		this.history = new History<>(item);
 	}
 	
 	public SimpleEvoItem(T item, F fitness) {
@@ -16,14 +16,14 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 		this.fitness = fitness;
 	}
 	
-	public SimpleEvoItem(T item, History history, int mutationId) {
+	public SimpleEvoItem(T item, History<T> history, int mutationId) {
 		this.item = item;
-		this.history = new History(history, mutationId);
+		this.history = new History<>(history, mutationId);
 	}
 	
-	public SimpleEvoItem(T item, History parentHistory1, History parentHistory2, int recombinationId) {
+	public SimpleEvoItem(T item, History<T> parentHistory1, History<T> parentHistory2, int recombinationId) {
 		this.item = item;
-		this.history = new History(parentHistory1, parentHistory2, recombinationId);
+		this.history = new History<>(parentHistory1, parentHistory2, recombinationId);
 	}
 	
 	@Override
@@ -53,7 +53,7 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 	}
 
 	@Override
-	public History getHistory() {
+	public History<T> getHistory() {
 		return history;
 	}
 
