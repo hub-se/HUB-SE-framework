@@ -146,54 +146,46 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		int generationCounter= 0;
 		tracker.track("...running starting generation");
 		//fill up with mutants if below desired population size
-		currentPopulation.addAll(
-				produceMutationBasedOffspring(currentPopulation, populationCount,
-						mutationProvider, locationProvider, appliedMutations));
+		int initialChildrenCount = populationCount - currentPopulation.size();
+		currentPopulation.addAll(produceMutationBasedOffspring(currentPopulation, initialChildrenCount));
 		
 		//test/validate (evaluation)
-		currentPopulation = calculateFitness(currentPopulation, evaluationPipe);
+		currentPopulation = calculateFitness(currentPopulation);
 
 		//loop while the generation bound isn't reached and the fitness goal isn't met by any item
-		while (generationCounter < maxGenerationBound && !checkIfGoalIsMet(currentPopulation, fitnessGoal)) {
+		while (generationCounter < maxGenerationBound && !checkIfGoalIsMet(currentPopulation)) {
 			++generationCounter;
 			tracker.track("...running generation " + generationCounter);
 			
 			//choose items for new population (selection)
-			currentPopulation = selectNewPopulationAndKillRemaining(currentPopulation, 
-					killStrategy, populationSelectionStrategy, populationCount);
+			currentPopulation = selectNewPopulationAndKillRemaining(currentPopulation);
 			
 			//select population for reproduction (parents)
-			List<EvoItem<T, F>> parents = 
-					selectForRecombination(currentPopulation, parentSelectionStrategy);
+			List<EvoItem<T, F>> parents = selectParents(currentPopulation);
 			
 			//produce new offspring through recombination, if possible
 			if (recombinationProvider != null) {
 				//cross-over (recombination)
 				int childrenCount = populationCount - currentPopulation.size();
-				currentPopulation.addAll(
-						produceRecombinationalOffspring(parents, childrenCount, 
-								recombinationStrategy, recombinationProvider, appliedMutations));
+				currentPopulation.addAll(produceRecombinationalOffspring(parents, childrenCount));
 			} 
 
 			//fill up with mutants if below desired population size
 			int childrenCount = populationCount - currentPopulation.size();
-			currentPopulation.addAll(
-					produceMutationBasedOffspring(parents, childrenCount,
-							mutationProvider, locationProvider, appliedMutations));
+			currentPopulation.addAll(produceMutationBasedOffspring(parents, childrenCount));
 			
 			//mutate the current population
-			currentPopulation = mutatePopulation(currentPopulation, 
-					mutationProvider, locationProvider, appliedMutations);
+			currentPopulation = mutatePopulation(currentPopulation);
 			
 			//test and validate (evaluation)
-			currentPopulation = calculateFitness(currentPopulation, evaluationPipe);
+			currentPopulation = calculateFitness(currentPopulation);
 		} //loop end
 		
 		//return best item, discard the rest
 		return selectBestItemAndCleanUpRest(currentPopulation);
 	}
 
-	private static <T,F extends Comparable<F>> boolean checkIfGoalIsMet(List<EvoItem<T, F>> currentEvaluatedPop, F fitnessGoal) {
+	private boolean checkIfGoalIsMet(List<EvoItem<T, F>> currentEvaluatedPop) {
 		for (EvoItem<T,F> evaluatedItem : currentEvaluatedPop) {
 			if (evaluatedItem.compareTo(fitnessGoal) >= 0) {
 				return true;
@@ -202,8 +194,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		return false;
 	}
 
-	private static <T,L,F extends Comparable<F>> List<EvoItem<T,F>> produceMutationBasedOffspring(List<EvoItem<T,F>> parents, int childrenCount,
-			EvoMutationProvider<T,L> mutationProvider, EvoLocationProvider<T,L> locationProvider, Set<History<T>> appliedMutations) {
+	private List<EvoItem<T,F>> produceMutationBasedOffspring(List<EvoItem<T,F>> parents, int childrenCount) {
 		childrenCount = childrenCount < 0 ? 0 : childrenCount;
 		if (childrenCount == 0) {
 			return Collections.emptyList();
@@ -228,7 +219,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 						EvoMutation<T,L> mutation = mutationProvider.getNextMutationTemplate();
 						int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
-						if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
+						if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
 							EvoItem<T, F> mutant = new SimpleEvoItem<T, F>(mutation.applyTo(item.getItem(), nextLocation), 
 									item.getHistory(), mutationId);
@@ -260,8 +251,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		return bestItem;
 	}
 
-	private static <T,L,F extends Comparable<F>> List<EvoItem<T,F>> mutatePopulation(List<EvoItem<T,F>> currentPopulation, 
-			EvoMutationProvider<T,L> mutationProvider, EvoLocationProvider<T,L> locationProvider, Set<History<T>> appliedMutations) {
+	private List<EvoItem<T,F>> mutatePopulation(List<EvoItem<T,F>> currentPopulation) {
 		Log.out(EvoAlgorithm.class, "Mutating %d elements.", currentPopulation.size());
 		for (EvoItem<T,F> item : currentPopulation) {
 			//TODO: what if no new mutation can be found? infinite loop...
@@ -273,7 +263,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 				EvoMutation<T,L> mutation = mutationProvider.getNextMutationTemplate();
 				int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
-				if (!mutationWasAlreadyApplied(appliedMutations, item.getHistory(), mutationId)) {
+				if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
 					item.setItem(mutation.applyTo(item.getItem(), nextLocation));
 					//add the mutation id to the history of the item
@@ -287,7 +277,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		return currentPopulation;
 	}
 
-	private static <T> boolean mutationWasAlreadyApplied(Set<History<T>> appliedMutations, History<T> history, int mutationId) {
+	private boolean mutationWasAlreadyApplied(History<T> history, int mutationId) {
 		History<T> temp = new History<>(history);
 		temp.addMutationId(mutationId);
 		if (appliedMutations.contains(temp)) {
@@ -297,7 +287,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 	
-	private static <T> boolean recombinationWasAlreadyApplied(Set<History<T>> appliedMutations, History<T> history1, History<T> history2, int recombinationId) {
+	private boolean recombinationWasAlreadyApplied(History<T> history1, History<T> history2, int recombinationId) {
 		History<T> temp = new History<>(history1, history2, recombinationId);
 		if (appliedMutations.contains(temp)) {
 			return true;
@@ -306,9 +296,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> List<EvoItem<T,F>> produceRecombinationalOffspring(
-			List<EvoItem<T, F>> parents, int childrenCount, RecombinationStrategy recombinationStrategy, 
-			EvoRecombinationProvider<T> recombinationProvider, Set<History<T>> appliedMutations) {
+	private List<EvoItem<T,F>> produceRecombinationalOffspring(List<EvoItem<T, F>> parents, int childrenCount) {
 		if (parents.size() < 2) {
 			Log.warn(EvoAlgorithm.class, "Need at least 2 parents to produce offspring!");
 			return Collections.emptyList();
@@ -319,33 +307,26 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 			switch (recombinationStrategy) {
 			case MONOGAMY_BEST_TO_WORST:
 				sortBestToWorst(parents);
-				monogamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, appliedMutations);
+				monogamyChildrenProduction(parents, childrenCount, children);
 				break;
 			case MONOGAMY_RANDOM:
 				Collections.shuffle(parents);
-				monogamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, appliedMutations);
+				monogamyChildrenProduction(parents, childrenCount, children);
 				break;
 			case POLYGAMY_BEST_5_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, parents.size() * 0.05, appliedMutations);
+				polygamyChildrenProduction(parents, childrenCount, children, parents.size() * 0.05);
 				break;
 			case POLYGAMY_BEST_10_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, parents.size() * 0.1, appliedMutations);
+				polygamyChildrenProduction(parents, childrenCount, children, parents.size() * 0.1);
 				break;
 			case POLYGAMY_BEST_20_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, parents.size() * 0.2, appliedMutations);
+				polygamyChildrenProduction(parents, childrenCount, children, parents.size() * 0.2);
 				break;
 			case POLYGAMY_BEST_50_PERCENT_WITH_OTHERS:
-				polygamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, parents.size() * 0.5, appliedMutations);
+				polygamyChildrenProduction(parents, childrenCount, children, parents.size() * 0.5);
 				break;
 			case POLYGAMY_SINGLE_BEST_WITH_OTHERS:
-				polygamyChildrenProduction(parents, childrenCount, recombinationProvider, 
-						children, 1, appliedMutations);
+				polygamyChildrenProduction(parents, childrenCount, children, 1);
 				break;
 			default:
 				throw new UnsupportedOperationException("Not implemented, yet.");
@@ -358,8 +339,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> void polygamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
-			EvoRecombinationProvider<T> recombinationProvider, List<EvoItem<T,F>> children, double number, Set<History<T>> appliedMutations) {
+	private void polygamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount, List<EvoItem<T,F>> children, double number) {
 		List<EvoItem<T, F>> bestParents = new ArrayList<>();
 		List<EvoItem<T, F>> population = new ArrayList<>(parentPopulation);
 		sortBestToWorst(population);
@@ -391,7 +371,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 						EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType();
 						int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
-						if (!recombinationWasAlreadyApplied(appliedMutations, parent1.getHistory(), parent2.getHistory(), recombinationId)) {
+						if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 							//apply the recombination and produce the child
 							EvoItem<T,F> child = new SimpleEvoItem<>(
 									recombination.recombine(parent1.getItem(), parent2.getItem()), 
@@ -409,8 +389,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> void monogamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount,
-			EvoRecombinationProvider<T> recombinationProvider, List<EvoItem<T,F>> children, Set<History<T>> appliedMutations) {
+	private void monogamyChildrenProduction(List<EvoItem<T, F>> parentPopulation, int childrenCount, List<EvoItem<T,F>> children) {
 		Log.out(EvoAlgorithm.class, "Monogamy... parent count: %d", parentPopulation.size());
 		int i = 0;
 		EvoItem<T, F> parent1 = null;
@@ -429,8 +408,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 				
 				//if both parents are picked, produce a child and reset the parents
 				if (parent1 != null && parent2 != null) {
-					produceNewChild(recombinationProvider, parent1, parent2, 
-							children, appliedMutations);
+					produceNewChild(parent1, parent2, children);
 					++i;
 					parent1 = null;
 					parent2 = null;
@@ -439,8 +417,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T, F extends Comparable<F>> void produceNewChild(EvoRecombinationProvider<T> recombinationProvider,
-			EvoItem<T, F> parent1, EvoItem<T, F> parent2, List<EvoItem<T, F>> children, Set<History<T>> appliedMutations) {
+	private void produceNewChild(EvoItem<T, F> parent1, EvoItem<T, F> parent2, List<EvoItem<T, F>> children) {
 		//TODO: what if no new recombination can be found? infinite loop...
 		boolean recombinationApplied = false;
 		int tryCount = 0;
@@ -450,7 +427,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 			EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType();
 			int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
-			if (!recombinationWasAlreadyApplied(appliedMutations, parent1.getHistory(), parent2.getHistory(), recombinationId)) {
+			if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 				//apply the recombination and produce the child
 				EvoItem<T,F> child = new SimpleEvoItem<>(recombination.recombine(parent1.getItem(), parent2.getItem()), parent1.getHistory(), parent2.getHistory(), recombinationId);
 				//add the child history to the set of already seen histories
@@ -461,8 +438,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 	
-	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectForRecombination(List<EvoItem<T, F>> evaluatedPop,
-			ParentSelectionStrategy recombinationSelectionStrategy) {
+	private List<EvoItem<T, F>> selectParents(List<EvoItem<T, F>> evaluatedPop) {
 		Log.out(EvoAlgorithm.class, "Selecting parents from %d elements.", evaluatedPop.size());
 		if (evaluatedPop.size() < 2) {
 			Log.warn(EvoAlgorithm.class, "Population size too small to select enough parents!");
@@ -472,7 +448,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 			double randomPercentage = 0;
 			double worstPercentage = 0;
 
-			switch (recombinationSelectionStrategy) {
+			switch (parentSelectionStrategy) {
 			case BEST_10_PERCENT:
 				bestPercentage = evaluatedPop.size() * 0.1;
 				break;
@@ -577,8 +553,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> selectNewPopulationAndKillRemaining(List<EvoItem<T, F>> oldPopulation,
-			KillStrategy killStrategy, PopulationSelectionStrategy populationSelectionStrategy, int populationCount) {
+	private List<EvoItem<T, F>> selectNewPopulationAndKillRemaining(List<EvoItem<T, F>> oldPopulation) {
 		//kill off items to only keep part of the maximal population
 		double selectionCount;
 		switch (killStrategy) {
@@ -657,8 +632,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 
-	private static <T,F extends Comparable<F>> List<EvoItem<T, F>> calculateFitness(
-			List<EvoItem<T,F>> population, PipeLinker evaluationPipe) {
+	private List<EvoItem<T, F>> calculateFitness(List<EvoItem<T,F>> population) {
 		Log.out(EvoAlgorithm.class, "Checking fitness for %d elements.", population.size());
 		//check all elements in the population for their fitness values
 		evaluationPipe.submitAndShutdown(population);
