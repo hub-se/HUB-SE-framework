@@ -10,17 +10,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoHandlerProvider;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoFitnessChecker;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoItem;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.KillStrategy;
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy;
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationParentSelectionStrategy;
+import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.ParentSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy;
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationTypeSelectionStrategy;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.miscellaneous.TestSettings;
@@ -62,14 +60,14 @@ public class EvoAlgorithmTest extends TestSettings {
 	}
 
 	/**
-	 * Test method for {@link se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm#EvolutionaryAlgorithm(int, int, int, java.lang.Object, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationParentSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoRecombination, se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory)}.
+	 * Test method for {@link se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm#EvolutionaryAlgorithm(int, int, int, java.lang.Object, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.ParentSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoRecombination, se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory)}.
 	 */
 	@Test
 	public void testEvolutionaryAlgorithm() throws Exception {
 		Integer[] goal = { 1, 2, 3 };
 		Random random = new Random(123456789);
 		
-		EvoLocationProvider<Integer[],Integer,Integer> locationProvider = new EvoLocationProvider<Integer[],Integer,Integer>() {
+		EvoLocationProvider<Integer[],Integer> locationProvider = new AbstractEvoLocationProvider<Integer[],Integer>() {
 			@Override
 			public Integer getNextLocation(Integer[] item, LocationSelectionStrategy strategy) {
 				return random.nextInt(item.length);
@@ -102,7 +100,7 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 		};
 		
-		EvoHandlerProvider<Integer[],Integer> evaluationHandlerFactory = new EvoHandlerProvider<Integer[],Integer>() {
+		EvoFitnessChecker<Integer[],Integer> fitnessChecker = new EvoFitnessChecker<Integer[],Integer>() {
 			
 			@Override
 			public Integer computeFitness(Integer[] item) {
@@ -161,14 +159,13 @@ public class EvoAlgorithmTest extends TestSettings {
 				new EvoAlgorithm.Builder<Integer[], Integer, Integer>(50, 20, 
 						KillStrategy.KILL_50_PERCENT, 
 						PopulationSelectionStrategy.HALF_BEST_HALF_RANDOM, 
-						RecombinationParentSelectionStrategy.BEST_75_PERCENT)
-				.addRecombinationTemplate(recombination)
-				.setRecombinationStrategies(RecombinationTypeSelectionStrategy.RANDOM, 
+						ParentSelectionStrategy.BEST_75_PERCENT,
 						RecombinationStrategy.POLYGAMY_BEST_20_PERCENT_WITH_OTHERS)
 //						RecombinationStrategy.MONOGAMY_BEST_TO_WORST)
+				.addRecombinationTemplate(recombination)
 				.addMutationTemplate(mutation)
-				.setLocationProvider(locationProvider, LocationSelectionStrategy.RANDOM)
-				.setFitnessChecker(evaluationHandlerFactory, 4, 0)
+				.setLocationProvider(locationProvider)
+				.setFitnessChecker(fitnessChecker, 4, 0)
 				.addToInitialPopulation(new Integer[] {2,4,1});
 		
 		EvoItem<Integer[],Integer> result = builder.build().start();

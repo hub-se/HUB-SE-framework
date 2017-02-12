@@ -5,15 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy;
-
 public class SimpleEvoMutationProvider<T,L> implements EvoMutationProvider<T,L> {
 
+	private MutationSelectionStrategy strategy = MutationSelectionStrategy.RANDOM;
 	private final List<EvoMutation<T,L>> availableMutations = new ArrayList<>();
 	private Random random = new Random(); 
 
 	@Override
-	public EvoMutation<T, L> getNextMutationType(MutationSelectionStrategy strategy) {
+	public EvoMutation<T, L> getNextMutationTemplate(MutationSelectionStrategy strategy) {
 		if (availableMutations.isEmpty()) {
 			throw new IllegalStateException("No mutations were added to the provider.");
 		}
@@ -36,6 +35,17 @@ public class SimpleEvoMutationProvider<T,L> implements EvoMutationProvider<T,L> 
 	@Override
 	public Collection<EvoMutation<T, L>> getMutations() {
 		return availableMutations;
+	}
+
+	@Override
+	public EvoMutationProvider<T,L> setMutationSelectionStrategy(MutationSelectionStrategy mutationSelectionStrategy) {
+		this.strategy = mutationSelectionStrategy;
+		return this;
+	}
+
+	@Override
+	public MutationSelectionStrategy getMutationSelectionStrategy() {
+		return this.strategy;
 	}
 
 }

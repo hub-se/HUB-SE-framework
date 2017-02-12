@@ -5,10 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationTypeSelectionStrategy;
-
 public class SimpleEvoRecombinationProvider<T> implements EvoRecombinationProvider<T> {
 
+	private RecombinationTypeSelectionStrategy strategy = RecombinationTypeSelectionStrategy.RANDOM;
 	private final List<EvoRecombination<T>> availableRecombinations = new ArrayList<>();
 	private Random random = new Random(); 
 	
@@ -36,6 +35,17 @@ public class SimpleEvoRecombinationProvider<T> implements EvoRecombinationProvid
 	@Override
 	public Collection<EvoRecombination<T>> getRecombinations() {
 		return availableRecombinations;
+	}
+
+	@Override
+	public EvoRecombinationProvider<T> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy) {
+		this.strategy = recombinationTypeSelectionStrategy;
+		return this;
+	}
+
+	@Override
+	public RecombinationTypeSelectionStrategy getRecombinationTypeSelectionStrategy() {
+		return this.strategy;
 	}
 
 }

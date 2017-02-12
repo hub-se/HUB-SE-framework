@@ -1,9 +1,11 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy;
+public interface EvoLocationProvider<T,L> {
 
-public interface EvoLocationProvider<T,L,F extends Comparable<F>> {
-
+	public static enum LocationSelectionStrategy {
+		RANDOM
+	}
+	
 	/**
 	 * Should produce a mutation location based on the given item
 	 * and the given strategy.
@@ -15,5 +17,21 @@ public interface EvoLocationProvider<T,L,F extends Comparable<F>> {
 	 * the produced location
 	 */
 	public L getNextLocation(T item, LocationSelectionStrategy strategy);
+	
+	/**
+	 * Should produce a mutation location based on the given item
+	 * and the provider's own strategy.
+	 * @param item
+	 * the item to produce a location for
+	 * @return
+	 * the produced location
+	 */
+	default public L getNextLocation(T item) {
+		return getNextLocation(item, getLocationSelectionStrategy());
+	}
+	
+	public EvoLocationProvider<T,L> setLocationSelectionStrategy(LocationSelectionStrategy locationSelectionStrategy);
+	
+	public LocationSelectionStrategy getLocationSelectionStrategy();
 	
 }

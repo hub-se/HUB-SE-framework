@@ -2,10 +2,12 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.Collection;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy;
-
 public interface EvoMutationProvider<T,L> {
 
+	public static enum MutationSelectionStrategy {
+		RANDOM
+	}
+	
 	/**
 	 * Produces a mutation that can be applied to an object of type T, given a location of type L.
 	 * Uses the given strategy to pick a mutation.
@@ -14,7 +16,17 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * the mutation
 	 */
-	public EvoMutation<T,L> getNextMutationType(MutationSelectionStrategy strategy);
+	public EvoMutation<T,L> getNextMutationTemplate(MutationSelectionStrategy strategy);
+	
+	/**
+	 * Produces a mutation that can be applied to an object of type T, given a location of type L.
+	 * Uses the provider's own strategy to pick a mutation.
+	 * @return
+	 * the mutation
+	 */
+	default public EvoMutation<T,L> getNextMutationTemplate() {
+		return getNextMutationTemplate(getMutationSelectionStrategy());
+	}
 	
 	/**
 	 * Adds the given mutation to the collection of possible mutations.
@@ -61,4 +73,7 @@ public interface EvoMutationProvider<T,L> {
 	 */
 	public Collection<EvoMutation<T,L>> getMutations();
 	
+	public EvoMutationProvider<T,L> setMutationSelectionStrategy(MutationSelectionStrategy mutationSelectionStrategy);
+	
+	public MutationSelectionStrategy getMutationSelectionStrategy();
 }

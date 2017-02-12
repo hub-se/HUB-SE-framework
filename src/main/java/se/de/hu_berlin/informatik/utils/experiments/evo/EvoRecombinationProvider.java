@@ -2,10 +2,12 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.Collection;
 
-import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationTypeSelectionStrategy;
-
 public interface EvoRecombinationProvider<T> {
 
+	public static enum RecombinationTypeSelectionStrategy {
+		RANDOM
+	}
+	
 	/**
 	 * Produces a recombination that can be applied to two objects of type T.
 	 * Uses the given strategy to pick a recombination.
@@ -15,6 +17,16 @@ public interface EvoRecombinationProvider<T> {
 	 * the recombination
 	 */
 	public EvoRecombination<T> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy);
+	
+	/**
+	 * Produces a recombination that can be applied to two objects of type T.
+	 * Uses the provider's own strategy to pick a recombination.
+	 * @return
+	 * the recombination
+	 */
+	default public EvoRecombination<T> getNextRecombinationType() {
+		return getNextRecombinationType(getRecombinationTypeSelectionStrategy());
+	}
 	
 	/**
 	 * Adds the given recombination to the collection of possible recombination.
@@ -60,5 +72,9 @@ public interface EvoRecombinationProvider<T> {
 	 * the collection of recombinations in the pool
 	 */
 	public Collection<EvoRecombination<T>> getRecombinations();
+	
+	public EvoRecombinationProvider<T> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy);
+	
+	public RecombinationTypeSelectionStrategy getRecombinationTypeSelectionStrategy();
 	
 }
