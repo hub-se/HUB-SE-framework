@@ -100,6 +100,29 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 		};
 		
+		EvoMutation<Integer[],Integer> mutationLength = new EvoMutation<Integer[],Integer>() {
+			double nextGaussian = 0;
+			@Override
+			public Integer[] applyTo(Integer[] target, Integer location) {
+				Integer[] array;
+				if (nextGaussian >= 0) {
+					array = new Integer[target.length+1];
+					System.arraycopy(target, 0, array, 0, target.length);
+					array[target.length] = 0;
+				} else {
+					array = new Integer[target.length-1];
+					System.arraycopy(target, 0, array, 0, target.length-1);
+				}
+				return array;
+			}
+
+			@Override
+			public int getIDofNextMutation(Integer[] target, Integer location) {
+				nextGaussian = random.nextGaussian();
+				return nextGaussian >= 0 ? location : -location;
+			}
+		};
+		
 		EvoFitnessChecker<Integer[],Integer> fitnessChecker = new EvoFitnessChecker<Integer[],Integer>() {
 			
 			@Override
