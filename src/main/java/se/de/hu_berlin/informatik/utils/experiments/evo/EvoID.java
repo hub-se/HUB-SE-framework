@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-public class EvoID {
+public class EvoID implements Comparable<EvoID> {
 
 	private final int primary;
 	private final int secondary;
@@ -21,10 +21,7 @@ public class EvoID {
 
 	@Override
 	public int hashCode() {
-		int hashCode = 17;
-		hashCode = 31 * hashCode + primary;
-		hashCode = 31 * hashCode + secondary;
-		return hashCode;
+		return 31 * (527 + primary) + secondary;
 	}
 
 	@Override
@@ -35,13 +32,35 @@ public class EvoID {
 			if (this.getPrimary() != o.getPrimary()) {
 				return false;
 			}
-			//must have the same scondary id
+			//must have the same secondary id
 			if (this.getSecondary() != o.getSecondary()) {
 				return false;
 			}
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	@Override
+	public int compareTo(EvoID o) {
+		if (o == null) {
+			throw new NullPointerException();
+		}
+		//first, order by primary ids
+		if (this.getPrimary() == o.getPrimary()) {
+			//if primary ids are identical, order by secondary ids
+			if (this.getSecondary() < o.getSecondary()) {
+				return -1;
+			} else if (this.getSecondary() > o.getSecondary()) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else if (this.getPrimary() < o.getPrimary()) {
+			return -1;
+		} else {
+			return 1;
 		}
 	}
 	
