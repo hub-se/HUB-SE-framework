@@ -16,12 +16,12 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 		this.fitness = fitness;
 	}
 	
-	public SimpleEvoItem(T item, History<T> history, int mutationId) {
+	public SimpleEvoItem(T item, History<T> history, EvoID mutationId) {
 		this.item = item;
 		this.history = new History<>(history, mutationId);
 	}
 	
-	public SimpleEvoItem(T item, History<T> parentHistory1, History<T> parentHistory2, int recombinationId) {
+	public SimpleEvoItem(T item, History<T> parentHistory1, History<T> parentHistory2, EvoID recombinationId) {
 		this.item = item;
 		this.history = new History<>(parentHistory1, parentHistory2, recombinationId);
 	}

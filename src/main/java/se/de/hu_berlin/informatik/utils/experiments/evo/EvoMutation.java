@@ -32,11 +32,11 @@ public interface EvoMutation<T,L> {
 	 * @return
 	 * the id
 	 */
-	public int getIDofNextMutation(T target, L location);
+	public EvoID getIDofNextMutation(T target, L location);
 	
-	public static class MutationHistory implements List<Integer> {
+	public static class MutationHistory implements List<EvoID> {
 
-		private final List<Integer> history;
+		private final List<EvoID> history;
 		private Integer hashCode = 17;
 		
 		public MutationHistory() {
@@ -52,14 +52,14 @@ public interface EvoMutation<T,L> {
 			history = new ArrayList<>(capacity);
 		}
 		
-		private void updateHashCode(Collection<? extends Integer> c) {
-			for (Integer e : c) {
+		private void updateHashCode(Collection<? extends EvoID> c) {
+			for (EvoID e : c) {
 				updateHashCode(e);
 			}
 		}
 		
-		private void updateHashCode(Integer e) {
-			hashCode = 31 * hashCode + (e == null ? 0 : e);
+		private void updateHashCode(EvoID e) {
+			hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
 		}
 		
 		@Override
@@ -75,10 +75,10 @@ public interface EvoMutation<T,L> {
 				if (this.size() != o.size()) {
 					return false;
 				}
-				Iterator<Integer> iterator1 = this.iterator();
-				Iterator<Integer> iterator2 = o.iterator();
+				Iterator<EvoID> iterator1 = this.iterator();
+				Iterator<EvoID> iterator2 = o.iterator();
 				while(iterator1.hasNext()) {
-					if (iterator1.next() != iterator2.next()) {
+					if (!iterator1.next().equals(iterator2.next())) {
 						return false;
 					}
 				}
@@ -104,7 +104,7 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public Iterator<Integer> iterator() {
+		public Iterator<EvoID> iterator() {
 			return history.iterator();
 		}
 
@@ -119,7 +119,7 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public boolean add(Integer e) {
+		public boolean add(EvoID e) {
 			updateHashCode(e);
 			return history.add(e);
 		}
@@ -130,13 +130,13 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public boolean addAll(Collection<? extends Integer> c) {
+		public boolean addAll(Collection<? extends EvoID> c) {
 			updateHashCode(c);
 			return history.addAll(c);
 		}
 
 		@Override
-		public Integer get(int index) {
+		public EvoID get(int index) {
 			return history.get(index);
 		}
 		@Override
@@ -150,12 +150,12 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public ListIterator<Integer> listIterator() {
+		public ListIterator<EvoID> listIterator() {
 			return history.listIterator();
 		}
 
 		@Override
-		public ListIterator<Integer> listIterator(int index) {
+		public ListIterator<EvoID> listIterator(int index) {
 			return history.listIterator(index);
 		}
 		
@@ -165,7 +165,7 @@ public interface EvoMutation<T,L> {
 		}
 		
 		@Override
-		public boolean addAll(int index, Collection<? extends Integer> c) throws UnsupportedOperationException {
+		public boolean addAll(int index, Collection<? extends EvoID> c) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
@@ -185,22 +185,22 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public Integer set(int index, Integer element) throws UnsupportedOperationException {
+		public EvoID set(int index, EvoID element) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void add(int index, Integer element) throws UnsupportedOperationException {
+		public void add(int index, EvoID element) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public Integer remove(int index) throws UnsupportedOperationException {
+		public EvoID remove(int index) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public List<Integer> subList(int fromIndex, int toIndex) throws UnsupportedOperationException {
+		public List<EvoID> subList(int fromIndex, int toIndex) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		

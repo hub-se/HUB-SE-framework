@@ -39,7 +39,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 	
 	public History<T> getHistory();
 	
-	default public void addMutationIdToHistory(int id) {
+	default public void addMutationIdToHistory(EvoID id) {
 		this.getHistory().addMutationId(id);
 	}
 	
@@ -48,7 +48,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		private MutationHistory mutationHistory;
 		private T ancestor = null;
 		
-		private Integer recombinationId = null;
+		private EvoID recombinationId = null;
 		
 		private History<T> parentHistory1 = null;
 		private History<T> parentHistory2 = null;
@@ -86,7 +86,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param mutationId
 		 * the mutation id to add
 		 */
-		public History(History<T> c, Integer mutationId) {
+		public History(History<T> c, EvoID mutationId) {
 			this(c);
 			this.addMutationId(mutationId);
 		}
@@ -101,7 +101,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param recombinationId
 		 * the recombination id
 		 */
-		public History(History<T> parentHistory1, History<T> parentHistory2, Integer recombinationId) {
+		public History(History<T> parentHistory1, History<T> parentHistory2, EvoID recombinationId) {
 			this.mutationHistory = new MutationHistory();
 			this.ancestor = null;
 			this.recombinationId = recombinationId;
@@ -117,11 +117,11 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			updateHashCode(this.parentHistory2);
 		}
 
-		public boolean addMutationId(int id) {
+		public boolean addMutationId(EvoID id) {
 			return mutationHistory.add(id);
 		}
 		
-		public Integer getRecombinationId() {
+		public EvoID getRecombinationId() {
 			return recombinationId;
 		}
 		
@@ -143,10 +143,6 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		
 		public History<T> getParentHistory2() {
 			return parentHistory2;
-		}
-		
-		private void updateHashCode(Integer e) {
-			hashCode = 31 * hashCode + (e == null ? 0 : e);
 		}
 		
 		private void updateHashCode(Object h) {

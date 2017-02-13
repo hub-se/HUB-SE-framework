@@ -70,7 +70,11 @@ public class EvoAlgorithmTest extends TestSettings {
 		EvoLocationProvider<Integer[],Integer> locationProvider = new AbstractEvoLocationProvider<Integer[],Integer>() {
 			@Override
 			public Integer getNextLocation(Integer[] item, LocationSelectionStrategy strategy) {
-				return random.nextInt(item.length);
+				if (item.length > 0) {
+					return random.nextInt(item.length);
+				} else {
+					return 0;
+				}
 			}
 		};
 		
@@ -94,9 +98,9 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 
 			@Override
-			public int getIDofNextMutation(Integer[] target, Integer location) {
+			public EvoID getIDofNextMutation(Integer[] target, Integer location) {
 				nextGaussian = random.nextGaussian();
-				return nextGaussian >= 0 ? location : -location;
+				return new EvoID(0, nextGaussian >= 0 ? location : -location);
 			}
 		};
 		
@@ -117,9 +121,14 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 
 			@Override
-			public int getIDofNextMutation(Integer[] target, Integer location) {
-				nextGaussian = random.nextGaussian();
-				return nextGaussian >= 0 ? location : -location;
+			public EvoID getIDofNextMutation(Integer[] target, Integer location) {
+				if (target.length > 1) {
+					nextGaussian = random.nextGaussian();
+					return new EvoID(1, nextGaussian >= 0 ? 1 : -1);
+				} else {
+					nextGaussian = 1;
+					return new EvoID(1, 1);
+				}
 			}
 		};
 		
@@ -129,7 +138,7 @@ public class EvoAlgorithmTest extends TestSettings {
 			public Integer computeFitness(Integer[] item) {
 				int fitness = 0;
 				if (item.length != goal.length) {
-					fitness = Integer.MAX_VALUE;
+					fitness = (int) Math.pow(Math.abs(item.length - goal.length) * 10, 2);
 				} else {
 					for (int i = 0; i < item.length; ++i) {
 						fitness += Math.pow(Math.abs(goal[i] - item[i]), 2);
@@ -148,33 +157,34 @@ public class EvoAlgorithmTest extends TestSettings {
 
 			@Override
 			public Integer[] recombine(Integer[] parent1, Integer[] parent2) {
-				Integer[] child = new Integer[parent1.length];
+				Integer[] child;
 				
 				if (nextGaussian >= 0) {
-					for (int i = 0; i < child.length; ++i) {
-						if (i < switchIndex) {
-							child[i] = parent1[i];
-						} else {
-							child[i] = parent2[i];
-						}
+					child = new Integer[parent2.length];
+					for (int i = 0; i < switchIndex; ++i) {
+						child[i] = parent1[i];
+					}
+					for (int i = 0; i < parent2.length; ++i) {
+						child[i] = parent2[i];
 					}
 				} else {
-					for (int i = 0; i < child.length; ++i) {
-						if (i < switchIndex) {
-							child[i] = parent2[i];
-						} else {
-							child[i] = parent1[i];
-						}
+					child = new Integer[parent1.length];
+					for (int i = 0; i < switchIndex; ++i) {
+						child[i] = parent2[i];
+					}
+					for (int i = 0; i < parent1.length; ++i) {
+						child[i] = parent1[i];
 					}
 				}
 				return child;
 			}
 			
 			@Override
-			public int getIDofNextRecombination(Integer[] parent1, Integer[] parent2) {
-				switchIndex = random.nextInt(parent1.length-1) + 1;
+			public EvoID getIDofNextRecombination(Integer[] parent1, Integer[] parent2) {
+				int smallerLength = parent1.length < parent2.length ? parent1.length : parent2.length;
+				switchIndex = random.nextInt(smallerLength-1) + 1;
 				nextGaussian = random.nextGaussian();
-				return nextGaussian >= 0 ? switchIndex : -switchIndex;
+				return new EvoID(0, nextGaussian >= 0 ? switchIndex : -switchIndex);
 			}
 		};
 		
@@ -187,9 +197,11 @@ public class EvoAlgorithmTest extends TestSettings {
 //						RecombinationStrategy.MONOGAMY_BEST_TO_WORST)
 				.addRecombinationTemplate(recombination)
 				.addMutationTemplate(mutation)
+				.addMutationTemplate(mutationLength)
 				.setLocationProvider(locationProvider)
 				.setFitnessChecker(fitnessChecker, 4, 0)
-				.addToInitialPopulation(new Integer[] {2,4,1});
+				.addToInitialPopulation(new Integer[] {2,4,1,0})
+				.addToInitialPopulation(new Integer[] {0,2,10});
 		
 		EvoItem<Integer[],Integer> result = builder.build().start();
 		

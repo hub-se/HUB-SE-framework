@@ -26,6 +26,6 @@ public interface EvoRecombination<T> {
 	 * @return
 	 * the id
 	 */
-	public int getIDofNextRecombination(T parent1, T parent2);
+	public EvoID getIDofNextRecombination(T parent1, T parent2);
 	
 }

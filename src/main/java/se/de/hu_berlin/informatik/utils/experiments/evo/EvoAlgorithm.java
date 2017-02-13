@@ -217,7 +217,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 						++tryCount;
 						L nextLocation = locationProvider.getNextLocation(item.getItem());
 						EvoMutation<T,L> mutation = mutationProvider.getNextMutationTemplate();
-						int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
+						EvoID mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
 						if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
@@ -261,7 +261,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 				++tryCount;
 				L nextLocation = locationProvider.getNextLocation(item.getItem());
 				EvoMutation<T,L> mutation = mutationProvider.getNextMutationTemplate();
-				int mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
+				EvoID mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
 				if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
@@ -277,7 +277,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		return currentPopulation;
 	}
 
-	private boolean mutationWasAlreadyApplied(History<T> history, int mutationId) {
+	private boolean mutationWasAlreadyApplied(History<T> history, EvoID mutationId) {
 		History<T> temp = new History<>(history);
 		temp.addMutationId(mutationId);
 		if (appliedMutations.contains(temp)) {
@@ -287,7 +287,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 		}
 	}
 	
-	private boolean recombinationWasAlreadyApplied(History<T> history1, History<T> history2, int recombinationId) {
+	private boolean recombinationWasAlreadyApplied(History<T> history1, History<T> history2, EvoID recombinationId) {
 		History<T> temp = new History<>(history1, history2, recombinationId);
 		if (appliedMutations.contains(temp)) {
 			return true;
@@ -369,7 +369,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 						++tryCount;
 						//if both parents are picked, produce a child
 						EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType();
-						int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
+						EvoID recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
 						if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 							//apply the recombination and produce the child
@@ -425,7 +425,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 			++tryCount;
 			//if both parents are picked, produce a child
 			EvoRecombination<T> recombination = recombinationProvider.getNextRecombinationType();
-			int recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
+			EvoID recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
 			if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 				//apply the recombination and produce the child
