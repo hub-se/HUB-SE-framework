@@ -43,6 +43,14 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		this.getHistory().addMutationId(id);
 	}
 	
+	@Override
+	default public int compareTo(F o) {
+		if (o == null) {
+			throw new NullPointerException();
+		}
+		return this.getFitness().compareTo(o);
+	}
+	
 	public static class History<T> {
 		
 		private MutationHistory mutationHistory;

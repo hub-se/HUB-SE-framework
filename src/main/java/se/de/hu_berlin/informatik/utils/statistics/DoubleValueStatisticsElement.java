@@ -8,12 +8,15 @@ public class DoubleValueStatisticsElement extends AbstractStatisticsElement<Doub
 	private boolean prefBigger = true;
 	private boolean prefNew = false;
 	private boolean prefOld = false;
+	private boolean add = false;
 	
 	public DoubleValueStatisticsElement(double value, StatisticsOptions... options) {
 		super(StatisticType.DOUBLE_VALUE);
 		this.value = value;
 		for (StatisticsOptions option : options) {
-			if (option == StatisticsOptions.PREF_NEW) {
+			if (option == StatisticsOptions.ADD) {
+				add  = true;
+			} else if (option == StatisticsOptions.PREF_NEW) {
 				prefNew = true;
 				prefOld = false;
 			} else if (option == StatisticsOptions.PREF_OLD) {
@@ -38,7 +41,10 @@ public class DoubleValueStatisticsElement extends AbstractStatisticsElement<Doub
 			//if preferring old values, use the existing value and do nothing
 			if (!prefOld) {
 				double elementValue = (Double)element.getValue();
-				if (prefNew) {
+				if (add) {
+					//add to the value
+					value += elementValue;
+				} else if (prefNew) {
 					//use the latest element
 					value = elementValue;
 				} else if (prefBigger) {

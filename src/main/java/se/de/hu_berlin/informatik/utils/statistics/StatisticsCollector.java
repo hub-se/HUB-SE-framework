@@ -94,7 +94,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 				StringStatisticsElementCollector stringList = (StringStatisticsElementCollector) list;
 				for (String element : stringList.getElements()) {
 					if (element != null) {
-						builder.append(element);
+						builder.append("\t  " + element);
 						builder.append(System.lineSeparator());
 					}
 				}
@@ -157,7 +157,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	}
 	
 	private String stringStatistics(String identifier, String string) {
-		return identifier + " -> <start>" + System.lineSeparator() + string + identifier + " -> <end>";
+		return identifier + " -> <start>" + System.lineSeparator() + string + "\t" + identifier + " -> <end>";
 	}
 
 	private String doubleStatistics(String identifier, int doubleCount, double doubleSum, double doubleMin, double doubleMax) {
@@ -188,6 +188,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	
 	public String printStatistics(EnumSet<T> statisticsEntries) {
 		StringBuilder builder = new StringBuilder();
+		builder.append(System.lineSeparator());
 		for (T statisticsEntry : statisticsEntries) {
 			printStatisticsForSingleEntry(builder, statisticsEntry);
 		}
@@ -212,7 +213,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 
 	private void printStatisticsForSingleEntry(StringBuilder builder, T statisticsEntry) {
 		StatisticsElementCollector list = statisticsElements.get(statisticsEntry);
-		builder.append(getStatistics(statisticsEntry, list));
+		builder.append("\t" + getStatistics(statisticsEntry, list));
 		builder.append(System.lineSeparator());
 	}
 

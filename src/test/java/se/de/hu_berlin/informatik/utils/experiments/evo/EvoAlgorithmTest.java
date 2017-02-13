@@ -22,6 +22,7 @@ import se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.Recombinati
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 import se.de.hu_berlin.informatik.utils.miscellaneous.TestSettings;
+import se.de.hu_berlin.informatik.utils.statistics.StatisticsCollector;
 
 /**
  * @author Simon
@@ -136,12 +137,13 @@ public class EvoAlgorithmTest extends TestSettings {
 			
 			@Override
 			public Integer computeFitness(Integer[] item) {
+				//goal: 0 (at the moment holds: the bigger number, the greater the fitness...)
 				int fitness = 0;
 				if (item.length != goal.length) {
-					fitness = (int) Math.pow(Math.abs(item.length - goal.length) * 10, 2);
+					fitness = (int) -Math.pow(Math.abs(item.length - goal.length) * 10, 2);
 				} else {
 					for (int i = 0; i < item.length; ++i) {
-						fitness += Math.pow(Math.abs(goal[i] - item[i]), 2);
+						fitness -= Math.pow(Math.abs(goal[i] - item[i]), 2);
 					}
 				}
 
@@ -188,6 +190,8 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 		};
 		
+		StatisticsCollector<EvoStatistics> collector = new StatisticsCollector<>(EvoStatistics.class);
+		
 		EvoAlgorithm.Builder<Integer[], Integer, Integer> builder = 
 				new EvoAlgorithm.Builder<Integer[], Integer, Integer>(50, 20, 
 						KillStrategy.KILL_50_PERCENT, 
@@ -200,13 +204,17 @@ public class EvoAlgorithmTest extends TestSettings {
 				.addMutationTemplate(mutationLength)
 				.setLocationProvider(locationProvider)
 				.setFitnessChecker(fitnessChecker, 4, 0)
+				.setStatisticsCollector(collector)
 				.addToInitialPopulation(new Integer[] {2,4,1,0})
 				.addToInitialPopulation(new Integer[] {0,2,10});
 		
 		EvoItem<Integer[],Integer> result = builder.build().start();
 		
+		Log.out(this, collector.printStatistics());
+		
 		Log.out(this, "result: %s", Misc.arrayToString(result.getItem()));
 		Log.out(this, "fitness: %d", result.getFitness().intValue());
+
 	}
 
 	

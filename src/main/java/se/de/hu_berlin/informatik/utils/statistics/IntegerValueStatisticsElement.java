@@ -8,12 +8,15 @@ public class IntegerValueStatisticsElement extends AbstractStatisticsElement<Int
 	private boolean prefBigger = true;
 	private boolean prefNew = false;
 	private boolean prefOld = false;
+	private boolean add = false;
 	
 	public IntegerValueStatisticsElement(int value, StatisticsOptions... options) {
 		super(StatisticType.INTEGER_VALUE);
 		this.value = value;
 		for (StatisticsOptions option : options) {
-			if (option == StatisticsOptions.PREF_NEW) {
+			if (option == StatisticsOptions.ADD) {
+				add  = true;
+			} else if (option == StatisticsOptions.PREF_NEW) {
 				prefNew = true;
 				prefOld = false;
 			} else if (option == StatisticsOptions.PREF_OLD) {
@@ -38,7 +41,10 @@ public class IntegerValueStatisticsElement extends AbstractStatisticsElement<Int
 			//if preferring old values, use the existing value and do nothing
 			if (!prefOld) {
 				int elementValue = (Integer)element.getValue();
-				if (prefNew) {
+				if (add) {
+					//add to the value
+					value += elementValue;
+				} else if (prefNew) {
 					//use the latest element
 					value = elementValue;
 				} else if (prefBigger) {

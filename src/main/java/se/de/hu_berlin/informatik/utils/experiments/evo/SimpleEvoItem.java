@@ -25,11 +25,6 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 		this.item = item;
 		this.history = new History<>(parentHistory1, parentHistory2, recombinationId);
 	}
-	
-	@Override
-	public int compareTo(F o) {
-		return o.compareTo(this.getFitness());
-	}
 
 	@Override
 	public F getFitness() {
@@ -60,6 +55,11 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 	@Override
 	public void setItem(T item) {
 		this.item = item;
+	}
+
+	@Override
+	public String toString() {
+		return this.fitness == null ? "null" : this.fitness.toString();
 	}
 
 }

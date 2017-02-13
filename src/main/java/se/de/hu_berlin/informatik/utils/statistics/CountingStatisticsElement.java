@@ -5,6 +5,7 @@ import se.de.hu_berlin.informatik.utils.statistics.StatisticsAPI.StatisticType;
 public class CountingStatisticsElement extends AbstractStatisticsElement<Integer> {
 
 	private int value = 0;
+	private boolean add = false;
 	private boolean prefBigger = true;
 	private boolean prefNew = false;
 	private boolean prefOld = false;
@@ -13,7 +14,9 @@ public class CountingStatisticsElement extends AbstractStatisticsElement<Integer
 		super(StatisticType.COUNT);
 		this.value = value;
 		for (StatisticsOptions option : options) {
-			if (option == StatisticsOptions.PREF_NEW) {
+			if (option == StatisticsOptions.ADD) {
+				add = true;
+			} else if (option == StatisticsOptions.PREF_NEW) {
 				prefNew = true;
 				prefOld = false;
 			} else if (option == StatisticsOptions.PREF_OLD) {
@@ -38,7 +41,10 @@ public class CountingStatisticsElement extends AbstractStatisticsElement<Integer
 			//if preferring old values, use the existing value and do nothing
 			if (!prefOld) {
 				int elementValue = (Integer)element.getValue();
-				if (prefNew) {
+				if (add) {
+					//add to the value
+					value += elementValue;
+				} else if (prefNew) {
 					//use the latest element
 					value = elementValue;
 				} else if (prefBigger) {

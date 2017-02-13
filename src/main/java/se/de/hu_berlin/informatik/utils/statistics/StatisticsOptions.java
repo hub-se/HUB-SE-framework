@@ -2,6 +2,10 @@ package se.de.hu_berlin.informatik.utils.statistics;
 
 public enum StatisticsOptions {
 	/**
+	 * When merging two numerical elements, sum them up.
+	 */
+	ADD,
+	/**
 	 * When merging two numerical elements, prefer the bigger one.
 	 */
 	PREF_BIGGER,
