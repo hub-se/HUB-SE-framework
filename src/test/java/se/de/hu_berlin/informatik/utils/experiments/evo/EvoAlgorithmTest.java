@@ -209,5 +209,6 @@ public class EvoAlgorithmTest extends TestSettings {
 		Log.out(this, "fitness: %d", result.getFitness().intValue());
 	}
 
+	
 
 }
