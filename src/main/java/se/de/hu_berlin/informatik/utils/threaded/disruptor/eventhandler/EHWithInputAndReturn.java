@@ -6,8 +6,11 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 
 /**
  * An abstract class that provides a simple API for a disruptor event handler
@@ -23,7 +26,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B>, Transmitter<A,B>, TransmitterProvider<A,B> {
 
 	/**
 	 * The output object.
@@ -33,6 +36,8 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	private AtomicBoolean hasNewOutput = new AtomicBoolean(false);
 	private final Object lock = new Object();
 	private Multiplexer<B> multiplexer = null;
+	
+	private OptionParser options = null;
 
 	@Override
 	public void processEvent(A input) throws Exception {
@@ -119,6 +124,33 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	@Override
 	public Multiplexer<B> getMultiplexer() {
 		return multiplexer;
+	}
+
+	@Override
+	public OptionParser getOptions() {
+		return options;
+	}
+
+	@Override
+	public EHWithInputAndReturn<A, B> setOptions(OptionParser options) {
+		this.options = options;
+		return this;
+	}
+	
+	@Override
+	public boolean hasOptions() {
+		return options != null;
+	}
+
+	@Override
+	public B processItem(A item) {
+		return processInput(item);
+	}
+
+	@Override
+	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter)
+			throws IllegalStateException {
+		throw new IllegalStateException("Can not link event handler (not allowed).");
 	}
 	
 }

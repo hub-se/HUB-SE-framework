@@ -5,11 +5,13 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
-import se.de.hu_berlin.informatik.utils.tm.pipes.ModuleLoaderPipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipeFactory;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -53,25 +55,14 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	
 	private B output = null;
 	
-	private AbstractModule<?,?> linkedModule = null;
+	private AbstractModule<B,?> linkedModule = null;
 	
 	private boolean needsInput = false;
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
 	
-	private AbstractPipe<A,B> pipeView = null;
-	
-	private AbstractModuleFactory<A,B> moduleProvider = new AbstractModuleFactory<A,B>() {
-		@Override
-		public AbstractModule<A, B> getModule() {
-			//simply return the actual module
-			return AbstractModule.this;
-		}
-		@Override
-		public AbstractModule<A, B> newModule() throws UnsupportedOperationException {
-			//should not be accessed
-			throw new UnsupportedOperationException("Trying to create new module when one already exists.");
-		}
-	};
+	private AbstractModuleFactory<A,B> moduleProvider = null;
+	private AbstractPipeFactory<A,B> pipeProvider = null;
+	private EHWithInputAndReturnFactory<A,B> ehProvider = null;
 
 	private boolean onlyForced = false;
 
@@ -91,13 +82,12 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter)
 	 */
 	@Override
-	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) {
+	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) throws IllegalArgumentException, IllegalStateException {
 		if (transmitter instanceof AbstractModule) {
 			return linkModuleTo((AbstractModule<C, D>)transmitter);
 		} else {
-			Log.abort(this, "Can only link to other modules.");
+			throw new IllegalStateException("Can only link to other modules.");
 		}
-		return null;
 	}
 
 	/**
@@ -110,9 +100,16 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	 * the module to be linked to
 	 * @return
 	 * the module to be linked to
+	 * @throws IllegalArgumentException
+	 * if the input type C of the given module does not match the output type B of this module
 	 */
-	private <C,D> AbstractModule<C,D> linkModuleTo(AbstractModule<C,D> module) {
-		this.linkedModule = module;
+	@SuppressWarnings("unchecked")
+	private <C,D> AbstractModule<C,D> linkModuleTo(AbstractModule<C,D> module) throws IllegalArgumentException {
+		try {
+			this.linkedModule = (AbstractModule<B,?>) module;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("Type mismatch while linking to other module.", e);
+		}
 		return module;
 	}
 
@@ -159,7 +156,7 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	 * @return
 	 * the module that this module is linked to
 	 */
-	public AbstractModule<?,?> getLinkedModule() {
+	public AbstractModule<B,?> getLinkedModule() {
 		if (linkedModule == null) {
 			Log.abort(this, "No module linked to.");
 		}
@@ -219,9 +216,61 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 
 	@Override
 	public AbstractModuleFactory<A, B> getModuleProvider() {
+		if (moduleProvider == null) {
+			moduleProvider = new AbstractModuleFactory<A,B>() {
+				@Override
+				public AbstractModule<A, B> getModule() {
+					//simply return the actual module
+					return AbstractModule.this;
+				}
+				@Override
+				public AbstractModule<A, B> newModule() throws UnsupportedOperationException {
+					//should not be accessed
+					throw new UnsupportedOperationException("Trying to create new module when one already exists.");
+				}
+			};
+		}
 		return moduleProvider;
 	}
 	
+	@Override
+	public AbstractPipeFactory<A, B> getPipeProvider() {
+		if (pipeProvider == null) {
+			pipeProvider = new AbstractPipeFactory<A,B>() {
+				@Override
+				public AbstractPipe<A, B> newPipe() {
+					return new AbstractPipe<A,B>(true) {
+						@Override
+						public B processItem(A item) {
+							return AbstractModule.this.processItem(item);
+						}
+					};
+				}
+			};
+		}
+		return pipeProvider;
+	}
+
+	@Override
+	public EHWithInputAndReturnFactory<A, B> getEHProvider() {
+		if (ehProvider == null) {
+			ehProvider = new EHWithInputAndReturnFactory<A,B>() {
+				@Override
+				public EHWithInputAndReturn<A, B> newFreshInstance() {
+					return new EHWithInputAndReturn<A,B>() {
+						@Override
+						public B processInput(A input) {
+							return AbstractModule.this.processItem(input);
+						}
+						@Override
+						public void resetAndInit() { /*do nothing*/ }
+					};
+				}
+			};
+		}
+		return ehProvider;
+	}
+
 	@Override
 	public TrackingStrategy getTracker() {
 		return tracker;
@@ -240,17 +289,6 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 	@Override
 	public void allowOnlyForcedTracks() {
 		onlyForced = true;
-	}
-
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitterProvider#asPipe()
-	 */
-	@Override
-	public AbstractPipe<A,B> asPipe() {
-		if (pipeView == null) {
-			pipeView = new ModuleLoaderPipe<>(this);
-		}
-		return pipeView;
 	}
 
 	@Override

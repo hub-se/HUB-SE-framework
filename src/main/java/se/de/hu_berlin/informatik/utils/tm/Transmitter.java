@@ -36,8 +36,12 @@ public interface Transmitter<A,B> extends OptionCarrier {
 	 * the transmitter to be linked to
 	 * @return
 	 * the transmitter to be linked to
+	 * @throws IllegalArgumentException
+	 * if the input type C of the given transmitter does not match the output type B of this transmitter
+	 * @throws IllegalStateException
+	 * if the transmitters can't be linked due to other reasons
 	 */
-	public <C,D> Transmitter<C,D> linkTo(Transmitter<C,D> transmitter);
+	public <C,D> Transmitter<C,D> linkTo(Transmitter<C,D> transmitter) throws IllegalArgumentException, IllegalStateException;
 	
 	/**
 	 * Should be overwritten by implementing transmitters that may collect

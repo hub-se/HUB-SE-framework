@@ -169,13 +169,12 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
 	 */
 	@Override
-	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) {
+	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) throws IllegalArgumentException, IllegalStateException {
 		if (transmitter instanceof AbstractPipe) {
 			return linkPipeTo((AbstractPipe<C, D>)transmitter, singleWriter);
 		} else {
-			Log.abort(this, "Can only link to other pipes.");
+			throw new IllegalStateException("Can only link to other pipes.");
 		}
-		return null;
 	}
 
 	/**
@@ -190,19 +189,23 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	 * whether this pipe writes to the output only with a single thread
 	 * @return
 	 * the pipe to be linked to
+	 * @throws IllegalArgumentException
+	 * if the input type C of the given pipe does not match the output type B of this pipe
+	 * @throws IllegalStateException
+	 * if the pipes can't be linked due to other reasons
 	 */
 	@SuppressWarnings("unchecked")
-	private <C,D> AbstractPipe<C, D> linkPipeTo(AbstractPipe<C, D> pipe, boolean singleWriter) {
+	private <C,D> AbstractPipe<C, D> linkPipeTo(AbstractPipe<C, D> pipe, boolean singleWriter) throws IllegalArgumentException, IllegalStateException {
 		if (!pipe.hasInput()) {
 			//output pipe has no input yet
 			try {				
 				setOutput((AbstractPipe<B, ?>) pipe);
 				pipe.setInput(singleWriter);
 			} catch (ClassCastException e) {
-				Log.abort(this, e, "Type mismatch while linking to %s.", pipe.toString());
+				throw new IllegalArgumentException("Type mismatch while linking to other pipe.", e);
 			}
 		} else {
-			Log.abort(this, "No linking to already used pipes allowed!");
+			throw new IllegalStateException("No linking to already used pipes allowed!");
 		}
 		return pipe;
 	}
