@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
@@ -18,34 +17,19 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * @param <B>
  * is the type of the output object
  */
-public interface Transmitter<A,B> extends OptionCarrier {
+public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<B> {
 	
 	/**
-	 * Processes an item of type {@code A} and produces an item of type {@code B}.
+	 * Consumes an item of type {@code A}, processes it and produces an item of type {@code B}.
 	 * @param item
 	 * the item to be processed
-	 * @return
-	 * the processed item
 	 */
-	public B processItem(A item);
-	
-	/**
-	 * Links a matching transmitter to the output of this transmitter.
-	 * @param <C>
-	 * the input type of the transmitter to be linked to
-	 * @param <D>
-	 * the output type of the transmitter to be linked to
-	 * @param transmitter
-	 * the transmitter to be linked to
-	 * @return
-	 * the transmitter to be linked to
-	 * @throws IllegalArgumentException
-	 * if the input type C of the given transmitter does not match the output type B of this transmitter
-	 * @throws IllegalStateException
-	 * if the transmitters can't be linked due to other reasons
-	 */
-	public <C,D> Transmitter<C,D> linkTo(Transmitter<C,D> transmitter) throws IllegalArgumentException, IllegalStateException;
-	
+	@Override
+	default void consume(A item) {
+		produce(process(item));
+	}
+
+
 	/**
 	 * Should be overwritten by implementing transmitters that may collect
 	 * input items without immediately processing them. This method should
