@@ -4,14 +4,12 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
-import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
-import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -50,7 +48,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see PipeLinker
  */
-public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, TransmitterProvider<A,B>, Trackable {
+public abstract class AbstractPipe<A,B> extends AbstractTransmitter<A,B> {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
@@ -58,25 +56,6 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	private AbstractPipe<B,?> output = null;
 
 	private final boolean singleWriter;
-	
-	private TrackingStrategy tracker = TrackerDummy.getInstance();
-
-	private AbstractPipeFactory<A,B> pipeProvider = new AbstractPipeFactory<A,B>() {
-		@Override
-		public AbstractPipe<A, B> getPipe() {
-			//simply return the actual module
-			return AbstractPipe.this;
-		}
-		@Override
-		public AbstractPipe<A, B> newPipe() throws UnsupportedOperationException {
-			//should not be accessed
-			throw new UnsupportedOperationException("Trying to create new pipe when one already exists.");
-		}
-	};
-
-	private boolean onlyForced = false;
-
-	private OptionParser options = null;
 	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
@@ -263,80 +242,18 @@ public abstract class AbstractPipe<A,B> implements Transmitter<A,B>, Transmitter
 	}
 
 	@Override
-	public AbstractPipe<A,B> enableTracking() {
-		Trackable.super.enableTracking();
+	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
 		return this;
 	}
 
 	@Override
-	public AbstractPipe<A,B> enableTracking(int stepWidth) {
-		Trackable.super.enableTracking(stepWidth);
-		return this;
+	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
 	}
 
 	@Override
-	public AbstractPipe<A,B> disableTracking() {
-		Trackable.super.disableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractPipe<A,B> enableTracking(TrackingStrategy tracker) {
-		Trackable.super.enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	public AbstractPipe<A,B> enableTracking(boolean useProgressBar) {
-		Trackable.super.enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	public AbstractPipe<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		Trackable.super.enableTracking(useProgressBar, stepWidth);
-		return this;
-	}
-	
-	@Override
-	public AbstractPipeFactory<A, B> getPipeProvider() {
-		return pipeProvider;
-	}
-	
-	@Override
-	public TrackingStrategy getTracker() {
-		return tracker;
-	}
-
-	@Override
-	public void setTracker(TrackingStrategy tracker) {
-		this.tracker = tracker;
-	}
-	
-	@Override
-	public boolean onlyForced() {
-		return onlyForced ;
-	}
-
-	@Override
-	public void allowOnlyForcedTracks() {
-		onlyForced = true;
-	}
-
-	@Override
-	public OptionParser getOptions() {
-		return options;
-	}
-
-	@Override
-	public AbstractPipe<A, B> setOptions(OptionParser options) {
-		this.options = options;
-		return this;
-	}
-	
-	@Override
-	public boolean hasOptions() {
-		return options != null;
+	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
 	}
 	
 }

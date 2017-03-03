@@ -4,17 +4,11 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory;
+import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
-import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipeFactory;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
-import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -51,22 +45,13 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @see ModuleLinker
  */
-public abstract class AbstractModule<A,B> implements Transmitter<A,B>, TransmitterProvider<A,B>, Trackable {
+public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	
 	private B output = null;
 	
 	private AbstractModule<B,?> linkedModule = null;
 	
 	private boolean needsInput = false;
-	private TrackingStrategy tracker = TrackerDummy.getInstance();
-	
-	private AbstractModuleFactory<A,B> moduleProvider = null;
-	private AbstractPipeFactory<A,B> pipeProvider = null;
-	private EHWithInputAndReturnFactory<A,B> ehProvider = null;
-
-	private boolean onlyForced = false;
-
-	private OptionParser options = null;
 	
 	/**
 	 * Creates a new module with the given parameter.
@@ -177,134 +162,20 @@ public abstract class AbstractModule<A,B> implements Transmitter<A,B>, Transmitt
 		track();
 		output = processItem(input);
 	}
-
-	@Override
-	public AbstractModule<A,B> enableTracking() {
-		Trackable.super.enableTracking();
-		return this;
-	}
 	
 	@Override
-	public AbstractModule<A,B> enableTracking(int stepWidth) {
-		Trackable.super.enableTracking(stepWidth);
+	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
+
+	@Override
+	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
 		return this;
 	}
 
 	@Override
-	public AbstractModule<A,B> disableTracking() {
-		Trackable.super.disableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractModule<A,B> enableTracking(TrackingStrategy tracker) {
-		Trackable.super.enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	public AbstractModule<A,B> enableTracking(boolean useProgressBar) {
-		Trackable.super.enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	public AbstractModule<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		Trackable.super.enableTracking(useProgressBar, stepWidth);
-		return this;
-	}
-
-	@Override
-	public AbstractModuleFactory<A, B> getModuleProvider() {
-		if (moduleProvider == null) {
-			moduleProvider = new AbstractModuleFactory<A,B>() {
-				@Override
-				public AbstractModule<A, B> getModule() {
-					//simply return the actual module
-					return AbstractModule.this;
-				}
-				@Override
-				public AbstractModule<A, B> newModule() throws UnsupportedOperationException {
-					//should not be accessed
-					throw new UnsupportedOperationException("Trying to create new module when one already exists.");
-				}
-			};
-		}
-		return moduleProvider;
-	}
-	
-	@Override
-	public AbstractPipeFactory<A, B> getPipeProvider() {
-		if (pipeProvider == null) {
-			pipeProvider = new AbstractPipeFactory<A,B>() {
-				@Override
-				public AbstractPipe<A, B> newPipe() {
-					return new AbstractPipe<A,B>(true) {
-						@Override
-						public B processItem(A item) {
-							return AbstractModule.this.processItem(item);
-						}
-					};
-				}
-			};
-		}
-		return pipeProvider;
-	}
-
-	@Override
-	public EHWithInputAndReturnFactory<A, B> getEHProvider() {
-		if (ehProvider == null) {
-			ehProvider = new EHWithInputAndReturnFactory<A,B>() {
-				@Override
-				public EHWithInputAndReturn<A, B> newFreshInstance() {
-					return new EHWithInputAndReturn<A,B>() {
-						@Override
-						public B processInput(A input) {
-							return AbstractModule.this.processItem(input);
-						}
-						@Override
-						public void resetAndInit() { /*do nothing*/ }
-					};
-				}
-			};
-		}
-		return ehProvider;
-	}
-
-	@Override
-	public TrackingStrategy getTracker() {
-		return tracker;
-	}
-
-	@Override
-	public void setTracker(TrackingStrategy tracker) {
-		this.tracker = tracker;
-	}
-	
-	@Override
-	public boolean onlyForced() {
-		return onlyForced;
-	}
-
-	@Override
-	public void allowOnlyForcedTracks() {
-		onlyForced = true;
-	}
-
-	@Override
-	public OptionParser getOptions() {
-		return options;
-	}
-
-	@Override
-	public AbstractModule<A, B> setOptions(OptionParser options) {
-		this.options = options;
-		return this;
-	}
-	
-	@Override
-	public boolean hasOptions() {
-		return options != null;
+	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
 	}
 	
 }

@@ -10,7 +10,8 @@ import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
-import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * An abstract class that provides a simple API for a disruptor event handler
@@ -26,7 +27,7 @@ import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B>, Transmitter<A,B>, TransmitterProvider<A,B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B>, Transmitter<A,B> {
 
 	/**
 	 * The output object.
@@ -153,4 +154,18 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 		throw new IllegalStateException("Can not link event handler (not allowed).");
 	}
 	
+	@Override
+	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
+
+	@Override
+	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
+
+	@Override
+	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+		return this;
+	}
 }

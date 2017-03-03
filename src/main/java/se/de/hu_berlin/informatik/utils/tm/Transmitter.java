@@ -4,6 +4,9 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
  * An interface that provides basic functionalities of transmitters that can be linked together.
@@ -63,5 +66,38 @@ public interface Transmitter<A,B> extends OptionCarrier {
 	default public boolean finalShutdown() {
 		return true;
 	}
+	
+	/**
+	 * Creates a pipe object from this transmitter that has the transmitter's 
+	 * functionality. Has to return a reference to the same object if called
+	 * multiple times.
+	 * @return
+	 * a pipe, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	public AbstractPipe<A,B> asPipe() throws UnsupportedOperationException;
+	
+	/**
+	 * Creates a module object from this transmitter that has the transmitter's 
+	 * functionality. Has to return a reference to the same object if called
+	 * multiple times.
+	 * @return
+	 * a module, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	public AbstractModule<A,B> asModule() throws UnsupportedOperationException;
+	
+	/**
+	 * Creates an event handler from this transmitter that has the transmitter's 
+	 * functionality. Has to return a reference to the same object if called
+	 * multiple times.
+	 * @return
+	 * a new event handler, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	public EHWithInputAndReturn<A,B> asEH() throws UnsupportedOperationException;
 
 }

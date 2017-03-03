@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
-import se.de.hu_berlin.informatik.utils.tm.TransmitterProvider;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -48,7 +48,7 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	 * @return
 	 * this module linker
 	 */
-	public ModuleLinker append(TransmitterProvider<?,?>... transmitters) {
+	public ModuleLinker append(Transmitter<?,?>... transmitters) {
 		if (transmitters.length != 0) {
 			try {
 				transmitters[0].asModule().setOptions(options);
