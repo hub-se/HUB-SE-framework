@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
+@Deprecated
 public abstract class AbstractPipeFactory<A,B> {
 	
 	AbstractPipe<A,B> pipe = null;

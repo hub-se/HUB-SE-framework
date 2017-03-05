@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
-import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
@@ -63,13 +63,11 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 		this.needsInput = needsInput;
 	}
 	
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter)
-	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) throws IllegalArgumentException, IllegalStateException {
-		if (transmitter instanceof AbstractModule) {
-			return linkModuleTo((AbstractModule<C, D>)transmitter);
+	public <C> Consumer<C> linkTo(Consumer<C> consumer) throws IllegalArgumentException, IllegalStateException {
+		if (consumer instanceof AbstractModule) {
+			return linkModuleTo((AbstractModule<C, ?>)consumer);
 		} else {
 			throw new IllegalStateException("Can only link to other modules.");
 		}
@@ -79,8 +77,6 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	 * Links a matching module to the output of this module.
 	 * @param <C>
 	 * the input type of the module to be linked to
-	 * @param <D>
-	 * the output type of the module to be linked to
 	 * @param module
 	 * the module to be linked to
 	 * @return
@@ -89,7 +85,7 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	 * if the input type C of the given module does not match the output type B of this module
 	 */
 	@SuppressWarnings("unchecked")
-	private <C,D> AbstractModule<C,D> linkModuleTo(AbstractModule<C,D> module) throws IllegalArgumentException {
+	private <C> AbstractModule<C,?> linkModuleTo(AbstractModule<C,?> module) throws IllegalArgumentException {
 		try {
 			this.linkedModule = (AbstractModule<B,?>) module;
 		} catch (ClassCastException e) {
@@ -107,15 +103,25 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	 */
 	@SuppressWarnings("unchecked")
 	public AbstractModule<A,B> submit(Object item) {
-		try {
-			process((A)item);
-		} catch (ClassCastException e) {
-			Log.abort(this, e, "Type mismatch while submitting!");
-		}
-		if (linkedModule != null) {
-			linkedModule.submit(output);
+		if (needsInput && item == null) {
+			Log.err(this, "No input item submitted/available.");
+		} else {
+			try {			
+				track();
+				consume((A)item);
+			} catch (ClassCastException e) {
+				Log.abort(this, e, "Type mismatch while submitting!");
+			}
+			if (linkedModule != null) {
+				linkedModule.submit(output);
+			}
 		}
 		return this;
+	}
+	
+	@Override
+	public void produce(B item) {
+		output = item;
 	}
 	
 	/**
@@ -148,34 +154,19 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 		return linkedModule;
 	}
 
-	/**
-	 * Processes an available input item (if any) and sets the result as
-	 * the output item of this module.
-	 * @param input
-	 * the input item (may be null)
-	 */
-	private void process(A input) {
-		if (needsInput && input == null) {
-			Log.err(this, "No input item submitted/available.");
-			return;
-		}
-		track();
-		output = processItem(input);
-	}
-	
-	@Override
-	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("not supported");
-	}
+//	@Override
+//	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+//		throw new UnsupportedOperationException("not supported");
+//	}
 
 	@Override
 	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
 		return this;
 	}
 
-	@Override
-	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("not supported");
-	}
+//	@Override
+//	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+//		throw new UnsupportedOperationException("not supported");
+//	}
 	
 }

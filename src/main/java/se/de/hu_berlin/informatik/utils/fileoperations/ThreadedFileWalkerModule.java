@@ -7,12 +7,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.concurrent.Callable;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInput;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
@@ -21,8 +19,6 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * @author Simon Heiden
  * 
  * @see ThreadedFileWalker
- * @see EHWithInput
- * @see Callable
  */
 public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 
@@ -34,7 +30,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private DisruptorEventHandlerFactory<Path> callableFactory;
+	private Consumer<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -56,7 +52,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(DisruptorEventHandlerFactory<Path> callableFactory) {
+	public ThreadedFileWalkerModule call(Consumer<Path> callableFactory) {
 		this.callableFactory = callableFactory;
 		return this;
 	}

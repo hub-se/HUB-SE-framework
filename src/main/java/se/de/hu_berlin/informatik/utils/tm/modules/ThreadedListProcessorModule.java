@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.modules;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
@@ -19,10 +19,10 @@ public class ThreadedListProcessorModule<A> extends AbstractModule<List<A>,Boole
 
 	private DisruptorProvider<A> disruptorProvider;
 
-	public ThreadedListProcessorModule(Integer threadCount, DisruptorEventHandlerFactory<A> callableFactory) {
+	public ThreadedListProcessorModule(Integer threadCount, Consumer<A> callableFactory) {
 		super(true);
 		disruptorProvider = new DisruptorProvider<>();
-		disruptorProvider.connectHandlers(threadCount, callableFactory);
+		disruptorProvider.connectHandlers(callableFactory, threadCount);
 	}
 
 	/* (non-Javadoc)

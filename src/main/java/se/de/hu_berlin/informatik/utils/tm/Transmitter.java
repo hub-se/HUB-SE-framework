@@ -17,7 +17,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * @param <B>
  * is the type of the output object
  */
-public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<B> {
+public interface Transmitter<A,B> extends Consumer<A>, Producer<B> {
 	
 	/**
 	 * Consumes an item of type {@code A}, processes it and produces an item of type {@code B}.
@@ -25,10 +25,18 @@ public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<
 	 * the item to be processed
 	 */
 	@Override
-	default void consume(A item) {
-		produce(process(item));
+	default public void consume(A item) {
+		produce(processItem(item));
 	}
-
+	
+	/**
+	 * Processes an item of type {@code A} and produces an item of type {@code B}.
+	 * @param item
+	 * the item to be processed
+	 * @return
+	 * the processed item
+	 */
+	public B processItem(A item);
 
 	/**
 	 * Should be overwritten by implementing transmitters that may collect
@@ -43,15 +51,6 @@ public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<
 	}
 	
 	/**
-	 * Should cut all loose ends.
-	 * @return
-	 * true if successful
-	 */
-	default public boolean finalShutdown() {
-		return true;
-	}
-	
-	/**
 	 * Creates a pipe object from this transmitter that has the transmitter's 
 	 * functionality. Has to return a reference to the same object if called
 	 * multiple times.
@@ -60,6 +59,7 @@ public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
+	@Override
 	public AbstractPipe<A,B> asPipe() throws UnsupportedOperationException;
 	
 	/**
@@ -71,6 +71,7 @@ public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
+	@Override
 	public AbstractModule<A,B> asModule() throws UnsupportedOperationException;
 	
 	/**
@@ -82,6 +83,66 @@ public interface Transmitter<A,B> extends Consumer<A>, Processor<A,B>, Producer<
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
+	@Override
 	public EHWithInputAndReturn<A,B> asEH() throws UnsupportedOperationException;
 
+
+	/**
+	 * Creates a new pipe object from this transmitter that has the transmitter's 
+	 * functionality.
+	 * @return
+	 * a pipe, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	@Override
+	default public AbstractPipe<A, B> newPipeInstance() throws UnsupportedOperationException {
+		return new AbstractPipe<A,B>(true) {
+			@Override
+			public B processItem(A item) {
+				return Transmitter.this.processItem(item);
+			}
+		};
+	}
+
+	/**
+	 * Creates a new module object from this transmitter that has the transmitter's 
+	 * functionality.
+	 * @return
+	 * a module, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	@Override
+	default public AbstractModule<A, B> newModuleInstance() throws UnsupportedOperationException {
+		return new AbstractModule<A, B>(true) {
+			@Override
+			public B processItem(A item) {
+				return Transmitter.this.processItem(item);
+			}
+		};
+	}
+
+	/**
+	 * Creates a new event handler from this transmitter that has the transmitter's 
+	 * functionality.
+	 * @return
+	 * an event handler, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	@Override
+	default public EHWithInputAndReturn<A, B> newEHInstance() throws UnsupportedOperationException {
+		return new EHWithInputAndReturn<A,B>() {
+			@Override
+			public B processItem(A input) {
+				return Transmitter.this.processItem(input);
+			}
+			@Override
+			public void resetAndInit() {
+				//do nothing
+			}
+		};
+	}
+	
 }

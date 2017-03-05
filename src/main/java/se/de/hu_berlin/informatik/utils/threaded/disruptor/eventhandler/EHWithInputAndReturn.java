@@ -6,7 +6,6 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.tm.Transmitter;
@@ -27,7 +26,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements MultiplexerInput<B>, Transmitter<A,B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements Transmitter<A,B>, MultiplexerInput<B> {
 
 	/**
 	 * The output object.
@@ -38,23 +37,11 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	private final Object lock = new Object();
 	private Multiplexer<B> multiplexer = null;
 	
-	private OptionParser options = null;
-
 	@Override
-	public void processEvent(A input) throws Exception {
-		trySettingNewOutputAndValidate(processInput(input));
+	public void produce(B item) {
+		trySettingNewOutputAndValidate(item);
 	}
-	
-	/**
-	 * Processes a single item of type A and returns an item of type B (or {@code null}).
-	 * Has to be instantiated by implementing classes.
-	 * @param input
-	 * the input item
-	 * @return
-	 * an item of type B
-	 */
-	public abstract B processInput(A input);
-	
+
 	public void manualOutput(B outputItem) {
 		trySettingNewOutputAndValidate(outputItem);
 	}
@@ -125,33 +112,6 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	@Override
 	public Multiplexer<B> getMultiplexer() {
 		return multiplexer;
-	}
-
-	@Override
-	public OptionParser getOptions() {
-		return options;
-	}
-
-	@Override
-	public EHWithInputAndReturn<A, B> setOptions(OptionParser options) {
-		this.options = options;
-		return this;
-	}
-	
-	@Override
-	public boolean hasOptions() {
-		return options != null;
-	}
-
-	@Override
-	public B processItem(A item) {
-		return processInput(item);
-	}
-
-	@Override
-	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter)
-			throws IllegalStateException {
-		throw new IllegalStateException("Can not link event handler (not allowed).");
 	}
 	
 	@Override

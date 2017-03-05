@@ -8,7 +8,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
-import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 
 /**
@@ -82,14 +82,34 @@ public abstract class AbstractPipe<A,B> extends AbstractTransmitter<A,B> {
 		//event handler used for transmitting items from one pipe to another
 		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
 			@Override
-			public void processEvent(A input) throws Exception {
-				track();
-				submitProcessedItem(processItem(input));
-			}
-			@Override
 			public void resetAndInit() { /*not needed*/ }
+			@Override
+			public void consume(A item) {
+				track();
+				AbstractPipe.this.consume(item);
+			}
 		});
 		this.singleWriter = singleWriter;
+	}
+	
+	@Override
+	public void produce(B item) {
+		if (output != null) {
+			output.submit(item);
+		}
+	}
+	
+	/**
+	 * Submits an object of type {@code B} to a connected output pipe.
+	 * If the pipe is not linked to any other pipe, then the item is 
+	 * discarded.
+	 * @param item
+	 * the object of type {@code B} to be submitted
+	 */
+	public void submitProcessedItem(B item) {
+		if (output != null) {
+			output.submit(item);
+		}
 	}
 	
 	/**
@@ -126,31 +146,16 @@ public abstract class AbstractPipe<A,B> extends AbstractTransmitter<A,B> {
 	private void setOutput(AbstractPipe<B,?> pipe) {
 		output = pipe;
 	}
-
-	/**
-	 * Submits an object of type {@code B} to a connected output pipe.
-	 * If the pipe is not linked to any other pipe, then the item is 
-	 * discarded.
-	 * @param item
-	 * the object of type {@code B} to be submitted
-	 */
-	public void submitProcessedItem(B item) {
-		if (output != null) {
-			output.submit(item);
-		}
-	}
-
+	
 	protected DisruptorProvider<A> getDisruptorProvider() {
 		return disruptorProvider;
 	}
 
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#linkTo(se.de.hu_berlin.informatik.utils.tm.ITransmitter)
-	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public <C, D> Transmitter<C, D> linkTo(Transmitter<C, D> transmitter) throws IllegalArgumentException, IllegalStateException {
-		if (transmitter instanceof AbstractPipe) {
-			return linkPipeTo((AbstractPipe<C, D>)transmitter, singleWriter);
+	public <C> Consumer<C> linkTo(Consumer<C> consumer) throws IllegalArgumentException, IllegalStateException {
+		if (consumer instanceof AbstractPipe) {
+			return linkPipeTo((AbstractPipe<C, ?>)consumer, singleWriter);
 		} else {
 			throw new IllegalStateException("Can only link to other pipes.");
 		}
@@ -246,14 +251,14 @@ public abstract class AbstractPipe<A,B> extends AbstractTransmitter<A,B> {
 		return this;
 	}
 
-	@Override
-	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("not supported");
-	}
-
-	@Override
-	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("not supported");
-	}
+//	@Override
+//	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+//		throw new UnsupportedOperationException("not supported");
+//	}
+//
+//	@Override
+//	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+//		throw new UnsupportedOperationException("not supported");
+//	}
 	
 }

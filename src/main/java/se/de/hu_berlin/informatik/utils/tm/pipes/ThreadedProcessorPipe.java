@@ -7,7 +7,7 @@ import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
 /**
@@ -23,8 +23,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 	private DisruptorProvider<A> disruptorProvider;
 	private AbstractDisruptorMultiplexer<B> multiplexer;
 
-	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, 
-			EHWithInputAndReturnFactory<A,B> callableFactory) {
+	private ThreadedProcessorPipe() {
 		super(true);
 		disruptorProvider = new DisruptorProvider<>(1024);
 		//starts a multiplexer with the created disruptor
@@ -35,25 +34,28 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 				submitProcessedItem(item);
 			}
 		};
-		//we have to propagate the reference to the multiplexer to the handlers to be created
-		//(the handlers must have a reference to the multiplexer to wake him up if output was generated)
-		callableFactory.setMultiplexer(multiplexer);
-		//set the amount of total parallel threads that shall be used
-		callableFactory.setThreadLimit(limit);
+	}
+	
+	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, Transmitter<A,B> transmitter) {
+		this();
 		//connect the handlers to the disruptor
-		disruptorProvider.connectHandlers(threadCount, callableFactory);
+		disruptorProvider.connectHandlers(transmitter, threadCount, limit, multiplexer);
 		
+		initMultiplexer();
+	}
+
+	public ThreadedProcessorPipe(int threadCount, Transmitter<A,B> transmitter) {
+		this(threadCount, ThreadLimitDummy.getInstance(), transmitter);
+	}
+	
+	private void initMultiplexer() {
 		//now that the handlers are instantiated, we can connect them to the multiplexer
 		//by starting the multiplexer thread (which will park itself until notified
 		//of any generated output
 		multiplexer.startAndConnectHandlers();
 	}
 	
-	public ThreadedProcessorPipe(int threadCount, 
-			EHWithInputAndReturnFactory<A,B> callableFactory) {
-		this(threadCount, ThreadLimitDummy.getInstance(), callableFactory);
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */

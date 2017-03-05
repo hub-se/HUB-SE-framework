@@ -24,9 +24,9 @@ public abstract class CallableEHWithInput<A> implements Callable<Boolean> {
 	 */
 	private A input = null;
 	
-	private final EHWithInput<A> eventHandler;
+	private final DisruptorFCFSEventHandler<A> eventHandler;
 	
-	public CallableEHWithInput(EHWithInput<A> eventHandler) {
+	public CallableEHWithInput(DisruptorFCFSEventHandler<A> eventHandler) {
 		super();
 		this.eventHandler = eventHandler;
 	}
@@ -37,7 +37,8 @@ public abstract class CallableEHWithInput<A> implements Callable<Boolean> {
 	@Override
 	public Boolean call() {
 		eventHandler.resetAndInit();
-		return eventHandler.processInput(input);
+		eventHandler.consume(input);
+		return true;
 	}
 	
 	/**

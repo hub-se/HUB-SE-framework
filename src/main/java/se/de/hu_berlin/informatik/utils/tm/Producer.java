@@ -3,11 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
-
 /**
  * An interface that provides basic functionalities of a producer.
  * 
@@ -16,7 +11,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * @param <B>
  * is the type of the output object
  */
-public interface Producer<B> extends OptionCarrier {
+public interface Producer<B> {
 	
 	/**
 	 * Produces the given item of type {@code B}.
@@ -37,40 +32,11 @@ public interface Producer<B> extends OptionCarrier {
 	 * if the input type C of the given consumer does not match the output type B of this producer
 	 * @throws IllegalStateException
 	 * if the components can't be linked due to other reasons
+	 * @throws UnsupportedOperationException
+	 * if linking is not implemented
 	 */
-	public <C> Consumer<C> linkTo(Consumer<C> consumer) throws IllegalArgumentException, IllegalStateException;
-	
-//	/**
-//	 * Creates a pipe object from this transmitter that has the transmitter's 
-//	 * functionality. Has to return a reference to the same object if called
-//	 * multiple times.
-//	 * @return
-//	 * a pipe, if possible
-//	 * @throws UnsupportedOperationException
-//	 * if not possible
-//	 */
-//	public AbstractPipe<?,B> asPipe() throws UnsupportedOperationException;
-//	
-//	/**
-//	 * Creates a module object from this transmitter that has the transmitter's 
-//	 * functionality. Has to return a reference to the same object if called
-//	 * multiple times.
-//	 * @return
-//	 * a module, if possible
-//	 * @throws UnsupportedOperationException
-//	 * if not possible
-//	 */
-//	public AbstractModule<?,B> asModule() throws UnsupportedOperationException;
-//	
-//	/**
-//	 * Creates an event handler from this transmitter that has the transmitter's 
-//	 * functionality. Has to return a reference to the same object if called
-//	 * multiple times.
-//	 * @return
-//	 * a new event handler, if possible
-//	 * @throws UnsupportedOperationException
-//	 * if not possible
-//	 */
-//	public EHWithInputAndReturn<?,B> asEH() throws UnsupportedOperationException;
+	default <C> Consumer<C> linkTo(Consumer<C> consumer) throws IllegalArgumentException, IllegalStateException, UnsupportedOperationException {
+		throw new UnsupportedOperationException("Linking not implemented for " + this.getClass().getSimpleName() + ".");
+	}
 
 }

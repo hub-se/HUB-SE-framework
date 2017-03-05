@@ -65,6 +65,8 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		
 		/**
 		 * Creates a new History object.
+		 * @param origin
+		 * a reference to the original item
 		 */
 		public History(T origin) {
 			this.mutationHistory = new MutationHistory();

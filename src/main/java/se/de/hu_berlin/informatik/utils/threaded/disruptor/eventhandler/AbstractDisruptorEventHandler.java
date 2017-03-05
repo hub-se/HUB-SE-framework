@@ -5,6 +5,7 @@ import com.lmax.disruptor.EventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.tm.AbstractConsumer;
 
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}.
@@ -21,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<SingleUseEvent<A>> {
+public abstract class AbstractDisruptorEventHandler<A> extends AbstractConsumer<A> implements EventHandler<SingleUseEvent<A>> {
 
     private ThreadLimit limit = ThreadLimitDummy.getInstance();
 	private boolean singleConsumer = false;
@@ -56,7 +57,7 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
 //		Log.out(this, event.get().toString() + " " + sequence);
     	try {
     		resetAndInit();
-    		processEvent(event.get());
+    		consume(event.get());
     	} finally {
     		limit.releaseSlot();
     	}
@@ -75,16 +76,16 @@ public abstract class AbstractDisruptorEventHandler<A> implements EventHandler<S
 		return singleConsumer;
 	}
     
-	/**
-	 * Processes a single item that is provided by an event. Has to be implemented
-	 * by extending classes.
-	 * @param input
-	 * the item to be processed
-	 * @throws Exception
-	 * if an error occurs. Any exception gets caught and produces an error message.
-	 * This doesn't abort execution.
-	 */
-	public abstract void processEvent(A input) throws Exception;
+//	/**
+//	 * Processes a single item that is provided by an event. Has to be implemented
+//	 * by extending classes.
+//	 * @param input
+//	 * the item to be processed
+//	 * @throws Exception
+//	 * if an error occurs. Any exception gets caught and produces an error message.
+//	 * This doesn't abort execution.
+//	 */
+//	public abstract void processEvent(A input) throws Exception;
 	
 	/**
 	 * Should be used to reset or to initialize fields. Gets called before processing each event.

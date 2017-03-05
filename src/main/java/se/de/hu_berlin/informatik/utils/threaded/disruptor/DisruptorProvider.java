@@ -10,10 +10,15 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
+import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Event;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.SingleUseEvent;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
+import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -239,27 +244,86 @@ public class DisruptorProvider<A> implements Trackable {
 		isConnectedToHandlers = true;
 	}
 	
+	public <B> DisruptorProvider<A> connectHandlers(Transmitter<A, B> transmitter, 
+			int numberOfThreads, AbstractDisruptorMultiplexer<B> multiplexer) {
+		return connectHandlers(transmitter, numberOfThreads, ThreadLimitDummy.getInstance(), multiplexer);
+	}
+	
 	/**
 	 * Connects the given number of event handlers to the disruptor. The handlers are
-	 * instantiated with the given factory.
+	 * instantiated with the given transmitter.
+	 * @param transmitter
+	 * the transmitter to get new event handler instances from
 	 * @param numberOfThreads
 	 * the number of handlers (threads) to create
-	 * @param factory
-	 * the factory to create the event handlers with
+	 * @param limit
+	 * a thread limit object
+	 * @param multiplexer
+	 * the multiplexer to connect the event handlers to
 	 * @return
 	 * this
+	 * @param <B>
+	 * the output type of the given transmitter
 	 */
-	public DisruptorProvider<A> connectHandlers(int numberOfThreads, DisruptorEventHandlerFactory<A> factory) {
+	public <B> DisruptorProvider<A> connectHandlers(Transmitter<A, B> transmitter, int numberOfThreads, 
+			ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}
+		if (numberOfThreads < 1) {
+			throw new IllegalArgumentException("Number of threads has to be at least 1.");
+		}
 		
+		EHWithInputAndReturn<A, B> firstEH = transmitter.newEHInstance();
+		
+		@SuppressWarnings("unchecked")
+		Class<EHWithInputAndReturn<A,B>> clazz = (Class<EHWithInputAndReturn<A, B>>) firstEH.getClass();
 		//create generic array for the handlers to be instantiated
-        final AbstractDisruptorEventHandler<A>[] handlers = Misc.createGenericArray(factory.getEventHandlerClass(), numberOfThreads);
+        final EHWithInputAndReturn<A,B>[] handlers = Misc.createGenericArray(clazz, numberOfThreads);
 		
+        firstEH.setMultiplexer(multiplexer);
+		firstEH.setThreadLimit(limit);
+        handlers[0] = firstEH;
         //instantiate the desired number of handlers
-		for (int i = 0; i < numberOfThreads; ++i) {
-			handlers[i] = factory.newInstance();
+		for (int i = 1; i < numberOfThreads; ++i) {
+			EHWithInputAndReturn<A, B> nextEH = transmitter.newEHInstance();
+			nextEH.setMultiplexer(multiplexer);
+			nextEH.setThreadLimit(limit);
+			handlers[i] = nextEH;
+		}
+		
+		//connect the handlers to the disruptor
+		connectHandlers(handlers);
+		
+		return this;
+	}
+	
+	public DisruptorProvider<A> connectHandlers(Consumer<A> consumer, int numberOfThreads) {
+		return connectHandlers(consumer, numberOfThreads, ThreadLimitDummy.getInstance());
+	}
+	
+	public DisruptorProvider<A> connectHandlers(Consumer<A> consumer, int numberOfThreads, ThreadLimit limit) {
+		if (isConnectedToHandlers) {
+			throw new IllegalStateException("Already connected to handlers.");
+		}
+		if (numberOfThreads < 1) {
+			throw new IllegalArgumentException("Number of threads has to be at least 1.");
+		}
+		
+		DisruptorFCFSEventHandler<A> firstEH = consumer.newEHInstance();
+		
+		@SuppressWarnings("unchecked")
+		Class<DisruptorFCFSEventHandler<A>> clazz = (Class<DisruptorFCFSEventHandler<A>>) firstEH.getClass();
+		//create generic array for the handlers to be instantiated
+        final DisruptorFCFSEventHandler<A>[] handlers = Misc.createGenericArray(clazz, numberOfThreads);
+		
+		firstEH.setThreadLimit(limit);
+        handlers[0] = firstEH;
+        //instantiate the desired number of handlers
+		for (int i = 1; i < numberOfThreads; ++i) {
+			DisruptorFCFSEventHandler<A> nextEH = consumer.newEHInstance();
+			nextEH.setThreadLimit(limit);
+			handlers[i] = nextEH;
 		}
 		
 		//connect the handlers to the disruptor

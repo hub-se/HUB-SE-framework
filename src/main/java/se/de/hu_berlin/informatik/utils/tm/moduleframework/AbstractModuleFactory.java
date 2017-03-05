@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
+@Deprecated
 public abstract class AbstractModuleFactory<A,B> {
 	
 	AbstractModule<A,B> module = null;

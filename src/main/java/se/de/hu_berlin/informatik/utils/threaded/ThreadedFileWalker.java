@@ -7,16 +7,13 @@ import java.nio.file.*;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorEventHandlerFactory;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInput;
+import se.de.hu_berlin.informatik.utils.tm.Consumer;
 
 /**
  * {@link AFileWalker} extension that takes a callable class 
  * and calls it on every file visited that matches the given pattern.
  * 
  * @author Simon Heiden
- * 
- * @see EHWithInput
  */
 public class ThreadedFileWalker extends AFileWalker {
 	
@@ -30,7 +27,7 @@ public class ThreadedFileWalker extends AFileWalker {
 		}
 		
 		disruptorProvider = new DisruptorProvider<>();
-		disruptorProvider.connectHandlers(builder.threadCount, builder.callableFactory);
+		disruptorProvider.connectHandlers(builder.callableFactory, builder.threadCount);
 	}
 
 	/**
@@ -53,7 +50,7 @@ public class ThreadedFileWalker extends AFileWalker {
 	
 	public static class Builder extends AFileWalker.Builder {
 
-		public DisruptorEventHandlerFactory<Path> callableFactory;
+		public Consumer<Path> callableFactory;
 		public int threadCount;
 		
 		public Builder(String pattern, int threadCount) {
@@ -69,11 +66,11 @@ public class ThreadedFileWalker extends AFileWalker {
 		/**
 		 * Sets the factory.
 		 * @param callableFactory
-		 * a factory that provides instances of callable classes 
+		 * a factory that provides instances of event handlers 
 		 * @return
 		 * this
 		 */
-		public Builder call(DisruptorEventHandlerFactory<Path> callableFactory) {
+		public Builder call(Consumer<Path> callableFactory) {
 			this.callableFactory = callableFactory;
 			return this;
 		}

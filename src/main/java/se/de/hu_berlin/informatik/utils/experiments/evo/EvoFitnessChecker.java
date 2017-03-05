@@ -1,14 +1,13 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnMethodProvider;
+import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
 
-public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends EHWithInputAndReturnMethodProvider<EvoItem<T,F>,EvoItem<T, F>> {
+public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends AbstractTransmitter<EvoItem<T,F>,EvoItem<T, F>> {
 
 	@Override
-	public EvoItem<T, F> processInput(EvoItem<T,F> input, EHWithInputAndReturn<EvoItem<T,F>, EvoItem<T, F>> executingHandler) {
-		input.setFitness(computeFitness(input.getItem()));
-		return input;
+	public EvoItem<T, F> processItem(EvoItem<T, F> item) {
+		item.setFitness(computeFitness(item.getItem()));
+		return item;
 	}
 
 	/**
