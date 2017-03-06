@@ -7,9 +7,10 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -59,16 +60,20 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	
 	/**
 	 * Creates a pipe object with a buffer size of 8.
+	 * @param processor
+	 * the processor 
 	 * @param singleWriter
 	 * whether this pipe writes to the output with only a single thread 
 	 * (if not sure, set this to false)
 	 */
-	public AbstractPipe(boolean singleWriter) {
-		this(8, singleWriter);
+	public AbstractPipe(Processor<A,B> processor, boolean singleWriter) {
+		this(processor, 8, singleWriter);
 	}
 	
 	/**
 	 * Creates a pipe object.
+	 * @param processor
+	 * the processor 
 	 * @param bufferSize
 	 * the size of the ring buffer, must be power of 2
 	 * @param singleWriter
@@ -76,15 +81,17 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	 * (if not sure, set this to false)
 	 */
 	@SuppressWarnings("unchecked")
-	public AbstractPipe(int bufferSize, boolean singleWriter) {
+	public AbstractPipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
 		super();
+		setProcessor(processor);
+		processor.setProducer(this);
 		disruptorProvider = new DisruptorProvider<>(bufferSize);
 		//event handler used for transmitting items from one pipe to another
 		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
 			@Override
 			public void resetAndInit() { /*not needed*/ }
 			@Override
-			public void consume(A item) {
+			public void processEvent(A item) {
 				AbstractPipe.this.trackAndConsume(item);
 			}
 		});
@@ -150,9 +157,8 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 		return disruptorProvider;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <C> ConsumingProcessorUser<C> linkTo(ConsumingProcessorUser<C> consumer) throws IllegalArgumentException, IllegalStateException {
+	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
 		if (consumer instanceof AbstractPipe) {
 			return linkPipeTo((AbstractPipe<C, ?>)consumer, singleWriter);
 		} else {

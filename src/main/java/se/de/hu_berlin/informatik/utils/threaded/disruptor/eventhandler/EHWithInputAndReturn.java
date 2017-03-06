@@ -39,6 +39,11 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	private Multiplexer<B> multiplexer = null;
 	
 	private Processor<A, B> processor;
+	
+	@Override
+	public void processEvent(A input) throws Exception {
+		consume(input);
+	}
 
 	@Override
 	public Processor<A, B> getProcessor() {

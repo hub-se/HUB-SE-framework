@@ -4,7 +4,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithIn
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
-public interface ProcessorUserGenerator<A,B> extends ConsumingProcessorUserGenerator<A> {
+public interface ProcessorUserGenerator<A,B> {
 
 	/**
 	 * Creates a pipe object from this component. Has to return a 

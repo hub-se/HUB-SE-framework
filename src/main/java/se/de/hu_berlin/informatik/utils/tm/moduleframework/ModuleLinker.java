@@ -110,16 +110,6 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	}
 	
 	/**
-	 * Starts processing without an input item.
-	 * @return
-	 * this module linker
-	 */
-	public ModuleLinker start() {
-		getStartModule().start();
-		return this;
-	}
-	
-	/**
 	 * @return
 	 * the result item of the last module in the chain
 	 */

@@ -5,10 +5,11 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -51,21 +52,19 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	
 	private AbstractModule<B,?> linkedModule = null;
 	
-	private boolean needsInput = false;
-	
 	/**
 	 * Creates a new module with the given parameter.
 	 * @param needsInput
 	 * determines if the module needs an input item to function
 	 */
-	public AbstractModule(boolean needsInput) {
+	public AbstractModule(Processor<A,B> processor) {
 		super();
-		this.needsInput = needsInput;
+		setProcessor(processor);
+		processor.setProducer(this);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <C> ConsumingProcessorUser<C> linkTo(ConsumingProcessorUser<C> consumer) throws IllegalArgumentException, IllegalStateException {
+	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
 		if (consumer instanceof AbstractModule) {
 			return linkModuleTo((AbstractModule<C, ?>)consumer);
 		} else {
@@ -103,7 +102,7 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	 */
 	@SuppressWarnings("unchecked")
 	public AbstractModule<A,B> submit(Object item) {
-		if (needsInput && item == null) {
+		if (item == null) {
 			Log.err(this, "No input item submitted/available.");
 		} else {
 			try {
@@ -124,15 +123,6 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 		if (linkedModule != null) {
 			linkedModule.submit(item);
 		}
-	}
-	
-	/**
-	 * Starts processing without an input item.
-	 * @return
-	 * this module
-	 */
-	public AbstractModule<A,B> start() {
-		return submit(null);
 	}
 
 	/**

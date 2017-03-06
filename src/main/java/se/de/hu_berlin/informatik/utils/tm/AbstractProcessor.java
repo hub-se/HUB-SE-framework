@@ -4,7 +4,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithIn
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 
-public abstract class AbstractProcessor<A,B> extends AbstractConsumingProcessor<A> implements Processor<A,B> { 
+public abstract class AbstractProcessor<A,B> implements Processor<A,B> { 
 
 	private AbstractPipe<A,B> pipeView;
 	private AbstractModule<A,B> moduleView;
@@ -42,7 +42,11 @@ public abstract class AbstractProcessor<A,B> extends AbstractConsumingProcessor<
 
 	@Override
 	public Producer<B> getProducer() {
-		return producer;
+		if (producer == null) {
+			throw new IllegalStateException("No producer set for " + this.getClass().getSimpleName() + ".");
+		} else {
+			return producer;
+		}
 	}
 
 }

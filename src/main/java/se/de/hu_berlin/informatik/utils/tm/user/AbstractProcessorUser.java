@@ -6,7 +6,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
-public abstract class AbstractProcessorUser<A, B> extends AbstractConsumingProcessorUser<A> implements ProcessorUser<A, B>, ProcessorUserGenerator<A, B> {
+public abstract class AbstractProcessorUser<A, B> extends AbstractComponent implements ProcessorUser<A, B>, ProcessorUserGenerator<A, B> {
 
 	private Processor<A, B> processor;
 	
@@ -38,6 +38,11 @@ public abstract class AbstractProcessorUser<A, B> extends AbstractConsumingProce
 		return ehView;
 	}
 	
+	public void trackAndConsume(A item) {
+		track();
+		consume(item);
+	}
+	
 	@Override
 	public Processor<A, B> getProcessor() throws IllegalStateException {
 		if (processor == null) {
@@ -51,31 +56,6 @@ public abstract class AbstractProcessorUser<A, B> extends AbstractConsumingProce
 	public void setProcessor(Processor<A, B> consumer) {
 		this.processor = consumer;
 	}
-	
-
-//	@Override
-//	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
-//		if (pipeView == null) {
-//			pipeView = newPipeInstance();
-//		}
-//		return pipeView;
-//	}
-//
-//	@Override
-//	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
-//		if (moduleView == null) {
-//			moduleView = newModuleInstance();
-//		}
-//		return moduleView;
-//	}
-//
-//	@Override
-//	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
-//		if (ehView == null) {
-//			ehView = newEHInstance();
-//		}
-//		return ehView;
-//	}
 
 	@Override
 	public AbstractProcessorUser<A,B> enableTracking() {

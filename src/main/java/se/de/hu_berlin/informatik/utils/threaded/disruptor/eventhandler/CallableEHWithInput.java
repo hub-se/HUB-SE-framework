@@ -5,6 +5,8 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
 import java.util.concurrent.Callable;
 
+import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+
 /**
  * An abstract class that implements the {@link Callable} interface and
  * is enriched with a field for input objects. The user has to
@@ -37,7 +39,12 @@ public abstract class CallableEHWithInput<A> implements Callable<Boolean> {
 	@Override
 	public Boolean call() {
 		eventHandler.resetAndInit();
-		eventHandler.consume(input);
+		try {
+			eventHandler.processEvent(input);
+		} catch (Exception e) {
+			Log.err(this, e);
+			return false;
+		}
 		return true;
 	}
 	

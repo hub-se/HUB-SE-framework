@@ -18,9 +18,8 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
  * @param <B>
  * is the type of the output object
  */
-public interface Processor<A,B> extends ConsumingProcessor<A>, ProcessorUserGenerator<A,B> {
+public interface Processor<A,B> extends ProcessorUserGenerator<A,B> {
 	
-	@Override
 	default void consume(A item) {
 		getProducer().produce(processItem(item));
 	}
@@ -36,7 +35,7 @@ public interface Processor<A,B> extends ConsumingProcessor<A>, ProcessorUserGene
 	
 	public void setProducer(Producer<B> producer);
 	
-	public Producer<B> getProducer();
+	public Producer<B> getProducer() throws IllegalStateException;
 	
 	default public void manualOutput(B item) {
 		getProducer().produce(item);
@@ -53,6 +52,15 @@ public interface Processor<A,B> extends ConsumingProcessor<A>, ProcessorUserGene
 	default public B getResultFromCollectedItems(){
 		return null;
 	}
+	
+	/**
+	 * Should cut all loose ends.
+	 * @return
+	 * true if successful
+	 */
+	default public boolean finalShutdown() {
+		return true;
+	}
 
 	/**
 	 * Creates a new pipe object from this transmitter that has the transmitter's 
@@ -64,10 +72,7 @@ public interface Processor<A,B> extends ConsumingProcessor<A>, ProcessorUserGene
 	 */
 	@Override
 	default public AbstractPipe<A, B> newPipeInstance() throws UnsupportedOperationException {
-		Processor<A,B> processor = newProcessorInstance();
-		AbstractPipe<A, B> pipe = new AbstractPipe<A,B>(true);
-		pipe.setProcessor(processor);
-		processor.setProducer(pipe);
+		AbstractPipe<A, B> pipe = new AbstractPipe<A,B>(newProcessorInstance(), true);
 		return pipe;
 		
 	}
@@ -82,10 +87,7 @@ public interface Processor<A,B> extends ConsumingProcessor<A>, ProcessorUserGene
 	 */
 	@Override
 	default public AbstractModule<A, B> newModuleInstance() throws UnsupportedOperationException {
-		Processor<A,B> processor = newProcessorInstance();
-		AbstractModule<A, B> module = new AbstractModule<A, B>(true);
-		module.setProcessor(processor);
-		processor.setProducer(module);
+		AbstractModule<A, B> module = new AbstractModule<A, B>(newProcessorInstance());
 		return module;
 	}
 
