@@ -7,8 +7,8 @@ import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.Transmitter;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
 
 /**
  * Starts a provided callable class on each submitted input element, using
@@ -31,12 +31,12 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 			@Override
 			public void processNewOutputItem(B item) {
 				//submit results that are not null to the ouput pipe
-				submitProcessedItem(item);
+				produce(item);
 			}
 		};
 	}
 	
-	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, Transmitter<A,B> transmitter) {
+	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, ProcessorUserGenerator<A,B> transmitter) {
 		this();
 		//connect the handlers to the disruptor
 		disruptorProvider.connectHandlers(transmitter, threadCount, limit, multiplexer);
@@ -44,7 +44,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
 		initMultiplexer();
 	}
 
-	public ThreadedProcessorPipe(int threadCount, Transmitter<A,B> transmitter) {
+	public ThreadedProcessorPipe(int threadCount, ProcessorUserGenerator<A,B> transmitter) {
 		this(threadCount, ThreadLimitDummy.getInstance(), transmitter);
 	}
 	

@@ -8,9 +8,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
-import se.de.hu_berlin.informatik.utils.tm.Transmitter;
+import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 
 /**
  * An abstract class that provides a simple API for a disruptor event handler
@@ -26,7 +27,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements Transmitter<A,B>, MultiplexerInput<B> {
+public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorUser<A,B>, MultiplexerInput<B> {
 
 	/**
 	 * The output object.
@@ -37,13 +38,21 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	private final Object lock = new Object();
 	private Multiplexer<B> multiplexer = null;
 	
+	private Processor<A, B> processor;
+
+	@Override
+	public Processor<A, B> getProcessor() {
+		return processor;
+	}
+
+	@Override
+	public void setProcessor(Processor<A, B> consumer) {
+		this.processor = consumer;
+	}
+	
 	@Override
 	public void produce(B item) {
 		trySettingNewOutputAndValidate(item);
-	}
-
-	public void manualOutput(B outputItem) {
-		trySettingNewOutputAndValidate(outputItem);
 	}
 	
 	/* (non-Javadoc)
@@ -128,4 +137,5 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
 		return this;
 	}
+	
 }

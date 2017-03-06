@@ -1,8 +1,8 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
-public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends AbstractTransmitter<EvoItem<T,F>,EvoItem<T, F>> {
+public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends AbstractProcessor<EvoItem<T,F>,EvoItem<T, F>> {
 
 	@Override
 	public EvoItem<T, F> processItem(EvoItem<T, F> item) {

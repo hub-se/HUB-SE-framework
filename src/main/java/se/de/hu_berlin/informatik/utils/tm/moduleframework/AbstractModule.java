@@ -5,10 +5,10 @@ package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.tm.AbstractTransmitter;
-import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -45,7 +45,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * 
  * @see ModuleLinker
  */
-public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
+public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	
 	private B output = null;
 	
@@ -65,7 +65,7 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <C> Consumer<C> linkTo(Consumer<C> consumer) throws IllegalArgumentException, IllegalStateException {
+	public <C> ConsumingProcessorUser<C> linkTo(ConsumingProcessorUser<C> consumer) throws IllegalArgumentException, IllegalStateException {
 		if (consumer instanceof AbstractModule) {
 			return linkModuleTo((AbstractModule<C, ?>)consumer);
 		} else {
@@ -106,15 +106,14 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 		if (needsInput && item == null) {
 			Log.err(this, "No input item submitted/available.");
 		} else {
-			try {			
-				track();
-				consume((A)item);
+			try {
+				trackAndConsume((A)item);
 			} catch (ClassCastException e) {
 				Log.abort(this, e, "Type mismatch while submitting!");
 			}
-			if (linkedModule != null) {
-				linkedModule.submit(output);
-			}
+//			if (linkedModule != null) {
+//				linkedModule.submit(output);
+//			}
 		}
 		return this;
 	}
@@ -122,6 +121,9 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 	@Override
 	public void produce(B item) {
 		output = item;
+		if (linkedModule != null) {
+			linkedModule.submit(item);
+		}
 	}
 	
 	/**
@@ -154,19 +156,19 @@ public abstract class AbstractModule<A,B> extends AbstractTransmitter<A,B> {
 		return linkedModule;
 	}
 
-//	@Override
-//	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
-//		throw new UnsupportedOperationException("not supported");
-//	}
+	@Override
+	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 
 	@Override
 	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
 		return this;
 	}
 
-//	@Override
-//	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
-//		throw new UnsupportedOperationException("not supported");
-//	}
+	@Override
+	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 	
 }

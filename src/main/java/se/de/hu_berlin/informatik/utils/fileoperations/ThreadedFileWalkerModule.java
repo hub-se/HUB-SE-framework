@@ -10,8 +10,8 @@ import java.util.Collections;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
-import se.de.hu_berlin.informatik.utils.tm.Consumer;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.
@@ -30,7 +30,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private Consumer<Path> callableFactory;
+	private ConsumingProcessorUser<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -52,7 +52,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(Consumer<Path> callableFactory) {
+	public ThreadedFileWalkerModule call(ConsumingProcessorUser<Path> callableFactory) {
 		this.callableFactory = callableFactory;
 		return this;
 	}

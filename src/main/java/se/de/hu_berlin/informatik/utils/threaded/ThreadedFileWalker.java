@@ -7,7 +7,7 @@ import java.nio.file.*;
 
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.Consumer;
+import se.de.hu_berlin.informatik.utils.tm.ConsumingProcessor;
 
 /**
  * {@link AFileWalker} extension that takes a callable class 
@@ -50,7 +50,7 @@ public class ThreadedFileWalker extends AFileWalker {
 	
 	public static class Builder extends AFileWalker.Builder {
 
-		public Consumer<Path> callableFactory;
+		public ConsumingProcessor<Path> callableFactory;
 		public int threadCount;
 		
 		public Builder(String pattern, int threadCount) {
@@ -70,7 +70,7 @@ public class ThreadedFileWalker extends AFileWalker {
 		 * @return
 		 * this
 		 */
-		public Builder call(Consumer<Path> callableFactory) {
+		public Builder call(ConsumingProcessor<Path> callableFactory) {
 			this.callableFactory = callableFactory;
 			return this;
 		}

@@ -5,7 +5,7 @@ import com.lmax.disruptor.EventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.AbstractConsumer;
+import se.de.hu_berlin.informatik.utils.tm.user.AbstractConsumingProcessorUser;
 
 /**
  * Abstract event handler that is used by a {@link DisruptorProvider}.
@@ -22,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.tm.AbstractConsumer;
  * the type of elements that shall be processed by this handler
  * @see DisruptorProvider
  */
-public abstract class AbstractDisruptorEventHandler<A> extends AbstractConsumer<A> implements EventHandler<SingleUseEvent<A>> {
+public abstract class AbstractDisruptorEventHandler<A> extends AbstractConsumingProcessorUser<A> implements EventHandler<SingleUseEvent<A>> {
 
     private ThreadLimit limit = ThreadLimitDummy.getInstance();
 	private boolean singleConsumer = false;
@@ -57,7 +57,7 @@ public abstract class AbstractDisruptorEventHandler<A> extends AbstractConsumer<
 //		Log.out(this, event.get().toString() + " " + sequence);
     	try {
     		resetAndInit();
-    		consume(event.get());
+    		trackAndConsume(event.get());
     	} finally {
     		limit.releaseSlot();
     	}
