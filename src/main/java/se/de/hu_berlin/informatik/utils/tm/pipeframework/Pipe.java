@@ -6,9 +6,8 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 
@@ -49,12 +48,12 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * 
  * @see PipeLinker
  */
-public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
+public class Pipe<A,B> extends AbstractProcessorUser<A,B> {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
 	private boolean hasInput = false;
-	private AbstractPipe<B,?> output = null;
+	private Pipe<B,?> output = null;
 
 	private final boolean singleWriter;
 	
@@ -66,7 +65,7 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	 * whether this pipe writes to the output with only a single thread 
 	 * (if not sure, set this to false)
 	 */
-	public AbstractPipe(Processor<A,B> processor, boolean singleWriter) {
+	public Pipe(Processor<A,B> processor, boolean singleWriter) {
 		this(processor, 8, singleWriter);
 	}
 	
@@ -81,7 +80,7 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	 * (if not sure, set this to false)
 	 */
 	@SuppressWarnings("unchecked")
-	public AbstractPipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
+	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
 		super();
 		setProcessor(processor);
 		processor.setProducer(this);
@@ -92,7 +91,7 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 			public void resetAndInit() { /*not needed*/ }
 			@Override
 			public void processEvent(A item) {
-				AbstractPipe.this.initAndConsume(item);
+				Pipe.this.initAndConsume(item);
 			}
 		});
 		this.singleWriter = singleWriter;
@@ -149,7 +148,7 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	 * @param pipe
 	 * the output pipe
 	 */
-	private void setOutput(AbstractPipe<B,?> pipe) {
+	private void setOutput(Pipe<B,?> pipe) {
 		output = pipe;
 	}
 	
@@ -159,8 +158,8 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 
 	@Override
 	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
-		if (consumer instanceof AbstractPipe) {
-			return linkPipeTo((AbstractPipe<C, ?>)consumer, singleWriter);
+		if (consumer instanceof Pipe) {
+			return linkPipeTo((Pipe<C, ?>)consumer, singleWriter);
 		} else {
 			throw new IllegalStateException("Can only link to other pipes.");
 		}
@@ -184,11 +183,11 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	 * if the pipes can't be linked due to other reasons
 	 */
 	@SuppressWarnings("unchecked")
-	private <C,D> AbstractPipe<C, D> linkPipeTo(AbstractPipe<C, D> pipe, boolean singleWriter) throws IllegalArgumentException, IllegalStateException {
+	private <C,D> Pipe<C, D> linkPipeTo(Pipe<C, D> pipe, boolean singleWriter) throws IllegalArgumentException, IllegalStateException {
 		if (!pipe.hasInput()) {
 			//output pipe has no input yet
 			try {				
-				setOutput((AbstractPipe<B, ?>) pipe);
+				setOutput((Pipe<B, ?>) pipe);
 				pipe.setInput(singleWriter);
 			} catch (ClassCastException e) {
 				throw new IllegalArgumentException("Type mismatch while linking to other pipe.", e);
@@ -251,17 +250,17 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 	}
 
 	@Override
-	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
 		return this;
 	}
 
 	@Override
-	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+	public Module<A, B> asModule() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 
 	@Override
-	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

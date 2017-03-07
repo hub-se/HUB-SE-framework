@@ -10,8 +10,8 @@ import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
@@ -142,18 +142,19 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 	}
 	
 	@Override
-	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 
 	@Override
-	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+	public Module<A, B> asModule() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
-		return this;
+	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
+		return (E) this;
 	}
 
 	@Override

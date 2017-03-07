@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
 /**
@@ -56,7 +56,7 @@ public class PipeTest {
 	public void testShutdown() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
-		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
+		Pipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				try {
@@ -69,7 +69,7 @@ public class PipeTest {
 			}
 		}.asPipe();
 		
-		AbstractPipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
+		Pipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				try {
@@ -97,7 +97,7 @@ public class PipeTest {
 	public void testManyInputs() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
-		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
+		Pipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				processedElements.incrementAndGet();
@@ -105,7 +105,7 @@ public class PipeTest {
 			}
 		}.asPipe();
 		
-		AbstractPipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
+		Pipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				processedElements.incrementAndGet();
@@ -129,7 +129,7 @@ public class PipeTest {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
 		Log.off();
-		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
+		Pipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				if (item == 3) {

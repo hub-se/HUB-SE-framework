@@ -1,8 +1,8 @@
 package se.de.hu_berlin.informatik.utils.tm.user;
 
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
 
 public interface ProcessorUserGenerator<A,B> {
 
@@ -14,7 +14,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public AbstractPipe<A,B> asPipe() throws UnsupportedOperationException;
+	public Pipe<A,B> asPipe() throws UnsupportedOperationException;
 	
 	/**
 	 * Creates a module object from this component. Has to return a 
@@ -24,7 +24,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public AbstractModule<A,B> asModule() throws UnsupportedOperationException;
+	public Module<A,B> asModule() throws UnsupportedOperationException;
 	
 	/**
 	 * Creates an event handler from this component. Has to return a 
@@ -34,7 +34,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public EHWithInputAndReturn<A,B> asEH() throws UnsupportedOperationException;
+	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException;
 
 
 	/**
@@ -44,7 +44,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public AbstractPipe<A, B> newPipeInstance() throws UnsupportedOperationException {
+	default public Pipe<A, B> newPipeInstance() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Can not get new instance for " + this.getClass().getSimpleName() + ".");
 	}
 
@@ -55,7 +55,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public AbstractModule<A, B> newModuleInstance() throws UnsupportedOperationException {
+	default public Module<A, B> newModuleInstance() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Can not get new instance for " + this.getClass().getSimpleName() + ".");
 	}
 
@@ -66,7 +66,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public EHWithInputAndReturn<A,B> newEHInstance() throws UnsupportedOperationException {
+	default public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E newEHInstance() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Can not get new instance for " + this.getClass().getSimpleName() + ".");
 	}
 	

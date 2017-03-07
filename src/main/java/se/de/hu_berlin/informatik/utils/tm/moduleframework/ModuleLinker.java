@@ -18,12 +18,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  * 
  * @author Simon Heiden
  *
- * @see AbstractModule
+ * @see Module
  */
 public class ModuleLinker implements Trackable, OptionCarrier {
 
-	private AbstractModule<?,?> startModule = null;
-	private AbstractModule<?,?> endModule = null;
+	private Module<?,?> startModule = null;
+	private Module<?,?> endModule = null;
 	private OptionParser options = null;
 	
 	public ModuleLinker() {
@@ -76,7 +76,7 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	 * @return 
 	 * the start module
 	 */
-	private AbstractModule<?, ?> getStartModule() {
+	private Module<?, ?> getStartModule() {
 		if (startModule == null) {
 			Log.abort(this, "No start module available.");
 		}
@@ -87,7 +87,7 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	 * @return 
 	 * the end module
 	 */
-	private AbstractModule<?, ?> getEndModule() {
+	private Module<?, ?> getEndModule() {
 		if (endModule == null) {
 			Log.abort(this, "No end module available.");
 		}

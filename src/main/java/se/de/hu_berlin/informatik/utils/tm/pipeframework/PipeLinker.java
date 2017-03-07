@@ -65,8 +65,8 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	}
 
 	private boolean singleWriter = true;
-	private AbstractPipe<?,?> startPipe = null;
-	private AbstractPipe<?,?> endPipe = null;
+	private Pipe<?,?> startPipe = null;
+	private Pipe<?,?> endPipe = null;
 	private OptionParser options;
 
 	/**
@@ -112,7 +112,7 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	 * @return
 	 * the start pipe
 	 */
-	private AbstractPipe<?, ?> getStartPipe() {
+	private Pipe<?, ?> getStartPipe() {
 		if (startPipe == null) {
 			Log.abort(this, "No start pipe available.");
 		}

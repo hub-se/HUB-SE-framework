@@ -4,10 +4,10 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
 import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 
@@ -46,18 +46,18 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * 
  * @see ModuleLinker
  */
-public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
+public class Module<A,B> extends AbstractProcessorUser<A,B> {
 	
 	private B output = null;
 	
-	private AbstractModule<B,?> linkedModule = null;
+	private Module<B,?> linkedModule = null;
 	
 	/**
 	 * Creates a new module with the given parameter.
 	 * @param processor
 	 * the processor to use
 	 */
-	public AbstractModule(Processor<A,B> processor) {
+	public Module(Processor<A,B> processor) {
 		super();
 		setProcessor(processor);
 		processor.setProducer(this);
@@ -65,8 +65,8 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	
 	@Override
 	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
-		if (consumer instanceof AbstractModule) {
-			return linkModuleTo((AbstractModule<C, ?>)consumer);
+		if (consumer instanceof Module) {
+			return linkModuleTo((Module<C, ?>)consumer);
 		} else {
 			throw new IllegalStateException("Can only link to other modules.");
 		}
@@ -84,9 +84,9 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	 * if the input type C of the given module does not match the output type B of this module
 	 */
 	@SuppressWarnings("unchecked")
-	private <C> AbstractModule<C,?> linkModuleTo(AbstractModule<C,?> module) throws IllegalArgumentException {
+	private <C> Module<C,?> linkModuleTo(Module<C,?> module) throws IllegalArgumentException {
 		try {
-			this.linkedModule = (AbstractModule<B,?>) module;
+			this.linkedModule = (Module<B,?>) module;
 		} catch (ClassCastException e) {
 			throw new IllegalArgumentException("Type mismatch while linking to other module.", e);
 		}
@@ -101,7 +101,7 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	 * this module
 	 */
 	@SuppressWarnings("unchecked")
-	public AbstractModule<A,B> submit(Object item) {
+	public Module<A,B> submit(Object item) {
 		if (item == null) {
 			Log.err(this, "No input item submitted/available.");
 		} else {
@@ -139,7 +139,7 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	 * @return
 	 * the module that this module is linked to
 	 */
-	public AbstractModule<B,?> getLinkedModule() {
+	public Module<B,?> getLinkedModule() {
 		if (linkedModule == null) {
 			Log.abort(this, "No module linked to.");
 		}
@@ -147,17 +147,17 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	}
 
 	@Override
-	public AbstractPipe<A, B> asPipe() throws UnsupportedOperationException {
+	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 
 	@Override
-	public AbstractModule<A, B> asModule() throws UnsupportedOperationException {
+	public Module<A, B> asModule() throws UnsupportedOperationException {
 		return this;
 	}
 
 	@Override
-	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
+	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

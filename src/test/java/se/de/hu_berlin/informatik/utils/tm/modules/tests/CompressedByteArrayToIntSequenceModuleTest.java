@@ -21,7 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import se.de.hu_berlin.informatik.utils.compression.CompressedByteArrayToIntSequenceModule;
 import se.de.hu_berlin.informatik.utils.compression.IntSequenceToCompressedByteArrayModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Abort;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 
 /**
  * @author SimHigh
@@ -59,14 +59,14 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	public void tearDown() throws Exception {
 	}
 
-	AbstractModule<byte[], List<List<Integer>>> decoder;
+	Module<byte[], List<List<Integer>>> decoder;
 	
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 	
 	@Test
 	public void testOneBitSeqLengthFourFirstZero() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(1, 4).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(1, 4).asModule();
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(0);temp.add(1);temp.add(0);temp.add(1);
@@ -105,7 +105,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	
 	@Test
 	public void testOneBitSeqLengthFourFirstOne() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(1, 4).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(1, 4).asModule();
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1);temp.add(1);temp.add(0);temp.add(1);
@@ -144,7 +144,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	
 	@Test
 	public void testThreeBitSeqLengthFourFirstOne() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7, 4).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7, 4).asModule();
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(7);temp.add(0);temp.add(7);temp.add(0);
@@ -173,7 +173,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 
 	@Test
 	public void testTenBitSeqLength2FirstOne() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(999, 2).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(999, 2).asModule();
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(1023);temp.add(63);
@@ -190,7 +190,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	
 	@Test
 	public void testDelimiterMethod() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7).asModule();
 		
 		List<Integer> temp = new ArrayList<>();
 		temp.add(7);temp.add(2);temp.add(7);temp.add(3);
@@ -219,7 +219,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	
 	@Test
 	public void testDelimiterMethodWrongNumberInput() throws Exception {
-		AbstractModule<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7).asModule();
+		Module<List<Integer>, byte[]> module = new IntSequenceToCompressedByteArrayModule(7).asModule();
 		
 		exception.expect(Abort.class);
 		List<Integer> temp = new ArrayList<>();

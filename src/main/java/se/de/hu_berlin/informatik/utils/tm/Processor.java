@@ -4,9 +4,11 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
+import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
@@ -110,8 +112,8 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	 * if not possible
 	 */
 	@Override
-	default public AbstractPipe<A, B> newPipeInstance() throws UnsupportedOperationException {
-		AbstractPipe<A, B> pipe = new AbstractPipe<A,B>(newProcessorInstance(), true);
+	default public Pipe<A, B> newPipeInstance() throws UnsupportedOperationException {
+		Pipe<A, B> pipe = new Pipe<A,B>(newProcessorInstance(), true);
 		return pipe;
 		
 	}
@@ -125,8 +127,8 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	 * if not possible
 	 */
 	@Override
-	default public AbstractModule<A, B> newModuleInstance() throws UnsupportedOperationException {
-		AbstractModule<A, B> module = new AbstractModule<A, B>(newProcessorInstance());
+	default public Module<A, B> newModuleInstance() throws UnsupportedOperationException {
+		Module<A, B> module = new Module<A, B>(newProcessorInstance());
 		return module;
 	}
 
@@ -138,10 +140,11 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	default public EHWithInputAndReturn<A, B> newEHInstance() throws UnsupportedOperationException {
+	default public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E newEHInstance() throws UnsupportedOperationException {
 		EHWithInputAndReturn<A,B> eh = new EHWithInputAndReturn<A,B>(newProcessorInstance());
-		return eh;
+		return (E) eh;
 	}
 	
 	default public Processor<A,B> newProcessorInstance() {
