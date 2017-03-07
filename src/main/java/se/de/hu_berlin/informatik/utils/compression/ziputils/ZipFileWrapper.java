@@ -30,7 +30,7 @@ public class ZipFileWrapper {
 
 		//parse the file containing the identifiers
 		final Path filePath = Paths.get(destPath, filename);
-		final byte[] result = new FileToByteArrayModule().submit(filePath).getResult();
+		final byte[] result = new FileToByteArrayModule().asModule().submit(filePath).getResult();
 		FileUtils.delete(filePath);
 		
 		return result;

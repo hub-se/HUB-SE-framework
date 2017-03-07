@@ -54,8 +54,8 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 	
 	/**
 	 * Creates a new module with the given parameter.
-	 * @param needsInput
-	 * determines if the module needs an input item to function
+	 * @param processor
+	 * the processor to use
 	 */
 	public AbstractModule(Processor<A,B> processor) {
 		super();
@@ -106,7 +106,7 @@ public class AbstractModule<A,B> extends AbstractProcessorUser<A,B> {
 			Log.err(this, "No input item submitted/available.");
 		} else {
 			try {
-				trackAndConsume((A)item);
+				initAndConsume((A)item);
 			} catch (ClassCastException e) {
 				Log.abort(this, e, "Type mismatch while submitting!");
 			}

@@ -6,12 +6,14 @@ package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * An abstract class that provides a simple API for a disruptor event handler
@@ -27,7 +29,7 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * 
  * @see Callable
  */
-public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorUser<A,B>, MultiplexerInput<B> {
+public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorUser<A,B>, Trackable, OptionCarrier, MultiplexerInput<B> {
 
 	/**
 	 * The output object.
@@ -40,9 +42,20 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	
 	private Processor<A, B> processor;
 	
+	/**
+	 * Creates a new module with the given parameter.
+	 * @param processor
+	 * the processor to use
+	 */
+	public EHWithInputAndReturn(Processor<A,B> processor) {
+		super();
+		setProcessor(processor);
+		processor.setProducer(this);
+	}
+	
 	@Override
 	public void processEvent(A input) throws Exception {
-		consume(input);
+		initAndConsume(input);
 	}
 
 	@Override
@@ -141,6 +154,11 @@ public abstract class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandle
 	@Override
 	public EHWithInputAndReturn<A, B> asEH() throws UnsupportedOperationException {
 		return this;
+	}
+
+	@Override
+	public void resetAndInit() {
+		//do nothing (gets reset at another place)
 	}
 	
 }

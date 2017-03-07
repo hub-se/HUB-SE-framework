@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Pipe that outputs every input item n times.
@@ -11,7 +11,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * @author Simon Heiden
  *
  */
-public class NTimesPipe extends AbstractPipe<Object,Object> {
+public class NTimesPipe extends AbstractProcessor<Object,Object> {
 
 	private int n;
 	
@@ -21,7 +21,7 @@ public class NTimesPipe extends AbstractPipe<Object,Object> {
 	 * the number of times that the item should be submitted to the linked pipe
 	 */
 	public NTimesPipe(int n) {
-		super(true);
+		super();
 		this.n = n;
 	}
 
@@ -30,7 +30,7 @@ public class NTimesPipe extends AbstractPipe<Object,Object> {
 	 */
 	public Object processItem(Object item) {
 		for (int i = 0; i < n-1; ++i) {
-			submitProcessedItem(item);
+			manualOutput(item);
 		}
 		return item;
 	}

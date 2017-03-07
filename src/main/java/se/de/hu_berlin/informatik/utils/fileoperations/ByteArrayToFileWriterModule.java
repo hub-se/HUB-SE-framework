@@ -9,7 +9,7 @@ import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file writer module that gets a byte array 
@@ -22,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @see OutputPathGenerator
  */
-public class ByteArrayToFileWriterModule extends AbstractModule<byte[], byte[]> {
+public class ByteArrayToFileWriterModule extends AbstractProcessor<byte[], byte[]> {
 
 	private Path outputPath;
 	private Path outputdir;
@@ -43,7 +43,7 @@ public class ByteArrayToFileWriterModule extends AbstractModule<byte[], byte[]> 
 	 * is the extension of the automatically generated output paths
 	 */
 	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
 		this.extension = extension;
@@ -68,7 +68,7 @@ public class ByteArrayToFileWriterModule extends AbstractModule<byte[], byte[]> 
 	 * determines if files and directories should be overwritten
 	 */
 	public ByteArrayToFileWriterModule(Path outputPath, boolean overwrite) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

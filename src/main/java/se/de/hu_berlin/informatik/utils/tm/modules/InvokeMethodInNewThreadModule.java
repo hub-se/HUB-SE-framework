@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Invokes the given method of the given class with the submitted arguments in a new thread
@@ -15,7 +15,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @author Simon Heiden
  */
-public class InvokeMethodInNewThreadModule extends AbstractModule<Object[],Thread> {
+public class InvokeMethodInNewThreadModule extends AbstractProcessor<Object[],Thread> {
 
 	private String className;
 	private String methodName;
@@ -24,7 +24,7 @@ public class InvokeMethodInNewThreadModule extends AbstractModule<Object[],Threa
 	private Class<?> argType;
 	
 	public InvokeMethodInNewThreadModule(Object caller, final String className, final String methodName, Class<?> argType, boolean waitForFinish) {
-		super(true);
+		super();
 		this.caller = caller;
 		this.className = className;
 		this.methodName = methodName;

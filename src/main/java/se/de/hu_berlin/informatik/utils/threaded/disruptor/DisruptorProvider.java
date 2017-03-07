@@ -275,6 +275,7 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		
 		EHWithInputAndReturn<A, B> firstEH = transmitter.newEHInstance();
+		Log.out(this, "%s, %s, %s", firstEH.getClass().getSimpleName(), firstEH.getProcessor().getClass(), firstEH.getProcessor().getProducer().getClass());
 		
 		@SuppressWarnings("unchecked")
 		Class<EHWithInputAndReturn<A,B>> clazz = (Class<EHWithInputAndReturn<A, B>>) firstEH.getClass();
@@ -287,6 +288,7 @@ public class DisruptorProvider<A> implements Trackable {
         //instantiate the desired number of handlers
 		for (int i = 1; i < numberOfThreads; ++i) {
 			EHWithInputAndReturn<A, B> nextEH = transmitter.newEHInstance();
+			Log.out(this, "%s", nextEH.getProcessor().getProducer().getClass());
 			nextEH.setMultiplexer(multiplexer);
 			nextEH.setThreadLimit(limit);
 			handlers[i] = nextEH;

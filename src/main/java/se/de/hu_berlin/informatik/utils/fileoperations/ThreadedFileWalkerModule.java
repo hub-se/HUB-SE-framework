@@ -10,8 +10,8 @@ import java.util.Collections;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUserGenerator;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.
@@ -20,7 +20,7 @@ import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
  * 
  * @see ThreadedFileWalker
  */
-public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
+public class ThreadedFileWalkerModule extends AbstractProcessor<Path,Boolean> {
 
 	final private String pattern;
 	final private int threadCount;
@@ -30,7 +30,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private ConsumingProcessorUser<Path> callableFactory;
+	private ConsumingProcessorUserGenerator<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -40,7 +40,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	 * the number of threads that shall be run in parallel
 	 */
 	public ThreadedFileWalkerModule(String pattern, int threadCount) {
-		super(true);
+		super();
 		this.pattern = pattern;
 		this.threadCount = threadCount;
 	}
@@ -52,7 +52,7 @@ public class ThreadedFileWalkerModule extends AbstractModule<Path,Boolean> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(ConsumingProcessorUser<Path> callableFactory) {
+	public ThreadedFileWalkerModule call(ConsumingProcessorUserGenerator<Path> callableFactory) {
 		this.callableFactory = callableFactory;
 		return this;
 	}

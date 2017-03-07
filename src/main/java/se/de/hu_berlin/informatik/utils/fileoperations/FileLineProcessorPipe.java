@@ -10,8 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
@@ -25,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * @param A
  * the type of the return objects of the used {@link StringProcessor}
  */
-public class FileLineProcessorPipe<A> extends AbstractPipe<Path, A> {
+public class FileLineProcessorPipe<A> extends AbstractProcessor<Path, A> {
 
 	public static Charset[] charsets = { 
 			StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, 
@@ -61,7 +61,7 @@ public class FileLineProcessorPipe<A> extends AbstractPipe<Path, A> {
 	 * whether the execution should be aborted when encountering an error
 	 */
 	public FileLineProcessorPipe(StringProcessor<A> processor, boolean abortOnError) {
-		super(true);
+		super();
 		this.processor = processor;
 		this.abortOnError = abortOnError;
 	}
@@ -87,7 +87,7 @@ public class FileLineProcessorPipe<A> extends AbstractPipe<Path, A> {
 							Log.warn(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 						}
 					} else {
-						submitProcessedItem(processor.getResult());
+						manualOutput(processor.getResult());
 					}
 				}
 				return null;

@@ -7,7 +7,7 @@ import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
 
 /**
@@ -18,20 +18,20 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
  * 
  * @author Simon Heiden
  */
-public class ThreadedProcessorPipe<A,B> extends AbstractPipe<A,B> {
+public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
 	private AbstractDisruptorMultiplexer<B> multiplexer;
 
 	private ThreadedProcessorPipe() {
-		super(true);
+		super();
 		disruptorProvider = new DisruptorProvider<>(1024);
 		//starts a multiplexer with the created disruptor
 		multiplexer = new AbstractDisruptorMultiplexer<B>(disruptorProvider) {
 			@Override
 			public void processNewOutputItem(B item) {
 				//submit results that are not null to the ouput pipe
-				produce(item);
+				manualOutput(item);
 			}
 		};
 	}

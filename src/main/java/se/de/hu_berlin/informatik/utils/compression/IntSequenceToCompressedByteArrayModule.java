@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Encodes sequences of integers into compressed sequences of integers, depending on the maximum
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @author Simon Heiden
  */
-public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<Integer>,byte[] > {
+public class IntSequenceToCompressedByteArrayModule extends AbstractProcessor<List<Integer>,byte[] > {
 
 	public static final int DELIMITER = 0;
 	
@@ -30,8 +30,7 @@ public class IntSequenceToCompressedByteArrayModule extends AbstractModule<List<
 	private int totalSequences = 0;
 	
 	public IntSequenceToCompressedByteArrayModule(int maxValue, int sequenceLength) {
-		//if this module needs an input item
-		super(true);
+		super();
 		result = new ArrayList<>();
 		
 		//compute the number of bits needed to represent integers with the given maximum value

@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file writer module that gets a byte array 
@@ -20,7 +20,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @see OutputPathGenerator
  */
-public class ByteArrayToCSVFileWriterModule extends AbstractModule<byte[], byte[]> {
+public class ByteArrayToCSVFileWriterModule extends AbstractProcessor<byte[], byte[]> {
 
 	/**
      * used CSV delimiter
@@ -40,7 +40,7 @@ public class ByteArrayToCSVFileWriterModule extends AbstractModule<byte[], byte[
 	 * determines if files and directories should be overwritten
 	 */
 	public ByteArrayToCSVFileWriterModule(Path outputPath, int columnCount, boolean overwrite) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

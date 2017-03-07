@@ -17,7 +17,7 @@ import java.util.Objects;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file writer module that gets for example a List object
@@ -33,7 +33,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @see OutputPathGenerator
  */
-public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractModule<A, A> {
+public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractProcessor<A, A> {
 
 	private Path outputPath;
 	private Path outputdir;
@@ -54,7 +54,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractModu
 	 * is the extension of the automatically generated output paths
 	 */
 	public ListToFileWriterModule(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
 		this.extension = extension;
@@ -79,7 +79,7 @@ public class ListToFileWriterModule<A extends Iterable<?> > extends AbstractModu
 	 * determines if files and directories should be overwritten
 	 */
 	public ListToFileWriterModule(Path outputPath, boolean overwrite) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

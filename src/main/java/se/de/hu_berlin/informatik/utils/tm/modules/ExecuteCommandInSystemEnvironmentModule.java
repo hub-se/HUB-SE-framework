@@ -11,14 +11,14 @@ import java.util.Map.Entry;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Starts the given command as a new process.
  * 
  * @author Simon Heiden
  */
-public class ExecuteCommandInSystemEnvironmentModule extends AbstractModule<String[],Integer> {
+public class ExecuteCommandInSystemEnvironmentModule extends AbstractProcessor<String[],Integer> {
 
 	private File executionDir;
 	private String[] paths = null;
@@ -32,7 +32,7 @@ public class ExecuteCommandInSystemEnvironmentModule extends AbstractModule<Stri
 	 * paths to add at the start of the PATH environment variable, if any
 	 */
 	public ExecuteCommandInSystemEnvironmentModule(File executionDir, String... paths) {
-		super(true);
+		super();
 		this.executionDir = executionDir;
 		this.paths = paths;
 		environmentVariables = new HashMap<>();

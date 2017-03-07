@@ -54,12 +54,14 @@ final public class SystemUtils {
 		int executionResult = -1;
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
 			executionResult = new ExecuteCommandInSystemEnvironmentModule(executionDir)
+					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		} else {
 			executionResult = new ExecuteCommandInSystemEnvironmentModule(executionDir, javaBinDir)
 					.setEnvVariable("JAVA_HOME", javaHomeDir)
 					.setEnvVariable("JRE_HOME", javaJREDir)
+					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		}
@@ -105,12 +107,14 @@ final public class SystemUtils {
 			String javaBinDir, String javaHomeDir, String javaJREDir, String... commandArgs) {
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
 			return new ExecuteCommandInSystemEnvironmentAndReturnOutputModule(executionDir, returnErrorOutput)
+					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		} else {
 			return new ExecuteCommandInSystemEnvironmentAndReturnOutputModule(executionDir, returnErrorOutput, javaBinDir)
 					.setEnvVariable("JAVA_HOME", javaHomeDir)
 					.setEnvVariable("JRE_HOME", javaJREDir)
+					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		}

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
@@ -21,7 +21,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * 
  * @author Simon Heiden
  */
-public class SearchForFilesOrDirsModule extends AbstractModule<Path,List<Path>> {
+public class SearchForFilesOrDirsModule extends AbstractProcessor<Path,List<Path>> {
 
 	final private String pattern;
 	final private int depth;
@@ -55,7 +55,7 @@ public class SearchForFilesOrDirsModule extends AbstractModule<Path,List<Path>> 
 	 * maximum depth in which to search
 	 */
 	public SearchForFilesOrDirsModule(String pattern, int depth) {
-		super(true);
+		super();
 		this.pattern = pattern;
 		if (depth < 0) {
 			Log.abort(this, "Search depth has negative value.");

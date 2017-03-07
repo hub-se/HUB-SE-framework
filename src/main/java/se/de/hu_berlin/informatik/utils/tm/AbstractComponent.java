@@ -1,4 +1,4 @@
-package se.de.hu_berlin.informatik.utils.tm.user;
+package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
@@ -26,42 +26,6 @@ public abstract class AbstractComponent implements Trackable, OptionCarrier {
 	@Override
 	public boolean hasOptions() {
 		return options != null;
-	}
-
-	@Override
-	public AbstractComponent enableTracking() {
-		Trackable.super.enableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractComponent enableTracking(int stepWidth) {
-		Trackable.super.enableTracking(stepWidth);
-		return this;
-	}
-
-	@Override
-	public AbstractComponent disableTracking() {
-		Trackable.super.disableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractComponent enableTracking(TrackingStrategy tracker) {
-		Trackable.super.enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	public AbstractComponent enableTracking(boolean useProgressBar) {
-		Trackable.super.enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	public AbstractComponent enableTracking(boolean useProgressBar, int stepWidth) {
-		Trackable.super.enableTracking(useProgressBar, stepWidth);
-		return this;
 	}
 	
 	@Override

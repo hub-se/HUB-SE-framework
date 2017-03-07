@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.fileoperations;
 import java.nio.file.Path;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringsToListProcessor;
 
 /**
@@ -14,13 +14,13 @@ import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringsToList
  * 
  * @author Simon Heiden
  */
-public class FileToListModule extends AbstractModule<Path, List<String>> {
+public class FileToListModule extends AbstractProcessor<Path, List<String>> {
 	
 	/**
 	 * Creates a new {@link FileToListModule} with the given parameters.
 	 */
 	public FileToListModule() {
-		super(true);
+		super();
 	}
 	
 	/* (non-Javadoc)
@@ -28,6 +28,7 @@ public class FileToListModule extends AbstractModule<Path, List<String>> {
 	 */
 	public List<String> processItem(Path input) {
 		return new FileLineProcessorModule<List<String>>(new StringsToListProcessor(), true)
+				.asModule()
 				.submit(input)
 				.getResultFromCollectedItems();
 	}

@@ -8,20 +8,20 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file reader module that reads a file and returns a byte array with the file's contents.
  * 
  * @author Simon Heiden
  */
-public class FileToByteArrayModule extends AbstractModule<Path, byte[]> {
+public class FileToByteArrayModule extends AbstractProcessor<Path, byte[]> {
 	
 	/**
 	 * Creates a new {@link FileToByteArrayModule} with the given parameters.
 	 */
 	public FileToByteArrayModule() {
-		super(true);
+		super();
 	}
 	
 	/* (non-Javadoc)

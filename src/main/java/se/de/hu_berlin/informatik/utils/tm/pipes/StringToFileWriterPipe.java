@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file writer pipe that gets a sequence of Strings
@@ -23,7 +23,7 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * 
  * @see OutputPathGenerator
  */
-public class StringToFileWriterPipe extends AbstractPipe<String, String> {
+public class StringToFileWriterPipe extends AbstractProcessor<String, String> {
 
 	private Path outputPath;
 	
@@ -37,7 +37,7 @@ public class StringToFileWriterPipe extends AbstractPipe<String, String> {
 	 * determines if files and directories should be overwritten
 	 */
 	public StringToFileWriterPipe(Path outputPath, boolean overwrite) {
-		super(true);
+		super();
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", outputPath.toString());

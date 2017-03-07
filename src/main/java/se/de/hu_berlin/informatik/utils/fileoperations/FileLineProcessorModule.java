@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
@@ -25,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * @param A
  * the type of the return objects of the used {@link StringProcessor}
  */
-public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
+public class FileLineProcessorModule<A> extends AbstractProcessor<Path, A> {
 
 	public static Charset[] charsets = { 
 			StandardCharsets.UTF_8, StandardCharsets.ISO_8859_1, 
@@ -61,7 +61,7 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 	 * whether the execution should be aborted when encountering an error
 	 */
 	public FileLineProcessorModule(StringProcessor<A> processor, boolean abortOnError) {
-		super(true);
+		super();
 		this.processor = processor;
 		this.abortOnError = abortOnError;
 	}
@@ -110,7 +110,5 @@ public class FileLineProcessorModule<A> extends AbstractModule<Path, A> {
 	public A getResultFromCollectedItems() {
 		return processor.getResultFromCollectedItems();
 	}
-
-	
 	
 }

@@ -4,20 +4,20 @@
 package se.de.hu_berlin.informatik.utils.tm.modules;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Printer module that simply prints a processed item to the system console.
  * 
  * @author Simon Heiden
  */
-public class PrinterModule<A> extends AbstractModule<A, A> {
+public class PrinterModule<A> extends AbstractProcessor<A, A> {
 
 	/**
 	 * Creates a new {@link PrinterModule} object.
 	 */
 	public PrinterModule() {
-		super(true);
+		super();
 	}
 
 	/* (non-Javadoc)

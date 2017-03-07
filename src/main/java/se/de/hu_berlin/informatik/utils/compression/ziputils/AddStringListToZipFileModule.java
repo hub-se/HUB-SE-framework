@@ -14,7 +14,7 @@ import net.lingala.zip4j.util.Zip4jConstants;
 import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
 import se.de.hu_berlin.informatik.utils.fileoperations.ListToFileWriterModule;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Adds lists of char sequences (strings) to a zip file.
@@ -24,7 +24,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * @param A
  * the type of iterable char sequence 
  */
-public class AddStringListToZipFileModule<A extends Iterable<? extends CharSequence>> extends AbstractModule<A,A> {
+public class AddStringListToZipFileModule<A extends Iterable<? extends CharSequence>> extends AbstractProcessor<A,A> {
 
 	private ZipFile zipFile;
 	private ZipParameters parameters;
@@ -32,7 +32,7 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 	
 	public AddStringListToZipFileModule(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
-		super(true);
+		super();
 		if (deleteExisting) {
 			FileUtils.delete(zipFilePath);
 		}
@@ -73,6 +73,7 @@ public class AddStringListToZipFileModule<A extends Iterable<? extends CharSeque
 			temp = Paths.get(++fileCounter + ".txt");
 			// save the given data to the temporary file (not perfect, but well...)
 			new ListToFileWriterModule<List<String>>(temp, true)
+			.asModule()
 			.submit(list);
 
 			// Creates a new entry in the zip file and adds the content to the zip file

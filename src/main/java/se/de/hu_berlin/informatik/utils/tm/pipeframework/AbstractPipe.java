@@ -92,7 +92,7 @@ public class AbstractPipe<A,B> extends AbstractProcessorUser<A,B> {
 			public void resetAndInit() { /*not needed*/ }
 			@Override
 			public void processEvent(A item) {
-				AbstractPipe.this.trackAndConsume(item);
+				AbstractPipe.this.initAndConsume(item);
 			}
 		});
 		this.singleWriter = singleWriter;

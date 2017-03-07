@@ -3,10 +3,13 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
+import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tracking.Trackable;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * An interface that provides basic functionalities of transmitters that can be linked together.
@@ -18,7 +21,12 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
  * @param <B>
  * is the type of the output object
  */
-public interface Processor<A,B> extends ProcessorUserGenerator<A,B> {
+public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, OptionCarrier {
+	
+	default void trackAndConsume(A item) {
+		track();
+		consume(item);
+	}
 	
 	default void consume(A item) {
 		getProducer().produce(processItem(item));
@@ -39,6 +47,10 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B> {
 	
 	default public void manualOutput(B item) {
 		getProducer().produce(item);
+	}
+	
+	default public void resetAndInit() {
+		//does nothing per default
 	}
 	
 	/**
@@ -101,15 +113,7 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B> {
 	 */
 	@Override
 	default public EHWithInputAndReturn<A, B> newEHInstance() throws UnsupportedOperationException {
-		Processor<A,B> processor = newProcessorInstance();
-		EHWithInputAndReturn<A,B> eh = new EHWithInputAndReturn<A,B>() {
-			@Override
-			public void resetAndInit() {
-				//do nothing
-			}
-		};
-		eh.setProcessor(processor);
-		processor.setProducer(eh);
+		EHWithInputAndReturn<A,B> eh = new EHWithInputAndReturn<A,B>(newProcessorInstance());
 		return eh;
 	}
 	
@@ -119,7 +123,46 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B> {
 			public B processItem(A item) {
 				return Processor.this.processItem(item);
 			}
+			@Override
+			public void resetAndInit() {
+				Processor.this.resetAndInit();
+			}
 		};
 	}
 	
+	@Override
+	default public Processor<A,B> enableTracking() {
+		Trackable.super.enableTracking();
+		return this;
+	}
+
+	@Override
+	default public Processor<A,B> enableTracking(int stepWidth) {
+		Trackable.super.enableTracking(stepWidth);
+		return this;
+	}
+
+	@Override
+	default public Processor<A,B> disableTracking() {
+		Trackable.super.disableTracking();
+		return this;
+	}
+
+	@Override
+	default public Processor<A,B> enableTracking(TrackingStrategy tracker) {
+		Trackable.super.enableTracking(tracker);
+		return this;
+	}
+
+	@Override
+	default public Processor<A,B> enableTracking(boolean useProgressBar) {
+		Trackable.super.enableTracking(useProgressBar);
+		return this;
+	}
+
+	@Override
+	default public Processor<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
+		Trackable.super.enableTracking(useProgressBar, stepWidth);
+		return this;
+	}
 }

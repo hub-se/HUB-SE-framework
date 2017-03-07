@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.OutputPathGenerator;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * A file writer module for multiple files that gets for example a list 
@@ -25,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
  * 
  * @see OutputPathGenerator
  */
-public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? extends CharSequence>> > extends AbstractModule<A, A> {
+public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? extends CharSequence>> > extends AbstractProcessor<A, A> {
 
 	private boolean generateOutputPaths = false;
 	private Path[] paths = null;
@@ -44,7 +44,7 @@ public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? exten
 	 * is the extension of the automatically generated output paths
 	 */
 	public MultiFileWriterModule(Path outputdir, boolean overwrite, String extension) {
-		super(true);
+		super();
 		this.extension = extension;
 		this.generator = new OutputPathGenerator(outputdir, overwrite);
 		this.generateOutputPaths = true;
@@ -58,7 +58,7 @@ public class MultiFileWriterModule<A extends Iterable<? extends Iterable<? exten
 	 * is a sequence of output paths that are used by the file writer
 	 */
 	public MultiFileWriterModule(boolean overwrite, Path... paths) {
-		super(true);
+		super();
 		this.paths = paths;
 		this.overwrite = overwrite;
 	}

@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
 
@@ -55,7 +56,7 @@ public class PipeTest {
 	public void testShutdown() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
-		AbstractPipe<Integer, Integer> pipe = new AbstractPipe<Integer, Integer>(true) {
+		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				try {
@@ -66,9 +67,9 @@ public class PipeTest {
 				processedElements.incrementAndGet();
 				return item;
 			}
-		};
+		}.asPipe();
 		
-		AbstractPipe<Integer, Integer> pipe2 = new AbstractPipe<Integer, Integer>(true) {
+		AbstractPipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				try {
@@ -79,7 +80,7 @@ public class PipeTest {
 				processedElements.incrementAndGet();
 				return item;
 			}
-		};
+		}.asPipe();
 		
 		pipe.linkTo(pipe2);
 		
@@ -96,21 +97,21 @@ public class PipeTest {
 	public void testManyInputs() throws Exception {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
-		AbstractPipe<Integer, Integer> pipe = new AbstractPipe<Integer, Integer>(true) {
+		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				processedElements.incrementAndGet();
 				return item;
 			}
-		};
+		}.asPipe();
 		
-		AbstractPipe<Integer, Integer> pipe2 = new AbstractPipe<Integer, Integer>(true) {
+		AbstractPipe<Integer, Integer> pipe2 = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				processedElements.incrementAndGet();
 				return item;
 			}
-		};
+		}.asPipe();
 		
 		pipe.linkTo(pipe2);
 		
@@ -128,7 +129,7 @@ public class PipeTest {
 		final AtomicInteger processedElements = new AtomicInteger(0);
 		
 		Log.off();
-		AbstractPipe<Integer, Integer> pipe = new AbstractPipe<Integer, Integer>(true) {
+		AbstractPipe<Integer, Integer> pipe = new AbstractProcessor<Integer, Integer>() {
 			@Override
 			public Integer processItem(Integer item) {
 				if (item == 3) {
@@ -137,7 +138,7 @@ public class PipeTest {
 				processedElements.incrementAndGet();
 				return item;
 			}
-		};
+		}.asPipe();
 
 		for (int i = 0; i < 10; ++i) {
 			pipe.submit(i);
@@ -155,7 +156,7 @@ public class PipeTest {
 		PipeLinker linker = new PipeLinker();
 		
 		linker.append(
-				new AbstractPipe<Integer, Integer>(true) {
+				new AbstractProcessor<Integer, Integer>() {
 					@Override
 					public Integer processItem(Integer item) {
 						processedElements.incrementAndGet();
@@ -164,14 +165,14 @@ public class PipeTest {
 				});
 		
 		linker.append(
-				new AbstractPipe<Integer, Integer>(true) {
+				new AbstractProcessor<Integer, Integer>() {
 					@Override
 					public Integer processItem(Integer item) {
 						processedElements.incrementAndGet();
 						return item;
 					}
 				},
-				new AbstractPipe<Integer, Integer>(true) {
+				new AbstractProcessor<Integer, Integer>() {
 					@Override
 					public Integer processItem(Integer item) {
 						processedElements.incrementAndGet();

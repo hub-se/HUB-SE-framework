@@ -428,7 +428,7 @@ final public class FileUtils {
 	 * the file's contents or null if it could not be opened
 	 */
 	public static List<String> readFile2List(final Path path) {
-		return new FileToListModule().submit(path).getResult();
+		return new FileToListModule().asModule().submit(path).getResult();
 	}
 	
 	/**

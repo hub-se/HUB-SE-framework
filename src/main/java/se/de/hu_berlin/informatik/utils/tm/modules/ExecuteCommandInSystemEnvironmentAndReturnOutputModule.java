@@ -14,14 +14,14 @@ import java.util.Map.Entry;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Starts the given command as a new process and returns the output as a String.
  * 
  * @author Simon Heiden
  */
-public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AbstractModule<String[],String> {
+public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends AbstractProcessor<String[],String> {
 
 	private File executionDir;
 	private String[] paths = null;
@@ -38,7 +38,7 @@ public class ExecuteCommandInSystemEnvironmentAndReturnOutputModule extends Abst
 	 * paths to add at the start of the PATH environment variable, if any
 	 */
 	public ExecuteCommandInSystemEnvironmentAndReturnOutputModule(File executionDir, boolean returnErrorOutput, String... paths) {
-		super(true);
+		super();
 		this.executionDir = executionDir;
 		this.paths = paths;
 		environmentVariables = new HashMap<>();

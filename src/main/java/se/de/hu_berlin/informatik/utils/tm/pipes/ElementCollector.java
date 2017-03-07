@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipes;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Pipe that collects items that pass through in a List.
@@ -16,12 +16,12 @@ import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
  * @author Simon Heiden
  *
  */
-public class ElementCollectorPipe<A> extends AbstractPipe<A,A> {
+public class ElementCollector<A> extends AbstractProcessor<A,A> {
 	
 	final private List<A> collectedItems;
 	
-	public ElementCollectorPipe() {
-		super(true);
+	public ElementCollector() {
+		super();
 		collectedItems = new ArrayList<>();
 	}
 

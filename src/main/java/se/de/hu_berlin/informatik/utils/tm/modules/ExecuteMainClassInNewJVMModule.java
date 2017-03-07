@@ -12,14 +12,14 @@ import java.util.Map.Entry;
 import se.de.hu_berlin.informatik.utils.miscellaneous.ClassPathParser;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Starts the given Java Class in a new process.
  * 
  * @author Simon Heiden
  */
-public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Integer> {
+public class ExecuteMainClassInNewJVMModule extends AbstractProcessor<String[],Integer> {
 
 	private File executionDir;
 	private Class<?> clazz;
@@ -72,7 +72,7 @@ public class ExecuteMainClassInNewJVMModule extends AbstractModule<String[],Inte
 	 */
 	public ExecuteMainClassInNewJVMModule(String javaHome,  
 			Class<?> clazz, String cp, File executionDir, String... properties) {
-		super(true);
+		super();
 		this.executionDir = executionDir;
 		this.clazz = clazz;
 		if (cp != null) {

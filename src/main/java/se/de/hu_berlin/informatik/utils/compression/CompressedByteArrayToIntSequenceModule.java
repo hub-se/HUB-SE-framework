@@ -7,14 +7,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.AbstractModule;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Decodes...
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[],List<List<Integer>>> {
+public class CompressedByteArrayToIntSequenceModule extends AbstractProcessor<byte[],List<List<Integer>>> {
 	
 	public static final int DELIMITER = 0;
 	
@@ -24,8 +24,7 @@ public class CompressedByteArrayToIntSequenceModule extends AbstractModule<byte[
 	private int arrayPos;
 	
 	public CompressedByteArrayToIntSequenceModule() {
-		//if this module needs an input item
-		super(true);
+		super();
 	}
 	
 	/* (non-Javadoc)

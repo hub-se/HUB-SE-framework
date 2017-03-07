@@ -52,6 +52,7 @@ public final class CSVUtils {
     public static List<Double[]> readCSVFileToListOfDoubleArrays(Path csvFile, int skipFirstLines) {
     	return new FileLineProcessorModule<List<Double[]>>(new CSVStringsToDoubleArrayListProcessor(), false)
     			.skipFirstLines(skipFirstLines)
+    			.asModule()
     			.submit(csvFile)
     			.getResultFromCollectedItems();
     }
@@ -79,6 +80,7 @@ public final class CSVUtils {
     public static List<Integer[]> readCSVFileToListOfIntegerArrays(Path csvFile, int skipFirstLines) {
     	return new FileLineProcessorModule<List<Integer[]>>(new CSVStringsToIntegerArrayListProcessor(), false)
     			.skipFirstLines(skipFirstLines)
+    			.asModule()
     			.submit(csvFile)
     			.getResultFromCollectedItems();
     }
@@ -101,6 +103,7 @@ public final class CSVUtils {
     	}
     	
     	return new FileLineProcessorModule<List<String[]>>(processor, false)
+    			.asModule()
     			.submit(csvFile)
     			.getResultFromCollectedItems();
     }
@@ -264,7 +267,7 @@ public final class CSVUtils {
     public static <T> void toCsvFile(final List<T[]> objectArrayList, boolean mirrored, Path output) {
         List<String> lines = toCsv(objectArrayList, mirrored);
         
-        new ListToFileWriterModule<List<String>>(output, true).submit(lines);
+        new ListToFileWriterModule<List<String>>(output, true).asModule().submit(lines);
     }
     
     /**

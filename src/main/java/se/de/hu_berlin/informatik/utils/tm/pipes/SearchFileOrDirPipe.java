@@ -11,14 +11,14 @@ import java.util.Collections;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.AbstractPipe;
+import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 
 /**
  * Pipe that searches for matching files or directories and submits them to a linked pipe.
  * 
  * @author Simon Heiden
  */
-public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
+public class SearchFileOrDirPipe extends AbstractProcessor<Path,Path> {
 
 	final private String pattern;
 
@@ -36,7 +36,7 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 	 * the pattern that describes the files that should be processed by this file walker
 	 */
 	public SearchFileOrDirPipe(String pattern) {
-		super(true);
+		super();
 		this.pattern = pattern;
 	}
 	
@@ -91,6 +91,13 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 		return this;
 	}
 	
+	
+
+	@Override
+	public void trackAndConsume(Path item) {
+		//do not track input item
+		consume(item);
+	}
 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
@@ -143,7 +150,7 @@ public class SearchFileOrDirPipe extends AbstractPipe<Path,Path> {
 
 		@Override
 		public void processMatchedFileOrDir(Path fileOrDir) {
-			submitProcessedItem(fileOrDir);
+			manualOutput(fileOrDir);
 		}
 		
 	}
