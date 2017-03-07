@@ -17,8 +17,8 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Disrupto
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Event;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.SingleUseEvent;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUserGenerator;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -244,7 +244,7 @@ public class DisruptorProvider<A> implements Trackable {
 		isConnectedToHandlers = true;
 	}
 	
-	public <B> DisruptorProvider<A> connectHandlers(ProcessorUserGenerator<A, B> transmitter, 
+	public <B> DisruptorProvider<A> connectHandlers(ProcessorSocketGenerator<A, B> transmitter, 
 			int numberOfThreads, AbstractDisruptorMultiplexer<B> multiplexer) {
 		return connectHandlers(transmitter, numberOfThreads, ThreadLimitDummy.getInstance(), multiplexer);
 	}
@@ -265,7 +265,7 @@ public class DisruptorProvider<A> implements Trackable {
 	 * @param <B>
 	 * the output type of the given transmitter
 	 */
-	public <B> DisruptorProvider<A> connectHandlers(ProcessorUserGenerator<A, B> transmitter, int numberOfThreads, 
+	public <B> DisruptorProvider<A> connectHandlers(ProcessorSocketGenerator<A, B> transmitter, int numberOfThreads, 
 			ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
@@ -298,11 +298,11 @@ public class DisruptorProvider<A> implements Trackable {
 		return this;
 	}
 	
-	public DisruptorProvider<A> connectHandlers(ConsumingProcessorUserGenerator<A> consumer, int numberOfThreads) {
+	public DisruptorProvider<A> connectHandlers(ConsumingProcessorSocketGenerator<A> consumer, int numberOfThreads) {
 		return connectHandlers(consumer, numberOfThreads, ThreadLimitDummy.getInstance());
 	}
 	
-	public DisruptorProvider<A> connectHandlers(ConsumingProcessorUserGenerator<A> consumer, int numberOfThreads, ThreadLimit limit) {
+	public DisruptorProvider<A> connectHandlers(ConsumingProcessorSocketGenerator<A> consumer, int numberOfThreads, ThreadLimit limit) {
 		if (isConnectedToHandlers) {
 			throw new IllegalStateException("Already connected to handlers.");
 		}

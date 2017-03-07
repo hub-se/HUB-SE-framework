@@ -5,11 +5,12 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
-import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorSocket;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
  * An abstract class that provides basic functionalities of a pipe
@@ -48,7 +49,7 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * 
  * @see PipeLinker
  */
-public class Pipe<A,B> extends AbstractProcessorUser<A,B> {
+public class Pipe<A,B> extends AbstractProcessorSocket<A,B> {
 	
 	final private DisruptorProvider<A> disruptorProvider;
 
@@ -81,9 +82,7 @@ public class Pipe<A,B> extends AbstractProcessorUser<A,B> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
-		super();
-		setProcessor(processor);
-		processor.setProducer(this);
+		super(processor);
 		disruptorProvider = new DisruptorProvider<>(bufferSize);
 		//event handler used for transmitting items from one pipe to another
 		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
@@ -157,7 +156,7 @@ public class Pipe<A,B> extends AbstractProcessorUser<A,B> {
 	}
 
 	@Override
-	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
+	public <C> ProcessorSocket<C,?> linkTo(ProcessorSocket<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
 		if (consumer instanceof Pipe) {
 			return linkPipeTo((Pipe<C, ?>)consumer, singleWriter);
 		} else {
@@ -260,7 +259,7 @@ public class Pipe<A,B> extends AbstractProcessorUser<A,B> {
 	}
 
 	@Override
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

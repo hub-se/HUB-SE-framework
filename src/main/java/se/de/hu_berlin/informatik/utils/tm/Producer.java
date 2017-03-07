@@ -3,7 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
  * An interface that provides basic functionalities of a producer.
@@ -37,7 +37,7 @@ public interface Producer<B> {
 	 * @throws UnsupportedOperationException
 	 * if linking is not implemented
 	 */
-	default <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException, UnsupportedOperationException {
+	default <C> ProcessorSocket<C,?> linkTo(ProcessorSocket<C,?> consumer) throws IllegalArgumentException, IllegalStateException, UnsupportedOperationException {
 		throw new UnsupportedOperationException("Linking not implemented for " + this.getClass().getSimpleName() + ".");
 	}
 

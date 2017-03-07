@@ -20,7 +20,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
  * @param <B>
  * is the type of the output object
  */
-public interface ProcessorUser<A,B> extends Producer<B>, ProcessorUserGenerator<A, B>, Trackable, OptionCarrier {
+public interface ProcessorSocket<A,B> extends Producer<B>, ProcessorSocketGenerator<A, B>, Trackable, OptionCarrier {
+	
+	default public void insert(Processor<A, B> processor) {
+		setProcessor(processor);
+		processor.setProducer(this);
+	}
 	
 	public void setProcessor(Processor<A, B> processor);
 	
@@ -56,37 +61,37 @@ public interface ProcessorUser<A,B> extends Producer<B>, ProcessorUserGenerator<
 	
 	
 	@Override
-	default public ProcessorUser<A,B> enableTracking() {
+	default public ProcessorSocket<A,B> enableTracking() {
 		getProcessor().enableTracking();
 		return this;
 	}
 
 	@Override
-	default public ProcessorUser<A,B> enableTracking(int stepWidth) {
+	default public ProcessorSocket<A,B> enableTracking(int stepWidth) {
 		getProcessor().enableTracking(stepWidth);
 		return this;
 	}
 
 	@Override
-	default public ProcessorUser<A,B> disableTracking() {
+	default public ProcessorSocket<A,B> disableTracking() {
 		getProcessor().disableTracking();
 		return this;
 	}
 
 	@Override
-	default public ProcessorUser<A,B> enableTracking(TrackingStrategy tracker) {
+	default public ProcessorSocket<A,B> enableTracking(TrackingStrategy tracker) {
 		getProcessor().enableTracking(tracker);
 		return this;
 	}
 
 	@Override
-	default public ProcessorUser<A,B> enableTracking(boolean useProgressBar) {
+	default public ProcessorSocket<A,B> enableTracking(boolean useProgressBar) {
 		getProcessor().enableTracking(useProgressBar);
 		return this;
 	}
 
 	@Override
-	default public ProcessorUser<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
+	default public ProcessorSocket<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
 		getProcessor().enableTracking(useProgressBar, stepWidth);
 		return this;
 	}
@@ -117,7 +122,7 @@ public interface ProcessorUser<A,B> extends Producer<B>, ProcessorUserGenerator<
 	}
 
 	@Override
-	default public ProcessorUser<A,B> setOptions(OptionParser options) {
+	default public ProcessorSocket<A,B> setOptions(OptionParser options) {
 		getProcessor().setOptions(options);
 		return this;
 	}

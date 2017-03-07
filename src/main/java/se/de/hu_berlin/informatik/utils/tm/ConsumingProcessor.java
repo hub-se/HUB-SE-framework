@@ -3,10 +3,10 @@
  */
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInput;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUserGenerator;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
  * An interface that provides basic functionalities of transmitters that can be linked together.
@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * @param <A>
  * is the type of the input object
  */
-public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingProcessorUserGenerator<A> {
+public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingProcessorSocketGenerator<A> {
 	
 	@Override
 	public void consume(A item);
@@ -51,7 +51,7 @@ public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingPro
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	default public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,Object>> E newEHInstance() throws UnsupportedOperationException {
+	default public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,Object>> E newEHInstance() throws UnsupportedOperationException {
 		EHWithInput<A> eh = new EHWithInput<A>(newProcessorInstance());
 		return (E) eh;
 	}

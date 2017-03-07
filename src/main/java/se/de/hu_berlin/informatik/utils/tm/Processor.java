@@ -4,12 +4,12 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
@@ -23,7 +23,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
  * @param <B>
  * is the type of the output object
  */
-public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, OptionCarrier {
+public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable, OptionCarrier {
 	
 	default void trackAndConsume(A item) {
 		track();
@@ -142,7 +142,7 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	default public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E newEHInstance() throws UnsupportedOperationException {
+	default public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E newEHInstance() throws UnsupportedOperationException {
 		EHWithInputAndReturn<A,B> eh = new EHWithInputAndReturn<A,B>(newProcessorInstance());
 		return (E) eh;
 	}

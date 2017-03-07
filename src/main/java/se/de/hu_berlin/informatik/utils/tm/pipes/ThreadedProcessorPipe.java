@@ -9,7 +9,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMult
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.tm.Producer;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocketGenerator;
 
 /**
  * Starts a provided callable class on each submitted input element, using
@@ -38,7 +38,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 		};
 	}
 	
-	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, ProcessorUserGenerator<A,B> transmitter) {
+	public ThreadedProcessorPipe(int threadCount, ThreadLimit limit, ProcessorSocketGenerator<A,B> transmitter) {
 		this();
 		//connect the handlers to the disruptor
 		disruptorProvider.connectHandlers(transmitter, threadCount, limit, multiplexer);
@@ -46,7 +46,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 		initMultiplexer();
 	}
 
-	public ThreadedProcessorPipe(int threadCount, ProcessorUserGenerator<A,B> transmitter) {
+	public ThreadedProcessorPipe(int threadCount, ProcessorSocketGenerator<A,B> transmitter) {
 		this(threadCount, ThreadLimitDummy.getInstance(), transmitter);
 	}
 	

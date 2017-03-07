@@ -1,10 +1,10 @@
 package se.de.hu_berlin.informatik.utils.tm.user;
 
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
 
-public interface ProcessorUserGenerator<A,B> {
+public interface ProcessorSocketGenerator<A,B> {
 
 	/**
 	 * Creates a pipe object from this component. Has to return a 
@@ -34,7 +34,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException;
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException;
 
 
 	/**
@@ -66,7 +66,7 @@ public interface ProcessorUserGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	default public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E newEHInstance() throws UnsupportedOperationException {
+	default public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E newEHInstance() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("Can not get new instance for " + this.getClass().getSimpleName() + ".");
 	}
 	

@@ -12,7 +12,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
@@ -29,7 +29,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see Callable
  */
-public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorUser<A,B>, Trackable, OptionCarrier, MultiplexerInput<B> {
+public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorSocket<A,B>, Trackable, OptionCarrier, MultiplexerInput<B> {
 
 	/**
 	 * The output object.
@@ -153,7 +153,7 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
 		return (E) this;
 	}
 

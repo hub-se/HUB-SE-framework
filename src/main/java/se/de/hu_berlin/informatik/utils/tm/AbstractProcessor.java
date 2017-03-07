@@ -1,10 +1,10 @@
 package se.de.hu_berlin.informatik.utils.tm;
 
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 public abstract class AbstractProcessor<A,B> extends AbstractComponent implements Processor<A,B> { 
 
@@ -35,7 +35,7 @@ public abstract class AbstractProcessor<A,B> extends AbstractComponent implement
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
 		if (ehView == null) {
 			ehView = new EHWithInputAndReturn<>(this);
 		}

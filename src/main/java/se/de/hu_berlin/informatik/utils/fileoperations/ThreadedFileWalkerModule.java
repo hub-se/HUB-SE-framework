@@ -11,7 +11,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
 
 /**
  * Starts a threaded file walker with a provided callable class on a submitted input path.
@@ -30,7 +30,7 @@ public class ThreadedFileWalkerModule extends AbstractProcessor<Path,Boolean> {
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private ConsumingProcessorUserGenerator<Path> callableFactory;
+	private ConsumingProcessorSocketGenerator<Path> callableFactory;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerModule} object with the given parameters. 
@@ -52,7 +52,7 @@ public class ThreadedFileWalkerModule extends AbstractProcessor<Path,Boolean> {
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerModule call(ConsumingProcessorUserGenerator<Path> callableFactory) {
+	public ThreadedFileWalkerModule call(ConsumingProcessorSocketGenerator<Path> callableFactory) {
 		this.callableFactory = callableFactory;
 		return this;
 	}

@@ -11,7 +11,7 @@ package se.de.hu_berlin.informatik.utils.tm.user;
  * @param <A>
  * is the type of the input object
  */
-public interface ConsumingProcessorUser<A> extends ProcessorUser<A,Object>, ConsumingProcessorUserGenerator<A> {
+public interface ConsumingProcessorSocket<A> extends ProcessorSocket<A,Object>, ConsumingProcessorSocketGenerator<A> {
 
 	@Override
 	default public void produce(Object item) throws UnsupportedOperationException {
@@ -19,7 +19,7 @@ public interface ConsumingProcessorUser<A> extends ProcessorUser<A,Object>, Cons
 	}
 
 	@Override
-	default public <C> ProcessorUser<C, ?> linkTo(ProcessorUser<C, ?> consumer)
+	default public <C> ProcessorSocket<C, ?> linkTo(ProcessorSocket<C, ?> consumer)
 			throws IllegalArgumentException, IllegalStateException, UnsupportedOperationException {
 		throw new UnsupportedOperationException("Linking not possible for " + this.getClass().getSimpleName() + ".");
 	}

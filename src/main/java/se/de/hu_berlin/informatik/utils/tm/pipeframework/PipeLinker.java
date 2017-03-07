@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.tm.pipeframework;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
@@ -79,7 +79,7 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	 * @return
 	 * this pipe linker
 	 */
-	public PipeLinker append(ProcessorUserGenerator<?,?>... transmitters) {	
+	public PipeLinker append(ProcessorSocketGenerator<?,?>... transmitters) {	
 		if (transmitters.length != 0) {
 			try {
 				transmitters[0].asPipe().setOptions(options);

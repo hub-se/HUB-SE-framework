@@ -4,12 +4,12 @@
 package se.de.hu_berlin.informatik.utils.tm.moduleframework;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.ModuleLinker;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorSocket;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
  * An abstract class that provides basic functionalities of a modular
@@ -46,7 +46,7 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
  * 
  * @see ModuleLinker
  */
-public class Module<A,B> extends AbstractProcessorUser<A,B> {
+public class Module<A,B> extends AbstractProcessorSocket<A,B> {
 	
 	private B output = null;
 	
@@ -58,13 +58,11 @@ public class Module<A,B> extends AbstractProcessorUser<A,B> {
 	 * the processor to use
 	 */
 	public Module(Processor<A,B> processor) {
-		super();
-		setProcessor(processor);
-		processor.setProducer(this);
+		super(processor);
 	}
 	
 	@Override
-	public <C> ProcessorUser<C,?> linkTo(ProcessorUser<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
+	public <C> ProcessorSocket<C,?> linkTo(ProcessorSocket<C,?> consumer) throws IllegalArgumentException, IllegalStateException {
 		if (consumer instanceof Module) {
 			return linkModuleTo((Module<C, ?>)consumer);
 		} else {
@@ -157,7 +155,7 @@ public class Module<A,B> extends AbstractProcessorUser<A,B> {
 	}
 
 	@Override
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,B>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

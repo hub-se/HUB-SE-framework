@@ -9,9 +9,9 @@ import se.de.hu_berlin.informatik.utils.tm.ConsumingProcessor;
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
 import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUser;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorUserGenerator;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUser;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocket;
+import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
@@ -28,7 +28,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * 
  * @see Callable
  */
-public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements ConsumingProcessorUser<A>, ConsumingProcessorUserGenerator<A>, Trackable, OptionCarrier {
+public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements ConsumingProcessorSocket<A>, ConsumingProcessorSocketGenerator<A>, Trackable, OptionCarrier {
 
 	private Processor<A,Object> processor;
 	
@@ -69,7 +69,7 @@ public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements Cons
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <E extends DisruptorFCFSEventHandler<A> & ProcessorUser<A,Object>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,Object>> E asEH() throws UnsupportedOperationException {
 		return (E) this;
 	}
 
