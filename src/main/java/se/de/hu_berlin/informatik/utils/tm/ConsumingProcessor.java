@@ -19,6 +19,11 @@ public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingPro
 	public void consume(A item);
 
 	@Override
+	default Object processItem(A item, Producer<Object> producer) throws UnsupportedOperationException {
+		throw new IllegalStateException(this.getClass().getSimpleName() + " tries to process item with output.");
+	}
+	
+	@Override
 	default Object processItem(A item) throws UnsupportedOperationException {
 		throw new IllegalStateException(this.getClass().getSimpleName() + " tries to process item with output.");
 	}

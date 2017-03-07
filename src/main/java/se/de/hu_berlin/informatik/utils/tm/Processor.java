@@ -29,25 +29,52 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	}
 	
 	default void consume(A item) {
-		getProducer().produce(processItem(item));
+		//in some cases, calling getProducer() does not deliver satisfying results when 
+		//called inside some class, so we do it here and it seems to work...
+		//it's more complicated, though...
+		//problems arise when trying to get the producer from within the processing
+		//method. Even when getting a new instance of the processor which has its producer set,
+		//getProducer seemingly still points to the method in the original instance...
+		getProducer().produce(processItem(item, getProducer()));
 	}
 
 	/**
 	 * Processes an item of type {@code A} and produces an item of type {@code B}.
+	 * In the default case, this method simply calls {@link #processItem(Object)}.
+	 * @param item
+	 * the item to be processed
+	 * @param producer
+	 * the producer to send processed items to (needed for manually producing items)
+	 * @return
+	 * the processed item
+	 */
+	default public B processItem(A item, Producer<B> producer) {
+		return processItem(item);
+	}
+	
+	/**
+	 * Processes an item of type {@code A} and produces an item of type {@code B}.
+	 * In the default case, this method gets called by {@link #processItem(Object, Producer)}
+	 * and may be used if manually producing processed items is not necessary.
 	 * @param item
 	 * the item to be processed
 	 * @return
 	 * the processed item
+	 * @throws UnsupportedOperationException
+	 * if not implemented
 	 */
-	public B processItem(A item);
+	default public B processItem(A item) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("No processing method set for " + this.getClass().getSimpleName() + ".");
+	}
 	
 	public void setProducer(Producer<B> producer);
 	
 	public Producer<B> getProducer() throws IllegalStateException;
 	
-	default public void manualOutput(B item) {
-		getProducer().produce(item);
-	}
+	/* this does not work as intended in certain cases (especially when creating event handlers)! */
+//	default public void manualOutput(B item) {
+//		getProducer().produce(item);
+//	}
 	
 	default public void resetAndInit() {
 		//does nothing per default
@@ -120,12 +147,16 @@ public interface Processor<A,B> extends ProcessorUserGenerator<A,B>, Trackable, 
 	default public Processor<A,B> newProcessorInstance() {
 		return new AbstractProcessor<A,B>() {
 			@Override
-			public B processItem(A item) {
-				return Processor.this.processItem(item);
+			public B processItem(A item, Producer<B> producer) {
+				return Processor.this.processItem(item, producer);
 			}
 			@Override
 			public void resetAndInit() {
 				Processor.this.resetAndInit();
+			}
+			@Override
+			public B processItem(A item) {
+				return Processor.this.processItem(item);
 			}
 		};
 	}

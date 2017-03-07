@@ -12,6 +12,7 @@ import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
 import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.tm.Producer;
 
 /**
  * Pipe that searches for matching files or directories and submits them to a linked pipe.
@@ -99,15 +100,13 @@ public class SearchFileOrDirPipe extends AbstractProcessor<Path,Path> {
 		consume(item);
 	}
 
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
-	 */
-	public Path processItem(Path start) {
+	@Override
+	public Path processItem(Path start, Producer<Path> producer) {
 		//build a new FileWalker
 		AFileWalker.Builder builder = new Builder(pattern) {
 			@Override
 			public AFileWalker build() {
-				return new FileWalker(this);
+				return new FileWalker(this, producer);
 			}
 		};
 		
@@ -144,13 +143,16 @@ public class SearchFileOrDirPipe extends AbstractProcessor<Path,Path> {
     
 	public class FileWalker extends AFileWalker {
 
-		protected FileWalker(Builder builder) {
+		private Producer<Path> producer;
+
+		protected FileWalker(Builder builder, Producer<Path> producer) {
 			super(builder);
+			this.producer = producer;
 		}
 
 		@Override
 		public void processMatchedFileOrDir(Path fileOrDir) {
-			manualOutput(fileOrDir);
+			producer.produce(fileOrDir);
 		}
 		
 	}

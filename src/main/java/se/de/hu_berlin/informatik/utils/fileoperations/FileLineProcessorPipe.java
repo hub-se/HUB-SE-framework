@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.tm.Producer;
 import se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.StringProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
@@ -66,10 +67,8 @@ public class FileLineProcessorPipe<A> extends AbstractProcessor<Path, A> {
 		this.abortOnError = abortOnError;
 	}
 
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
-	 */
-	public A processItem(Path input) {
+	@Override
+	public A processItem(Path input, Producer<A> producer) {
 		//try opening the file with different charsets
 		for (Charset charset : charsets) {
 			//try opening the file
@@ -87,7 +86,7 @@ public class FileLineProcessorPipe<A> extends AbstractProcessor<Path, A> {
 							Log.warn(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
 						}
 					} else {
-						manualOutput(processor.getResult());
+						producer.produce(processor.getResult());
 					}
 				}
 				return null;
@@ -110,7 +109,5 @@ public class FileLineProcessorPipe<A> extends AbstractProcessor<Path, A> {
 	public A getResultFromCollectedItems() {
 		return processor.getResultFromCollectedItems();
 	}
-
-	
 	
 }

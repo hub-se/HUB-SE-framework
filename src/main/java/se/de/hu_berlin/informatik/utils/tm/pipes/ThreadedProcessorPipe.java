@@ -8,6 +8,7 @@ import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.tm.Producer;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorUserGenerator;
 
 /**
@@ -22,6 +23,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
 	private AbstractDisruptorMultiplexer<B> multiplexer;
+	private Producer<B> producer;
 
 	private ThreadedProcessorPipe() {
 		super();
@@ -31,7 +33,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 			@Override
 			public void processNewOutputItem(B item) {
 				//submit results that are not null to the ouput pipe
-				manualOutput(item);
+				producer.produce(item);
 			}
 		};
 	}
@@ -59,7 +61,8 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
-	public B processItem(A input) {
+	public B processItem(A input, Producer<B> producer) {
+		this.producer = producer;
 		//restart the multiplexer if it has been shut down
 		if (!multiplexer.isRunning()) {
 			multiplexer.start();
@@ -67,7 +70,7 @@ public class ThreadedProcessorPipe<A,B> extends AbstractProcessor<A,B> {
 		disruptorProvider.submit(input);
 		return null;
 	}
-
+	
 	@Override
 	public boolean finalShutdown() {
 		disruptorProvider.shutdown();

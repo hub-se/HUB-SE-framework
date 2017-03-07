@@ -4,6 +4,7 @@
 package se.de.hu_berlin.informatik.utils.tm.pipes;
 
 import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.tm.Producer;
 
 /**
  * Pipe that outputs every input item n times.
@@ -25,12 +26,10 @@ public class NTimesPipe extends AbstractProcessor<Object,Object> {
 		this.n = n;
 	}
 
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
-	 */
-	public Object processItem(Object item) {
+	@Override
+	public Object processItem(Object item, Producer<Object> producer) {
 		for (int i = 0; i < n-1; ++i) {
-			manualOutput(item);
+			producer.produce(item);
 		}
 		return item;
 	}
