@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
@@ -16,9 +15,9 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
- * An abstract class that provides a simple API for a disruptor event handler
- * that processes a single input object at a time and produces output objects
- * that may be collected by a multiplexer thread.
+ * A {@link ProcessorSocket} implementation that provides a simple API for 
+ * a disruptor event handler that processes a single input object at a time 
+ * and produces output objects that may be collected by a multiplexer thread.
  * 
  * @author Simon Heiden
  * 
@@ -26,8 +25,6 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * the type of the input objects
  * @param <B>
  * the type of the output objects
- * 
- * @see Callable
  */
 public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorSocket<A,B>, Trackable, OptionCarrier, MultiplexerInput<B> {
 
@@ -49,8 +46,7 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 	 */
 	public EHWithInputAndReturn(Processor<A,B> processor) {
 		super();
-		setProcessor(processor);
-		processor.setProducer(this);
+		insert(processor);
 	}
 	
 	@Override

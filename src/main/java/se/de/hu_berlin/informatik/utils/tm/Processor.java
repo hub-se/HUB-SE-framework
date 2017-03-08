@@ -14,7 +14,8 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
- * An interface that provides basic functionalities of transmitters that can be linked together.
+ * An interface that provides basic functionalities of a processor that consumes
+ * items of type {@code A}, processes them and produces items of type {@code B}.
  * 
  * @author Simon Heiden
  *
@@ -25,11 +26,26 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
  */
 public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable, OptionCarrier {
 	
-	default void trackAndConsume(A item) {
+	/**
+	 * This method should mainly get called by classes that use the processor.
+	 * <p> Per default, this method calls {@link #resetAndInit()}, then {@link #track()} and then
+	 * {@link #consume(Object)} on the given item.
+	 * @param item
+	 * the item to consume
+	 */
+	default void resetTrackAndConsume(A item) {
+		resetAndInit();
 		track();
 		consume(item);
 	}
 	
+	/**
+	 * Per default, calls {@link #processItem(Object, Producer)} on the given item
+	 * and the result of {@link #getProducer()}. Then, {@link Producer#produce(Object)}
+	 * is called on the result.
+	 * @param item
+	 * the item to consume
+	 */
 	default void consume(A item) {
 		//in some cases, calling getProducer() does not deliver satisfying results when 
 		//called inside some class, so we do it here and it seems to work...
@@ -46,7 +62,7 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	 * @param item
 	 * the item to be processed
 	 * @param producer
-	 * the producer to send processed items to (needed for manually producing items)
+	 * the Producer to send processed items to (needed for manually producing items)
 	 * @return
 	 * the processed item
 	 */
@@ -57,7 +73,7 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	/**
 	 * Processes an item of type {@code A} and produces an item of type {@code B}.
 	 * In the default case, this method gets called by {@link #processItem(Object, Producer)}
-	 * and may be used if manually producing processed items is not necessary.
+	 * and can be used if manually producing processed items is not necessary.
 	 * @param item
 	 * the item to be processed
 	 * @return
@@ -69,8 +85,19 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 		throw new UnsupportedOperationException("No processing method set for " + this.getClass().getSimpleName() + ".");
 	}
 	
+	/**
+	 * Sets a {@link Producer} to be used by this Processor.
+	 * @param producer
+	 * the producer
+	 */
 	public void setProducer(Producer<B> producer);
 	
+	/**
+	 * @return
+	 * the Producer that was set for this Processor.
+	 * @throws IllegalStateException
+	 * if no Producer was set
+	 */
 	public Producer<B> getProducer() throws IllegalStateException;
 	
 	/* this does not work as intended in certain cases (especially when creating event handlers)! */
@@ -78,15 +105,22 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 //		getProducer().produce(item);
 //	}
 	
+	/**
+	 * Does nothing per default. Is intended to be called before consuming each item 
+	 * by classes that use this processor. Should be overridden by implementing
+	 * classes if, e.g., global variables have to be resetted after processing
+	 * an item (though, using global variables can easily lead to errors when
+	 * using processors in parallel...).
+	 */
 	default public void resetAndInit() {
 		//does nothing per default
 	}
 	
 	/**
-	 * Should be overwritten by implementing transmitters that may collect
-	 * input items without immediately processing them. This method should
-	 * process possibly remaining collected items and/or return the result
-	 * (or null if there is no result).
+	 * Should be overwritten by implementing classes that may collect
+	 * input items without immediately processing or returning results. 
+	 * This method should process possibly remaining collected items 
+	 * and/or return the result (or null if there is no result).
 	 * @return
 	 * the result of unprocessed collected items
 	 */
@@ -95,7 +129,8 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	}
 	
 	/**
-	 * Should cut all loose ends.
+	 * Should cut all loose ends. May not be called automatically.
+	 * Per default, simply returns true and does nothing else.
 	 * @return
 	 * true if successful
 	 */
@@ -104,10 +139,10 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	}
 
 	/**
-	 * Creates a new pipe object from this transmitter that has the transmitter's 
+	 * Creates a new {@link Pipe} from this Processor that inherits this Processor's 
 	 * functionality.
 	 * @return
-	 * a pipe, if possible
+	 * a Pipe, if possible
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
@@ -119,10 +154,10 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	}
 
 	/**
-	 * Creates a new module object from this transmitter that has the transmitter's 
+	 * Creates a new {@link Module} from this Processor that inherits this Processor's 
 	 * functionality.
 	 * @return
-	 * a module, if possible
+	 * a Module, if possible
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
@@ -133,10 +168,10 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 	}
 
 	/**
-	 * Creates a new event handler from this transmitter that has the transmitter's 
-	 * functionality.
+	 * Creates a new {@link AbstractDisruptorEventHandler} from this transmitter that 
+	 * inherits the Processor's functionality.
 	 * @return
-	 * an event handler, if possible
+	 * an AbstractDisruptorEventHandler, if possible
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
@@ -147,6 +182,21 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 		return (E) eh;
 	}
 	
+	/**
+	 * Returns a new Processor instance with the same functionality as this
+	 * Processor. Is used by {@link #newModuleInstance()}, {@link #newPipeInstance()} and {@link #newEHInstance()}.
+	 * <p> Per default, this creates a new {@link AbstractProcessor} that
+	 * inherits the methods {@link #processItem(Object, Producer)},
+	 * {@link #getResultFromCollectedItems()} and {@link #finalShutdown()} from this Processor. 
+	 * It will, however, NOT generate separate instances of any declared global fields, for example.
+	 * Note that {@link #processItem(Object)} gets called by {@link #processItem(Object, Producer)}, such
+	 * that it will get called even if it is not directly inherited.
+	 * <p> If a new instance should be given their own global fields or some other functionality that
+	 * is not met by the default implementation, this method has to be overridden
+	 * to provide the desired functionality.
+	 * @return
+	 * a new Processor instance
+	 */
 	default public Processor<A,B> newProcessorInstance() {
 		return new AbstractProcessor<A,B>() {
 			@Override
@@ -157,9 +207,17 @@ public interface Processor<A,B> extends ProcessorSocketGenerator<A,B>, Trackable
 			public void resetAndInit() {
 				Processor.this.resetAndInit();
 			}
+//			@Override
+//			public B processItem(A item) {
+//				return Processor.this.processItem(item);
+//			}
 			@Override
-			public B processItem(A item) {
-				return Processor.this.processItem(item);
+			public B getResultFromCollectedItems() {
+				return Processor.this.getResultFromCollectedItems();
+			}
+			@Override
+			public boolean finalShutdown() {
+				return Processor.this.finalShutdown();
 			}
 		};
 	}

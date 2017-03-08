@@ -95,7 +95,7 @@ public class SearchFileOrDirPipe extends AbstractProcessor<Path,Path> {
 	
 
 	@Override
-	public void trackAndConsume(Path item) {
+	public void resetTrackAndConsume(Path item) {
 		//do not track input item
 		consume(item);
 	}

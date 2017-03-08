@@ -13,16 +13,15 @@ import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorSocket;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
- * An abstract class that provides basic functionalities of a pipe
- * framework. Classes that extend this abstract class have an input 
- * and an output, can be linked together such that one pipe element may
- * provide the input of another pipe. Each pipe executes its calculations
- * inside of a thread which allows parallel execution of tasks. After usage,
- * the pipes have to be manually shutdown, though. (At least the first pipe
- * has to be manually shutdown. All other linked pipes are automatically
- * shutdown in a chain reaction after the shutdown of the first pipe.
+ * A {@link ProcessorSocket} implementation that provides basic functionalities of a pipe. 
+ * Pipes have an input and an output, can be linked together such that one 
+ * Pipe may provide the input to another Pipe. Each Pipe executes its calculations
+ * inside of a thread which allows parallel execution of sequential tasks. After usage,
+ * the Pipes have to be manually shutdown, though. (At least the first Pipe
+ * has to be manually shutdown. All other linked Pipes are automatically
+ * shutdown in a chain reaction after the shutdown of the first Pipe.
  * 
- * <br><br> For convenience, multiple (matching) pipes may be linked together 
+ * <br><br> For convenience, multiple (matching) Pipes may be linked together 
  * like this:
  * 
  * <br><br> {@code pipe1.linkTo(pipe2).linkTo(pipe3).linkTo(...)...;}
@@ -31,14 +30,14 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
  * {@code pipe2} and then link the output of {@code pipe2} to the input of
  * {@code pipe3}, etc.
  * 
- * <br><br> After linking, any matching item submitted to the first pipe
+ * <br><br> After linking, any matching item submitted to the first Pipe
  * will start the execution process. Non-matching items will abort the
- * application with an error message. Submitted Objects that equal {@code null} 
- * will simply be ignored.
+ * application with an error message, throwing an exception. Submitted 
+ * objects that equal {@code null} will simply be ignored.
  * 
- * <br><br> In general, pipes should not be linked manually and should
+ * <br><br> In general, Pipes should not be linked manually and should
  * preferably be linked together with a {@link PipeLinker} which provides
- * more general and more easy access methods.
+ * more general and easier access methods.
  * 
  * @author Simon Heiden
  *

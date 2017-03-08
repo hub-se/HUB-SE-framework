@@ -12,8 +12,8 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
- * Provides more general and easy access methods for the linking of modules,
- * for the submission of items to a chain of modules and for obtaining
+ * Provides more general and easy access methods for the linking of Modules,
+ * for the submission of items to a chain of Modules and for obtaining
  * result items.
  * 
  * @author Simon Heiden
@@ -40,31 +40,32 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	}
 
 	/**
-	 * Links the given modules together and appends them to former appended 
-	 * modules, if any. If the modules don't match, then
+	 * Links the given Modules (provided by socket generators, possibly)
+	 * together and appends them to former appended 
+	 * Modules, if any. If the Modules don't match, then
 	 * execution stops and the application aborts.
-	 * @param transmitters
-	 * modules to be linked together
+	 * @param generators
+	 * Modules to be linked together (given as generators, possibly)
 	 * @return
-	 * this module linker
+	 * this ModuleLinker
 	 */
-	public ModuleLinker append(ProcessorSocketGenerator<?,?>... transmitters) {
-		if (transmitters.length != 0) {
+	public ModuleLinker append(ProcessorSocketGenerator<?,?>... generators) {
+		if (generators.length != 0) {
 			try {
-				transmitters[0].asModule().setOptions(options);
+				generators[0].asModule().setOptions(options);
 				if (startModule == null) {
-					startModule = transmitters[0].asModule();
+					startModule = generators[0].asModule();
 					if (isTracking()) {
 						startModule.enableTracking(getTracker());
 					}
 				} else {
-					endModule.linkTo(transmitters[0].asModule());
+					endModule.linkTo(generators[0].asModule());
 				}
-				for (int i = 0; i < transmitters.length-1; ++i) {
-					transmitters[i].asModule().linkTo(transmitters[i+1].asModule());
-					transmitters[i+1].asModule().setOptions(options);
+				for (int i = 0; i < generators.length-1; ++i) {
+					generators[i].asModule().linkTo(generators[i+1].asModule());
+					generators[i+1].asModule().setOptions(options);
 				}
-				endModule = transmitters[transmitters.length-1].asModule();
+				endModule = generators[generators.length-1].asModule();
 			} catch(UnsupportedOperationException e) {
 				Log.abort(this, e, "Unable to get module from a given transmitter.");
 			}

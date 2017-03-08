@@ -2,6 +2,16 @@ package se.de.hu_berlin.informatik.utils.tm.user;
 
 import se.de.hu_berlin.informatik.utils.tm.Processor;
 
+/**
+ * Basic implementation of {@link ProcessorSocket} and {@link ProcessorSocketGenerator}.
+ * 
+ * @author Simon
+ *
+ * @param <A>
+ * is the type of the input objects
+ * @param <B>
+ * is the type of the output objects
+ */
 public abstract class AbstractProcessorSocket<A, B> implements ProcessorSocket<A, B>, ProcessorSocketGenerator<A, B> {
 
 	private Processor<A, B> processor;

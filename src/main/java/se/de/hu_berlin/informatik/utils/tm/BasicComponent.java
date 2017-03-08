@@ -6,7 +6,12 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
-public abstract class AbstractComponent implements Trackable, OptionCarrier {
+/**
+ * A simple Component that implements {@link Trackable} and {@link OptionCarrier}.
+ * 
+ * @author Simon
+ */
+public class BasicComponent implements Trackable, OptionCarrier {
 
 	private OptionParser options;
 	private TrackingStrategy tracker = TrackerDummy.getInstance();
@@ -18,7 +23,7 @@ public abstract class AbstractComponent implements Trackable, OptionCarrier {
 	}
 
 	@Override
-	public AbstractComponent setOptions(OptionParser options) {
+	public BasicComponent setOptions(OptionParser options) {
 		this.options = options;
 		return this;
 	}

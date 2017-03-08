@@ -12,8 +12,8 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
 
 /**
- * Provides more general and easy access methods for the linking of pipes
- * and for the submission of items to a chain of pipes.
+ * Provides more general and easy access methods for the linking of Pipes
+ * and for the submission of items to a chain of Pipes.
  * 
  * @author Simon Heiden
  *
@@ -70,36 +70,35 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	private OptionParser options;
 
 	/**
-	 * Links the given transmitters together to a chain of pipes 
-	 * and appends them to former appended pipes, if any. 
-	 * If the transmitters don't match, then
-	 * execution stops and the application aborts.
-	 * @param transmitters
-	 * transmitters (pipes or modules) to be linked together
+	 * Links the given Pipes (provided by socket generators, possibly) 
+	 * together and appends them to former appended Pipes, if any. 
+	 * If the Pipes don't match, then execution stops and the application aborts.
+	 * @param generators
+	 * Pipes to be linked together (given as generators, possibly)
 	 * @return
-	 * this pipe linker
+	 * this PipeLinker
 	 */
-	public PipeLinker append(ProcessorSocketGenerator<?,?>... transmitters) {	
-		if (transmitters.length != 0) {
+	public PipeLinker append(ProcessorSocketGenerator<?,?>... generators) {	
+		if (generators.length != 0) {
 			try {
-				transmitters[0].asPipe().setOptions(options);
+				generators[0].asPipe().setOptions(options);
 				if (startPipe == null) {
-					startPipe = transmitters[0].asPipe();
+					startPipe = generators[0].asPipe();
 					//set whether input items are submitted with a single thread
 					startPipe.setProducerType(singleWriter);
 					if (isTracking()) {
 						startPipe.enableTracking(getTracker());
 					}
 				} else {
-					endPipe.linkTo(transmitters[0].asPipe());
+					endPipe.linkTo(generators[0].asPipe());
 				}
 
-				for (int i = 0; i < transmitters.length-1; ++i) {
-					transmitters[i].asPipe().linkTo(transmitters[i+1].asPipe());
-					transmitters[i+1].asPipe().setOptions(options);
+				for (int i = 0; i < generators.length-1; ++i) {
+					generators[i].asPipe().linkTo(generators[i+1].asPipe());
+					generators[i+1].asPipe().setOptions(options);
 				}
 
-				endPipe = transmitters[transmitters.length-1].asPipe();
+				endPipe = generators[generators.length-1].asPipe();
 			} catch(UnsupportedOperationException e) {
 				Log.abort(this, e, "Unable to get pipe from a given transmitter.");
 			}

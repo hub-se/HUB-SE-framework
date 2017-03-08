@@ -12,13 +12,12 @@ import se.de.hu_berlin.informatik.utils.tm.user.AbstractProcessorSocket;
 import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
 
 /**
- * An abstract class that provides basic functionalities of a modular
- * framework. Classes that extend this abstract class may have a single input 
- * and/or an output object at any point in time and can be linked together 
- * such that one module provides the input of another module. 
- * Modules may even be reused when properly implemented.
+ * A {@link ProcessorSocket} implementation that provides basic functionalities
+ * of a modular framework. Modules have a single input 
+ * and an output object at any point in time and can be linked together 
+ * such that one Module provides the input to another Module. 
  * 
- * <br><br> For convenience, multiple (matching) modules may be linked together 
+ * <br><br> For convenience, multiple (matching) Modules may be linked together 
  * like this:
  * 
  * <br><br> {@code module1.linkTo(module2).linkTo(module3).linkTo(...)...;}
@@ -27,15 +26,15 @@ import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocket;
  * {@code module2} and then link the output of {@code module2} to the input of
  * {@code module3}, etc.
  * 
- * <br><br> After linking, any matching item submitted to the first module
+ * <br><br> After linking, any matching item submitted to the first Module
  * will start the execution process. The end result can be obtained from the
- * last linked module via the {@code getResult()} method. In theory, one could
- * also obtain the intermediate results from each of the linked modules if
+ * last linked Module via the {@code getResult()} method. In theory, one could
+ * also obtain the intermediate results from each of the linked Modules if
  * needed.
  * 
- * <br><br> In general, modules should not be linked manually and should
+ * <br><br> In general, Modules should not be linked manually and should
  * preferably be linked together with a {@link ModuleLinker} which provides
- * more general and easy access methods.
+ * more general and easier access methods.
  * 
  * @author Simon Heiden
  *
