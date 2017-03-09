@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 import java.io.File;
 import java.nio.file.Paths;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+import se.de.hu_berlin.informatik.utils.files.FileUtils;
 
 /**
  * Helper Class that defines various standard directories and methods

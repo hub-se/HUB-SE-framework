@@ -5,8 +5,8 @@ import java.nio.file.Paths;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-import se.de.hu_berlin.informatik.utils.fileoperations.FileToByteArrayModule;
-import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+import se.de.hu_berlin.informatik.utils.files.FileUtils;
+import se.de.hu_berlin.informatik.utils.files.processors.FileToByteArrayReader;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 public class ZipFileWrapper {
@@ -30,7 +30,7 @@ public class ZipFileWrapper {
 
 		//parse the file containing the identifiers
 		final Path filePath = Paths.get(destPath, filename);
-		final byte[] result = new FileToByteArrayModule().asModule().submit(filePath).getResult();
+		final byte[] result = new FileToByteArrayReader().asModule().submit(filePath).getResult();
 		FileUtils.delete(filePath);
 		
 		return result;

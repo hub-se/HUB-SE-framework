@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
-import se.de.hu_berlin.informatik.utils.fileoperations.csv.CSVUtils;
+
+import se.de.hu_berlin.informatik.utils.files.csv.CSVUtils;
 
 public class CrossValidationUtils {
 	

@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.FileUtils;
+import se.de.hu_berlin.informatik.utils.files.FileUtils;
 
 /**
  * @author SimHigh
@@ -47,7 +47,7 @@ public class FileUtilsTest {
 	}
 
 	/**
-	 * Test method for {@link se.de.hu_berlin.informatik.utils.fileoperations.FileUtils#getFileExtension(java.lang.String)}.
+	 * Test method for {@link se.de.hu_berlin.informatik.utils.files.FileUtils#getFileExtension(java.lang.String)}.
 	 */
 	@Test
 	public void testGetFileExtensionString() throws Exception {

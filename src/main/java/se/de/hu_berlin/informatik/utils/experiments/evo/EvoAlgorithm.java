@@ -10,11 +10,11 @@ import java.util.Iterator;
 
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoItem.History;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.processors.basics.CollectionSequencer;
+import se.de.hu_berlin.informatik.utils.processors.basics.ThreadedProcessor;
+import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.PipeLinker;
 import se.de.hu_berlin.informatik.utils.statistics.Statistics;
 import se.de.hu_berlin.informatik.utils.statistics.StatisticsCollector;
-import se.de.hu_berlin.informatik.utils.tm.modules.CollectionSequencerProcessor;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
-import se.de.hu_berlin.informatik.utils.tm.pipes.ThreadedProcessorPipe;
 import se.de.hu_berlin.informatik.utils.tracking.ProgressTracker;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
@@ -762,8 +762,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>> {
 
 			this.evaluationPipe = new PipeLinker(); 
 			this.evaluationPipe.append(
-					new CollectionSequencerProcessor<EvoItem<T,F>>(),
-					new ThreadedProcessorPipe<>(threadCount, evaluationHandlerProvider)
+					new CollectionSequencer<EvoItem<T,F>>(),
+					new ThreadedProcessor<>(threadCount, evaluationHandlerProvider)
 					);
 			
 			return this;

@@ -10,15 +10,15 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Event;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.SingleUseEvent;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
-import se.de.hu_berlin.informatik.utils.tm.user.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;

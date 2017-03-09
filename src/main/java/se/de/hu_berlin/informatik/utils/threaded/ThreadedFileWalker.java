@@ -5,9 +5,9 @@ package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.nio.file.*;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.AFileWalker;
+import se.de.hu_berlin.informatik.utils.files.AFileWalker;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
-import se.de.hu_berlin.informatik.utils.tm.user.ConsumingProcessorSocketGenerator;
 
 /**
  * {@link AFileWalker} extension that takes a callable class 

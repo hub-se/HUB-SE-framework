@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
 public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends AbstractProcessor<EvoItem<T,F>,EvoItem<T, F>> {
 

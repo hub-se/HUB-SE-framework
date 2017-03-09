@@ -10,17 +10,14 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import se.de.hu_berlin.informatik.utils.compression.NumberArrayToCompressedByteArrayModule;
-import se.de.hu_berlin.informatik.utils.tm.moduleframework.Module;
+import se.de.hu_berlin.informatik.utils.compression.NumberArraysToCompressedByteArrayProcessor;
+import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 
 /**
  * @author SimHigh
  *
  */
-@RunWith(MockitoJUnitRunner.class)
 public class NumberArrayToCompressedByteArrayModuleTest {
 	
 	/**
@@ -53,7 +50,7 @@ public class NumberArrayToCompressedByteArrayModuleTest {
 
 	@Test
 	public void testOneBitSeqLengthFourFirstZero() throws Exception {
-		Module<Number[], byte[]> module = new NumberArrayToCompressedByteArrayModule<>(1, 4).asModule();
+		Module<Number[], byte[]> module = new NumberArraysToCompressedByteArrayProcessor<>(1, 4).asModule();
 		
 		Integer[] temp = {
 				0,1,0,1,
@@ -71,7 +68,7 @@ public class NumberArrayToCompressedByteArrayModuleTest {
 	
 	@Test
 	public void testOneBitSeqLengthFourFirstOne() throws Exception {
-		Module<Number[], byte[]> module = new NumberArrayToCompressedByteArrayModule<>(1, 4).asModule();
+		Module<Number[], byte[]> module = new NumberArraysToCompressedByteArrayProcessor<>(1, 4).asModule();
 		
 		Integer[] temp = {
 				1,1,0,1,
@@ -89,7 +86,7 @@ public class NumberArrayToCompressedByteArrayModuleTest {
 	
 	@Test
 	public void testThreeBitSeqLengthFourFirstOne() throws Exception {
-		Module<Number[], byte[]> module = new NumberArrayToCompressedByteArrayModule<>(7, 4).asModule();
+		Module<Number[], byte[]> module = new NumberArraysToCompressedByteArrayProcessor<>(7, 4).asModule();
 		
 		Integer[] temp = {
 				7,0,7,0,
@@ -106,7 +103,7 @@ public class NumberArrayToCompressedByteArrayModuleTest {
 
 	@Test
 	public void testTenBitSeqLength2FirstOne() throws Exception {
-		Module<Number[], byte[]> module = new NumberArrayToCompressedByteArrayModule<>(999, 2).asModule();
+		Module<Number[], byte[]> module = new NumberArraysToCompressedByteArrayProcessor<>(999, 2).asModule();
 		
 		Integer[] temp = {
 				1023,63

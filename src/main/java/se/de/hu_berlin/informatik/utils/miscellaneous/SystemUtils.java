@@ -2,8 +2,8 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 
 import java.io.File;
 
-import se.de.hu_berlin.informatik.utils.tm.modules.ExecuteCommandInSystemEnvironmentAndReturnOutputModule;
-import se.de.hu_berlin.informatik.utils.tm.modules.ExecuteCommandInSystemEnvironmentModule;
+import se.de.hu_berlin.informatik.utils.processors.basics.ExecuteCommandInSystemEnvironmentAndReturnOutput;
+import se.de.hu_berlin.informatik.utils.processors.basics.ExecuteCommandInSystemEnvironment;
 
 final public class SystemUtils {
 	
@@ -53,12 +53,12 @@ final public class SystemUtils {
 			String javaBinDir, String javaHomeDir, String javaJREDir, String... commandArgs) {
 		int executionResult = -1;
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
-			executionResult = new ExecuteCommandInSystemEnvironmentModule(executionDir)
+			executionResult = new ExecuteCommandInSystemEnvironment(executionDir)
 					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		} else {
-			executionResult = new ExecuteCommandInSystemEnvironmentModule(executionDir, javaBinDir)
+			executionResult = new ExecuteCommandInSystemEnvironment(executionDir, javaBinDir)
 					.setEnvVariable("JAVA_HOME", javaHomeDir)
 					.setEnvVariable("JRE_HOME", javaJREDir)
 					.asModule()
@@ -106,12 +106,12 @@ final public class SystemUtils {
 	public static String executeCommandWithOutputInJavaEnvironment(File executionDir, boolean returnErrorOutput, 
 			String javaBinDir, String javaHomeDir, String javaJREDir, String... commandArgs) {
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
-			return new ExecuteCommandInSystemEnvironmentAndReturnOutputModule(executionDir, returnErrorOutput)
+			return new ExecuteCommandInSystemEnvironmentAndReturnOutput(executionDir, returnErrorOutput)
 					.asModule()
 					.submit(commandArgs)
 					.getResult();
 		} else {
-			return new ExecuteCommandInSystemEnvironmentAndReturnOutputModule(executionDir, returnErrorOutput, javaBinDir)
+			return new ExecuteCommandInSystemEnvironmentAndReturnOutput(executionDir, returnErrorOutput, javaBinDir)
 					.setEnvVariable("JAVA_HOME", javaHomeDir)
 					.setEnvVariable("JRE_HOME", javaJREDir)
 					.asModule()

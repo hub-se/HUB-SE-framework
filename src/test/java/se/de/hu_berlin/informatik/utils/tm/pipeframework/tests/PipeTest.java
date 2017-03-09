@@ -14,9 +14,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.tm.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.Pipe;
-import se.de.hu_berlin.informatik.utils.tm.pipeframework.PipeLinker;
+import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.Pipe;
+import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.PipeLinker;
 
 /**
  * @author SimHigh

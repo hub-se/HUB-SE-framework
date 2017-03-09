@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import se.de.hu_berlin.informatik.utils.fileoperations.csv.CSVUtils;
+import se.de.hu_berlin.informatik.utils.files.csv.CSVUtils;
 import se.de.hu_berlin.informatik.utils.miscellaneous.TestSettings;
 
 /**
@@ -78,7 +78,7 @@ public class CSVUtilsTest extends TestSettings {
 	}
 	
 	/**
-	 * Test method for {@link se.de.hu_berlin.informatik.utils.fileoperations.csv.CSVUtils#toCsvFile(java.util.List, java.nio.file.Path)}.
+	 * Test method for {@link se.de.hu_berlin.informatik.utils.files.csv.CSVUtils#toCsvFile(java.util.List, java.nio.file.Path)}.
 	 */
 	@Test
 	public void testToCsvFile() throws Exception {
