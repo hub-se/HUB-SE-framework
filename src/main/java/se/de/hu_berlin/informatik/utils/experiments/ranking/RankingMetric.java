@@ -29,7 +29,7 @@ public interface RankingMetric<T> {
     /**
      * Returns the mean ranking of the element if multiple
      * elements share the same ranking value.
-     * @return worstRanking
+     * @return meanRanking
      */
     public double getMeanRanking();
 
