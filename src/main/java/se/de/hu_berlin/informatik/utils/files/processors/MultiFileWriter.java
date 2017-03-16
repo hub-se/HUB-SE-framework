@@ -66,6 +66,7 @@ public class MultiFileWriter<A extends Iterable<? extends Iterable<? extends Cha
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public A processItem(A items) {
 		Iterator<? extends Iterable<? extends CharSequence>>  iterator = items.iterator();
 		int i = 0;

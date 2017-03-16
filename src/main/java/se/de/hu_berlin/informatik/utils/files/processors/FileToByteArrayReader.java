@@ -27,6 +27,7 @@ public class FileToByteArrayReader extends AbstractProcessor<Path, byte[]> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public byte[] processItem(Path input) {
 		File inputFile = input.toFile();
 		byte[] data = new byte[(int) inputFile.length()];

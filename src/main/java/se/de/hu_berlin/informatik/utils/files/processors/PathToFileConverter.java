@@ -22,6 +22,7 @@ public class PathToFileConverter extends AbstractProcessor<Path,File> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public File processItem(Path path) {
 		return path.toFile();
 	}

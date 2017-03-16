@@ -27,6 +27,7 @@ public class StringsToListProcessor implements StringProcessor<List<String>> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#process(java.lang.String)
 	 */
+	@Override
 	public boolean process(String line) {
 		return lines.add(line);
 	}
@@ -34,6 +35,7 @@ public class StringsToListProcessor implements StringProcessor<List<String>> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#getResult()
 	 */
+	@Override
 	public List<String> getFileResult() {
 		List<String> temp = lines;
 		lines = new ArrayList<>();

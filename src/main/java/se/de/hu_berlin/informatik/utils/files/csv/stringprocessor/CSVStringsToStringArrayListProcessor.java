@@ -28,6 +28,7 @@ public class CSVStringsToStringArrayListProcessor implements StringProcessor<Lis
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#process(java.lang.String)
 	 */
+	@Override
 	public boolean process(String line) {
 		String[] temp = line.split(CSVUtils.CSV_DELIMITER, -1);
 		return lines.add(temp);
@@ -40,6 +41,7 @@ public class CSVStringsToStringArrayListProcessor implements StringProcessor<Lis
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#getResult()
 	 */
+	@Override
 	public List<String[]> getFileResult() {
 		List<String[]> temp = lines;
 		lines = new ArrayList<>();

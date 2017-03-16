@@ -57,6 +57,7 @@ public class ByteArrayToCSVFileWriter extends AbstractProcessor<byte[], byte[]> 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public byte[] processItem(byte[] item) {
 		try {
 			Files.write(outputPath, CSVUtils.toCsv(item, columnCount));

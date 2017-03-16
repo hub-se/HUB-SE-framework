@@ -62,6 +62,7 @@ public class AddStringListToZipFileProcessor<A extends Iterable<? extends CharSe
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public A processItem(A list) {
 		Path temp = null;
 		try {

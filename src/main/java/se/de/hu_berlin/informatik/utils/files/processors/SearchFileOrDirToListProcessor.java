@@ -117,6 +117,7 @@ public class SearchFileOrDirToListProcessor extends AbstractProcessor<Path,List<
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public List<Path> processItem(Path input) {
 		if (!input.toFile().exists()) {
 			Log.abort(this, "Path '%s' doesn't exist.", input.toString());

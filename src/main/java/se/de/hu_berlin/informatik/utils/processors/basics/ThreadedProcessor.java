@@ -61,6 +61,7 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public B processItem(A input, Producer<B> producer) {
 		this.producer = producer;
 		//restart the multiplexer if it has been shut down

@@ -93,6 +93,7 @@ public class StringListToFileWriter<A extends Iterable<?> > extends AbstractProc
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public A processItem(A item) {
 		if (generateOutputPaths) {
 			outputPath = generator.getNewOutputPath(extension);

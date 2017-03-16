@@ -92,6 +92,7 @@ public class ExecuteMainClassInNewJVM extends AbstractProcessor<String[],Integer
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public Integer processItem(String[] args) {
 		return run(args);
 	}

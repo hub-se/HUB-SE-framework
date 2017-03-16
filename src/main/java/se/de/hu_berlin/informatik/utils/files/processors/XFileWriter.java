@@ -40,6 +40,7 @@ public class XFileWriter extends AbstractProcessor<XFileWrapper<Iterable<? exten
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public XFileWrapper<Iterable<? extends CharSequence>> processItem(XFileWrapper<Iterable<? extends CharSequence>> item) {
 		if (item.getOutputPath().toFile().isDirectory()) {
 			Log.abort(this, "Path \"%s\" is a directory and should be a file.", item.getOutputPath().toString());

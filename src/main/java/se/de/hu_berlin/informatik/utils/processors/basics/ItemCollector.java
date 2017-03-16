@@ -28,6 +28,7 @@ public class ItemCollector<A> extends AbstractProcessor<A,A> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public A processItem(A item) {
 		synchronized (collectedItems) {
 			collectedItems.add(item);

@@ -28,6 +28,7 @@ public class CSVStringsToDoubleArrayListProcessor implements StringProcessor<Lis
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#process(java.lang.String)
 	 */
+	@Override
 	public boolean process(String line) {
 		String[] temp = line.split(CSVUtils.CSV_DELIMITER, -1);
 		Double[] array = new Double[temp.length];
@@ -40,6 +41,7 @@ public class CSVStringsToDoubleArrayListProcessor implements StringProcessor<Lis
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.modules.stringprocessor.IStringProcessor#getResult()
 	 */
+	@Override
 	public List<Double[]> getFileResult() {
 		List<Double[]> temp = lines;
 		lines = new ArrayList<>();

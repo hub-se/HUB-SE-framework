@@ -31,6 +31,7 @@ public class ListsToChunksCollector<A> extends AbstractProcessor<List<A>,List<A>
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public List<A> processItem(List<A> list) {
 		collectedItems.addAll(list);
 		if (collectedItems.size() < minEntries) {

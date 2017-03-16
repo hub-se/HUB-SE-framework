@@ -24,6 +24,7 @@ public class ZipFileReader extends AbstractProcessor<Path,ZipFileWrapper> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public ZipFileWrapper processItem(Path zipFilePath) {
 		ZipFile zipFile = null;
 		try {

@@ -26,6 +26,7 @@ public class FileToStringListReader extends AbstractProcessor<Path, List<String>
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public List<String> processItem(Path input) {
 		return new FileLineProcessor<List<String>>(new StringsToListProcessor(), true)
 				.submit(input)

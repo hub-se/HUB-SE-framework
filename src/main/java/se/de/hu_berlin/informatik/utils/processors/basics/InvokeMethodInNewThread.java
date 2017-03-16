@@ -35,6 +35,7 @@ public class InvokeMethodInNewThread extends AbstractProcessor<Object[],Thread> 
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public Thread processItem(Object[] args) {
 		return start(args);
 	}

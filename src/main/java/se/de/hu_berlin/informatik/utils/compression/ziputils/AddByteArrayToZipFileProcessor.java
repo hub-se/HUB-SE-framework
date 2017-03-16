@@ -61,6 +61,7 @@ public class AddByteArrayToZipFileProcessor extends AbstractProcessor<byte[],byt
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public byte[] processItem(byte[] array) {
 		try {
 			// this sets the name of the file for this entry in the zip file, starting from '0.bin'

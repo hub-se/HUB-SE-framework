@@ -57,6 +57,7 @@ public class StringsToFileWriter extends AbstractProcessor<String, String> {
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public String processItem(String item) {
 		try {
 			writer.append(item.toString());

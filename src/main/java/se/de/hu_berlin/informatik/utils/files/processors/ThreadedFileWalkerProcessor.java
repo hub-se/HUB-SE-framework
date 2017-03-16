@@ -100,6 +100,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
+	@Override
 	public Boolean processItem(Path input) {
 		//declare a threaded FileWalker
 		ThreadedFileWalker.Builder builder = new Builder(pattern, threadCount);
