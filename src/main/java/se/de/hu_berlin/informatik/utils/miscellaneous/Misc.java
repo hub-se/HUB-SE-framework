@@ -89,8 +89,8 @@ final public class Misc {
 	 * @param <T>
 	 * the type of the list elements
 	 */
-	public static <T> String listToString(final T[] list) {
-		return arrayToString(list, ",", "(", ")");
+	public static <T> String listToString(final List<T> list) {
+		return listToString(list, ",", "(", ")");
 	}
 	
 	/**
