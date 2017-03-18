@@ -43,8 +43,13 @@ public abstract class AbstractConsumingProcessor<A> extends BasicComponent imple
 	
 	@Override
 	public Pipe<A,Object> asPipe() throws UnsupportedOperationException {
+		return asPipe(null);
+	}
+	
+	@Override
+	public Pipe<A,Object> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
 		if (pipeView == null) {
-			pipeView = new Pipe<>(this, true);
+			pipeView = new Pipe<>(this, true, classLoader);
 		}
 		return pipeView;
 	}

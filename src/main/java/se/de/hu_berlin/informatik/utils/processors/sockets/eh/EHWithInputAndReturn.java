@@ -159,5 +159,10 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 	public void resetAndInit() {
 		//do nothing (gets reset at another place)
 	}
+
+	@Override
+	public Pipe<A, B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 	
 }

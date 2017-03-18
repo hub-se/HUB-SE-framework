@@ -157,5 +157,10 @@ public class Module<A,B> extends AbstractProcessorSocket<A,B> {
 	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
+
+	@Override
+	public Pipe<A, B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 	
 }

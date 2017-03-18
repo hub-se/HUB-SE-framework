@@ -73,5 +73,10 @@ public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements Cons
 	public void resetAndInit() {
 		//do nothing (gets reset at another place)
 	}
+
+	@Override
+	public Pipe<A, Object> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 	
 }

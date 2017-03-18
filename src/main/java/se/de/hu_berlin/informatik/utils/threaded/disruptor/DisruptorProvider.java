@@ -32,12 +32,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackerDummy;
  */
 public class DisruptorProvider<A> implements Trackable {
 
-	final private static ThreadFactory THREAD_FACTORY;
+	private ThreadFactory threadFactory;
 //	private Thread mainThread;
 	
-	static {
-		//thread factory that will be used to construct new threads for consumers
-		THREAD_FACTORY = Executors.defaultThreadFactory();
+//	static {
+//		//thread factory that will be used to construct new threads for consumers
+//		THREAD_FACTORY = //Executors.defaultThreadFactory();
 //				new ThreadFactory() {
 //			
 //			ThreadFactory factory = Executors.defaultThreadFactory();
@@ -50,7 +50,7 @@ public class DisruptorProvider<A> implements Trackable {
 //				return factory.newThread(r);
 //			}
 //		};
-	}
+//	}
 	
 	private Disruptor<SingleUseEvent<A>> disruptor = null;
 	private RingBuffer<SingleUseEvent<A>> ringBuffer = null;
@@ -81,18 +81,60 @@ public class DisruptorProvider<A> implements Trackable {
 	 * number ot handlers, but at least as big as the specified minimal buffer size
 	 * @param minimalBufferSize
 	 * a minimal buffer size
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
 	 */
-	public DisruptorProvider(int minimalBufferSize) {
+	public DisruptorProvider(int minimalBufferSize, ClassLoader cl) {
 		super();
 		this.minimalBufferSize  = minimalBufferSize;
+		
+		threadFactory = //Executors.defaultThreadFactory();
+				new ThreadFactory() {
+			ThreadFactory factory = Executors.defaultThreadFactory();
+//			int counter = 0;
+			@Override
+			public Thread newThread(Runnable r) {
+//				++counter;
+//				Log.out(this, "Creating Thread no. %d for %s.", counter, r);
+				Thread thread = factory.newThread(r);
+				if (cl != null) {
+					thread.setContextClassLoader(cl);
+				}
+				return thread;
+			}
+		};
+		
 //		mainThread = Thread.currentThread();
+	}
+	
+	/**
+	 * Creates a new disruptor provider with the minimal given buffer size. 
+	 * The actual buffer size will be set to m, where m is a power of 2 such that
+	 * <p> {@code m >= 8*#handlers}, if {@code  minimalBufferSize < 8*#handlers}, and
+	 * <p> {@code m >= minimalBufferSize}, otherwise.
+	 * <p> This means that the buffer size is at least eight times as big as the 
+	 * number ot handlers, but at least as big as the specified minimal buffer size
+	 * @param minimalBufferSize
+	 * a minimal buffer size
+	 */
+	public DisruptorProvider(int minimalBufferSize) {
+		this(minimalBufferSize, null);
+	}
+	
+	/**
+	 * Creates a new disruptor provider with a minimal buffer size of 8.
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
+	 */
+	public DisruptorProvider(ClassLoader cl) {
+		this(8, cl);
 	}
 	
 	/**
 	 * Creates a new disruptor provider with a minimal buffer size of 8.
 	 */
 	public DisruptorProvider() {
-		this(8);
+		this(8, null);
 	}
 
 	private int getContainingPowerOfTwo(int value) {
@@ -110,7 +152,7 @@ public class DisruptorProvider<A> implements Trackable {
 	 */
 	private void createNewDisruptorInstance() {
 		// Construct the Disruptor
-		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, THREAD_FACTORY,
+		disruptor = new Disruptor<>(SingleUseEvent<A>::new, bufferSize, threadFactory,
 				producerType, new BlockingWaitStrategy());
 
 		disruptor.setDefaultExceptionHandler(new ExceptionHandler<Event<A>>() {

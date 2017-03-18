@@ -19,10 +19,14 @@ public class ThreadedListProcessor<A> extends AbstractConsumingProcessor<List<A>
 
 	private DisruptorProvider<A> disruptorProvider;
 
-	public ThreadedListProcessor(Integer threadCount, ConsumingProcessorSocketGenerator<A> callableFactory) {
+	public ThreadedListProcessor(Integer threadCount, ConsumingProcessorSocketGenerator<A> callableFactory, ClassLoader cl) {
 		super();
-		disruptorProvider = new DisruptorProvider<>();
+		disruptorProvider = new DisruptorProvider<>(cl);
 		disruptorProvider.connectHandlers(callableFactory, threadCount);
+	}
+	
+	public ThreadedListProcessor(Integer threadCount, ConsumingProcessorSocketGenerator<A> callableFactory) {
+		this(threadCount, callableFactory, null);
 	}
 
 	public void consume(List<A> input) {

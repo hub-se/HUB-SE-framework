@@ -66,7 +66,21 @@ public class Pipe<A,B> extends AbstractProcessorSocket<A,B> {
 	 * (if not sure, set this to false)
 	 */
 	public Pipe(Processor<A,B> processor, boolean singleWriter) {
-		this(processor, 8, singleWriter);
+		this(processor, 8, singleWriter, null);
+	}
+	
+	/**
+	 * Creates a pipe object with a buffer size of 8.
+	 * @param processor
+	 * the processor 
+	 * @param singleWriter
+	 * whether this pipe writes to the output with only a single thread 
+	 * (if not sure, set this to false)
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
+	 */
+	public Pipe(Processor<A,B> processor, boolean singleWriter, ClassLoader cl) {
+		this(processor, 8, singleWriter, cl);
 	}
 	
 	/**
@@ -78,11 +92,29 @@ public class Pipe<A,B> extends AbstractProcessorSocket<A,B> {
 	 * @param singleWriter
 	 * whether this pipe writes to the output with only a single thread
 	 * (if not sure, set this to false)
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
+	 */
+	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
+		this(processor, bufferSize, singleWriter, null);
+	}
+	
+	/**
+	 * Creates a pipe object.
+	 * @param processor
+	 * the processor 
+	 * @param bufferSize
+	 * the size of the ring buffer, must be power of 2
+	 * @param singleWriter
+	 * whether this pipe writes to the output with only a single thread
+	 * (if not sure, set this to false)
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
 	 */
 	@SuppressWarnings("unchecked")
-	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
+	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter, ClassLoader cl) {
 		super(processor);
-		disruptorProvider = new DisruptorProvider<>(bufferSize);
+		disruptorProvider = new DisruptorProvider<>(bufferSize, cl);
 		//event handler used for transmitting items from one pipe to another
 		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
 			@Override
@@ -259,6 +291,11 @@ public class Pipe<A,B> extends AbstractProcessorSocket<A,B> {
 
 	@Override
 	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
+
+	@Override
+	public Pipe<A, B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

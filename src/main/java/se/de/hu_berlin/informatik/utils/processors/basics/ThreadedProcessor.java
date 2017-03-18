@@ -25,9 +25,9 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 	private AbstractDisruptorMultiplexer<B> multiplexer;
 	private Producer<B> producer;
 
-	private ThreadedProcessor() {
+	private ThreadedProcessor(ClassLoader classLoader) {
 		super();
-		disruptorProvider = new DisruptorProvider<>(1024);
+		disruptorProvider = new DisruptorProvider<>(1024, classLoader);
 		//starts a multiplexer with the created disruptor
 		multiplexer = new AbstractDisruptorMultiplexer<B>(disruptorProvider) {
 			@Override
@@ -38,16 +38,24 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 		};
 	}
 	
-	public ThreadedProcessor(int threadCount, ThreadLimit limit, ProcessorSocketGenerator<A,B> transmitter) {
-		this();
+	public ThreadedProcessor(int threadCount, ThreadLimit limit, ProcessorSocketGenerator<A,B> transmitter, ClassLoader classLoader) {
+		this(classLoader);
 		//connect the handlers to the disruptor
 		disruptorProvider.connectHandlers(transmitter, threadCount, limit, multiplexer);
 		
 		initMultiplexer();
 	}
+	
+	public ThreadedProcessor(int threadCount, ThreadLimit limit, ProcessorSocketGenerator<A,B> transmitter) {
+		this(threadCount, limit, transmitter, null);
+	}
 
+	public ThreadedProcessor(int threadCount, ProcessorSocketGenerator<A,B> transmitter, ClassLoader classLoader) {
+		this(threadCount, ThreadLimitDummy.getInstance(), transmitter, classLoader);
+	}
+	
 	public ThreadedProcessor(int threadCount, ProcessorSocketGenerator<A,B> transmitter) {
-		this(threadCount, ThreadLimitDummy.getInstance(), transmitter);
+		this(threadCount, ThreadLimitDummy.getInstance(), transmitter, null);
 	}
 	
 	private void initMultiplexer() {

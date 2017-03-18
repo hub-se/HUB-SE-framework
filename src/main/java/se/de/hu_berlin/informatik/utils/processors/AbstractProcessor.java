@@ -46,8 +46,13 @@ public abstract class AbstractProcessor<A,B> extends BasicComponent implements P
 	
 	@Override
 	public Pipe<A,B> asPipe() throws UnsupportedOperationException {
+		return asPipe(null);
+	}
+	
+	@Override
+	public Pipe<A,B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
 		if (pipeView == null) {
-			pipeView = new Pipe<>(this, true);
+			pipeView = new Pipe<>(this, true, classLoader);
 		}
 		return pipeView;
 	}

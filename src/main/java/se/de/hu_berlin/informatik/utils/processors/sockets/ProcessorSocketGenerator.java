@@ -31,6 +31,18 @@ public interface ProcessorSocketGenerator<A,B> {
 	public Pipe<A,B> asPipe() throws UnsupportedOperationException;
 	
 	/**
+	 * Creates a {@link Pipe} from this object. Has to return a 
+	 * reference to the same Pipe if called multiple times.
+	 * @param classLoader
+	 * a class loader that should be set for the thread of this Pipe
+	 * @return
+	 * a Pipe, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	public Pipe<A,B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException;
+	
+	/**
 	 * Creates a {@link Module} from this object. Has to return a 
 	 * reference to the same Module if called multiple times.
 	 * @return

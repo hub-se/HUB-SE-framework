@@ -26,7 +26,7 @@ public class ThreadedFileWalker extends AFileWalker {
 			throw new IllegalStateException("No callable class given.");
 		}
 		
-		disruptorProvider = new DisruptorProvider<>();
+		disruptorProvider = new DisruptorProvider<>(builder.classLoader);
 		disruptorProvider.connectHandlers(builder.callableFactory, builder.threadCount);
 	}
 
@@ -52,6 +52,7 @@ public class ThreadedFileWalker extends AFileWalker {
 
 		public ConsumingProcessorSocketGenerator<Path> callableFactory;
 		public int threadCount;
+		public ClassLoader classLoader;
 		
 		public Builder(String pattern, int threadCount) {
 			super(pattern);
@@ -72,6 +73,18 @@ public class ThreadedFileWalker extends AFileWalker {
 		 */
 		public Builder call(ConsumingProcessorSocketGenerator<Path> callableFactory) {
 			this.callableFactory = callableFactory;
+			return this;
+		}
+		
+		/**
+		 * Sets a class loader to set for created threads.
+		 * @param classLoader
+		 * a class loader 
+		 * @return
+		 * this
+		 */
+		public Builder setClassLoader(ClassLoader classLoader) {
+			this.classLoader = classLoader;
 			return this;
 		}
 		
