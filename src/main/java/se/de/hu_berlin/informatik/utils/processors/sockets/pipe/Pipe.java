@@ -92,8 +92,6 @@ public class Pipe<A,B> extends AbstractProcessorSocket<A,B> {
 	 * @param singleWriter
 	 * whether this pipe writes to the output with only a single thread
 	 * (if not sure, set this to false)
-	 * @param cl
-	 * a class loader to set as the context class loader for created threads
 	 */
 	public Pipe(Processor<A,B> processor, int bufferSize, boolean singleWriter) {
 		this(processor, bufferSize, singleWriter, null);
