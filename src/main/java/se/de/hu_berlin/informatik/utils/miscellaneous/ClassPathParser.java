@@ -89,13 +89,17 @@ public class ClassPathParser {
 	    clearClasspath();
 	    for (final ClassLoader cl : classLoaders) {
 	        if (cl != null) {
-	            for (final URL url : ((URLClassLoader) cl).getURLs()) {
-	                if ("file".equals(url.getProtocol())) {
-	                    addClasspathElement(url.getFile());
-	                } else {
-	                	Log.warn(this, "'%s' was not added to class path with protocol '%s'", url, url.getProtocol());
-	                }
-	            }
+	        	if (cl instanceof URLClassLoader) {
+	        		for (final URL url : ((URLClassLoader) cl).getURLs()) {
+	        			if ("file".equals(url.getProtocol())) {
+	        				addClasspathElement(url.getFile());
+	        			} else {
+	        				Log.warn(this, "'%s' was not added to class path with protocol '%s'", url, url.getProtocol());
+	        			}
+	        		}
+	        	} else {
+	        		Log.warn(this, "Could not get URLs from a class loader.");
+	        	}
 	        }
 	    }
 	    return this;
@@ -123,6 +127,21 @@ public class ClassPathParser {
 		return this;
 	}
 	
+//	/**
+//	 * Adds the given class path to the start of the class path.
+//	 * @param cp
+//	 * a class path to add to the class path
+//	 * @return
+//	 * this {@link ClassPathParser} object (for method chaining)
+//	 */
+//	public ClassPathParser addClassPathToStartOfClassPath(final String cp) {
+//		String[] pathElements = cp.split(File.pathSeparator);
+//		for (String element : pathElements) {
+//			addElementAtStartOfClassPath(new File(element));
+//		}
+//		return this;
+//	}
+	
 	/**
 	 * Adds the given element to the end of the class path.
 	 * @param element
@@ -132,6 +151,21 @@ public class ClassPathParser {
 	 */
 	public ClassPathParser addElementToClassPath(final File element) {
 		classpathElements.add(element);
+		return this;
+	}
+	
+	/**
+	 * Adds the given class path to the end of the class path.
+	 * @param cp
+	 * a class path to add to the class path
+	 * @return
+	 * this {@link ClassPathParser} object (for method chaining)
+	 */
+	public ClassPathParser addClassPathToClassPath(final String cp) {
+		String[] pathElements = cp.split(File.pathSeparator);
+		for (String element : pathElements) {
+			addElementToClassPath(new File(element));
+		}
 		return this;
 	}
 	
