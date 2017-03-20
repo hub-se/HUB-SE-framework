@@ -146,6 +146,26 @@ final public class SystemUtils {
 	}
 	
 	/**
+	 * Adds the given paths dynamically to the class path via reflection.
+	 * Calls the method {@link #addToClassPath(URL, ClassLoader)}.
+	 * @param paths
+	 * the paths to add
+	 * @param classLoader
+	 * the class loader to add the paths to
+	 */
+	public static void addToClassPath(ClassLoader classLoader, File... paths) {
+		URL[] urls = new URL[paths.length];
+		for (int i = 0; i < paths.length; ++i) {
+			try {
+				urls[i] = paths[i].toURI().toURL();
+			} catch (MalformedURLException muex) {
+				throw new IllegalArgumentException("Invalid path: " + paths[i], muex);
+			}
+		}
+		addToClassPath(classLoader, (URL[])urls);
+	}
+
+	/**
 	 * Adds the given path dynamically to the class path via reflection.
 	 * Calls the method {@link #addToClassPath(URL, ClassLoader)}.
 	 * @param path
@@ -153,14 +173,32 @@ final public class SystemUtils {
 	 * @param classLoader
 	 * the class loader to add the path to
 	 */
-	public static void addToClassPath(File path, ClassLoader classLoader) {
+	public static void addToClassPath(ClassLoader classLoader, File path) {
 		try {
-			addToClassPath(path.toURI().toURL(), classLoader);
+			addToClassPath(classLoader, path.toURI().toURL());
 		} catch (MalformedURLException muex) {
 			throw new IllegalArgumentException("Invalid path: " + path, muex);
 		}
 	}
 
+	/**
+	 * Adds the given URLs dynamically to the class path via reflection.
+	 * @param urls
+	 * the URLs to add
+	 * @param classLoader
+	 * the class loader to add the URLs to
+	 */
+	public static void addToClassPath(ClassLoader classLoader, URL... urls) {
+		try {
+			Class<?> clazz = URLClassLoader.class;
+			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+			m.setAccessible(true);
+			m.invoke(classLoader, (Object[])urls);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Adding URLs failed: " + Misc.arrayToString(urls), ex);
+		}
+	}
+	
 	/**
 	 * Adds the given URL dynamically to the class path via reflection.
 	 * @param url
@@ -168,15 +206,25 @@ final public class SystemUtils {
 	 * @param classLoader
 	 * the class loader to add the URL to
 	 */
-	public static void addToClassPath(URL url, ClassLoader classLoader) {
+	public static void addToClassPath(ClassLoader classLoader, URL url) {
 		try {
 			Class<?> clazz = URLClassLoader.class;
 			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
 			m.setAccessible(true);
 			m.invoke(classLoader, new Object[]{url});
 		} catch (Exception ex) {
-			throw new IllegalArgumentException("Add URL failed: " + url, ex);
+			throw new IllegalArgumentException("Adding URL failed: " + url, ex);
 		}
+	}
+	
+	/**
+	 * Adds the given paths dynamically to the class path via reflection, using
+	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
+	 * @param paths
+	 * the paths to add
+	 */
+	public static void addToClassPath(File... paths) {
+		addToClassPath(getSystemClassLoader(), (File[])paths);
 	}
 	
 	/**
@@ -186,9 +234,19 @@ final public class SystemUtils {
 	 * the path to add
 	 */
 	public static void addToClassPath(File path) {
-		addToClassPath(path, getSystemClassLoader());
+		addToClassPath(getSystemClassLoader(), path);
 	}
 
+	/**
+	 * Adds the given URLs dynamically to the class path via reflection, using
+	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
+	 * @param urls
+	 * the URLs to add
+	 */
+	public static void addToClassPath(URL... urls) {
+		addToClassPath(getSystemClassLoader(), (URL[])urls);
+	}
+	
 	/**
 	 * Adds the given URL dynamically to the class path via reflection, using
 	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
@@ -196,7 +254,7 @@ final public class SystemUtils {
 	 * the URL to add
 	 */
 	public static void addToClassPath(URL url) {
-		addToClassPath(url, getSystemClassLoader());
+		addToClassPath(getSystemClassLoader(), url);
 	}
 
 	/**
