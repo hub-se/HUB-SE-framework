@@ -1,6 +1,12 @@
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import se.de.hu_berlin.informatik.utils.processors.basics.ExecuteCommandInSystemEnvironmentAndReturnOutput;
 import se.de.hu_berlin.informatik.utils.processors.basics.ExecuteCommandInSystemEnvironment;
@@ -138,4 +144,76 @@ final public class SystemUtils {
 		return executeCommandWithOutputInJavaEnvironment(executionDir, returnErrorOutput, 
 				null, null, null, commandArgs);
 	}
+	
+	/**
+	 * Adds the given path dynamically to the class path via reflection.
+	 * Calls the method {@link #addToClassPath(URL, ClassLoader)}.
+	 * @param path
+	 * the path to add
+	 * @param classLoader
+	 * the class loader to add the path to
+	 */
+	public static void addToClassPath(File path, ClassLoader classLoader) {
+		try {
+			addToClassPath(path.toURI().toURL(), classLoader);
+		} catch (MalformedURLException muex) {
+			throw new IllegalArgumentException("Invalid path: " + path, muex);
+		}
+	}
+
+	/**
+	 * Adds the given URL dynamically to the class path via reflection.
+	 * @param url
+	 * the URL to add
+	 * @param classLoader
+	 * the class loader to add the URL to
+	 */
+	public static void addToClassPath(URL url, ClassLoader classLoader) {
+		try {
+			Class<?> clazz = URLClassLoader.class;
+			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+			m.setAccessible(true);
+			m.invoke(classLoader, new Object[]{url});
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("Add URL failed: " + url, ex);
+		}
+	}
+	
+	/**
+	 * Adds the given path dynamically to the class path via reflection, using
+	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
+	 * @param path
+	 * the path to add
+	 */
+	public static void addToClassPath(File path) {
+		addToClassPath(path, getSystemClassLoader());
+	}
+
+	/**
+	 * Adds the given URL dynamically to the class path via reflection, using
+	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
+	 * @param url
+	 * the URL to add
+	 */
+	public static void addToClassPath(URL url) {
+		addToClassPath(url, getSystemClassLoader());
+	}
+
+	/**
+	 * @return
+	 * the system class loader
+	 */
+	public static ClassLoader getSystemClassLoader() {
+		if (System.getSecurityManager() == null) {
+			return ClassLoader.getSystemClassLoader();
+		} else {
+			return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+				@Override
+				public ClassLoader run() {
+					return ClassLoader.getSystemClassLoader();
+				}
+			});
+		}
+	}
+
 }
