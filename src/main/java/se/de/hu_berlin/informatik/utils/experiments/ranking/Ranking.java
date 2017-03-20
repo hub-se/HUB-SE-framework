@@ -292,8 +292,6 @@ public interface Ranking<T> extends Iterable<T> {
             for (final RankedElement<T> el : ranking.getSortedRankedElements()) {
                 writer.write(String.format("%s" + RANKING_SEPARATOR + "%f\n", el.getIdentifier(), el.getRankingValue()));
             }
-        } catch (final Exception e) {
-            throw new RuntimeException("Saving the ranking failed.", e);
         } finally {
             if (writer != null) {
                 writer.flush();

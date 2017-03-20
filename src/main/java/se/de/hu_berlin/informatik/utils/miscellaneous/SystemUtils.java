@@ -147,7 +147,7 @@ final public class SystemUtils {
 	
 	/**
 	 * Adds the given paths dynamically to the class path via reflection.
-	 * Calls the method {@link #addToClassPath(URL, ClassLoader)}.
+	 * Calls the method {@link #addToClassPath(ClassLoader, URL...)}.
 	 * @param paths
 	 * the paths to add
 	 * @param classLoader
@@ -169,7 +169,7 @@ final public class SystemUtils {
 
 	/**
 	 * Adds the given path dynamically to the class path via reflection.
-	 * Calls the method {@link #addToClassPath(URL, ClassLoader)}.
+	 * Calls the method {@link #addToClassPath(ClassLoader, URL)}.
 	 * @param path
 	 * the path to add
 	 * @param classLoader
@@ -231,7 +231,7 @@ final public class SystemUtils {
 	
 	/**
 	 * Adds the given paths dynamically to the class path via reflection, using
-	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
+	 * the system class loader. Calls {@link #addToClassPath(ClassLoader, File...)}.
 	 * @param paths
 	 * the paths to add
 	 * @throws IllegalArgumentException
@@ -243,7 +243,7 @@ final public class SystemUtils {
 	
 	/**
 	 * Adds the given path dynamically to the class path via reflection, using
-	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
+	 * the system class loader. Calls {@link #addToClassPath(ClassLoader, File)}.
 	 * @param path
 	 * the path to add
 	 * @throws IllegalArgumentException
@@ -255,7 +255,7 @@ final public class SystemUtils {
 
 	/**
 	 * Adds the given URLs dynamically to the class path via reflection, using
-	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
+	 * the system class loader. Calls {@link #addToClassPath(ClassLoader, URL...)}.
 	 * @param urls
 	 * the URLs to add
 	 * @throws IllegalArgumentException
@@ -267,7 +267,7 @@ final public class SystemUtils {
 	
 	/**
 	 * Adds the given URL dynamically to the class path via reflection, using
-	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
+	 * the system class loader. Calls {@link #addToClassPath(ClassLoader, URL)}.
 	 * @param url
 	 * the URL to add
 	 * @throws IllegalArgumentException
