@@ -152,8 +152,10 @@ final public class SystemUtils {
 	 * the paths to add
 	 * @param classLoader
 	 * the class loader to add the paths to
+	 * @throws IllegalArgumentException
+	 * if one of the given paths is not valid or if adding one of the paths failed
 	 */
-	public static void addToClassPath(ClassLoader classLoader, File... paths) {
+	public static void addToClassPath(ClassLoader classLoader, File... paths) throws IllegalArgumentException {
 		URL[] urls = new URL[paths.length];
 		for (int i = 0; i < paths.length; ++i) {
 			try {
@@ -172,8 +174,10 @@ final public class SystemUtils {
 	 * the path to add
 	 * @param classLoader
 	 * the class loader to add the path to
+	 * @throws IllegalArgumentException
+	 * if the given path is not valid or if adding the path failed
 	 */
-	public static void addToClassPath(ClassLoader classLoader, File path) {
+	public static void addToClassPath(ClassLoader classLoader, File path) throws IllegalArgumentException {
 		try {
 			addToClassPath(classLoader, path.toURI().toURL());
 		} catch (MalformedURLException muex) {
@@ -187,8 +191,10 @@ final public class SystemUtils {
 	 * the URLs to add
 	 * @param classLoader
 	 * the class loader to add the URLs to
+	 * @throws IllegalArgumentException
+	 * if adding the given URLs failed
 	 */
-	public static void addToClassPath(ClassLoader classLoader, URL... urls) {
+	public static void addToClassPath(ClassLoader classLoader, URL... urls) throws IllegalArgumentException {
 		try {
 			Class<?> clazz = URLClassLoader.class;
 			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
@@ -207,8 +213,12 @@ final public class SystemUtils {
 	 * the URL to add
 	 * @param classLoader
 	 * the class loader to add the URL to
+	 * @throws IllegalArgumentException
+	 * if adding the given URLs failed
+	 * @throws IllegalArgumentException
+	 * if adding the given URL failed
 	 */
-	public static void addToClassPath(ClassLoader classLoader, URL url) {
+	public static void addToClassPath(ClassLoader classLoader, URL url) throws IllegalArgumentException {
 		try {
 			Class<?> clazz = URLClassLoader.class;
 			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
@@ -224,8 +234,10 @@ final public class SystemUtils {
 	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
 	 * @param paths
 	 * the paths to add
+	 * @throws IllegalArgumentException
+	 * if one of the given paths is not valid or if adding one of the paths failed
 	 */
-	public static void addToClassPath(File... paths) {
+	public static void addToClassPath(File... paths) throws IllegalArgumentException {
 		addToClassPath(getSystemClassLoader(), (File[])paths);
 	}
 	
@@ -234,8 +246,10 @@ final public class SystemUtils {
 	 * the system class loader. Calls {@link #addToClassPath(File, ClassLoader)}.
 	 * @param path
 	 * the path to add
+	 * @throws IllegalArgumentException
+	 * if the given path is not valid or if adding the path failed
 	 */
-	public static void addToClassPath(File path) {
+	public static void addToClassPath(File path) throws IllegalArgumentException {
 		addToClassPath(getSystemClassLoader(), path);
 	}
 
@@ -244,8 +258,10 @@ final public class SystemUtils {
 	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
 	 * @param urls
 	 * the URLs to add
+	 * @throws IllegalArgumentException
+	 * if adding the given URLs failed
 	 */
-	public static void addToClassPath(URL... urls) {
+	public static void addToClassPath(URL... urls) throws IllegalArgumentException {
 		addToClassPath(getSystemClassLoader(), (URL[])urls);
 	}
 	
@@ -254,8 +270,10 @@ final public class SystemUtils {
 	 * the system class loader. Calls {@link #addToClassPath(URL, ClassLoader)}.
 	 * @param url
 	 * the URL to add
+	 * @throws IllegalArgumentException
+	 * if adding the given URL failed
 	 */
-	public static void addToClassPath(URL url) {
+	public static void addToClassPath(URL url) throws IllegalArgumentException {
 		addToClassPath(getSystemClassLoader(), url);
 	}
 
