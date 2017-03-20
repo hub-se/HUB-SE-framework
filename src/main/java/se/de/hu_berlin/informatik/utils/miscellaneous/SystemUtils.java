@@ -193,7 +193,9 @@ final public class SystemUtils {
 			Class<?> clazz = URLClassLoader.class;
 			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
 			m.setAccessible(true);
-			m.invoke(classLoader, (Object[])urls);
+			for (URL url : urls) {
+				m.invoke(classLoader, new Object[]{url});
+			}
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Adding URLs failed: " + Misc.arrayToString(urls), ex);
 		}
