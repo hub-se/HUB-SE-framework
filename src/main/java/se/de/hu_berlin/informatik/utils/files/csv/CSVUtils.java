@@ -27,6 +27,10 @@ public final class CSVUtils {
      * used CSV delimiter
      */
     public static final String CSV_DELIMITER = ";";
+    /**
+     * used quote character to quote fields
+     */
+    public static final String CSV_QUOTE = "\"";
 
     //suppress default constructor (class should not be instantiated)
     private CSVUtils() {
@@ -226,7 +230,7 @@ public final class CSVUtils {
             List<String> lines = new ArrayList<>();
             
             for (int i = 0; i < arrayLength; ++i) {
-            	lines.add(toCsvLine(objectArrayList, i));
+            	lines.add(columnToCsvLine(objectArrayList, i));
             }
             
             return lines;
@@ -295,7 +299,8 @@ public final class CSVUtils {
         final StringBuilder line = new StringBuilder();
 
         for (int i = 0; i < objectArray.length; ++i) {
-            line.append(objectArray[i]);
+            line.append(objectArray[i].toString()
+            		.replaceAll(CSV_QUOTE, CSV_QUOTE + CSV_QUOTE));
             if (i < objectArray.length - 1) {
             	//put delimiter between the values
             	line.append(CSV_DELIMITER);
@@ -306,21 +311,22 @@ public final class CSVUtils {
     
     /**
      * Turns a column of an array list into a CSV line.
-     * The arrays are expected to have the same size.
+     * The arrays are expected to have at least size {@code columnIndex + 1}.
      * @param <T>
-     * the type of elements in the array
-     * @param objectArray
-     * an array containing the data elements
+     * the type of elements in the arrays
+     * @param objectArrayList
+     * a list with arrays containing the data elements
      * @param columnIndex
      * the index of the column to consider
      * @return 
      * the combined CSV string to write to a file
      */
-    private static <T extends Object> String toCsvLine(final List<T[]> objectArrayList, int columnIndex) {
+    private static <T extends Object> String columnToCsvLine(final List<T[]> objectArrayList, int columnIndex) {
         final StringBuilder line = new StringBuilder();
 
         for (int i = 0; i < objectArrayList.size(); ++i) {
-            line.append(objectArrayList.get(i)[columnIndex]);
+            line.append(objectArrayList.get(i)[columnIndex].toString()
+            		.replaceAll(CSV_QUOTE, CSV_QUOTE + CSV_QUOTE));
             if (i < objectArrayList.size() - 1) {
             	//put delimiter between the values
             	line.append(CSV_DELIMITER);
