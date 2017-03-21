@@ -237,6 +237,8 @@ final public class Misc {
 	 * the String for which to retrieve an enum for
 	 * @return
 	 * the respective enum if successful; null otherwise
+	 * @param <T>
+	 * the type of the enum class
 	 */
 	public static <T extends Enum<T>> T getEnumFromToString(Class<T> enumClass, String request) {
 		EnumSet<T> set = EnumSet.allOf(enumClass);
