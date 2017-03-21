@@ -6,6 +6,7 @@ package se.de.hu_berlin.informatik.utils.miscellaneous;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,7 @@ final public class Misc {
 	 * the type of the list elements
 	 */
 	public static <T> String listToString(final List<T> list) {
-		return listToString(list, ",", "(", ")");
+		return listToString(list, ", ", "( ", " )");
 	}
 	
 	/**
@@ -139,7 +140,7 @@ final public class Misc {
 	 * the type of the array elements
 	 */
 	public static <T> String arrayToString(final T[] array) {
-		return arrayToString(array, ",", "[", "]");
+		return arrayToString(array, ", ", "[ ", " ]");
 	}
 	
 	/**
@@ -175,6 +176,76 @@ final public class Misc {
 		builder.append(end);
 		
 		return builder.toString();
+	}
+	
+	/**
+	 * Returns a String representation of the elements in the given enum class
+	 * with ',' as separation element and enclosed in rectangular brackets.
+	 * @param enumClass
+	 * an enum class
+	 * @return
+	 * a String representation of the given enum class
+	 * @param <T>
+	 * the type of the enum class
+	 */
+	public static <T extends Enum<T>> String enumToString(final Class<T> enumClass) {
+		return enumToString(enumClass, ", ", "[ ", " ]");
+	}
+	
+	/**
+	 * Returns a String representation of the elements in the given enum class.
+	 * @param enumClass
+	 * an enum class
+	 * @param sepElement
+	 * a separation element that separates the different elements of
+	 * the enum class in the returned String representation
+	 * @param start
+	 * a String that marks the begin of the enum class
+	 * @param end
+	 * a String that marks the end of the enum class
+	 * @return
+	 * a String representation of the given enum class
+	 * @param <T>
+	 * the type of the enum class
+	 */
+	public static <T extends Enum<T>> String enumToString(
+			final Class<T> enumClass, final String sepElement, 
+			final String start, final String end) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append(start);
+		boolean isFirst = true;
+		EnumSet<T> set = EnumSet.allOf(enumClass);
+		for (final T element : set) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(sepElement);
+			}
+			builder.append(element);
+		}
+		builder.append(end);
+		
+		return builder.toString();
+	}
+	
+	/**
+	 * Obtains the enum from the given class that has an identical {@link #toString()}
+	 * value as the given String.
+	 * @param enumClass
+	 * the enum class
+	 * @param request
+	 * the String for which to retrieve an enum for
+	 * @return
+	 * the respective enum if successful; null otherwise
+	 */
+	public static <T extends Enum<T>> T getEnumFromToString(Class<T> enumClass, String request) {
+		EnumSet<T> set = EnumSet.allOf(enumClass);
+		for (final T element : set) {
+			if (element.toString().equals(request)) {
+				return element;
+			}
+		}
+		return null;
 	}
 	
 	/**

@@ -93,23 +93,20 @@ final public class OptionParser {
 	public final static String STRAT_NICE = "NICE";
 	public final static String STRAT_DEFENSIVE = "DEFENSIVE";
 	
-	public enum ThreadingStrategy { AGGRESSIVE(0), NICE(1), DEFENSIVE(2);
-		private final int id;
-		private ThreadingStrategy(int id) {
-			this.id = id;
-		}
+	public enum ThreadingStrategy { 
+		AGGRESSIVE, NICE, DEFENSIVE;
 
 		@Override
 		public String toString() {
-			switch(id) {
-			case 0:
+			switch(this) {
+			case AGGRESSIVE:
 				return STRAT_AGGRESSIVE;
-			case 1:
+			case NICE:
 				return STRAT_NICE;
-			case 2:
+			case DEFENSIVE:
 				return STRAT_DEFENSIVE;
 			default:
-				return STRAT_NICE;
+				throw new UnsupportedOperationException("Not implemented.");
 			}
 		}
 	}
