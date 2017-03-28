@@ -418,4 +418,41 @@ final public class Misc {
 	              .map(Map.Entry::getKey)
 	              .collect(Collectors.toList());
 	}
+	
+	/**
+	 * Bitwise-OR each ordinal value together to encode the given EnumSet as a single integer.
+	 * @param set
+	 * the set to encode
+	 * @return
+	 */
+	public static <E extends Enum<E>> int encode(EnumSet<E> set) {
+		int result = 0;
+		for (E val : set) {
+			result |= (1 << val.ordinal());
+		}
+		return result;
+	}
+
+	/**
+	 * Get an EnumSet of the given class from the given integer, assuming the integer
+	 * is the result of calling {@link #encode(EnumSet)} on an EnumSet of the given class.
+	 * If the Enum has changed in between encoding and decoding, this method will
+	 * not return correct results.
+	 * @param encoded
+	 * the integer
+	 * @param enumKlazz
+	 * the associated Enum class
+	 * @return
+	 * the respective decoded EnumSet
+	 */
+	public static <E extends Enum<E>> EnumSet<E> decode(int encoded, Class<E> enumKlazz) {
+		E[] values = enumKlazz.getEnumConstants();
+        EnumSet<E> result = EnumSet.noneOf(enumKlazz);
+        while (encoded != 0) {
+            int ordinal = Integer.numberOfTrailingZeros(encoded);
+            encoded ^= Integer.lowestOneBit(encoded);
+            result.add(values[ordinal]);
+        }
+        return result;
+	}
 }
