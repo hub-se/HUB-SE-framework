@@ -30,7 +30,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 	private boolean includeRootDir = false;
 	
 	private boolean skipAfterFind = false;
-	private ConsumingProcessorSocketGenerator<Path> callableFactory;
+	private ConsumingProcessorSocketGenerator<Path> processorGenerator;
 	
 	/**
 	 * Creates a new {@link ThreadedFileWalkerProcessor} object with the given parameters. 
@@ -46,14 +46,14 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 	}
 	
 	/**
-	 * Sets the factory.
-	 * @param callableFactory
-	 * a factory that provides instances of callable classes 
+	 * Sets the processor generator to use.
+	 * @param processorGenerator
+	 * a generator that provides instances of processors 
 	 * @return
 	 * this
 	 */
-	public ThreadedFileWalkerProcessor call(ConsumingProcessorSocketGenerator<Path> callableFactory) {
-		this.callableFactory = callableFactory;
+	public ThreadedFileWalkerProcessor setProcessorGenerator(ConsumingProcessorSocketGenerator<Path> processorGenerator) {
+		this.processorGenerator = processorGenerator;
 		return this;
 	}
 	
@@ -116,7 +116,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 		if (skipAfterFind) {
 			builder.skipSubTreeAfterMatch();
 		}
-		builder.call(callableFactory);
+		builder.call(processorGenerator);
 		
 		ThreadedFileWalker walker = builder.build();
 		delegateTrackingTo(walker);
