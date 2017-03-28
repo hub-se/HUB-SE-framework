@@ -424,6 +424,9 @@ final public class Misc {
 	 * @param set
 	 * the set to encode
 	 * @return
+	 * the encoded enum set as an integer
+	 * @param <E>
+	 * the enum type
 	 */
 	public static <E extends Enum<E>> int encode(EnumSet<E> set) {
 		int result = 0;
@@ -444,6 +447,8 @@ final public class Misc {
 	 * the associated Enum class
 	 * @return
 	 * the respective decoded EnumSet
+	 * @param <E>
+	 * the enum type
 	 */
 	public static <E extends Enum<E>> EnumSet<E> decode(int encoded, Class<E> enumKlazz) {
 		E[] values = enumKlazz.getEnumConstants();
