@@ -215,14 +215,6 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 		onlyForced = true;
 	}
 
-	/**
-	 * @author SimHigh
-	 *
-	 */
-	/**
-	 * @author SimHigh
-	 *
-	 */
 	public static abstract class Builder implements IBuilder<AFileWalker> {
 		
 		private final PathMatcher matcher;
