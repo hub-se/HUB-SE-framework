@@ -2,6 +2,7 @@ package se.de.hu_berlin.informatik.utils.processors.sockets;
 
 import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * Basic implementation of {@link ProcessorSocket} and {@link ProcessorSocketGenerator}.
@@ -36,4 +37,46 @@ public abstract class AbstractProcessorSocket<A, B> extends BasicComponent imple
 		this.processor = consumer;
 	}
 	
+	@Override
+	public AbstractProcessorSocket<A, B> enableTracking() {
+		super.enableTracking();
+		return this;
+	}
+
+	@Override
+	public AbstractProcessorSocket<A, B> enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessorSocket<A, B> disableTracking() {
+		super.disableTracking();
+		return this;
+	}
+	
+	@Override
+	public AbstractProcessorSocket<A, B> allowOnlyForcedTracks() {
+		super.allowOnlyForcedTracks();
+		return this;
+	}
+
+	@Override
+	public AbstractProcessorSocket<A, B> enableTracking(TrackingStrategy tracker) {
+		super.enableTracking(tracker);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessorSocket<A, B> enableTracking(boolean useProgressBar) {
+		super.enableTracking(useProgressBar);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessorSocket<A, B> enableTracking(boolean useProgressBar, int stepWidth) {
+		super.enableTracking(useProgressBar, stepWidth);
+		return this;
+	}
+
 }

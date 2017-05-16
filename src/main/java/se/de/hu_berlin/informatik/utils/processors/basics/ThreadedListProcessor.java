@@ -5,10 +5,10 @@ package se.de.hu_berlin.informatik.utils.processors.basics;
 
 import java.util.List;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.AbstractConsumingProcessor;
-import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 
@@ -21,6 +21,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Abstract
 public class ThreadedListProcessor<A> extends AbstractConsumingProcessor<List<A>> {
 
 	private DisruptorProvider<A> disruptorProvider;
+	ProcessorSocket<List<A>, Object> socket;
 
 	public ThreadedListProcessor(Integer threadCount, ConsumingProcessorSocketGenerator<A> callableFactory, ClassLoader cl) {
 		super();
@@ -33,20 +34,19 @@ public class ThreadedListProcessor<A> extends AbstractConsumingProcessor<List<A>
 	}
 
 	@Override
-	public void consumeItem(List<A> input) {
+	public void consumeItem(List<A> input, ConsumingProcessorSocket<List<A>> socket) {
+		if (this.socket == null) {
+			this.socket = socket;
+			if (this.socket.hasOptions()) {
+				for (AbstractDisruptorEventHandler<A> handler : disruptorProvider.getHandlers()) {
+					handler.setOptions(this.socket.getOptions());
+				}
+			}
+		}
 		for (A element : input) {
 			disruptorProvider.submit(element);
 		}
 		disruptorProvider.shutdown();
-	}
-
-	@Override
-	public BasicComponent setOptions(OptionParser options) {
-		super.setOptions(options);
-		for (AbstractDisruptorEventHandler<A> handler : disruptorProvider.getHandlers()) {
-			handler.setOptions(options);
-		}
-		return this;
 	}
 	
 }

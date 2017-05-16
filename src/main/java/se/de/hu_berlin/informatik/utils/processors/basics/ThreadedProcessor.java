@@ -3,9 +3,7 @@
  */
 package se.de.hu_berlin.informatik.utils.processors.basics;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
@@ -27,7 +25,7 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 	private DisruptorProvider<A> disruptorProvider;
 	private AbstractDisruptorMultiplexer<B> multiplexer;
 	private ProcessorSocket<A,B> socket;
-
+	
 	private ThreadedProcessor(ClassLoader classLoader) {
 		super();
 		disruptorProvider = new DisruptorProvider<>(1024, classLoader);
@@ -71,7 +69,14 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 	
 	@Override
 	public B processItem(A input, ProcessorSocket<A, B> socket) {
-		this.socket = socket;
+		if (this.socket == null) {
+			this.socket = socket;
+			if (this.socket.hasOptions()) {
+				for (AbstractDisruptorEventHandler<A> handler : disruptorProvider.getHandlers()) {
+					handler.setOptions(this.socket.getOptions());
+				}
+			}
+		}
 		//restart the multiplexer if it has been shut down
 		if (!multiplexer.isRunning()) {
 			multiplexer.start();
@@ -86,15 +91,6 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 		//after shutting down the disruptor, we have to shut down the multiplexer, too
 		multiplexer.shutdown();
 		return true;
-	}
-
-	@Override
-	public BasicComponent setOptions(OptionParser options) {
-		super.setOptions(options);
-		for (AbstractDisruptorEventHandler<A> handler : disruptorProvider.getHandlers()) {
-			handler.setOptions(options);
-		}
-		return this;
 	}
 	
 }

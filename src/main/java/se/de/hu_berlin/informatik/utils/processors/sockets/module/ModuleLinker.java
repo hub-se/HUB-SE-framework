@@ -220,10 +220,11 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	}
 
 	@Override
-	public void allowOnlyForcedTracks() {
+	public ModuleLinker allowOnlyForcedTracks() {
 		if (startModule != null) {
 			startModule.allowOnlyForcedTracks();
 		}
+		return this;
 	}
 
 	@Override

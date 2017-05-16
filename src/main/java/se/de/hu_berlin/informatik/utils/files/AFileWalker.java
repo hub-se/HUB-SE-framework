@@ -211,8 +211,9 @@ public abstract class AFileWalker implements FileVisitor<Path>, Trackable {
 	}
 
 	@Override
-	public void allowOnlyForcedTracks() {
+	public AFileWalker allowOnlyForcedTracks() {
 		onlyForced = true;
+		return this;
 	}
 
 	public static abstract class Builder implements IBuilder<AFileWalker> {

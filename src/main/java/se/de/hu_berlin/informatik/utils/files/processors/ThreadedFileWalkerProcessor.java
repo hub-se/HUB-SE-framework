@@ -10,6 +10,7 @@ import java.util.Collections;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadedFileWalker.Builder;
 
@@ -101,7 +102,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public Boolean processItem(Path input) {
+	public Boolean processItem(Path input, ProcessorSocket<Path, Boolean> socket) {
 		//declare a threaded FileWalker
 		ThreadedFileWalker.Builder builder = new Builder(pattern, threadCount);
 		if (includeRootDir) {
@@ -119,7 +120,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 		builder.call(processorGenerator);
 		
 		ThreadedFileWalker walker = builder.build();
-		delegateTrackingTo(walker);
+		socket.delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {
@@ -130,7 +131,7 @@ public class ThreadedFileWalkerProcessor extends AbstractProcessor<Path,Boolean>
 		
 		//we are done! Shutdown is necessary!
 		walker.shutdown();
-		walker.delegateTrackingTo(this);
+		walker.delegateTrackingTo(socket);
 		return true;
 	}
 

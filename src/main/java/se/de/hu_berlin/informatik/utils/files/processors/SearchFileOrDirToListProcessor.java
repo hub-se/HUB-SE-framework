@@ -14,6 +14,7 @@ import se.de.hu_berlin.informatik.utils.files.AFileWalker;
 import se.de.hu_berlin.informatik.utils.files.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 
 /**
  * Starts a file walker that searches for files and directories that 
@@ -118,7 +119,7 @@ public class SearchFileOrDirToListProcessor extends AbstractProcessor<Path,List<
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public List<Path> processItem(Path input) {
+	public List<Path> processItem(Path input, ProcessorSocket<Path, List<Path>> socket) {
 		if (!input.toFile().exists()) {
 			Log.abort(this, "Path '%s' doesn't exist.", input.toString());
 		}
@@ -147,7 +148,7 @@ public class SearchFileOrDirToListProcessor extends AbstractProcessor<Path,List<
 		
 		//declare the file walker
 		SearchFileWalker walker = (SearchFileWalker) builder.build();
-		delegateTrackingTo(walker);
+		socket.delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {
@@ -156,7 +157,7 @@ public class SearchFileOrDirToListProcessor extends AbstractProcessor<Path,List<
 			Log.abort(this, e, "IOException thrown.");
 		}
 
-		walker.delegateTrackingTo(this);
+		walker.delegateTrackingTo(socket);
 		return walker.getMatchedPaths();
 	}
 

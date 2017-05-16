@@ -450,7 +450,8 @@ public class DisruptorProvider<A> implements Trackable {
 	}
 
 	@Override
-	public void allowOnlyForcedTracks() {
+	public DisruptorProvider<A> allowOnlyForcedTracks() {
 		onlyForced = true;
+		return this;
 	}
 }

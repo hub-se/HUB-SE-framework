@@ -126,8 +126,10 @@ public interface Trackable {
 	
 	/**
 	 * Disallows normal tracking and only allows forced tracks.
+	 * @return
+	 * this object for chaining
 	 */
-	public void allowOnlyForcedTracks();
+	public Trackable allowOnlyForcedTracks();
 
 	/**
 	 * Tracks the progress for a processed element if tracking

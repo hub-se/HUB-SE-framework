@@ -128,7 +128,7 @@ public class SearchFileOrDirProcessor extends AbstractProcessor<Path,Path> {
 		}
 
 		AFileWalker walker = builder.build();
-		delegateTrackingTo(walker);
+		socket.delegateTrackingTo(walker);
 		
 		//traverse the file tree
 		try {
@@ -138,7 +138,7 @@ public class SearchFileOrDirProcessor extends AbstractProcessor<Path,Path> {
 		}
 		
 //		Log.out(this, "submitted items: %d", walker.getNumberOfMatches());
-		walker.delegateTrackingTo(this);
+		walker.delegateTrackingTo(socket);
 		return null;
 	}
     

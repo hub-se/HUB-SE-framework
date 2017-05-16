@@ -1,11 +1,11 @@
 package se.de.hu_berlin.informatik.utils.processors;
 
+import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInput;
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.Pipe;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * A basic implementation of a {@link ConsumingProcessor} that implementing classes should
@@ -24,12 +24,12 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
  * @param <A>
  * the type of input objects
  */
-public abstract class AbstractConsumingProcessor<A> extends BasicComponent implements ConsumingProcessor<A> {
+public abstract class AbstractConsumingProcessor<A> implements ConsumingProcessor<A> {
 
 	private Pipe<A,Object> pipeView;
 	private Module<A,Object> moduleView;
 	private EHWithInput<A> ehView;
-	private ProcessorSocket<A,Object> socket;
+	private ConsumingProcessorSocket<A> socket;
 
 	/**
 	 * Convenience method that calls {@link #asModule()} on this Processor
@@ -74,56 +74,20 @@ public abstract class AbstractConsumingProcessor<A> extends BasicComponent imple
 	}
 	
 	@Override
-	public void setSocket(ProcessorSocket<A, Object> socket) {
+	public <T extends ProcessorSocket<A, Object>> void setSocket(T socket) {
 		if (socket == null) {
 			throw new IllegalStateException("No socket given (null) for " + this.getClass() + ".");
 		}
-		this.socket = socket;
+		this.socket = (ConsumingProcessorSocket<A>) socket;
 	}
 
 	@Override
-	public ProcessorSocket<A, Object> getSocket() {
+	public ConsumingProcessorSocket<A> getSocket() {
 		if (socket == null) {
 			throw new IllegalStateException("No socket set for " + this.getClass() + ".");
 		} else {
 			return socket;
 		}
-	}
-	
-	@Override
-	public AbstractConsumingProcessor<A> enableTracking() {
-		super.enableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractConsumingProcessor<A> enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
-		return this;
-	}
-
-	@Override
-	public AbstractConsumingProcessor<A> disableTracking() {
-		super.disableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractConsumingProcessor<A> enableTracking(TrackingStrategy tracker) {
-		super.enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	public AbstractConsumingProcessor<A> enableTracking(boolean useProgressBar) {
-		super.enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	public AbstractConsumingProcessor<A> enableTracking(boolean useProgressBar, int stepWidth) {
-		super.enableTracking(useProgressBar, stepWidth);
-		return this;
 	}
 	
 }

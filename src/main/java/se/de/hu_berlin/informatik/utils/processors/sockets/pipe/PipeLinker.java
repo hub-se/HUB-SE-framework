@@ -257,10 +257,11 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	}
 
 	@Override
-	public void allowOnlyForcedTracks() {
+	public PipeLinker allowOnlyForcedTracks() {
 		if (startPipe != null) {
 			startPipe.allowOnlyForcedTracks();
 		}
+		return this;
 	}
 
 	@Override

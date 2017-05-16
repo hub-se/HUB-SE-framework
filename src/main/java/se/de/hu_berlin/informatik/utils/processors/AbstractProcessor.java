@@ -5,7 +5,6 @@ import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInputAndRetu
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.Pipe;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * A basic implementation of a {@link Processor} that implementing classes should
@@ -26,7 +25,7 @@ import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
  * @param <B>
  * the type of output objects
  */
-public abstract class AbstractProcessor<A,B> extends BasicComponent implements Processor<A,B> { 
+public abstract class AbstractProcessor<A,B> implements Processor<A,B> { 
 
 	private Pipe<A,B> pipeView;
 	private Module<A,B> moduleView;
@@ -76,7 +75,7 @@ public abstract class AbstractProcessor<A,B> extends BasicComponent implements P
 	}
 
 	@Override
-	public void setSocket(ProcessorSocket<A, B> socket) {
+	public <T extends ProcessorSocket<A, B>> void setSocket(T socket) {
 		if (socket == null) {
 			throw new IllegalStateException("No socket given (null) for " + this.getClass() + ".");
 		}
@@ -92,40 +91,4 @@ public abstract class AbstractProcessor<A,B> extends BasicComponent implements P
 		}
 	}
 	
-	@Override
-	public AbstractProcessor<A, B> enableTracking() {
-		super.enableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractProcessor<A, B> enableTracking(int stepWidth) {
-		super.enableTracking(stepWidth);
-		return this;
-	}
-
-	@Override
-	public AbstractProcessor<A, B> disableTracking() {
-		super.disableTracking();
-		return this;
-	}
-
-	@Override
-	public AbstractProcessor<A, B> enableTracking(TrackingStrategy tracker) {
-		super.enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	public AbstractProcessor<A, B> enableTracking(boolean useProgressBar) {
-		super.enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	public AbstractProcessor<A, B> enableTracking(boolean useProgressBar, int stepWidth) {
-		super.enableTracking(useProgressBar, stepWidth);
-		return this;
-	}
-
 }

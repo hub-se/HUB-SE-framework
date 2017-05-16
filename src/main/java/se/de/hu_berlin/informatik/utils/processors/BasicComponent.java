@@ -49,8 +49,9 @@ public class BasicComponent implements Trackable, OptionCarrier {
 	}
 
 	@Override
-	public void allowOnlyForcedTracks() {
+	public Trackable allowOnlyForcedTracks() {
 		onlyForced = true;
+		return this;
 	}
 	
 }

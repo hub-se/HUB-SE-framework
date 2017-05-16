@@ -94,7 +94,7 @@ public interface Processor<A, B> extends ProcessorSocketGenerator<A, B> {
 	 * @param socket
 	 * the socket
 	 */
-	public void setSocket(ProcessorSocket<A, B> socket);
+	public <T extends ProcessorSocket<A, B>> void setSocket(T socket);
 
 	/**
 	 * @return the socket that was set for this Processor.
