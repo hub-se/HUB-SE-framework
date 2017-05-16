@@ -4,7 +4,7 @@
 package se.de.hu_berlin.informatik.utils.processors.basics;
 
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.processors.Producer;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 
 /**
  * Pipe that outputs every input item n times.
@@ -27,9 +27,9 @@ public class NTimesProcessor extends AbstractProcessor<Object,Object> {
 	}
 
 	@Override
-	public Object processItem(Object item, Producer<Object> producer) {
+	public Object processItem(Object item, ProcessorSocket<Object, Object> socket) {
 		for (int i = 0; i < n-1; ++i) {
-			producer.produce(item);
+			socket.produce(item);
 		}
 		return item;
 	}

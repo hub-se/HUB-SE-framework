@@ -5,10 +5,11 @@ import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInputAndRetu
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.Pipe;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
+import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * A basic implementation of a {@link Processor} that implementing classes should
- * extend by implementing {@link #processItem(Object)} or {@link #processItem(Object, Producer)}.
+ * extend by implementing {@link #processItem(Object)} or {@link #processItem(Object, ProcessorSocket)}.
  * 
  * <p> Optionally, the methods {@link #getResultFromCollectedItems()}, {@link #resetAndInit()}, 
  * {@link #finalShutdown()} and {@link #newProcessorInstance()} can be overridden, if necessary.
@@ -30,7 +31,7 @@ public abstract class AbstractProcessor<A,B> extends BasicComponent implements P
 	private Pipe<A,B> pipeView;
 	private Module<A,B> moduleView;
 	private EHWithInputAndReturn<A,B> ehView;
-	private Producer<B> producer;
+	private ProcessorSocket<A, B> socket;
 
 	/**
 	 * Convenience method that calls {@link #asModule()} on this Processor
@@ -75,20 +76,56 @@ public abstract class AbstractProcessor<A,B> extends BasicComponent implements P
 	}
 
 	@Override
-	public void setProducer(Producer<B> producer) {
-		if (producer == null) {
-			throw new IllegalStateException("No producer given (null) for " + this.getClass() + ".");
+	public void setSocket(ProcessorSocket<A, B> socket) {
+		if (socket == null) {
+			throw new IllegalStateException("No socket given (null) for " + this.getClass() + ".");
 		}
-		this.producer = producer;
+		this.socket = socket;
 	}
 
 	@Override
-	public Producer<B> getProducer() {
-		if (producer == null) {
-			throw new IllegalStateException("No producer set for " + this.getClass() + ".");
+	public ProcessorSocket<A, B> getSocket() {
+		if (socket == null) {
+			throw new IllegalStateException("No socket set for " + this.getClass() + ".");
 		} else {
-			return producer;
+			return socket;
 		}
+	}
+	
+	@Override
+	public AbstractProcessor<A, B> enableTracking() {
+		super.enableTracking();
+		return this;
+	}
+
+	@Override
+	public AbstractProcessor<A, B> enableTracking(int stepWidth) {
+		super.enableTracking(stepWidth);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessor<A, B> disableTracking() {
+		super.disableTracking();
+		return this;
+	}
+
+	@Override
+	public AbstractProcessor<A, B> enableTracking(TrackingStrategy tracker) {
+		super.enableTracking(tracker);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessor<A, B> enableTracking(boolean useProgressBar) {
+		super.enableTracking(useProgressBar);
+		return this;
+	}
+
+	@Override
+	public AbstractProcessor<A, B> enableTracking(boolean useProgressBar, int stepWidth) {
+		super.enableTracking(useProgressBar, stepWidth);
+		return this;
 	}
 
 }

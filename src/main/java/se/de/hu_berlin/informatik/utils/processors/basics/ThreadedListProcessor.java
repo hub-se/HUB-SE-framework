@@ -32,7 +32,8 @@ public class ThreadedListProcessor<A> extends AbstractConsumingProcessor<List<A>
 		this(threadCount, callableFactory, null);
 	}
 
-	public void consume(List<A> input) {
+	@Override
+	public void consumeItem(List<A> input) {
 		for (A element : input) {
 			disruptorProvider.submit(element);
 		}

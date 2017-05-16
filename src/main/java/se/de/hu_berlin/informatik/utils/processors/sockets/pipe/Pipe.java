@@ -4,8 +4,6 @@
 package se.de.hu_berlin.informatik.utils.processors.sockets.pipe;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
 import se.de.hu_berlin.informatik.utils.processors.sockets.AbstractProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
@@ -13,7 +11,6 @@ import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * A {@link ProcessorSocket} implementation that provides basic functionalities
@@ -135,39 +132,6 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 			@Override
 			public void processEvent(A item) {
 				Pipe.this.initAndConsume(item);
-			}
-
-			@Override
-			public OptionParser getOptions() {
-				return null;
-			}
-
-			@Override
-			public OptionCarrier setOptions(OptionParser options) {
-				return null;
-			}
-
-			@Override
-			public boolean hasOptions() {
-				return false;
-			}
-
-			@Override
-			public TrackingStrategy getTracker() {
-				return null;
-			}
-
-			@Override
-			public void setTracker(TrackingStrategy tracker) {
-			}
-
-			@Override
-			public boolean onlyForced() {
-				return false;
-			}
-
-			@Override
-			public void allowOnlyForcedTracks() {
 			}
 		});
 		this.singleWriter = singleWriter;

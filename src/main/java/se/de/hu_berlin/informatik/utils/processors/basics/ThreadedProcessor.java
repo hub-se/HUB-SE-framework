@@ -6,7 +6,7 @@ package se.de.hu_berlin.informatik.utils.processors.basics;
 import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
-import se.de.hu_berlin.informatik.utils.processors.Producer;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
@@ -26,7 +26,7 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 
 	private DisruptorProvider<A> disruptorProvider;
 	private AbstractDisruptorMultiplexer<B> multiplexer;
-	private Producer<B> producer;
+	private ProcessorSocket<A,B> socket;
 
 	private ThreadedProcessor(ClassLoader classLoader) {
 		super();
@@ -36,7 +36,7 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 			@Override
 			public void processNewOutputItem(B item) {
 				//submit results that are not null to the ouput pipe
-				producer.produce(item);
+				socket.produce(item);
 			}
 		};
 	}
@@ -69,12 +69,9 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
-	 */
 	@Override
-	public B processItem(A input, Producer<B> producer) {
-		this.producer = producer;
+	public B processItem(A input, ProcessorSocket<A, B> socket) {
+		this.socket = socket;
 		//restart the multiplexer if it has been shut down
 		if (!multiplexer.isRunning()) {
 			multiplexer.start();

@@ -13,6 +13,7 @@ import se.de.hu_berlin.informatik.utils.files.AFileWalker.Builder;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.processors.Producer;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 
 /**
  * Pipe that searches for matching files or directories and submits them to a linked pipe.
@@ -97,16 +98,16 @@ public class SearchFileOrDirProcessor extends AbstractProcessor<Path,Path> {
 	@Override
 	public void resetTrackAndConsume(Path item) {
 		//do not track input item
-		consume(item);
+		_consume_(item);
 	}
 
 	@Override
-	public Path processItem(Path start, Producer<Path> producer) {
+	public Path processItem(Path start, ProcessorSocket<Path, Path> socket) {
 		//build a new FileWalker
 		AFileWalker.Builder builder = new Builder(pattern) {
 			@Override
 			public AFileWalker build() {
-				return new FileWalker(this, producer);
+				return new FileWalker(this, socket);
 			}
 		};
 		

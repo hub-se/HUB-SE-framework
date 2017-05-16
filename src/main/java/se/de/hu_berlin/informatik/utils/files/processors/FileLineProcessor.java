@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
-import se.de.hu_berlin.informatik.utils.processors.Producer;
+import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 
 /**
  * Processor that reads a submitted file and processes each line with the given
@@ -68,7 +68,7 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 	}
 
 	@Override
-	public A processItem(Path input, Producer<A> producer) {
+	public A processItem(Path input, ProcessorSocket<Path, A> socket) {
 		//try opening the file with different charsets
 		for (Charset charset : charsets) {
 			//try opening the file
@@ -88,7 +88,7 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 					} else {
 						A temp = processor.getLineResult();
 						if (temp != null) {
-							producer.produce(temp);
+							socket.produce(temp);
 						}
 					}
 				}

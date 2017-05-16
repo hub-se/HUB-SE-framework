@@ -4,11 +4,9 @@
 package se.de.hu_berlin.informatik.utils.processors.sockets;
 
 import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
-import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
 import se.de.hu_berlin.informatik.utils.processors.Producer;
 import se.de.hu_berlin.informatik.utils.tracking.Trackable;
-import se.de.hu_berlin.informatik.utils.tracking.TrackingStrategy;
 
 /**
  * An interface that provides basic functionalities of transmitters that can
@@ -32,14 +30,14 @@ public interface ProcessorSocket<A,B> extends Producer<B>, ProcessorSocketGenera
 	 * in implementing classes should be the usual (and intended) way to produce a
 	 * usable {@link ProcessorSocket}.
 	 * <p> Per default, this method calls {@link #setProcessor(Processor)} on the
-	 * given Processor to register it for this socket. Then, {@link Processor#setProducer(Producer)}
+	 * given Processor to register it for this socket. Then, {@link Processor#setSocket(ProcessorSocket)}
 	 * gets called to register this socket as the {@link Producer} for the given Processor.
 	 * @param processor
 	 * the Processor to insert
 	 */
 	default public void insert(Processor<A, B> processor) {
 		setProcessor(processor);
-		processor.setProducer(this);
+		processor.setSocket(this);
 	}
 	
 	/**
@@ -85,79 +83,6 @@ public interface ProcessorSocket<A,B> extends Producer<B>, ProcessorSocketGenera
 	 */
 	default public boolean finalShutdown() {
 		return getProcessor().finalShutdown();
-	}
-	
-	
-	@Override
-	default public ProcessorSocket<A,B> enableTracking() {
-		getProcessor().enableTracking();
-		return this;
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> enableTracking(int stepWidth) {
-		getProcessor().enableTracking(stepWidth);
-		return this;
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> disableTracking() {
-		getProcessor().disableTracking();
-		return this;
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> enableTracking(TrackingStrategy tracker) {
-		getProcessor().enableTracking(tracker);
-		return this;
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> enableTracking(boolean useProgressBar) {
-		getProcessor().enableTracking(useProgressBar);
-		return this;
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> enableTracking(boolean useProgressBar, int stepWidth) {
-		getProcessor().enableTracking(useProgressBar, stepWidth);
-		return this;
-	}
-	
-	@Override
-	default public TrackingStrategy getTracker() {
-		return getProcessor().getTracker();
-	}
-
-	@Override
-	default public void setTracker(TrackingStrategy tracker) {
-		getProcessor().setTracker(tracker);
-	}
-	
-	@Override
-	default public boolean onlyForced() {
-		return getProcessor().onlyForced();
-	}
-
-	@Override
-	default public void allowOnlyForcedTracks() {
-		getProcessor().allowOnlyForcedTracks();
-	}
-	
-	@Override
-	default public OptionParser getOptions() {
-		return getProcessor().getOptions();
-	}
-
-	@Override
-	default public ProcessorSocket<A,B> setOptions(OptionParser options) {
-		getProcessor().setOptions(options);
-		return this;
-	}
-	
-	@Override
-	default public boolean hasOptions() {
-		return getProcessor().hasOptions();
 	}
 	
 }

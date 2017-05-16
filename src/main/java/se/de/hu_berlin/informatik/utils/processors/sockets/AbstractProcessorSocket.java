@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.processors.sockets;
 
+import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
 
 /**
@@ -12,7 +13,7 @@ import se.de.hu_berlin.informatik.utils.processors.Processor;
  * @param <B>
  * is the type of the output objects
  */
-public abstract class AbstractProcessorSocket<A, B> implements ProcessorSocket<A, B>, ProcessorSocketGenerator<A, B> {
+public abstract class AbstractProcessorSocket<A, B> extends BasicComponent implements ProcessorSocket<A, B>, ProcessorSocketGenerator<A, B> {
 
 	private Processor<A, B> processor;
 	
