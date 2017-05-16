@@ -6,7 +6,6 @@ package se.de.hu_berlin.informatik.utils.processors.basics;
 import java.util.List;
 
 import se.de.hu_berlin.informatik.utils.processors.AbstractConsumingProcessor;
-import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
@@ -34,7 +33,7 @@ public class ThreadedListProcessor<A> extends AbstractConsumingProcessor<List<A>
 	}
 
 	@Override
-	public void consumeItem(List<A> input, ConsumingProcessorSocket<List<A>> socket) {
+	public void consumeItem(List<A> input, ProcessorSocket<List<A>, Object> socket) {
 		if (this.socket == null) {
 			this.socket = socket;
 			if (this.socket.hasOptions()) {

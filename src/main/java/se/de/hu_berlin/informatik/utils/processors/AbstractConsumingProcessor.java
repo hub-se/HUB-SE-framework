@@ -1,6 +1,5 @@
 package se.de.hu_berlin.informatik.utils.processors;
 
-import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInput;
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
@@ -29,7 +28,7 @@ public abstract class AbstractConsumingProcessor<A> implements ConsumingProcesso
 	private Pipe<A,Object> pipeView;
 	private Module<A,Object> moduleView;
 	private EHWithInput<A> ehView;
-	private ConsumingProcessorSocket<A> socket;
+	private ProcessorSocket<A,Object> socket;
 
 	/**
 	 * Convenience method that calls {@link #asModule()} on this Processor
@@ -74,15 +73,15 @@ public abstract class AbstractConsumingProcessor<A> implements ConsumingProcesso
 	}
 	
 	@Override
-	public <T extends ProcessorSocket<A, Object>> void setSocket(T socket) {
+	public void setSocket(ProcessorSocket<A, Object> socket) {
 		if (socket == null) {
 			throw new IllegalStateException("No socket given (null) for " + this.getClass() + ".");
 		}
-		this.socket = (ConsumingProcessorSocket<A>) socket;
+		this.socket = socket;
 	}
 
 	@Override
-	public ConsumingProcessorSocket<A> getSocket() {
+	public ProcessorSocket<A, Object> getSocket() {
 		if (socket == null) {
 			throw new IllegalStateException("No socket set for " + this.getClass() + ".");
 		} else {

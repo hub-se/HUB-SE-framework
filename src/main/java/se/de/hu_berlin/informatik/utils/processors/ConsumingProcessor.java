@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.processors;
 
-import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInput;
@@ -29,7 +28,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Abstract
 public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingProcessorSocketGenerator<A> {
 	
 	/**
-	 * Per default, calls {@link #consumeItem(Object, ConsumingProcessorSocket)} on the given item
+	 * Per default, calls {@link #consumeItem(Object, ProcessorSocket)} on the given item
 	 * and the result of {@link #getSocket()}.
 	 * @param item
 	 * the item to consume
@@ -45,17 +44,14 @@ public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingPro
 		consumeItem(item, getSocket());
 	}
 	
-	default void consumeItem(A item, ConsumingProcessorSocket<A> socket) throws UnsupportedOperationException {
+	default void consumeItem(A item, ProcessorSocket<A, Object> socket) throws UnsupportedOperationException {
 		consumeItem(item);
 	}
 	
 	default void consumeItem(A item) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("No processing method set for " + this.getClass().getSimpleName() + ".");
 	}
-	
-	@Override
-	ConsumingProcessorSocket<A> getSocket() throws IllegalStateException;
-	
+
 	/**
 	 * Throws an exception, as it should not be used by a {@link ConsumingProcessor}.
 	 * @param item
@@ -107,12 +103,12 @@ public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingPro
 	 * {@link #newPipeInstance()} and {@link #newEHInstance()}.
 	 * <p>
 	 * Per default, this creates a new {@link AbstractConsumingProcessor} that inherits
-	 * the methods {@link #consumeItem(Object, ConsumingProcessorSocket)},
+	 * the methods {@link #consumeItem(Object, ProcessorSocket)},
 	 * {@link #getResultFromCollectedItems()} and {@link #finalShutdown()} from
 	 * this Processor. It will, however, NOT generate separate instances of any
 	 * declared global fields, for example. Note that
 	 * {@link #consumeItem(Object)} gets called by
-	 * {@link #consumeItem(Object, ConsumingProcessorSocket)}, such that it will get called even
+	 * {@link #consumeItem(Object, ProcessorSocket)}, such that it will get called even
 	 * if it is not directly inherited.
 	 * <p>
 	 * If a new instance should be given their own global fields or some other
@@ -128,7 +124,7 @@ public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingPro
 				ConsumingProcessor.this.resetAndInit();
 			}
 			@Override
-			public void consumeItem(A item, ConsumingProcessorSocket<A> socket) {
+			public void consumeItem(A item, ProcessorSocket<A, Object> socket) {
 				ConsumingProcessor.this.consumeItem(item, socket);
 			}
 			@Override

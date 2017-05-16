@@ -75,7 +75,7 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 	}
 
 	@Override
-	public <T extends ProcessorSocket<A, B>> void setSocket(T socket) {
+	public void setSocket(ProcessorSocket<A, B> socket) {
 		if (socket == null) {
 			throw new IllegalStateException("No socket given (null) for " + this.getClass() + ".");
 		}
