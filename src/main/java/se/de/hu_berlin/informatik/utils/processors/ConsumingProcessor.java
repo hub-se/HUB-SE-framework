@@ -29,7 +29,7 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Abstract
 public interface ConsumingProcessor<A> extends Processor<A,Object>, ConsumingProcessorSocketGenerator<A> {
 	
 	/**
-	 * Per default, calls {@link #consumeItem(Object, ProcessorSocket)} on the given item
+	 * Per default, calls {@link #consumeItem(Object, ConsumingProcessorSocket)} on the given item
 	 * and the result of {@link #getSocket()}.
 	 * @param item
 	 * the item to consume
