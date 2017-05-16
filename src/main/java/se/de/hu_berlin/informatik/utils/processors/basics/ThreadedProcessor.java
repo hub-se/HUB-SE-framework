@@ -3,13 +3,16 @@
  */
 package se.de.hu_berlin.informatik.utils.processors.basics;
 
+import se.de.hu_berlin.informatik.utils.optionparser.OptionParser;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.processors.BasicComponent;
 import se.de.hu_berlin.informatik.utils.processors.Producer;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocketGenerator;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.DisruptorProvider;
+import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 
 /**
  * Starts a provided callable class on each submitted input element, using
@@ -88,4 +91,13 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 		return true;
 	}
 
+	@Override
+	public BasicComponent setOptions(OptionParser options) {
+		super.setOptions(options);
+		for (AbstractDisruptorEventHandler<A> handler : disruptorProvider.getHandlers()) {
+			handler.setOptions(options);
+		}
+		return this;
+	}
+	
 }

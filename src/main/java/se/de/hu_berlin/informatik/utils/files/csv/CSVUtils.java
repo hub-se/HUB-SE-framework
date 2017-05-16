@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
-
 import se.de.hu_berlin.informatik.utils.files.FileUtils;
 import se.de.hu_berlin.informatik.utils.files.csv.stringprocessor.CSVStringsToDoubleArrayListProcessor;
 import se.de.hu_berlin.informatik.utils.files.csv.stringprocessor.CSVStringsToIntegerArrayListProcessor;
@@ -158,7 +156,9 @@ public final class CSVUtils {
      */
     public static List<String> toCsv(final int[] dataArray, int columnCount) {
         final StringBuilder line = new StringBuilder();
-        Assert.assertTrue(dataArray.length % columnCount == 0);
+        if (dataArray.length % columnCount != 0) {
+        	throw new IllegalArgumentException();
+        }
         
         List<String> lines = new ArrayList<>();
         
@@ -187,7 +187,9 @@ public final class CSVUtils {
      */
     public static List<String> toCsv(final byte[] dataArray, int columnCount) {
         final StringBuilder line = new StringBuilder();
-        Assert.assertTrue(dataArray.length % columnCount == 0);
+        if (dataArray.length % columnCount != 0) {
+        	throw new IllegalArgumentException();
+        }
         
         List<String> lines = new ArrayList<>();
         

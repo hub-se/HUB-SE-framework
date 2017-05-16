@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.processors.sockets.eh;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.processors.ConsumingProcessor;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ConsumingProcessorSocket;
@@ -13,7 +12,6 @@ import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
 import se.de.hu_berlin.informatik.utils.processors.sockets.pipe.Pipe;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * A {@link ConsumingProcessorSocket} implementation that provides a simple API for 
@@ -24,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * @param <A>
  * the type of the input objects
  */
-public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements ConsumingProcessorSocket<A>, ConsumingProcessorSocketGenerator<A>, Trackable, OptionCarrier {
+public class EHWithInput<A> extends DisruptorFCFSEventHandler<A> implements ConsumingProcessorSocket<A>, ConsumingProcessorSocketGenerator<A> {
 
 	private Processor<A,Object> processor;
 	

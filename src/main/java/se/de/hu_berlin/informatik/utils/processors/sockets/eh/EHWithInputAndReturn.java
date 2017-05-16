@@ -5,7 +5,6 @@ package se.de.hu_berlin.informatik.utils.processors.sockets.eh;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import se.de.hu_berlin.informatik.utils.optionparser.OptionCarrier;
 import se.de.hu_berlin.informatik.utils.processors.Processor;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
@@ -14,7 +13,6 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.Multiplexer;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.MultiplexerInput;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.AbstractDisruptorEventHandler;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.DisruptorFCFSEventHandler;
-import se.de.hu_berlin.informatik.utils.tracking.Trackable;
 
 /**
  * A {@link ProcessorSocket} implementation that provides a simple API for 
@@ -28,7 +26,7 @@ import se.de.hu_berlin.informatik.utils.tracking.Trackable;
  * @param <B>
  * the type of the output objects
  */
-public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorSocket<A,B>, Trackable, OptionCarrier, MultiplexerInput<B> {
+public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> implements ProcessorSocket<A,B>, MultiplexerInput<B> {
 
 	/**
 	 * The output object.
