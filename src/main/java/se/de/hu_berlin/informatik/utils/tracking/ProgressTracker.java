@@ -11,7 +11,7 @@ public class ProgressTracker implements TrackingStrategy {
 
 	public ProgressTracker(boolean useProgressBar) {
 		if (useProgressBar) {
-			tracker = new ProgressBarTracker(1);
+			tracker = new NewProgressBarTracker(1, -1);
 		} else {
 			tracker = new SimpleTracker();
 		}
@@ -20,7 +20,7 @@ public class ProgressTracker implements TrackingStrategy {
 	public ProgressTracker(boolean useProgressBar, int stepWidth) {
 		assert stepWidth > 0;
 		if (useProgressBar) {
-			tracker = new ProgressBarTracker(stepWidth);
+			tracker = new NewProgressBarTracker(stepWidth, -1);
 		} else {
 			tracker = new StepWiseTracker(stepWidth);
 		}

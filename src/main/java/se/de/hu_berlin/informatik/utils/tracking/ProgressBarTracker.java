@@ -2,6 +2,7 @@ package se.de.hu_berlin.informatik.utils.tracking;
 
 import java.io.IOException;
 
+@Deprecated
 public class ProgressBarTracker implements TrackingStrategy {
 
 	final private static String ICON_POS = ">";
