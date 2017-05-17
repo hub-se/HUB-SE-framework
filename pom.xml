@@ -44,6 +44,11 @@
 			<version>2.5</version>
 		</dependency>
 		<dependency>
+			<groupId>me.tongfei</groupId>
+			<artifactId>progressbar</artifactId>
+			<version>0.5.5</version>
+		</dependency>
+		<dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-standalone-runtime</artifactId>
 			<version>${evosuiteVersion}</version>
@@ -60,14 +65,8 @@
 					<groupId>org.evosuite.plugins</groupId>
 					<artifactId>evosuite-maven-plugin</artifactId>
 					<version>${evosuiteVersion}</version>
-					<!-- <executions>
-						<execution>
-							<goals>
-								<goal> prepare </goal>
-							</goals>
-							<phase> process-test-classes </phase>
-						</execution>
-					</executions> -->
+					<!-- <executions> <execution> <goals> <goal> prepare </goal> </goals> 
+						<phase> process-test-classes </phase> </execution> </executions> -->
 				</plugin>
 			</plugins>
 		</pluginManagement>
