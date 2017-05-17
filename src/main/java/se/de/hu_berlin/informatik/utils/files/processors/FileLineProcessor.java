@@ -37,6 +37,7 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 	private boolean abortOnError = false;
 	
 	private int skip = 0;
+	private int max = 0;
 	
 	/**
 	 * Creates a new {@link FileLineProcessor} object with the given parameters.
@@ -51,6 +52,11 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 	
 	public FileLineProcessor<A> skipFirstLines(int count) {
 		skip = count;
+		return this;
+	}
+	
+	public FileLineProcessor<A> readMaxLines(int count) {
+		max = count;
 		return this;
 	}
 	
@@ -77,8 +83,15 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 				while ((line = reader.readLine()) != null) {
 					if (skip > 0) {
 						--skip;
+						if (max > 0) {
+							--max;
+							if (max == 0) {
+								break;
+							}
+						}
 						continue;
 					}
+					
 					if (!processor.process(line)) {
 						if (abortOnError) {
 							Log.abort(this, "Processing line \"%s\" with %s was not successful.", line, processor.getClass().getSimpleName());
@@ -89,6 +102,13 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 						A temp = processor.getLineResult();
 						if (temp != null) {
 							socket.produce(temp);
+						}
+					}
+
+					if (max > 0) {
+						--max;
+						if (max == 0) {
+							break;
 						}
 					}
 				}

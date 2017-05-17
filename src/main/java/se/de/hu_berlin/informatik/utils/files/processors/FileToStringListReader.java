@@ -16,11 +16,21 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class FileToStringListReader extends AbstractProcessor<Path, List<String>> {
 	
-	/**
-	 * Creates a new {@link FileToStringListReader} with the given parameters.
-	 */
+	private int skip;
+	private int max;
+
 	public FileToStringListReader() {
+		this(0, 0);
+	}
+	
+	public FileToStringListReader(int skip) {
+		this(skip, 0);
+	}
+	
+	public FileToStringListReader(int skip, int max) {
 		super();
+		this.skip = skip;
+		this.max = max;
 	}
 	
 	/* (non-Javadoc)
@@ -29,6 +39,8 @@ public class FileToStringListReader extends AbstractProcessor<Path, List<String>
 	@Override
 	public List<String> processItem(Path input) {
 		return new FileLineProcessor<List<String>>(new StringsToListProcessor(), true)
+				.skipFirstLines(skip)
+				.readMaxLines(max)
 				.submit(input)
 				.getResult();
 	}
