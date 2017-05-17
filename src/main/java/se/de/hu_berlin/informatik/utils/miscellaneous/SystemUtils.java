@@ -52,11 +52,13 @@ final public class SystemUtils {
 	 * path to Java home directory
 	 * @param javaJREDir
 	 * path to a Java JRE directory
+	 * @param abortOnError
+	 * whether to abort if the command cannot be executed
 	 * @param commandArgs
 	 * the command to execute, given as an array
 	 */
 	public static void executeCommandInJavaEnvironment(File executionDir, 
-			String javaBinDir, String javaHomeDir, String javaJREDir, String... commandArgs) {
+			String javaBinDir, String javaHomeDir, String javaJREDir, boolean abortOnError, String... commandArgs) {
 		int executionResult = -1;
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
 			executionResult = new ExecuteCommandInSystemEnvironment(executionDir)
@@ -73,7 +75,11 @@ final public class SystemUtils {
 		}
 		
 		if (executionResult != 0) {
-			Log.abort(SystemUtils.class, "Error while executing command: " + Misc.arrayToString(commandArgs, " ", "", ""));
+			if (abortOnError) {
+				Log.abort(SystemUtils.class, "Error while executing command: " + Misc.arrayToString(commandArgs, " ", "", ""));
+			} else {
+				Log.err(SystemUtils.class, "Error while executing command: " + Misc.arrayToString(commandArgs, " ", "", ""));
+			}
 		}
 	}
 	
@@ -83,11 +89,13 @@ final public class SystemUtils {
 	 * the system's default Java environment.
 	 * @param executionDir
 	 * an execution directory in which the command shall be executed
+	 * @param abortOnError
+	 * whether to abort if the command cannot be executed
 	 * @param commandArgs
 	 * the command to execute, given as an array
 	 */
-	public static void executeCommand(File executionDir, String... commandArgs) {
-		executeCommandInJavaEnvironment(executionDir, null, null, null, commandArgs);
+	public static void executeCommand(File executionDir, boolean abortOnError, String... commandArgs) {
+		executeCommandInJavaEnvironment(executionDir, null, null, null, abortOnError, commandArgs);
 	}
 	
 	/**
