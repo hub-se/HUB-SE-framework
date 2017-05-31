@@ -161,6 +161,27 @@ final public class FileUtils {
 		return delete(fileOrDir.toFile());
 	}
 	
+	public enum SearchOption {
+		STARTS_WITH,
+		ENDS_WITH,
+		CONTAINS
+	}
+	
+	/**
+	 * Searches for a file containing the given pattern (recursively).
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param option
+	 * an option to specify the position of the pattern in the file name
+	 * @return
+	 * the found file, or null if no file was found that contains the pattern
+	 */
+	public static File searchFileContainingPattern(final File startDir, final String pattern, SearchOption option) {
+		return searchFileContainingPattern(startDir, pattern, option, Integer.MAX_VALUE);
+	}
+	
 	/**
 	 * Searches for a file containing the given pattern (recursively).
 	 * @param startDir
@@ -180,12 +201,14 @@ final public class FileUtils {
 	 * the starting directory
 	 * @param pattern
 	 * the pattern to search for
+	 * @param option
+	 * an option to specify the position of the pattern in the file name
 	 * @param depth
 	 * recursion depth
 	 * @return
 	 * the found file, or null if no file was found that contains the pattern
 	 */
-	public static File searchFileContainingPattern(final File startDir, final String pattern, final int depth) {
+	public static File searchFileContainingPattern(final File startDir, final String pattern, SearchOption option, final int depth) {
 		if (depth < 0) {
 			return null;
 		}
@@ -195,7 +218,7 @@ final public class FileUtils {
 			}
 			try {
 				for (final File file : startDir.listFiles()) {
-					final File result = searchFileContainingPattern(file, pattern, depth-1);
+					final File result = searchFileContainingPattern(file, pattern, option, depth-1);
 					if (result != null) {
 						return result;
 					}
@@ -203,11 +226,49 @@ final public class FileUtils {
 			} catch(NullPointerException e) {
 				Log.err(null, "Could not search in " + startDir.toString() + ".");
 			}
+		} else if (option == SearchOption.STARTS_WITH) {
+			if (startDir.getName().startsWith(pattern)) {
+				return startDir;
+			}
+		} else if (option == SearchOption.ENDS_WITH) {
+			if (startDir.getName().endsWith(pattern)) {
+				return startDir;
+			}
 		} else if (startDir.getName().contains(pattern)) {
 			return startDir;
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Searches for a file containing the given pattern up to a specified depth.
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param depth
+	 * recursion depth
+	 * @return
+	 * the found file, or null if no file was found that contains the pattern
+	 */
+	public static File searchFileContainingPattern(final File startDir, final String pattern, final int depth) {
+		return searchFileContainingPattern(startDir, pattern, SearchOption.CONTAINS, depth);
+	}
+	
+	/**
+	 * Searches for a directory containing the given pattern (recursively).
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param option
+	 * an option to specify the position of the pattern in the file name
+	 * @return
+	 * the found directory, or null if no directory was found that contains the pattern
+	 */
+	public static File searchDirectoryContainingPattern(final File startDir, final String pattern, SearchOption option) {
+		return searchDirectoryContainingPattern(startDir, pattern, option, Integer.MAX_VALUE);
 	}
 	
 	/**
@@ -229,25 +290,36 @@ final public class FileUtils {
 	 * the starting directory
 	 * @param pattern
 	 * the pattern to search for
+	 * @param option
+	 * an option to specify the position of the pattern in the file name
 	 * @param depth
 	 * recursion depth
 	 * @return
 	 * the found directory, or null if no directory was found that contains the pattern
 	 */
-	public static File searchDirectoryContainingPattern(final File startDir, final String pattern, final int depth) {
+	public static File searchDirectoryContainingPattern(final File startDir, final String pattern, SearchOption option, final int depth) {
 		if (depth < 0) {
 			return null;
 		}
 		if (startDir.isDirectory()) {
-			if (startDir.getName().contains(pattern)) {
+			if (option == SearchOption.STARTS_WITH) {
+				if (startDir.getName().startsWith(pattern)) {
+					return startDir;
+				}
+			} else if (option == SearchOption.ENDS_WITH) {
+				if (startDir.getName().endsWith(pattern)) {
+					return startDir;
+				}
+			} else if (startDir.getName().contains(pattern)) {
 				return startDir;
 			}
+			
 			if (depth == 0) {
 				return null;
 			}
 			try {
 				for (final File file : startDir.listFiles()) {
-					final File result = searchDirectoryContainingPattern(file, pattern, depth-1);
+					final File result = searchDirectoryContainingPattern(file, pattern, option, depth-1);
 					if (result != null) {
 						return result;
 					}
@@ -258,6 +330,21 @@ final public class FileUtils {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Searches for a directory containing the given pattern up to a specified depth.
+	 * @param startDir
+	 * the starting directory
+	 * @param pattern
+	 * the pattern to search for
+	 * @param depth
+	 * recursion depth
+	 * @return
+	 * the found directory, or null if no directory was found that contains the pattern
+	 */
+	public static File searchDirectoryContainingPattern(final File startDir, final String pattern, final int depth) {
+		return searchDirectoryContainingPattern(startDir, pattern, SearchOption.CONTAINS, depth);
 	}
 	
 	/**
