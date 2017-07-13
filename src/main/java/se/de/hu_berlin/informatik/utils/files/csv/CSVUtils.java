@@ -24,7 +24,8 @@ public final class CSVUtils {
 	/**
 	 * used CSV delimiter
 	 */
-	public static final String CSV_DELIMITER = ";";
+	public static final char CSV_DELIMITER = ';';
+	public static final String CSV_DELIMITER_STRING = ";";
 	/**
 	 * used quote character to quote fields
 	 */
@@ -292,7 +293,7 @@ public final class CSVUtils {
 		for (int i = 0; i < objectArray.length; ++i) {
 			line.append(
 					objectArray[i] == null ? "null"
-							: objectArray[i].toString().replaceAll(CSV_DELIMITER, "_")
+							: objectArray[i].toString().replace(CSV_DELIMITER, '_')
 									.replaceAll(CSV_QUOTE, CSV_QUOTE + CSV_QUOTE));
 			if (i < objectArray.length - 1) {
 				// put delimiter between the values
@@ -318,7 +319,7 @@ public final class CSVUtils {
 
 		for (int i = 0; i < objectArrayList.size(); ++i) {
 			line.append(
-					objectArrayList.get(i)[columnIndex].toString().replaceAll(CSV_DELIMITER, "_")
+					objectArrayList.get(i)[columnIndex].toString().replace(CSV_DELIMITER, '_')
 							.replaceAll(CSV_QUOTE, CSV_QUOTE + CSV_QUOTE));
 			if (i < objectArrayList.size() - 1) {
 				// put delimiter between the values

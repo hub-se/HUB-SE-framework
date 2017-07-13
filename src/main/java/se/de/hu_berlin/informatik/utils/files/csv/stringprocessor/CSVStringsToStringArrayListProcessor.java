@@ -30,7 +30,7 @@ public class CSVStringsToStringArrayListProcessor implements StringProcessor<Lis
 	 */
 	@Override
 	public boolean process(String line) {
-		String[] temp = line.split(CSVUtils.CSV_DELIMITER, -1);
+		String[] temp = line.split(CSVUtils.CSV_DELIMITER_STRING, -1);
 		return lines.add(temp);
 	}
 
