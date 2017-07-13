@@ -110,6 +110,39 @@ public class CSVUtilsTest extends TestSettings {
 		assertTrue(arrayListsAreEqual(arrayList5, arrayList));
 	}
 	
+	/**
+	 * Test method for {@link se.de.hu_berlin.informatik.utils.files.csv.CSVUtils#toCsvFile(java.util.List, java.nio.file.Path)}.
+	 */
+	@Test
+	public void testToCsvFile2() throws Exception {
+		List<String[]> arrayList = new ArrayList<>();
+		arrayList.add(new String[] {"1", "2"});
+		arrayList.add(new String[] {"4", "5"});
+		arrayList.add(new String[] {"6", "7"});
+		arrayList.add(new String[] {"8", "9"});
+		
+		Path output = Paths.get(getStdTestDir(), "test2.csv");
+		CSVUtils.toCsvFile(arrayList, false, output);
+		
+		List<String[]> arrayList2 = CSVUtils.readCSVFileToListOfStringArrays(output, false);
+		
+		assertTrue(arrayListsAreEqual(arrayList, arrayList2));
+		
+		List<String[]> arrayList3 = new ArrayList<>();
+		arrayList3.add(new String[] {"1", "4", "6", "8"});
+		arrayList3.add(new String[] {"2", "5", "7", "9"});
+		
+		CSVUtils.toCsvFile(arrayList, true, output);
+		
+		List<String[]> arrayList4 = CSVUtils.readCSVFileToListOfStringArrays(output, false);
+		
+		assertTrue(arrayListsAreEqual(arrayList3, arrayList4));
+		
+		List<String[]> arrayList5 = CSVUtils.readCSVFileToListOfStringArrays(output, true);
+		
+		assertTrue(arrayListsAreEqual(arrayList5, arrayList));
+	}
+	
 	
 
 }
