@@ -165,7 +165,8 @@ final public class FileUtils {
 	public enum SearchOption {
 		STARTS_WITH,
 		ENDS_WITH,
-		CONTAINS
+		CONTAINS,
+		EQUALS
 	}
 	
 	/**
@@ -226,6 +227,10 @@ final public class FileUtils {
 				}
 			} catch(NullPointerException e) {
 				Log.err(null, "Could not search in " + startDir.toString() + ".");
+			}
+		} else if (option == SearchOption.EQUALS) {
+			if (startDir.getName().equals(pattern)) {
+				return startDir;
 			}
 		} else if (option == SearchOption.STARTS_WITH) {
 			if (startDir.getName().startsWith(pattern)) {
@@ -303,7 +308,11 @@ final public class FileUtils {
 			return null;
 		}
 		if (startDir.isDirectory()) {
-			if (option == SearchOption.STARTS_WITH) {
+			if (option == SearchOption.EQUALS) {
+				if (startDir.getName().equals(pattern)) {
+					return startDir;
+				}
+			} else if (option == SearchOption.STARTS_WITH) {
 				if (startDir.getName().startsWith(pattern)) {
 					return startDir;
 				}
