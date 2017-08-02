@@ -19,6 +19,7 @@ import java.util.Objects;
 import org.apache.commons.io.FilenameUtils;
 
 import se.de.hu_berlin.informatik.utils.files.processors.FileToStringListReader;
+import se.de.hu_berlin.informatik.utils.files.processors.SearchFileOrDirToListProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 final public class FileUtils {
@@ -495,6 +496,16 @@ final public class FileUtils {
 		}
 	}
 	
+	public static boolean isLineInFile(final String line, final File file) {
+		List<String> lines = readFile2List(file.toPath());
+		for (String l : lines) {
+			if (l.equals(line)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Reads a file and returns its contents as a String.
 	 * @param path
@@ -615,5 +626,10 @@ final public class FileUtils {
     public static String getFileWithoutExtension(final String file) {
     	return FilenameUtils.removeExtension(file);
     }
+    
+    
+    public static List<Path> getJavaFilesInProject(Path projectPath) {
+    	return new SearchFileOrDirToListProcessor(".java", true).submit(projectPath).getResult();
+	}
 	
 }

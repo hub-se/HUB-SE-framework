@@ -32,17 +32,17 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 	private EHWithInputAndReturn<A,B> ehView;
 	private ProcessorSocket<A, B> socket;
 
-	/**
-	 * Convenience method that calls {@link #asModule()} on this Processor
-	 * and then submits the given item.
-	 * @param item
-	 * the item to process
-	 * @return
-	 * this Processor as a {@link Module}, for chaining
-	 */
-	public Module<A,B> submit(Object item) {
-		return asModule().submit(item);
-	}
+//	/**
+//	 * Convenience method that calls {@link #asModule()} on this Processor
+//	 * and then submits the given item.
+//	 * @param item
+//	 * the item to process
+//	 * @return
+//	 * this Processor as a {@link Module}, for chaining
+//	 */
+//	public Module<A,B> submit(Object item) {
+//		return asModule().submit(item);
+//	}
 	
 	@Override
 	public Pipe<A,B> asPipe() throws UnsupportedOperationException {

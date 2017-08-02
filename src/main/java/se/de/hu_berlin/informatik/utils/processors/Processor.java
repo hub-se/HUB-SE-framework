@@ -24,6 +24,18 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Abstract
 public interface Processor<A, B> extends ProcessorSocketGenerator<A, B> {
 
 	/**
+	 * Convenience method that calls {@link #asModule()} on this Processor
+	 * and then submits the given item.
+	 * @param item
+	 * the item to process
+	 * @return
+	 * this Processor as a {@link Module}, for chaining
+	 */
+	default public Module<A,B> submit(Object item) {
+		return asModule().submit(item);
+	}
+	
+	/**
 	 * This method should mainly get called by classes that use the processor.
 	 * <p>
 	 * Per default, this method calls {@link #resetAndInit()}, then

@@ -118,9 +118,9 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 			}
 		}
 		if (abortOnError) {
-			Log.abort(this, "Not able to open/read file %s.", input.toString());
+			Log.abort(this, "Not able to open/read file %s.", input.toAbsolutePath().toString());
 		} else {
-			Log.warn(this, "Not able to open/read file %s.", input.toString());
+			Log.warn(this, "Not able to open/read file %s.", input.toAbsolutePath().toString());
 		}
 		
 		return null;

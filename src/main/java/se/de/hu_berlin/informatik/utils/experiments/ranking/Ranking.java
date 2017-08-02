@@ -692,6 +692,18 @@ public interface Ranking<T> extends Iterable<T> {
 	public void outdateRankingCache();
 	
 	/**
+     * Creates a view on the given ranking. Changes to the returned ranking are
+     * visible in the given ranking. The same holds for the other direction.
+     * @param ranking
+     * the ranking to normalize
+     * @param strategy
+     * the strategy to use
+     */
+	public static <T> Ranking<T> normalize(Ranking<T> ranking, NormalizationStrategy strategy) {
+		return new NormalizedRanking<>(ranking, strategy);
+	}
+	
+	/**
 	 * Manipulates the given ranking and returns the result.
 	 * @param <T>
 	 * the type of the ranking elements
