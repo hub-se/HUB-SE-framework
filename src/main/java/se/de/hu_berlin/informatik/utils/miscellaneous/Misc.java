@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -230,7 +231,7 @@ final public class Misc {
 	
 	/**
 	 * Obtains the enum from the given class that has an identical {@link #toString()}
-	 * value as the given String.
+	 * value as the given String. Will ignore upper and lower case.
 	 * @param enumClass
 	 * the enum class
 	 * @param request
@@ -241,9 +242,13 @@ final public class Misc {
 	 * the type of the enum class
 	 */
 	public static <T extends Enum<T>> T getEnumFromToString(Class<T> enumClass, String request) {
+		if (request == null) {
+			return null;
+		}
+		request = request.toLowerCase(Locale.getDefault());
 		EnumSet<T> set = EnumSet.allOf(enumClass);
 		for (final T element : set) {
-			if (element.toString().equals(request)) {
+			if (element.toString().toLowerCase(Locale.getDefault()).equals(request)) {
 				return element;
 			}
 		}
