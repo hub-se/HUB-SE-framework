@@ -32,7 +32,7 @@ public class LogConfigurationFactory extends ConfigurationFactory {
         appenderBuilder.add(builder.newLayout("PatternLayout").
         		addAttribute("noConsoleNoAnsi", true).
             addAttribute("pattern", "%highlight{%d{HH:mm:ss} %-5level [%c{1}] %msg%n"
-            		+ "%xEx{filters(org.junit,org.apache.maven,sun.reflect,java.lang.reflect,se.de.hu_berlin.informatik.utils.miscellaneous.Log)}}"));
+            		+ "%xEx{filters(org.junit,org.eclipse.jdt,org.apache.maven,sun.reflect,java.lang.reflect,se.de.hu_berlin.informatik.utils.miscellaneous.Log)}}"));
         appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY,
             Filter.Result.NEUTRAL).addAttribute("marker", "FLOW"));
         builder.add(appenderBuilder);
