@@ -506,6 +506,9 @@ final public class FileUtils {
 	}
 	
 	public static boolean isLineInFile(final String line, final File file) {
+		if (!file.exists()) {
+			return false;
+		}
 		List<String> lines = readFile2List(file.toPath());
 		for (String l : lines) {
 			if (l.equals(line)) {
