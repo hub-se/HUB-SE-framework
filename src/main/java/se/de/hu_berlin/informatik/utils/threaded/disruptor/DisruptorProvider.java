@@ -252,8 +252,10 @@ public class DisruptorProvider<A> implements Trackable {
 	 * in parallel. If no disruptor instance is available, a new one is created beforehand.
 	 * @param handlers
 	 * the handlers to connect
+	 * @return
+	 * this
 	 */
-	public void connectHandlers(@SuppressWarnings("unchecked") AbstractDisruptorEventHandler<A>... handlers) {
+	public DisruptorProvider<A> connectHandlers(@SuppressWarnings("unchecked") AbstractDisruptorEventHandler<A>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}
@@ -284,6 +286,8 @@ public class DisruptorProvider<A> implements Trackable {
 		this.handlers = handlers;
 		
 		isConnectedToHandlers = true;
+		
+		return this;
 	}
 	
 	/**
@@ -295,8 +299,12 @@ public class DisruptorProvider<A> implements Trackable {
 	 * the multiplexer to connect the event handlers to
 	 * @param handlers
 	 * the handlers to connect
+	 * @return
+	 * this
+	 * @param <B>
+	 * the type of returned items
 	 */
-	public <B> void connectHandlers(ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer,
+	public <B> DisruptorProvider<A> connectHandlers(ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer,
 			@SuppressWarnings("unchecked") EHWithInputAndReturn<A,B>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
@@ -308,7 +316,7 @@ public class DisruptorProvider<A> implements Trackable {
 			handler.setThreadLimit(limit);
 		}
 		
-		connectHandlers(handlers);
+		return connectHandlers(handlers);
 	}
 	
 	public <B> DisruptorProvider<A> connectHandlers(ProcessorSocketGenerator<A, B> transmitter, 
@@ -356,9 +364,7 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		
 		//connect the handlers to the disruptor
-		connectHandlers(limit, multiplexer, handlers);
-		
-		return this;
+		return connectHandlers(limit, multiplexer, handlers);
 	}
 	
 	public DisruptorProvider<A> connectHandlers(ConsumingProcessorSocketGenerator<A> consumer, int numberOfThreads) {
@@ -390,9 +396,7 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		
 		//connect the handlers to the disruptor
-		connectHandlers(handlers);
-		
-		return this;
+		return connectHandlers(handlers);
 	}
 	
 	/**

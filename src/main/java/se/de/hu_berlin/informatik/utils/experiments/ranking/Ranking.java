@@ -698,6 +698,8 @@ public interface Ranking<T> extends Iterable<T> {
      * the ranking to normalize
      * @param strategy
      * the strategy to use
+     * @return
+	 * the normalized view on the given ranking
      */
 	public static <T> Ranking<T> normalize(Ranking<T> ranking, NormalizationStrategy strategy) {
 		return new NormalizedRanking<>(ranking, strategy);
