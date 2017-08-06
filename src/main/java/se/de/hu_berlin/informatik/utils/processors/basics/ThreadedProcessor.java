@@ -6,6 +6,7 @@ package se.de.hu_berlin.informatik.utils.processors.basics;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocket;
 import se.de.hu_berlin.informatik.utils.processors.sockets.ProcessorSocketGenerator;
+import se.de.hu_berlin.informatik.utils.processors.sockets.eh.EHWithInputAndReturn;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimit;
 import se.de.hu_berlin.informatik.utils.threaded.ThreadLimitDummy;
 import se.de.hu_berlin.informatik.utils.threaded.disruptor.AbstractDisruptorMultiplexer;
@@ -37,6 +38,18 @@ public class ThreadedProcessor<A,B> extends AbstractProcessor<A,B> {
 				socket.produce(item);
 			}
 		};
+	}
+	
+	public ThreadedProcessor(ThreadLimit limit, ClassLoader classLoader, EHWithInputAndReturn<A,B>[] transmitters) {
+		this(classLoader);
+		//connect the handlers to the disruptor
+		disruptorProvider.connectHandlers(limit, multiplexer, transmitters);
+		
+		initMultiplexer();
+	}
+	
+	public ThreadedProcessor(ThreadLimit limit, EHWithInputAndReturn<A,B>[] transmitters) {
+		this(limit, null, transmitters);
 	}
 	
 	public ThreadedProcessor(int threadCount, ThreadLimit limit, ProcessorSocketGenerator<A,B> transmitter, ClassLoader classLoader) {

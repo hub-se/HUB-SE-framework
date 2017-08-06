@@ -286,6 +286,31 @@ public class DisruptorProvider<A> implements Trackable {
 		isConnectedToHandlers = true;
 	}
 	
+	/**
+	 * Connects the given event handlers to the disruptor. The handlers process submitted events
+	 * in parallel. If no disruptor instance is available, a new one is created beforehand.
+	 * @param limit
+	 * a thread limit object
+	 * @param multiplexer
+	 * the multiplexer to connect the event handlers to
+	 * @param handlers
+	 * the handlers to connect
+	 */
+	public <B> void connectHandlers(ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer,
+			@SuppressWarnings("unchecked") EHWithInputAndReturn<A,B>... handlers) {
+		if (handlers == null || handlers.length <= 0) {
+			throw new IllegalStateException("No Handlers given.");
+		}
+		
+		//instantiate the desired number of handlers
+		for (EHWithInputAndReturn<A,B> handler : handlers) {
+			handler.setMultiplexer(multiplexer);
+			handler.setThreadLimit(limit);
+		}
+		
+		connectHandlers(handlers);
+	}
+	
 	public <B> DisruptorProvider<A> connectHandlers(ProcessorSocketGenerator<A, B> transmitter, 
 			int numberOfThreads, AbstractDisruptorMultiplexer<B> multiplexer) {
 		return connectHandlers(transmitter, numberOfThreads, ThreadLimitDummy.getInstance(), multiplexer);
@@ -323,19 +348,15 @@ public class DisruptorProvider<A> implements Trackable {
 		//create generic array for the handlers to be instantiated
         final EHWithInputAndReturn<A,B>[] handlers = Misc.createGenericArray(clazz, numberOfThreads);
 		
-        firstEH.setMultiplexer(multiplexer);
-		firstEH.setThreadLimit(limit);
         handlers[0] = firstEH;
         //instantiate the desired number of handlers
 		for (int i = 1; i < numberOfThreads; ++i) {
 			EHWithInputAndReturn<A, B> nextEH = transmitter.newEHInstance();
-			nextEH.setMultiplexer(multiplexer);
-			nextEH.setThreadLimit(limit);
 			handlers[i] = nextEH;
 		}
 		
 		//connect the handlers to the disruptor
-		connectHandlers(handlers);
+		connectHandlers(limit, multiplexer, handlers);
 		
 		return this;
 	}
