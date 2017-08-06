@@ -4,6 +4,8 @@
 package se.de.hu_berlin.informatik.utils.threaded;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -38,12 +40,69 @@ public class ExecutorServiceProvider {
 	 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
 	 * @param unit
 	 * the time unit for the keepAliveTime argument
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
 	 */
-	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
+	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, ClassLoader cl) {
 		super();
 		//create an executor service
 		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit,
-                new LimitedQueue<Runnable>(2*maximumPoolSize));
+				new LimitedQueue<Runnable>(2*maximumPoolSize),
+				new ThreadFactory() {
+			ThreadFactory factory = Executors.defaultThreadFactory();
+//			int counter = 0;
+			@Override
+			public Thread newThread(Runnable r) {
+//				++counter;
+//				Log.out(this, "Creating Thread no. %d for %s.", counter, r);
+				Thread thread = factory.newThread(r);
+				if (cl != null) {
+					thread.setContextClassLoader(cl);
+				}
+				return thread;
+			}
+		});
+	}
+	
+	/**
+	 * Creates an {@link ExecutorServiceProvider} object with the given parameters,
+	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
+	 * @param corePoolSize
+	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
+	 * @param maximumPoolSize
+	 * the maximum number of threads to allow in the pool
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
+	 */
+	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, ClassLoader cl) {
+		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS, cl);
+	}
+	
+	/**
+	 * Creates an {@link ExecutorServiceProvider} object with the given fixed number of threads,
+	 * {@code keepAliveTime=1L} and {@code unit=TimeUnit.SECONDS}.
+	 * @param poolSize
+	 * the number of threads to run in the pool
+	 * @param cl
+	 * a class loader to set as the context class loader for created threads
+	 */
+	public ExecutorServiceProvider(int poolSize, ClassLoader cl) {
+		this(poolSize, poolSize, 1L, TimeUnit.SECONDS, cl);
+	}
+	
+	/**
+	 * Creates an {@link ExecutorServiceProvider} object with the given parameters.
+	 * @param corePoolSize
+	 * the number of threads to keep in the pool, even if they are idle, unless allowCoreThreadTimeOut is set
+	 * @param maximumPoolSize
+	 * the maximum number of threads to allow in the pool
+	 * @param keepAliveTime
+	 * when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+	 * @param unit
+	 * the time unit for the keepAliveTime argument
+	 */
+	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
+		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, null);
 	}
 	
 	/**
@@ -55,7 +114,7 @@ public class ExecutorServiceProvider {
 	 * the maximum number of threads to allow in the pool
 	 */
 	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize) {
-		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS);
+		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS, null);
 	}
 	
 	/**
@@ -65,7 +124,7 @@ public class ExecutorServiceProvider {
 	 * the number of threads to run in the pool
 	 */
 	public ExecutorServiceProvider(int poolSize) {
-		this(poolSize, poolSize, 1L, TimeUnit.SECONDS);
+		this(poolSize, poolSize, 1L, TimeUnit.SECONDS, null);
 	}
 
 	/**
