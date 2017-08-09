@@ -694,6 +694,8 @@ public interface Ranking<T> extends Iterable<T> {
 	/**
      * Creates a view on the given ranking. Changes to the returned ranking are
      * visible in the given ranking. The same holds for the other direction.
+     * @param <T>
+	 * the type of the ranking elements
      * @param ranking
      * the ranking to normalize
      * @param strategy
