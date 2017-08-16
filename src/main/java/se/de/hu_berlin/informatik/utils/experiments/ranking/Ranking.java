@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import se.de.hu_berlin.informatik.utils.experiments.ranking.NormalizedRanking.NormalizationStrategy;
@@ -331,10 +332,36 @@ public interface Ranking<T> extends Iterable<T> {
      */
     public static Ranking<String> load(final Path file, boolean ascending, 
     		RankingStrategy nanStrategy, RankingStrategy posInfStrategy, RankingStrategy negInfStrategy) {
-    	Ranking<String> ranking = new SimpleRanking<>(ascending);
-    	List<String> nanIdentifiers = new ArrayList<>();
-    	List<String> posInfIdentifiers = new ArrayList<>();
-    	List<String> negInfIdentifiers = new ArrayList<>();
+    	return load(file, ascending, Function.identity(), nanStrategy, posInfStrategy, negInfStrategy);
+    }
+    
+    /**
+     * Loads a ranking object from a given file.
+     * <p> Ascending means that lower values get ranked first/best.
+	 * <p> Descending means that higher values get ranked first/best.
+     * @param file
+     * the ranking file
+     * @param ascending
+     * true for ascending, false for descending ordering
+     * @param stringToObject
+     * a function that creates objects of type {@code T} from Strings
+     * @param nanStrategy
+     * a strategy that assigns some value to NaN ranking values
+     * @param posInfStrategy
+     * a strategy that assigns some value to positive infinity ranking values
+     * @param negInfStrategy
+     * a strategy that assigns some value to negative infinity ranking values
+     * @return
+     * the ranking
+     * @param <T>
+     * the type of identifiers in the ranking
+     */
+    public static <T> Ranking<T> load(final Path file, boolean ascending, Function<String, T> stringToObject,
+    		RankingStrategy nanStrategy, RankingStrategy posInfStrategy, RankingStrategy negInfStrategy) {
+    	Ranking<T> ranking = new SimpleRanking<>(ascending);
+    	List<T> nanIdentifiers = new ArrayList<>();
+    	List<T> posInfIdentifiers = new ArrayList<>();
+    	List<T> negInfIdentifiers = new ArrayList<>();
     	try (final BufferedReader reader = Files.newBufferedReader(file , StandardCharsets.UTF_8)) {
 			//get the maximal ranking value that is NOT infinity
 			String rankingline = null;
@@ -344,14 +371,15 @@ public interface Ranking<T> extends Iterable<T> {
 					Log.abort(Ranking.class, "Entry '%s' not valid in '%s'.", rankingline, file.toAbsolutePath());
 				}
 				double rankingValue = Double.parseDouble(rankingline.substring(pos+1, rankingline.length()));
+				T identifier = stringToObject.apply(rankingline.substring(0, pos));
 				if (Double.isNaN(rankingValue)) {
-					nanIdentifiers.add(rankingline.substring(0, pos));
+					nanIdentifiers.add(identifier);
 				} else if (rankingValue == Double.POSITIVE_INFINITY) {
-					posInfIdentifiers.add(rankingline.substring(0, pos));
+					posInfIdentifiers.add(identifier);
 				} else if (rankingValue == Double.NEGATIVE_INFINITY) {
-					negInfIdentifiers.add(rankingline.substring(0, pos));
+					negInfIdentifiers.add(identifier);
 				} else {
-					ranking.add(rankingline.substring(0, pos), rankingValue);
+					ranking.add(identifier, rankingValue);
 				}
 			}
 		} catch (IOException e) {
@@ -459,13 +487,13 @@ public interface Ranking<T> extends Iterable<T> {
 			break;
     	}
     	
-    	for (String identifier : negInfIdentifiers) {
+    	for (T identifier : negInfIdentifiers) {
     		ranking.add(identifier, negInfValue);
     	}
-    	for (String identifier : posInfIdentifiers) {
+    	for (T identifier : posInfIdentifiers) {
     		ranking.add(identifier, posInfValue);
     	}
-    	for (String identifier : nanIdentifiers) {
+    	for (T identifier : nanIdentifiers) {
     		ranking.add(identifier, nanValue);
     	}
     	
