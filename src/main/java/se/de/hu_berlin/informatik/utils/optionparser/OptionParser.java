@@ -510,6 +510,88 @@ final public class OptionParser {
 	public <T extends Enum<T> & OptionWrapperInterface> String getOptionValue(final T opt, final String defaultValue) {
 		return getCmdLine().getOptionValue(opt.option().getOpt(), defaultValue);
 	}
+	
+	/**
+	 * Retrieve the first argument, if any, of this option as an integer.
+	 * @param opt
+	 * an option set with an Enum
+	 * @return Value of the argument if option is set and has an argument
+	 * and the argument is parseable, otherwise null.
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	public <T extends Enum<T> & OptionWrapperInterface> Integer getOptionValueAsInt(final T opt) {
+		String value = getCmdLine().getOptionValue(opt.option().getOpt());
+		if (value == null) {
+			return null;
+		}
+		try {
+			return Integer.valueOf(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Retrieve the first argument, if any, of the given option as an integer.
+	 * @param opt
+	 * an option set with an Enum
+	 * @param defaultValue
+	 * is the default value to be returned if the option is not specified
+	 * @return Value of the argument if option is set and has an argument
+	 * and the argument is parseable, otherwise {@code defaultValue}.
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	public <T extends Enum<T> & OptionWrapperInterface> int getOptionValueAsInt(final T opt, final int defaultValue) {
+		Integer intValue = getOptionValueAsInt(opt);
+		if (intValue == null) {
+			return defaultValue;
+		} else {
+			return intValue.intValue();
+		}
+	}
+	
+	/**
+	 * Retrieve the first argument, if any, of this option as an integer.
+	 * @param opt
+	 * an option set with an Enum
+	 * @return Value of the argument if option is set and has an argument
+	 * and the argument is parseable, otherwise null.
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	public <T extends Enum<T> & OptionWrapperInterface> Long getOptionValueAsLong(final T opt) {
+		String value = getCmdLine().getOptionValue(opt.option().getOpt());
+		if (value == null) {
+			return null;
+		}
+		try {
+			return Long.valueOf(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Retrieve the first argument, if any, of the given option as an integer.
+	 * @param opt
+	 * an option set with an Enum
+	 * @param defaultValue
+	 * is the default value to be returned if the option is not specified
+	 * @return Value of the argument if option is set and has an argument
+	 * and the argument is parseable, otherwise {@code defaultValue}.
+	 * @param <T>
+	 * an Enum type that represents an option
+	 */
+	public <T extends Enum<T> & OptionWrapperInterface> Long getOptionValueAsLong(final T opt, final long defaultValue) {
+		Long longValue = getOptionValueAsLong(opt);
+		if (longValue == null) {
+			return defaultValue;
+		} else {
+			return longValue.longValue();
+		}
+	}
 
 	// /**
 	// * Retrieve the first argument, if any, of this option.
