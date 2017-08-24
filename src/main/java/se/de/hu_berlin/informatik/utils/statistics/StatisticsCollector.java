@@ -85,6 +85,30 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 		++statisticsCounter;
 		return result;
 	}
+	
+	public boolean addStatisticsElement(T identifier, int value) {
+		Statistics<T> statistics = new Statistics<T>();
+		statistics.addStatisticsElement(identifier, value);
+		return this.addStatistics(statistics);
+	}
+	
+	public boolean addStatisticsElement(T identifier, double value) {
+		Statistics<T> statistics = new Statistics<T>();
+		statistics.addStatisticsElement(identifier, value);
+		return this.addStatistics(statistics);
+	}
+	
+	public boolean addStatisticsElement(T identifier, String value) {
+		Statistics<T> statistics = new Statistics<T>();
+		statistics.addStatisticsElement(identifier, value);
+		return this.addStatistics(statistics);
+	}
+	
+	public boolean addStatisticsElement(T identifier, boolean value) {
+		Statistics<T> statistics = new Statistics<T>();
+		statistics.addStatisticsElement(identifier, value);
+		return this.addStatistics(statistics);
+	}
 
 	private String getStatistics(T statisticsEntry, StatisticsElementCollector list) {
 		switch (statisticsEntry.getType()) {

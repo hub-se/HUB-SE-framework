@@ -31,7 +31,17 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 	private Module<A,B> moduleView;
 	private EHWithInputAndReturn<A,B> ehView;
 	private ProcessorSocket<A, B> socket;
-
+	private ClassLoader classLoader;
+	
+	public AbstractProcessor(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+	
+	
+	public AbstractProcessor() {
+		this(null);
+	}
+	
 //	/**
 //	 * Convenience method that calls {@link #asModule()} on this Processor
 //	 * and then submits the given item.
@@ -45,12 +55,12 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 //	}
 	
 	@Override
-	public Pipe<A,B> asPipe() throws UnsupportedOperationException {
-		return asPipe(null);
+	public Pipe<A,B> asPipe() {
+		return asPipe(this.classLoader);
 	}
 	
 	@Override
-	public Pipe<A,B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+	public Pipe<A,B> asPipe(ClassLoader classLoader) {
 		if (pipeView == null) {
 			pipeView = new Pipe<>(this, true, classLoader);
 		}
@@ -58,7 +68,7 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 	}
 
 	@Override
-	public Module<A,B> asModule() throws UnsupportedOperationException {
+	public Module<A,B> asModule() {
 		if (moduleView == null) {
 			moduleView = new Module<>(this);
 		}
@@ -67,7 +77,7 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() throws UnsupportedOperationException {
+	public <E extends AbstractDisruptorEventHandler<A> & ProcessorSocket<A,B>> E asEH() {
 		if (ehView == null) {
 			ehView = new EHWithInputAndReturn<>(this);
 		}

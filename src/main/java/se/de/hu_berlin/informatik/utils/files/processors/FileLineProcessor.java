@@ -41,6 +41,45 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 	
 	/**
 	 * Creates a new {@link FileLineProcessor} object with the given parameters.
+	 * @param classLoader
+	 * a class loader to use when used as a pipe
+	 * @param processor
+	 * {@link StringProcessor} object that takes a String and processes it
+	 * @param abortOnError
+	 * whether the execution should be aborted when encountering an error
+	 */
+	public FileLineProcessor(ClassLoader classLoader, StringProcessor<A> processor, boolean abortOnError) {
+		super(classLoader);
+		this.processor = processor;
+		this.abortOnError = abortOnError;
+	}
+	
+	/**
+	 * Creates a new {@link FileLineProcessor} object with the given parameters.
+	 * Will continue execution if a line can't be processed or produces an error.
+	 * @param classLoader
+	 * a class loader to use when used as a pipe
+	 * @param processor
+	 * {@link StringProcessor} object that takes a String and processes it 
+	 * or null
+	 */
+	public FileLineProcessor(ClassLoader classLoader, StringProcessor<A> processor) {
+		this(classLoader, processor, false);
+	}
+	
+	/**
+	 * Creates a new {@link FileLineProcessor} object with the given parameters.
+	 * @param processor
+	 * {@link StringProcessor} object that takes a String and processes it
+	 * @param abortOnError
+	 * whether the execution should be aborted when encountering an error
+	 */
+	public FileLineProcessor(StringProcessor<A> processor, boolean abortOnError) {
+		this(null, processor, abortOnError);
+	}
+	
+	/**
+	 * Creates a new {@link FileLineProcessor} object with the given parameters.
 	 * Will continue execution if a line can't be processed or produces an error.
 	 * @param processor
 	 * {@link StringProcessor} object that takes a String and processes it 
@@ -58,19 +97,6 @@ public class FileLineProcessor<A> extends AbstractProcessor<Path, A> {
 	public FileLineProcessor<A> readMaxLines(int count) {
 		max = count;
 		return this;
-	}
-	
-	/**
-	 * Creates a new {@link FileLineProcessor} object with the given parameters.
-	 * @param processor
-	 * {@link StringProcessor} object that takes a String and processes it
-	 * @param abortOnError
-	 * whether the execution should be aborted when encountering an error
-	 */
-	public FileLineProcessor(StringProcessor<A> processor, boolean abortOnError) {
-		super();
-		this.processor = processor;
-		this.abortOnError = abortOnError;
 	}
 
 	@Override

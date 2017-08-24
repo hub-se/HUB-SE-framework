@@ -29,6 +29,16 @@ public abstract class AbstractConsumingProcessor<A> implements ConsumingProcesso
 	private Module<A,Object> moduleView;
 	private EHWithInput<A> ehView;
 	private ProcessorSocket<A,Object> socket;
+	private ClassLoader classLoader;
+	
+	public AbstractConsumingProcessor(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+	
+	
+	public AbstractConsumingProcessor() {
+		this(null);
+	}
 
 	/**
 	 * Convenience method that calls {@link #asModule()} on this Processor
@@ -44,7 +54,7 @@ public abstract class AbstractConsumingProcessor<A> implements ConsumingProcesso
 	
 	@Override
 	public Pipe<A,Object> asPipe() throws UnsupportedOperationException {
-		return asPipe(null);
+		return asPipe(this.classLoader);
 	}
 	
 	@Override
