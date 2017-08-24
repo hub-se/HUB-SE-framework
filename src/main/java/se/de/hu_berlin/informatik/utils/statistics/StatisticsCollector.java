@@ -198,12 +198,12 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 
 	private String booleanStatistics(String identifier, int trueCount, int falseCount) {
 		String result = identifier + " -> true: " + trueCount + ", false: " + falseCount;
-		int unknown = statisticsCounter - trueCount - falseCount;
-		if (unknown == 0) {
+//		int unknown = statisticsCounter - trueCount - falseCount;
+//		if (unknown == 0) {
 			return result;
-		} else {
-			return result + ", unknown: " + unknown;
-		}
+//		} else {
+//			return result + ", unknown: " + unknown;
+//		}
 	}
 
 	public String printStatistics() {
