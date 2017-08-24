@@ -135,7 +135,7 @@ public class ParentLastClassLoader extends URLClassLoader {
 
 		public boolean isExcluded(String name) {
 			for (String exclude : excludes) {
-				if (name.startsWith(exclude)) {
+				if (name.contains(exclude)) {
 					return true;
 				}
 			}
