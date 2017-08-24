@@ -47,24 +47,22 @@ public class ParentLastClassLoader extends URLClassLoader {
 
 		@Override
 		public Class<?> findClass(String name) throws ClassNotFoundException {
-			Log.out(this, "Loading class: '%s'...", name);
+			System.out.println("Loading class: '" + name + "'...");
 			Class<?> loaded = findloadedClassinSuper(name);
 			if (loaded != null) {
-				Log.out(this, "Found loaded class: '%s'.", name);
-				Log.out(this, "Found loaded class path: '%s'.", 
-						loaded.getResource(loaded.getSimpleName() + ".class"));
+				System.out.println("Found loaded class: '" + name + "'.");
+				System.out.println("Found loaded class path: '" + loaded.getResource(loaded.getSimpleName() + ".class") + "'.");
 				return loaded;
 			}
 			
 			if (isExcluded(name)) {
-				Log.out(this, "Class excluded: '%s'.", name);
+				System.out.println("Class excluded: '" + name + "'.");
 				try {
 					loaded = getRealParent().loadClass(name);
-					Log.out(this, "Loaded class from parent: '%s'.", name);
-					Log.out(this, "Loaded class path from parent: '%s'.",
-							loaded.getResource(loaded.getSimpleName() + ".class"));
+					System.out.println("Loaded class from parent: '" + name + "'.");
+					System.out.println("Loaded class path from parent: '" + loaded.getResource(loaded.getSimpleName() + ".class") + "'.");
 				} catch (ClassNotFoundException x) {
-					Log.out(this, "Loading class from super: '%s'.", name);
+					System.out.println("Loading class from super: '" + name + "'.");
 					throw x;
 				}
 				return loaded;
@@ -72,18 +70,16 @@ public class ParentLastClassLoader extends URLClassLoader {
 
 			try {
 				loaded = findClassinSuper(name);
-				Log.out(this, "Found class in given URLs: '%s'.", name);
-				Log.out(this, "Found class path in given URLs: '%s'.",
-						loaded.getResource(loaded.getSimpleName() + ".class"));
+				System.out.println("Found class in given URLs: '" + name + "'.");
+				System.out.println("Found class path in given URLs: '" + loaded.getResource(loaded.getSimpleName() + ".class") + "'.");
 				return loaded;
 			} catch (ClassNotFoundException e) {
 				try {
 					loaded = getRealParent().loadClass(name);
-					Log.out(this, "Loaded class from parent: '%s'.", name);
-					Log.out(this, "Loaded class path from parent: '%s'.",
-							loaded.getResource(loaded.getSimpleName() + ".class"));
+					System.out.println("Loaded class from parent: '" + name + "'.");
+					System.out.println("Loaded class path from parent: '" + loaded.getResource(loaded.getSimpleName() + ".class") + "'.");
 				} catch (ClassNotFoundException x) {
-					Log.out(this, "Loading class from super: '%s'.", name);
+					System.out.println("Loading class from super: '" + name + "'.");
 					throw x;
 				}
 				return loaded;
