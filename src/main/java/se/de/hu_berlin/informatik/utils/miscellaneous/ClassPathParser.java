@@ -53,7 +53,9 @@ public class ClassPathParser {
 	        } else {
 	        	Log.err(this, "'%s' does not exist and is not added.", file);
 	        }
-	    }
+	    } else {
+	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+		}
 	}
 	
 	/** 
@@ -63,7 +65,7 @@ public class ClassPathParser {
 	 */
 	private void addClasspathElement(final File pathElement) {
 		try {
-        	addClasspathElement(pathElement.toURI().toURL());
+        	addClasspathElement(pathElement.getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
 			Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
 		}
@@ -91,7 +93,9 @@ public class ClassPathParser {
 	        } else {
 	        	Log.err(this, "'%s' does not exist and is not added.", file);
 	        }
-	    }
+	    } else {
+	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+		}
 	}
 	
 	/** 
@@ -101,7 +105,7 @@ public class ClassPathParser {
 	 */
 	private void addClasspathElementAtStart(final File pathElement) {
 		try {
-        	addClasspathElementAtStart(pathElement.toURI().toURL());
+        	addClasspathElementAtStart(pathElement.getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
 			Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
 		}
@@ -115,7 +119,7 @@ public class ClassPathParser {
 	private void addClasspathElementAtStart(final String pathElement) {
 		addClasspathElementAtStart(new File(pathElement));
 	}
-
+	
 	
 	/** 
 	 * Parse the system classpath. 
