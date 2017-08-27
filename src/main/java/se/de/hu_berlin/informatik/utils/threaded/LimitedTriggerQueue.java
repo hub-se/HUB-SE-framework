@@ -3,9 +3,8 @@
  */
 package se.de.hu_berlin.informatik.utils.threaded;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-
-import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 /**
  * Implementation of a blocking queue to be used by, for example, a
@@ -17,26 +16,22 @@ public class LimitedTriggerQueue<E, T> extends LimitedQueue<E> {
 
 	private static final long serialVersionUID = -1182628988321582636L;
 
-	private T trigger; 
-	
 	private E offerAfterTrigger;
 	
 	private boolean wasTriggered = false;
+	private boolean wasSubmitted = false;
 
 	/**
 	 * Creates a {@link LimitedTriggerQueue} with the given maximum size.
 	 * @param maxSize
 	 * is the maximum size of the queue.
-	 * @param trigger
-	 * a dummy trigger object
 	 * @param offerAfterTrigger
-	 * an element to submit to the queue after the trigger element has been
-	 * submitted and after the queue is emptied (to ensure that it is inserted 
+	 * an element to submit to the queue after the trigger method has been
+	 * executed and after the queue is emptied (to ensure that it is inserted 
 	 * after all other items have been submitted) 
 	 */
-	public LimitedTriggerQueue(int maxSize, T trigger, E offerAfterTrigger) {
+	public LimitedTriggerQueue(int maxSize, E offerAfterTrigger) {
 		super(maxSize);
-		this.trigger = trigger;
 		this.offerAfterTrigger = offerAfterTrigger;
 	}
 	
@@ -44,45 +39,34 @@ public class LimitedTriggerQueue<E, T> extends LimitedQueue<E> {
 	 * Creates a {@link LimitedTriggerQueue} with the given maximum size.
 	 * @param maxSize
 	 * is the maximum size of the queue.
-	 * @param trigger
-	 * a dummy trigger object
 	 */
-	public LimitedTriggerQueue(int maxSize, T trigger) {
-		this(maxSize, trigger, null);
+	public LimitedTriggerQueue(int maxSize) {
+		this(maxSize, null);
 	}
 	
 	public void setItemToOfferAfterTrigger(E offerAfterTrigger) {
 		this.offerAfterTrigger = offerAfterTrigger;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.util.concurrent.LinkedBlockingQueue#offer(java.lang.Object)
-	 */
-	@Override
-	public boolean offer(E e) {
-		if (e.equals(trigger)) {
-			if (offerAfterTrigger != null) {
-				wasTriggered = true;
-			}
-			return offerIfEmpty();
-		} else {
-			return super.offer(e);
+	
+	public void trigger() {
+		if (offerAfterTrigger != null) {
+			wasTriggered = true;
+			offerIfEmpty();
 		}
 	}
 
-	private boolean offerIfEmpty() {
-		Log.out(this, "offering1");
-		boolean done = false;
-		while (!done) {
-			if (this.isEmpty()) {
-				Log.out(this, "offering");
-				done = super.offer(offerAfterTrigger);
-			} else {
-				done = true;
+	private void offerIfEmpty() {
+		if (!wasSubmitted) {
+			boolean done = false;
+			while (!done) {
+				if (this.isEmpty()) {
+					done = super.offer(offerAfterTrigger);
+					wasSubmitted = done;
+				} else {
+					done = true;
+				}
 			}
 		}
-		return done;
 	}
 
 	@Override
@@ -119,6 +103,33 @@ public class LimitedTriggerQueue<E, T> extends LimitedQueue<E> {
 			offerIfEmpty();
 		}
 		return poll;
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		boolean remove = super.remove(o);
+		if (wasTriggered) {
+			offerIfEmpty();
+		}
+		return remove;
+	}
+
+	@Override
+	public int drainTo(Collection<? super E> c) {
+		int drainTo = super.drainTo(c);
+		if (wasTriggered) {
+			offerIfEmpty();
+		}
+		return drainTo;
+	}
+
+	@Override
+	public int drainTo(Collection<? super E> c, int maxElements) {
+		int drainTo = super.drainTo(c, maxElements);
+		if (wasTriggered) {
+			offerIfEmpty();
+		}
+		return drainTo;
 	}
 
 

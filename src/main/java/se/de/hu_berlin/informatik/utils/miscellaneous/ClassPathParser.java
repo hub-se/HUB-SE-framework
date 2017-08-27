@@ -278,9 +278,11 @@ public class ClassPathParser {
 	 * this {@link ClassPathParser} object (for method chaining)
 	 */
 	public ClassPathParser addClassPathToClassPath(final String cp) {
-		String[] pathElements = cp.split(File.pathSeparator);
-		for (String element : pathElements) {
-			addClasspathElement(new File(element));
+		if (cp != null) {
+			String[] pathElements = cp.split(File.pathSeparator);
+			for (String element : pathElements) {
+				addClasspathElement(new File(element));
+			}
 		}
 		return this;
 	}

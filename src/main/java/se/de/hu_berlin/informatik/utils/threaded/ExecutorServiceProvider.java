@@ -3,8 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.threaded;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -19,14 +17,6 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
  * @author Simon Heiden
  */
 public class ExecutorServiceProvider {
-
-	public static final Callable<Boolean> TRIGGER = new Callable<Boolean>() {
-
-		@Override
-		public Boolean call() {
-			throw new IllegalAccessError("Trigger object should not be executed!");
-		}
-	};
 
 	final private ExecutorService executor;
 
@@ -60,9 +50,9 @@ public class ExecutorServiceProvider {
 	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
 			ClassLoader cl) {
 		super();
-		LimitedTriggerQueue<Runnable, Callable<Boolean>> workQueue = new LimitedTriggerQueue<>(2 * maximumPoolSize, TRIGGER);
 		// create an executor service
-		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, 
+				new LimitedQueue<>(2 * maximumPoolSize),
 				new ThreadFactory() {
 
 					ThreadFactory factory = Executors.defaultThreadFactory();
@@ -80,7 +70,6 @@ public class ExecutorServiceProvider {
 						return thread;
 					}
 				});
-		workQueue.setItemToOfferAfterTrigger(new ExecutorServiceShutDownNotice(this.executor));
 	}
 
 	/**
@@ -195,8 +184,9 @@ public class ExecutorServiceProvider {
 	 */
 	public boolean shutdownAndWaitForTermination(int duration, TimeUnit unit, boolean log) {
 		// we are done! Shutdown of the executor service is necessary!
-		// to prevent pending tasks to be
-		executor.submit(TRIGGER);
+//		Log.out(this, "shutting down...");
+		// from this point on: No new task submissions!
+		executor.shutdown();
 
 		// await termination
 		boolean result = false;
@@ -221,23 +211,6 @@ public class ExecutorServiceProvider {
 		}
 
 		return result;
-	}
-
-	private static class ExecutorServiceShutDownNotice implements Runnable {
-
-		private ExecutorService executor;
-
-		public ExecutorServiceShutDownNotice(ExecutorService executor) {
-			this.executor = executor;
-		}
-
-		@Override
-		public void run() {
-			Log.out(this, "awaiting termination...");
-			// from this point on: No new task submissions!
-			executor.shutdown();
-		}
-
 	}
 
 }
