@@ -54,7 +54,7 @@ public class ClassPathParser {
 	        	Log.err(this, "'%s' does not exist and is not added.", file);
 	        }
 	    } else {
-	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+//	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
 		}
 	}
 	
@@ -94,7 +94,7 @@ public class ClassPathParser {
 	        	Log.err(this, "'%s' does not exist and is not added.", file);
 	        }
 	    } else {
-	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+//	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
 		}
 	}
 	
