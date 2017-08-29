@@ -3,7 +3,6 @@
  */
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 import se.de.hu_berlin.informatik.utils.files.FileUtils;
@@ -17,8 +16,8 @@ import se.de.hu_berlin.informatik.utils.files.FileUtils;
  */
 public abstract class TestSettings {
 
-	private static String stdResourcesDir = "src" + File.separator + "test" + File.separator + "resources";
-	private static String stdTestDir = "target" + File.separator + "testoutput";
+	private static String stdResourcesDir = Paths.get("src", "test", "resources").toAbsolutePath().toString();
+	private static String stdTestDir = Paths.get("target", "testoutput").toAbsolutePath().toString();
 	
 	/**
 	 * Gets the standard test resource directory.
