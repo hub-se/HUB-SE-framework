@@ -99,9 +99,7 @@ public class Module<A,B> extends AbstractProcessorSocket<A,B> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Module<A,B> submit(Object item) {
-		if (item == null) {
-			Log.err(this, "No input item submitted/available.");
-		} else {
+		if (item != null) {
 			try {
 				initAndConsume((A)item);
 			} catch (ClassCastException e) {

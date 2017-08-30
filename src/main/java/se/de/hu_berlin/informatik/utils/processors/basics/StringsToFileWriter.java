@@ -20,10 +20,12 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  * to the output in the end in case it has to be further processed.
  * 
  * @author Simon Heiden
+ * @param <A>
+ * the type of input/output items
  * 
  * @see OutputPathGenerator
  */
-public class StringsToFileWriter extends AbstractProcessor<String, String> {
+public class StringsToFileWriter<A> extends AbstractProcessor<A, A> {
 
 	private Path outputPath;
 	
@@ -58,7 +60,7 @@ public class StringsToFileWriter extends AbstractProcessor<String, String> {
 	 * @see se.de.hu_berlin.informatik.utils.miscellaneous.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public String processItem(String item) {
+	public A processItem(A item) {
 		try {
 			writer.append(item.toString());
 			writer.newLine();

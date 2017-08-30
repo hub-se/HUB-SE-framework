@@ -33,7 +33,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  * 
  * @see OutputPathGenerator
  */
-public class StringListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<A, A> {
+public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<A, A> {
 
 	private Path outputPath;
 	private Path outputdir;
@@ -43,7 +43,7 @@ public class StringListToFileWriter<A extends Iterable<?> > extends AbstractProc
 	OutputPathGenerator generator;
 	
 	/**
-	 * Creates a new {@link StringListToFileWriter} with the given parameters.
+	 * Creates a new {@link ListToFileWriter} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
@@ -53,7 +53,7 @@ public class StringListToFileWriter<A extends Iterable<?> > extends AbstractProc
 	 * @param extension
 	 * is the extension of the automatically generated output paths
 	 */
-	public StringListToFileWriter(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
+	public ListToFileWriter(Path outputPath, boolean overwrite, boolean generateOutputPaths, String extension) {
 		super();
 		this.outputPath = outputPath;
 		this.generateOutputPaths = generateOutputPaths;
@@ -72,13 +72,13 @@ public class StringListToFileWriter<A extends Iterable<?> > extends AbstractProc
 	}
 	
 	/**
-	 * Creates a new {@link StringListToFileWriter} with the given parameters.
+	 * Creates a new {@link ListToFileWriter} with the given parameters.
 	 * @param outputPath
 	 * is either a directory or an output file path
 	 * @param overwrite
 	 * determines if files and directories should be overwritten
 	 */
-	public StringListToFileWriter(Path outputPath, boolean overwrite) {
+	public ListToFileWriter(Path outputPath, boolean overwrite) {
 		super();
 		this.outputPath = outputPath;
 		if (outputPath.toFile().isDirectory()) {

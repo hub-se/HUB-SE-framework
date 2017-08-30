@@ -12,7 +12,7 @@ import se.de.hu_berlin.informatik.utils.files.csv.stringprocessor.CSVStringsToMi
 import se.de.hu_berlin.informatik.utils.files.csv.stringprocessor.CSVStringsToStringArrayListProcessor;
 import se.de.hu_berlin.informatik.utils.files.processors.FileLineProcessor;
 import se.de.hu_berlin.informatik.utils.files.processors.FileLineProcessor.StringProcessor;
-import se.de.hu_berlin.informatik.utils.files.processors.StringListToFileWriter;
+import se.de.hu_berlin.informatik.utils.files.processors.ListToFileWriter;
 
 /**
  * Contains utility methods to cope with reading and writing CSV files.
@@ -265,7 +265,7 @@ public final class CSVUtils {
 	public static <T> void toCsvFile(final List<T[]> objectArrayList, boolean mirrored, Path output) {
 		List<String> lines = toCsv(objectArrayList, mirrored);
 
-		new StringListToFileWriter<List<String>>(output, true).asModule().submit(lines);
+		new ListToFileWriter<List<String>>(output, true).asModule().submit(lines);
 	}
 
 	/**

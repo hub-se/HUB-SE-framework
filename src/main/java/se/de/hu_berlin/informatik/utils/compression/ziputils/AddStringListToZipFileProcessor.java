@@ -12,7 +12,7 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import se.de.hu_berlin.informatik.utils.files.FileUtils;
-import se.de.hu_berlin.informatik.utils.files.processors.StringListToFileWriter;
+import se.de.hu_berlin.informatik.utils.files.processors.ListToFileWriter;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
@@ -73,7 +73,7 @@ public class AddStringListToZipFileProcessor<A extends Iterable<? extends CharSe
 			
 			temp = Paths.get(++fileCounter + ".txt");
 			// save the given data to the temporary file (not perfect, but well...)
-			new StringListToFileWriter<List<String>>(temp, true)
+			new ListToFileWriter<List<String>>(temp, true)
 			.asModule()
 			.submit(list);
 
