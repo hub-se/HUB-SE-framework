@@ -7,10 +7,12 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class SimpleServerFramework {
 	
@@ -59,6 +61,8 @@ public class SimpleServerFramework {
 	private static ServerSocket _startServer(int port) {
 	    try {
 	        ServerSocket socket = new ServerSocket(port);
+	        // set a timeout to stop blocking in case of errors occurring...
+	        socket.setSoTimeout(10000);
 	        return socket;
 	    } catch (Exception e) {
 	        System.err.println("Server Error: " + e.getMessage());
@@ -107,14 +111,19 @@ public class SimpleServerFramework {
 		@SuppressWarnings("unchecked")
 		private void listenOnSocket(ServerSocket serverSocket) {
 			while (!isShutdown) {
+				boolean triedReceivingMessage = false;
+				boolean triedSendingMessageBack = false;
+				boolean sentMessageBack = false;
+				Socket clientSocket = null;
 				try {
 					// Create the Client Socket
-					Socket clientSocket = serverSocket.accept();
+					clientSocket = serverSocket.accept();
 //					Log.out(this, "Server Socket Extablished...");
 					// Create input and output streams to client
 					ObjectOutputStream outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
 					ObjectInputStream inFromClient = new ObjectInputStream(clientSocket.getInputStream());
 
+					triedReceivingMessage = true;
 					/* Retrieve information */
 					this.data = (T)inFromClient.readObject();
 
@@ -124,19 +133,30 @@ public class SimpleServerFramework {
 						receiveLock.notifyAll();
 					}
 
+					triedSendingMessageBack = true;
 					/* Send a message object back */
 					outToClient.writeObject(sendOnReceivedData.apply(this.data));
-
+					sentMessageBack = true;
+				} catch (SocketTimeoutException e) {
+					// simply try again until shutdown
+					// tell any waiting threads to move on or check their abort conditions again...
+					synchronized (receiveLock) {
+						receiveLock.notifyAll();
+					}
 				} catch (Exception e) {
+					if (clientSocket != null) {
+						try {
+							clientSocket.close();
+						} catch (IOException e1) {
+							// don't care
+						}
+					}
 					// tell any waiting threads that there is an error...
 					synchronized (receiveLock) {
 						serverErrorOccurred = true;
 						receiveLock.notifyAll();
 					}
-					System.err.println("Server Error: " + e.getMessage());
-					System.err.println("Localized: " + e.getLocalizedMessage());
-					System.err.println("Stack Trace: " + e.getStackTrace());
-					System.err.println("To String: " + e.toString());
+					Log.err("server", e, "error: " + e.getMessage());
 				}
 			}
 		}
@@ -144,14 +164,29 @@ public class SimpleServerFramework {
 		public void shutDown() {
 			if (this.runningThread != null && this.runningThread.isAlive()) {
 				isShutdown = true;
-				sendToServer(null, serverSocket.getLocalPort(), 
-						(t,r) -> {return true;});
-				while (this.runningThread.isAlive()) {
-					try {
-						this.runningThread.join();
-					} catch (InterruptedException e) {
-						// wait until finished
+				boolean received = false;
+				int count = 0;
+				while (!received && count < 5) {
+					++count;
+					received = sendToServer(null, serverSocket.getLocalPort(), 1,
+							(r) -> {return false;},
+							(t,r) -> {return true;});
+				}
+				if (received) {
+					while (this.runningThread.isAlive()) {
+						try {
+							this.runningThread.join();
+						} catch (InterruptedException e) {
+							// wait until finished
+						}
 					}
+				} else {
+					// just don't wait?...
+				}
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// don't care
 				}
 			}
 		}
@@ -177,38 +212,46 @@ public class SimpleServerFramework {
 	}
 	
 	public static <T extends Serializable, R extends Serializable> boolean sendToServer(
-			T data, int port, BiPredicate<T,R> isSuccessful) {
+			T data, int port, int maxTryCount, Predicate<R> sendAgain, BiPredicate<T,R> isSuccessful) {
 		boolean succeeded = false;
-	    try {
-	        // Create the socket
-	        Socket clientSocket = new Socket((String)null, port);
-//	        Log.out("client", "Client Socket initialized...");
-	        // Create the input & output streams to the server
-	        ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
-	        ObjectInputStream inFromServer = new ObjectInputStream(clientSocket.getInputStream());
+		int count = 0;
+		int connectionTryCount = 0;
+		while (!succeeded && connectionTryCount < 5) {
+			++connectionTryCount;
+			try {
+				// Create the socket
+				Socket clientSocket = new Socket((String)null, port);
+//	        	Log.out("client", "Client Socket initialized...");
+				// Create the input & output streams to the server
+				ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+				ObjectInputStream inFromServer = new ObjectInputStream(clientSocket.getInputStream());
 
-	        
-	        while (!succeeded) {
-//	        	Log.out("client", "writing data to port %d...", port);
-	        	/* Send the Message Object to the server */
-	        	outToServer.writeObject(data);            
+				while (!succeeded && count < maxTryCount) {
+					++count;
+//	        		Log.out("client", "writing data to port %d...", port);
+					/* Send the Message Object to the server */
+					outToServer.writeObject(data);            
 
-	        	/* Retrieve the Message Object from server */
-	        	@SuppressWarnings("unchecked")
-				R inFromServerMsg = (R)inFromServer.readObject();
-	        	
-	        	/* Print out the received Message */
-//	        	Log.out("client", "Message from server: " + inFromServerMsg);
-	        	succeeded = isSuccessful.test(data, inFromServerMsg);
-	        }
+					/* Retrieve the Message Object from server */
+					@SuppressWarnings("unchecked")
+					R inFromServerMsg = (R)inFromServer.readObject();
 
-	        clientSocket.close();
+					/* Print out the received Message */
+//	        		Log.out("client", "Message from server: " + inFromServerMsg);
+					// check if the server wants us to check the data again
+					// (could be the case that there was an exception while reading the input stream)
+					if (sendAgain.test(inFromServerMsg)) {
+						continue;
+					}
+					succeeded = isSuccessful.test(data, inFromServerMsg);
+				}
 
-	    } catch (Exception e) {
-	        System.err.println("Client Error: " + e.getMessage());
-	        System.err.println("Localized: " + e.getLocalizedMessage());
-	        System.err.println("Stack Trace: " + e.getStackTrace());
-	    }
+				clientSocket.close();
+
+			} catch (Exception e) {
+				Log.err("client", e, "error: " + e.getMessage());
+			}
+		}
 	    
 	    return succeeded;
 	}
