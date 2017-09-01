@@ -56,8 +56,10 @@ final public class SystemUtils {
 	 * whether to abort if the command cannot be executed
 	 * @param commandArgs
 	 * the command to execute, given as an array
+	 * @return
+	 * the exit status
 	 */
-	public static void executeCommandInJavaEnvironment(File executionDir, 
+	public static int executeCommandInJavaEnvironment(File executionDir, 
 			String javaBinDir, String javaHomeDir, String javaJREDir, boolean abortOnError, String... commandArgs) {
 		int executionResult = -1;
 		if (javaBinDir == null || javaHomeDir == null || javaJREDir == null) {
@@ -81,6 +83,8 @@ final public class SystemUtils {
 				Log.err(SystemUtils.class, "Error while executing command: " + Misc.arrayToString(commandArgs, " ", "", ""));
 			}
 		}
+		
+		return executionResult;
 	}
 	
 	/**
@@ -93,9 +97,11 @@ final public class SystemUtils {
 	 * whether to abort if the command cannot be executed
 	 * @param commandArgs
 	 * the command to execute, given as an array
+	 * @return
+	 * the exit status
 	 */
-	public static void executeCommand(File executionDir, boolean abortOnError, String... commandArgs) {
-		executeCommandInJavaEnvironment(executionDir, null, null, null, abortOnError, commandArgs);
+	public static int executeCommand(File executionDir, boolean abortOnError, String... commandArgs) {
+		return executeCommandInJavaEnvironment(executionDir, null, null, null, abortOnError, commandArgs);
 	}
 	
 	/**
