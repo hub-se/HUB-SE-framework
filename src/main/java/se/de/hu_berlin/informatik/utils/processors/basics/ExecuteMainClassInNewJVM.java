@@ -130,6 +130,11 @@ public class ExecuteMainClassInNewJVM extends AbstractProcessor<String[],Integer
         pb.directory(executionDir);
         pb.inheritIO();
         
+        if (javaHome != null) {
+        	pb.environment().put("JAVA_HOME", javaHome);
+        	pb.environment().put("JRE_HOME", javaHome + File.separator + "jre");
+		}
+        
         for (Entry<String,String> entry : environmentVariables.entrySet()) {
         	pb.environment().put(entry.getKey(), entry.getValue());
         }
