@@ -154,7 +154,7 @@ public class ExecuteMainClassInNewJVM extends AbstractProcessor<String[],Integer
         //obtain result and wait for the process to finish execution
         int result = 1;
         boolean isFirst = true;
-        while (p.isAlive() || isFirst) {
+        while (isFirst || p.isAlive()) {
         	isFirst = false;
         	try {
         		result = p.waitFor();
