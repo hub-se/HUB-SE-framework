@@ -282,7 +282,7 @@ final public class Misc {
 	}
 	
 	/**
-	 * Adds the given item to the end of the given 
+	 * Adds the given items to the end of the given 
 	 * array of type {@code T}.
 	 * @param a
 	 * the first array
@@ -296,6 +296,20 @@ final public class Misc {
 	@SafeVarargs
 	public static <T> T[] addToArrayAndReturnResult(final T[] a, final T... items) {
 		return joinArrays(a, items);
+	}
+	
+	/**
+	 * Creates an array of type {@code T} with the given items.
+	 * @param items
+	 * item to append to the array
+	 * @return
+	 * the array with the given items
+	 * @param <T>
+	 * the type of the arrays
+	 */
+	@SafeVarargs
+	public static <T> T[] createArrayFromItems(T... items) {
+		return items;
 	}
 	
 	/**
