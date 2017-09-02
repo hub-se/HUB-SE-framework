@@ -139,6 +139,9 @@ final public class FileUtils {
 	 * true if and only if the file or directory is successfully deleted; false otherwise
 	 */
 	public static boolean delete(final File fileOrDir) {
+		if (!fileOrDir.exists()) {
+			return true;
+		}
 		if (fileOrDir.isDirectory()) {
 			try {
 				for (final File file : fileOrDir.listFiles()) {

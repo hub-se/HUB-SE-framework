@@ -39,7 +39,7 @@ public class ExecuteMainClassInNewJVM extends AbstractProcessor<String[],Integer
 	 * other properties to give to the JVM
 	 */
 	public ExecuteMainClassInNewJVM(Class<?> clazz, File executionDir, String... properties) {
-		this(null, clazz, null, executionDir, properties);
+		this(null, clazz, null, executionDir, (String[])properties);
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class ExecuteMainClassInNewJVM extends AbstractProcessor<String[],Integer
 	 * other properties to give to the JVM
 	 */
 	public ExecuteMainClassInNewJVM(Class<?> clazz, String cp, File executionDir, String... properties) {
-		this(null, clazz, cp, executionDir, properties);
+		this(null, clazz, cp, executionDir, (String[])properties);
 	}
 	
 	/**
