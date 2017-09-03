@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -181,6 +182,40 @@ public class ClassPathParser {
 	 */
 	public List<URL> getUniqueClasspathElements() {
 	    return classpathElements;
+	}
+	
+	public void removeElements(String... patterns) {
+		Iterator<URL> iterator = classpathElements.iterator();
+		while (iterator.hasNext()) {
+			URL element = iterator.next();
+			for (String pattern : patterns) {
+				if (element.toString().contains(pattern)) {
+//					Log.out(this, "removed %s", element.toString());
+					iterator.remove();
+					classpathElementsSet.remove(element);
+					break;
+				}
+			}
+		}
+	}
+
+	public void removeElementsOtherThan(String... patterns) {
+		Iterator<URL> iterator = classpathElements.iterator();
+		while (iterator.hasNext()) {
+			URL element = iterator.next();
+			boolean remove = true;
+			for (String pattern : patterns) {
+				if (element.toString().contains(pattern)) {
+					remove = false;
+					break;
+				}
+			}
+			if (remove) {
+//				Log.out(this, "removed %s", element.toString());
+				iterator.remove();
+				classpathElementsSet.remove(element);
+			}
+		}
 	}
 	
 	/**
