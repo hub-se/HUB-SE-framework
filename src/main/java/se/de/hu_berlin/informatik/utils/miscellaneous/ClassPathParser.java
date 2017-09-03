@@ -25,12 +25,19 @@ public class ClassPathParser {
 	/** The unique elements of the classpath, as a set. */
 	private final Set<String> classpathElementsSet;
 
+	private boolean logOutput;
+
 	
 	
-	public ClassPathParser() {
+	public ClassPathParser(boolean logOutput) {
 		super();
+		this.logOutput = logOutput;
 		this.classpathElements = new ArrayList<>();
 		this.classpathElementsSet = new HashSet<>();
+	}
+	
+	public ClassPathParser() {
+		this(false);
 	}
 
 	/** 
@@ -52,7 +59,9 @@ public class ClassPathParser {
 	        if (file.exists()) {
 	        	classpathElements.add(pathElement);
 	        } else {
-	        	Log.err(this, "'%s' does not exist and is not added.", file);
+	        	if (logOutput) {
+	        		Log.err(this, "'%s' does not exist and is not added.", file);
+	        	}
 	        }
 	    } else {
 //	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
@@ -68,7 +77,9 @@ public class ClassPathParser {
 		try {
         	addClasspathElement(pathElement.getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
-			Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
+			if (logOutput) {
+				Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
+			}
 		}
 	}
 	
@@ -92,10 +103,14 @@ public class ClassPathParser {
 	        if (file.exists()) {
 	        	classpathElements.add(0, pathElement);
 	        } else {
-	        	Log.err(this, "'%s' does not exist and is not added.", file);
+	        	if (logOutput) {
+	        		Log.err(this, "'%s' does not exist and is not added.", file);
+	        	}
 	        }
 	    } else {
-//	    	Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+	    	if (logOutput) {
+	    		Log.err(this, "'%s' does already exist in the class path and is not added again.", pathElement.toString());
+	    	}
 		}
 	}
 	
@@ -108,7 +123,9 @@ public class ClassPathParser {
 		try {
         	addClasspathElementAtStart(pathElement.getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
-			Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
+			if (logOutput) {
+				Log.err(this, "'%s' can not be transformed to a valid URL and is not added.", pathElement);
+			}
 		}
 	}
 	
@@ -163,11 +180,15 @@ public class ClassPathParser {
 	        			if ("file".equals(url.getProtocol())) {
 	        				addClasspathElement(url.getFile());
 	        			} else {
-	        				Log.warn(this, "'%s' was not added to class path with protocol '%s'", url, url.getProtocol());
+	        				if (logOutput) {
+	        					Log.warn(this, "'%s' was not added to class path with protocol '%s'", url, url.getProtocol());
+	        				}
 	        			}
 	        		}
 	        	} else {
-	        		Log.warn(this, "Could not get URLs from a class loader.");
+	        		if (logOutput) {
+	        			Log.warn(this, "Could not get URLs from a class loader.");
+	        		}
 	        	}
 	        }
 	    }
@@ -190,7 +211,9 @@ public class ClassPathParser {
 			URL element = iterator.next();
 			for (String pattern : patterns) {
 				if (element.toString().contains(pattern)) {
-//					Log.out(this, "removed %s", element.toString());
+					if (logOutput) {
+						Log.out(this, "removed %s", element.toString());
+					}
 					iterator.remove();
 					classpathElementsSet.remove(element);
 					break;
@@ -211,7 +234,9 @@ public class ClassPathParser {
 				}
 			}
 			if (remove) {
-//				Log.out(this, "removed %s", element.toString());
+				if (logOutput) {
+					Log.out(this, "removed %s", element.toString());
+				}
 				iterator.remove();
 				classpathElementsSet.remove(element);
 			}
