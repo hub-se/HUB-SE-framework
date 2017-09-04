@@ -12,6 +12,9 @@ import java.util.Random;
 
 public class SimpleServerFramework {
 	
+	final private static byte ACCEPT = 0;
+	final private static byte REJECT = 1;
+	
 	final private static byte NULL_DATA = 2;
 	final private static byte NORMAL_DATA = 3;
 
@@ -105,9 +108,7 @@ public class SimpleServerFramework {
 		private void listenOnSocket(ServerSocket serverSocket) {
 			while (!isShutdown) {
 				// Create the Client Socket
-				Socket clientSocket = null;
-				try {
-					clientSocket = serverSocket.accept();
+				try (Socket clientSocket = serverSocket.accept()) {
 //					 Log.out(this, "Server Socket Extablished...");
 					// Create input and output streams to client
 					ObjectOutputStream outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -132,21 +133,19 @@ public class SimpleServerFramework {
 					}
 					outToClient.flush();
 					
-//					Log.out("server", "written data to port %d...", clientSocket.getLocalPort());
-					// tell any waiting threads that there is new data...
-					synchronized (receiveLock) {
-						hasNewData = true;
-						receiveLock.notifyAll();
-					}
+//					Log.out("server", "reading data from port %d...", clientSocket.getLocalPort());
+					/* Retrieve data */
+					status = inFromClient.readByte();
 					
-				} catch (Exception e) {
-					if (clientSocket != null) {
-						try {
-							clientSocket.close();
-						} catch (IOException e1) {
-							// do nothing...
+					if (status == ACCEPT) {
+//						Log.out("server", "written data to port %d...", clientSocket.getLocalPort());
+						// tell any waiting threads that there is new data...
+						synchronized (receiveLock) {
+							hasNewData = true;
+							receiveLock.notifyAll();
 						}
 					}
+				} catch (Exception e) {
 					// if any exception occurred, the client should now try to send the data again
 					Log.err("server", e, "error: " + e.getMessage());
 				}
@@ -219,16 +218,20 @@ public class SimpleServerFramework {
 				}
 				outToServer.flush();
 				
-//				Log.out("client", "reading data to port %d...", port);
+//				Log.out("client", "reading data from port %d...", port);
 				/* Retrieve the status byte from server */
 				byte status = inFromServer.readByte();
 				
 				if ((data == null && status == NULL_DATA) ||
 						(data != null && status == NORMAL_DATA)) {
-//					Log.out("client", "read data to port %d...", port);
+//					Log.out("client", "read data from port %d...", port);
+					outToServer.writeByte(ACCEPT);
+					outToServer.flush();
 					return true;
 				} else {
 					Log.err("client", "Error sending correct data: try %d", count);
+					outToServer.writeByte(REJECT);
+					outToServer.flush();
 				}
 
 			} catch (Exception e) {
