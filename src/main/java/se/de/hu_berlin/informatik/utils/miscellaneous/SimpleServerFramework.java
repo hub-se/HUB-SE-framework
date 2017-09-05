@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Random;
 
@@ -17,6 +18,8 @@ public class SimpleServerFramework {
 	
 	final private static byte NULL_DATA = 2;
 	final private static byte NORMAL_DATA = 3;
+	
+	final private static byte RESET = 4;
 
 	public static int getFreePort() {
 		return getFreePort(new Random().nextInt(60536) + 5000);
@@ -109,41 +112,54 @@ public class SimpleServerFramework {
 			while (!isShutdown) {
 				// Create the Client Socket
 				try (Socket clientSocket = serverSocket.accept()) {
+					clientSocket.setSoTimeout(10000);
 //					 Log.out(this, "Server Socket Extablished...");
 					// Create input and output streams to client
 					ObjectOutputStream outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
 					ObjectInputStream inFromClient = new ObjectInputStream(clientSocket.getInputStream());
 
-//					Log.out("server", "reading data from port %d...", clientSocket.getLocalPort());
-					/* Retrieve data */
-					byte status = inFromClient.readByte();
-					if (status == NULL_DATA) {
-						this.data = null;
-					} else {
-						this.data = (T) inFromClient.readObject();
-					}
-					
-//					Log.out("server", "writing data to port %d...", clientSocket.getLocalPort());
-					if (data == null) {
-						/* we received null data */
-						outToClient.writeByte(NULL_DATA);
-					} else {
-						/* we received data other than null (TODO: checksum or something...?) */
-						outToClient.writeByte(NORMAL_DATA);
-					}
-					outToClient.flush();
-					
-//					Log.out("server", "reading data from port %d...", clientSocket.getLocalPort());
-					/* Retrieve data */
-					status = inFromClient.readByte();
-					
-					if (status == ACCEPT) {
-//						Log.out("server", "written data to port %d...", clientSocket.getLocalPort());
-						// tell any waiting threads that there is new data...
-						synchronized (receiveLock) {
-							hasNewData = true;
-							receiveLock.notifyAll();
+					try {
+//						Log.out("server", "reading data from port %d...", clientSocket.getLocalPort());
+						/* Retrieve data */
+						byte status = inFromClient.readByte();
+						if (status == RESET) {
+							continue;
 						}
+						if (status == NULL_DATA) {
+							this.data = null;
+						} else {
+							this.data = (T) inFromClient.readObject();
+						}
+						
+//						Log.out("server", "writing data to port %d...", clientSocket.getLocalPort());
+						if (data == null) {
+							/* we received null data */
+							outToClient.writeByte(NULL_DATA);
+						} else {
+							/* we received data other than null (TODO: checksum or something...?) */
+							outToClient.writeByte(NORMAL_DATA);
+						}
+						outToClient.flush();
+						
+//						Log.out("server", "reading data from port %d...", clientSocket.getLocalPort());
+						/* Retrieve data */
+						status = inFromClient.readByte();
+						if (status == RESET) {
+							continue;
+						}
+						
+						if (status == ACCEPT) {
+//							Log.out("server", "written data to port %d...", clientSocket.getLocalPort());
+							// tell any waiting threads that there is new data...
+							synchronized (receiveLock) {
+								hasNewData = true;
+								receiveLock.notifyAll();
+							}
+						}
+					} catch (SocketTimeoutException e) {
+						Log.err("server", "Timeout!");
+						outToClient.writeByte(RESET);
+						outToClient.flush();
 					}
 				} catch (Exception e) {
 					// if any exception occurred, the client should now try to send the data again
@@ -203,37 +219,47 @@ public class SimpleServerFramework {
 			++count;
 			// Create the socket
 			try (Socket clientSocket = new Socket((String) null, port)) {
+				clientSocket.setSoTimeout(10000);
 				// Log.out("client", "Client Socket initialized...");
 				// Create the input & output streams to the server
 				ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
 				ObjectInputStream inFromServer = new ObjectInputStream(clientSocket.getInputStream());
 
-//				Log.out("client", "writing data to port %d...", port);
-				/* Send the Message Object to the server */
-				if (data == null) {
-					outToServer.writeByte(NULL_DATA);
-				} else {
-					outToServer.writeByte(NORMAL_DATA);
-					outToServer.writeObject(data);
-				}
-				outToServer.flush();
-				
-//				Log.out("client", "reading data from port %d...", port);
-				/* Retrieve the status byte from server */
-				byte status = inFromServer.readByte();
-				
-				if ((data == null && status == NULL_DATA) ||
-						(data != null && status == NORMAL_DATA)) {
-//					Log.out("client", "read data from port %d...", port);
-					outToServer.writeByte(ACCEPT);
+				try {
+//					Log.out("client", "writing data to port %d...", port);
+					/* Send the Message Object to the server */
+					if (data == null) {
+						outToServer.writeByte(NULL_DATA);
+					} else {
+						outToServer.writeByte(NORMAL_DATA);
+						outToServer.writeObject(data);
+					}
 					outToServer.flush();
-					return true;
-				} else {
-					Log.err("client", "Error sending correct data: try %d", count);
-					outToServer.writeByte(REJECT);
-					outToServer.flush();
-				}
 
+//					Log.out("client", "reading data from port %d...", port);
+					/* Retrieve the status byte from server */
+					byte status = inFromServer.readByte();
+					if (status == RESET) {
+						continue;
+					}
+
+					if ((data == null && status == NULL_DATA) ||
+							(data != null && status == NORMAL_DATA)) {
+//						Log.out("client", "read data from port %d...", port);
+						outToServer.writeByte(ACCEPT);
+						outToServer.flush();
+						return true;
+					} else {
+						Log.err("client", "Error sending correct data: try %d", count);
+						outToServer.writeByte(REJECT);
+						outToServer.flush();
+					}
+
+				} catch (SocketTimeoutException e) {
+					Log.err("client", "Try %d, timeout!", count);
+					outToServer.writeByte(RESET);
+					outToServer.flush();
+				}
 			} catch (Exception e) {
 				Log.err("client", e, "Try %d, error: %s", count, e.getMessage());
 			}
