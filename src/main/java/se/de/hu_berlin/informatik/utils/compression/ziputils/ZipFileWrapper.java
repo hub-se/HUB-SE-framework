@@ -45,4 +45,9 @@ public class ZipFileWrapper {
 		return new byte[0];
 	}
 
+	@Override
+	public String toString() {
+		return zipFile.getFile().toString();
+	}
+
 }
