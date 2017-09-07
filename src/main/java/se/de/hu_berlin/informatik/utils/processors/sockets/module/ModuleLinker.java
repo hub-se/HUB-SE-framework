@@ -112,10 +112,18 @@ public class ModuleLinker implements Trackable, OptionCarrier {
 	
 	/**
 	 * @return
-	 * the result item of the last module in the chain
+	 * the result item of the last module in the chain, if any
 	 */
 	public Object getLastResult() {
 		return getEndModule().getResult();
+	}
+	
+	/**
+	 * @return
+	 * the collected result item of the last module in the chain, if any
+	 */
+	public Object getCollectedResult() {
+		return getEndModule().getResultFromCollectedItems();
 	}
 	
 	@Override
