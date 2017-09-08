@@ -16,7 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import se.de.hu_berlin.informatik.utils.compression.CompressedByteArrayToIntSequenceProcessor;
+import se.de.hu_berlin.informatik.utils.compression.CompressedByteArrayToIntSequencesProcessor;
 import se.de.hu_berlin.informatik.utils.compression.IntSequencesToCompressedByteArrayProcessor;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Abort;
 import se.de.hu_berlin.informatik.utils.processors.sockets.module.Module;
@@ -46,7 +46,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		decoder = new CompressedByteArrayToIntSequenceProcessor().asModule();
+		decoder = new CompressedByteArrayToIntSequencesProcessor().asModule();
 	}
 
 	/**

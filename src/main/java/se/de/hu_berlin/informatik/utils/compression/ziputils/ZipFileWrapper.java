@@ -8,6 +8,7 @@ import net.lingala.zip4j.exception.ZipException;
 import se.de.hu_berlin.informatik.utils.files.FileUtils;
 import se.de.hu_berlin.informatik.utils.files.processors.FileToByteArrayReader;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
+import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 
 public class ZipFileWrapper {
 	
@@ -20,6 +21,29 @@ public class ZipFileWrapper {
 		destPath = zipFile.getFile().getParent() == null ? "" : zipFile.getFile().getParent();
 	}
 	
+	public byte[] get(String fileName, boolean logError) {
+		try {
+			return uncheckedGet(fileName);
+		} catch (ZipException e) {
+			if (logError) {
+				Log.err(this, "Unable to get zipped file '%s', or could not write to '%s'.", fileName, destPath);
+			}
+			return null;
+		}
+	}
+	
+	public byte[] uncheckedGet(String fileName) throws ZipException {
+		//extract the zip file contents to the zip file's parent folder
+		//may throw exception if file does not exist
+		zipFile.extractFile(fileName, destPath);
+
+		//parse the file containing the identifiers
+		final Path filePath = Paths.get(destPath, fileName);
+		final byte[] result = new FileToByteArrayReader().asModule().submit(filePath).getResult();
+		FileUtils.delete(filePath);
+		
+		return result;
+	}
 	
 	public byte[] uncheckedGet(final int index) throws ZipException {
 		//extract the zip file contents to the zip file's parent folder
@@ -36,13 +60,29 @@ public class ZipFileWrapper {
 		return result;
 	}
 	
-	public byte[] get(final int index) {
+	public byte[] get(final int index, boolean logError) {
 		try {
 			return uncheckedGet(index);
 		} catch (ZipException e) {
-			Log.abort(this, e, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
+			if (logError) {
+				Log.err(this, "Unable to get zipped file '%s', or could not write to '%s'.", index + ".bin", destPath);
+			}
+			return null;
 		}
-		return new byte[0];
+	}
+	
+	public byte[] tryGetFromOneOf(String... fileNames) {
+		byte[] result = null;
+		for (String fileName : fileNames) { 
+			result = this.get(fileName, false);
+			if (result != null) {
+				break;
+			}
+		}
+		if (result == null) {
+			Log.err(this, "Unable to load data from (one of) " + Misc.arrayToString(fileNames));
+		}
+		return result;
 	}
 
 	@Override

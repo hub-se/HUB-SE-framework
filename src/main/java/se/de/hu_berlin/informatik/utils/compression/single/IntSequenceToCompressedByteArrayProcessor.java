@@ -1,7 +1,7 @@
 /**
  * 
  */
-package se.de.hu_berlin.informatik.utils.compression;
+package se.de.hu_berlin.informatik.utils.compression.single;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -11,47 +11,16 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
 /**
- * Encodes sequences of integers into compressed sequences of integers, depending on the maximum
+ * Encodes a sequence of integers into a compressed byte array, depending on the maximum
  * values of the input integers.
  * 
  * @author Simon Heiden
  */
-public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcessor<List<Integer>,byte[] > {
-
-	public static final int DELIMITER = 0;
+public class IntSequenceToCompressedByteArrayProcessor extends AbstractProcessor<List<Integer>,byte[] > {
 	
-	private List<Byte> result;
-	
-	private byte neededBits;
-	private int sequenceLength;
-	private int lastByteIndex = 0;
-	private byte remainingFreeBits = 0;
-	private byte bitsLeft = 0;
-	private int totalSequences = 0;
-
-	private int maxValue;
-	
-	public IntSequencesToCompressedByteArrayProcessor(int maxValue, int sequenceLength) {
-		super();
-		this.maxValue = maxValue;
-		result = new ArrayList<>();
-		
-		//compute the number of bits needed to represent integers with the given maximum value
-		neededBits = ceilLog2(this.maxValue);
-
-		this.sequenceLength = sequenceLength;
-		//add a header that contains information needed for decoding
-		addHeader(neededBits, sequenceLength);
-	}
-	
-	public IntSequencesToCompressedByteArrayProcessor(int maxValue) {
-		this(maxValue, 0);
-	}
-	
-	
-	private void addHeader(byte neededBits, int sequenceLength) {
-		// header should be 9 bytes:
-		// | number of bits used for one element (1 byte) | sequence length (4 bytes) - 0 for delimiter mode | total number of sequences (4 bytes) |
+	private int addHeader(byte neededBits, int sequenceLength, List<Byte> result) {
+		// header should be 5 bytes:
+		// | number of bits used for one element (1 byte) | sequence length (4 bytes) |
 		
 		result.add(neededBits);
 		
@@ -63,11 +32,7 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 			result.add(b.array()[i]);
 		}
 		
-		//stores the number of sequences in the end (gets replaced later)
-		for (int i = 0; i < 4; ++i) {
-			result.add((byte) 0);
-		}
-		lastByteIndex = 8;
+		return 4;
 	}
 
 	/* (non-Javadoc)
@@ -75,20 +40,24 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 	 */
 	@Override
 	public byte[] processItem(List<Integer> intSequence) {
-		if (sequenceLength == 0) {
-			for (int element : intSequence) {
-				if (element == DELIMITER) {
-					Log.abort(this, "Cannot store numbers identical to the delimiter (%d).", DELIMITER);
-				}
+		int sequenceLength = intSequence.size();
+		int maxValue = 0;
+		for (int item : intSequence) {
+			if (item < 0) {
+				Log.err(this, "Can not store negative item '%d'.", item);
 			}
-			intSequence.add(DELIMITER);
-		} else {
-			if (intSequence.size() != sequenceLength) {
-				Log.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
-			}
+			maxValue = Math.max(maxValue, item);
 		}
-		++totalSequences;
 		
+		//compute the number of bits needed to represent integers with the given maximum value
+		byte neededBits = ceilLog2(maxValue);
+		
+		List<Byte> result = new ArrayList<>(sequenceLength + 5);
+		//add a header that contains information needed for decoding
+		int lastByteIndex = addHeader(neededBits, sequenceLength, result);
+
+		byte remainingFreeBits = 0;
+		byte bitsLeft = 0;
 		for (Integer element : intSequence) {
 			if (element > maxValue) {
 				Log.abort(this, "Trying to store '%d', but max value set to '%d'.", element.intValue(), maxValue);
@@ -101,7 +70,9 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 			while (bitsLeft > 0) {
 				//add a new byte if no space is left
 				if (remainingFreeBits == 0) {
-					addNewByteToList();
+					result.add((byte) 0);
+					++lastByteIndex;
+					remainingFreeBits = 8;
 					//remainingFreeBits > 0 holds now!
 				}
 				//need to shift the bits differently if more bits are left to write than free bits are remaining in the last byte of the list
@@ -118,32 +89,12 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 				}
 			}
 		}
-
-		return null;
-	}
-
-	@Override
-	public byte[] getResultFromCollectedItems() {
-		ByteBuffer b = ByteBuffer.allocate(4);
-		//b.order(ByteOrder.BIG_ENDIAN); // optional, the initial order of a byte buffer is always BIG_ENDIAN.
-		b.putInt(totalSequences);
-
-		//set the total number of sequences stored
-		for (int i = 0; i < 4; ++i) {
-			result.set(i+5, b.array()[i]);
-		}
 		
 		byte[] temp = new byte[result.size()];
 		for (int i = 0; i < temp.length; ++i) {
 			temp[i] = result.get(i);
 		}
 		return temp;
-	}
-
-	private void addNewByteToList() {
-		result.add((byte) 0);
-		++lastByteIndex;
-		remainingFreeBits = 8;
 	}
 	
 	private int keepLastNBits(int element, byte n) {
@@ -155,7 +106,7 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 	    	throw new IllegalArgumentException("Can not compute for n = " + n);
 	    }
 	    if (n == 0) {
-	    	Log.warn(IntSequencesToCompressedByteArrayProcessor.class, "Maximum input number is zero.");
+	    	Log.warn(IntSequenceToCompressedByteArrayProcessor.class, "Maximum input number is zero.");
 	    	return 1;
 	    } else {
 	    	return (byte) (32 - Integer.numberOfLeadingZeros(n));

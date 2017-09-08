@@ -12,14 +12,14 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<byte[],byte[]> {
+public class CompressedByteArraysToByteArraysProcessor extends AbstractProcessor<byte[],byte[]> {
 	
 	private byte usedBits;
 	private int sequenceLength;
 	private int totalSequences;
 	private int arrayPos;
 	
-	public CompressedByteArrayToByteArrayProcessor() {
+	public CompressedByteArraysToByteArraysProcessor() {
 		super();
 	}
 	
