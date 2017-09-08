@@ -91,7 +91,10 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 		
 		for (Integer element : intSequence) {
 			if (element > maxValue) {
-				Log.abort(this, "Trying to store '%d', but max value set to '%d'.", element.intValue(), maxValue);
+				Log.warn(this, "Trying to store '%d', but max value set to '%d'.", element.intValue(), maxValue);
+				if (ceilLog2(element) > neededBits) {
+					Log.abort(this, "Can not store '%d' in %d bits.", element.intValue(), neededBits);
+				}
 			}
 			//reset the bits left to write
 			bitsLeft = neededBits;

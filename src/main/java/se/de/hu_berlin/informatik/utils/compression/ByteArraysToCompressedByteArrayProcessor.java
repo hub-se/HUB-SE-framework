@@ -26,13 +26,16 @@ public class ByteArraysToCompressedByteArrayProcessor extends AbstractProcessor<
 	private byte remainingFreeBits = 0;
 	private byte bitsLeft = 0;
 	private int totalSequences = 0;
+
+	private int maxValue;
 	
 	public ByteArraysToCompressedByteArrayProcessor(int maxValue, int sequenceLength) {
 		super();
+		this.maxValue = maxValue;
 		result = new ArrayList<>();
 		
 		//compute the number of bits needed to represent integers with the given maximum value
-		neededBits = ceilLog2(maxValue);
+		neededBits = ceilLog2(this.maxValue);
 
 		this.sequenceLength = sequenceLength;
 		//add a header that contains information needed for decoding
@@ -72,6 +75,12 @@ public class ByteArraysToCompressedByteArrayProcessor extends AbstractProcessor<
 		totalSequences += array.length / sequenceLength;
 		for (int i = 0; i < array.length; ++i) {
 			int element = array[i];
+			if (element > maxValue) {
+				Log.warn(this, "Trying to store '%d', but max value set to '%d'.", element, maxValue);
+				if (ceilLog2(element) > neededBits) {
+					Log.abort(this, "Can not store '%d' in %d bits.", element, neededBits);
+				}
+			}
 			//reset the bits left to write
 			bitsLeft = neededBits;
 			//keep only relevant bits as defined by the given maximum value
