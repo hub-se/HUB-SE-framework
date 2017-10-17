@@ -1,5 +1,6 @@
 package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -33,12 +34,13 @@ public class ZipFileWrapper {
 	}
 	
 	public byte[] uncheckedGet(String fileName) throws ZipException {
-		//extract the zip file contents to the zip file's parent folder
+		//extract the file in the zip file to a unique file
 		//may throw exception if file does not exist
-		zipFile.extractFile(fileName, destPath);
+		String newFileName = zipFile.getFile().getName() + "_" + fileName;
+		zipFile.extractFile(fileName, destPath.toString(), null, newFileName);
 
 		//parse the file containing the identifiers
-		final Path filePath = Paths.get(destPath, fileName);
+		final Path filePath = Paths.get(destPath, newFileName);
 		final byte[] result = new FileToByteArrayReader().asModule().submit(filePath).getResult();
 		FileUtils.delete(filePath);
 		
@@ -46,18 +48,8 @@ public class ZipFileWrapper {
 	}
 	
 	public byte[] uncheckedGet(final int index) throws ZipException {
-		//extract the zip file contents to the zip file's parent folder
 		final String filename = index + ".bin";
-		
-		//may throw exception if file does not exist
-		zipFile.extractFile(filename, destPath);
-
-		//parse the file containing the identifiers
-		final Path filePath = Paths.get(destPath, filename);
-		final byte[] result = new FileToByteArrayReader().asModule().submit(filePath).getResult();
-		FileUtils.delete(filePath);
-		
-		return result;
+		return uncheckedGet(filename);
 	}
 	
 	public byte[] get(final int index, boolean logError) {
