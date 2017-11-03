@@ -106,7 +106,7 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		return item;
 	}
 	
-	private static Path write(Path path, Iterable<?> lines,
+	private Path write(Path path, Iterable<?> lines,
 			Charset cs, OpenOption... options) throws IOException {
 		// ensure lines is not null before opening file
 		Objects.requireNonNull(lines);
@@ -114,8 +114,12 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		OutputStream out = Files.newOutputStream(path, options);
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
 			for (Object line: lines) {
-				writer.append(line.toString());
-				writer.newLine();
+				try {
+					writer.append(line.toString());
+					writer.newLine();
+				} catch (IOException e) {
+					Log.err(this, "Cannot write line to file \"" + outputPath.toString() + "\": '%s'", line.toString());
+				}
 			}
 		}
 		return path;
