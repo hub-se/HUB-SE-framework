@@ -101,7 +101,17 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		try {
 			write(outputPath, item, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			Log.err(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+//			Log.err(this, e, "Cannot write file \"" + outputPath.toString() + "\".");
+			try {
+				write(outputPath, item, StandardCharsets.ISO_8859_1);
+			} catch (IOException e1) {
+//				Log.err(this, e1, "Cannot write file \"" + outputPath.toString() + "\".");
+				try {
+					write(outputPath, item, StandardCharsets.UTF_16);
+				} catch (IOException e2) {
+					Log.err(this, e2, "Cannot write file \"" + outputPath.toString() + "\".");
+				}
+			}
 		}
 		return item;
 	}
@@ -114,12 +124,8 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		OutputStream out = Files.newOutputStream(path, options);
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
 			for (Object line: lines) {
-				try {
-					writer.append(line.toString());
-					writer.newLine();
-				} catch (IOException e) {
-					Log.err(this, "Cannot write line to file \"" + outputPath.toString() + "\": '%s'", line.toString());
-				}
+				writer.append(line.toString());
+				writer.newLine();
 			}
 		}
 		return path;
