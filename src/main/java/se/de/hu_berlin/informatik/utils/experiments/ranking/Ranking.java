@@ -287,16 +287,9 @@ public interface Ranking<T> extends Iterable<T> {
      * the type of the ranked element
      */
     public static <T> void save(Ranking<T> ranking, final String filename) throws IOException {
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(filename);
+        try (FileWriter writer = new FileWriter(filename)) {
             for (final RankedElement<T> el : ranking.getSortedRankedElements()) {
                 writer.write(String.format("%s" + RANKING_SEPARATOR + "%f\n", el.getIdentifier(), el.getRankingValue()));
-            }
-        } finally {
-            if (writer != null) {
-                writer.flush();
-                writer.close();
             }
         }
     }

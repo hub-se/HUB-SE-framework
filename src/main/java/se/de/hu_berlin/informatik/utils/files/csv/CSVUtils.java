@@ -328,4 +328,8 @@ public final class CSVUtils {
 		}
 		return line.toString();
 	}
+
+	public static String[] fromCsvLine(String metricsLine) {
+		return metricsLine.split(CSVUtils.CSV_DELIMITER_STRING);
+	}
 }

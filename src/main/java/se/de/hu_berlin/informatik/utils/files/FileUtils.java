@@ -302,7 +302,7 @@ final public class FileUtils {
 	 * @param option
 	 * an option to specify the position of the pattern in the file name
 	 * @param depth
-	 * recursion depth
+	 * recursion depth (0 only looks at start directory, 1 looks at all direct children, ...)
 	 * @return
 	 * the found directory, or null if no directory was found that contains the pattern
 	 */
