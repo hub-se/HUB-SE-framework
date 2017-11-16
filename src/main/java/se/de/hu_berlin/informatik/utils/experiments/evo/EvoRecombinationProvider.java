@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.Collection;
 
-public interface EvoRecombinationProvider<T> {
+public interface EvoRecombinationProvider<T, K extends Comparable<K>> {
 
 	public static enum RecombinationTypeSelectionStrategy {
 		RANDOM
@@ -16,7 +16,7 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * the recombination
 	 */
-	public EvoRecombination<T> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy);
+	public EvoRecombination<T,K> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy);
 	
 	/**
 	 * Produces a recombination that can be applied to two objects of type T.
@@ -24,7 +24,7 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * the recombination
 	 */
-	default public EvoRecombination<T> getNextRecombinationType() {
+	default public EvoRecombination<T,K> getNextRecombinationType() {
 		return getNextRecombinationType(getRecombinationTypeSelectionStrategy());
 	}
 	
@@ -35,7 +35,7 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	public boolean addRecombinationTemplate(EvoRecombination<T> recombination);
+	public boolean addRecombinationTemplate(EvoRecombination<T,K> recombination);
 	
 	/**
 	 * Adds the given recombination to the collection of possible recombination.
@@ -44,9 +44,9 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addRecombinationTemplates(Collection<EvoRecombination<T>> recombinations) {
+	default public boolean addRecombinationTemplates(Collection<EvoRecombination<T,K>> recombinations) {
 		boolean result = true;
-		for (EvoRecombination<T> recombination : recombinations) {
+		for (EvoRecombination<T,K> recombination : recombinations) {
 			result &= addRecombinationTemplate(recombination);
 		}
 		return result;
@@ -59,9 +59,9 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T>... recombinations) {
+	default public boolean addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T,K>... recombinations) {
 		boolean result = true;
-		for (EvoRecombination<T> recombination : recombinations) {
+		for (EvoRecombination<T,K> recombination : recombinations) {
 			result &= addRecombinationTemplate(recombination);
 		}
 		return result;
@@ -71,9 +71,9 @@ public interface EvoRecombinationProvider<T> {
 	 * @return
 	 * the collection of recombinations in the pool
 	 */
-	public Collection<EvoRecombination<T>> getRecombinations();
+	public Collection<EvoRecombination<T,K>> getRecombinations();
 	
-	public EvoRecombinationProvider<T> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy);
+	public EvoRecombinationProvider<T,K> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy);
 	
 	public RecombinationTypeSelectionStrategy getRecombinationTypeSelectionStrategy();
 	

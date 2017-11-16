@@ -1,6 +1,6 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-public interface EvoRecombination<T> {
+public interface EvoRecombination<T, K extends Comparable<K>> {
 
 	/**
 	 * Recombines the given parent objects and produces a child object. (cross-over)
@@ -26,6 +26,6 @@ public interface EvoRecombination<T> {
 	 * @return
 	 * the id
 	 */
-	public EvoID getIDofNextRecombination(T parent1, T parent2);
+	public EvoID<K> getIDofNextRecombination(T parent1, T parent2);
 	
 }

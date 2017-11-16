@@ -1,6 +1,5 @@
 package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

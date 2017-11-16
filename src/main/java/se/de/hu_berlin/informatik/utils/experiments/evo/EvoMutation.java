@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public interface EvoMutation<T,L> {
+public interface EvoMutation<T,L,K extends Comparable<K>> {
 
 	/**
 	 * Mutates the target object based on the given location.
@@ -32,18 +32,18 @@ public interface EvoMutation<T,L> {
 	 * @return
 	 * the id
 	 */
-	public EvoID getIDofNextMutation(T target, L location);
+	public EvoID<K> getIDofNextMutation(T target, L location);
 	
-	public static class MutationHistory implements List<EvoID> {
+	public static class MutationHistory<K extends Comparable<K>> implements List<EvoID<K>> {
 
-		private final List<EvoID> history;
+		private final List<EvoID<K>> history;
 		private Integer hashCode = 17;
 		
 		public MutationHistory() {
 			history = new ArrayList<>();
 		}
 		
-		public MutationHistory(MutationHistory c) {
+		public MutationHistory(MutationHistory<K> c) {
 			history = new ArrayList<>(c);
 			hashCode = c.hashCode();
 		}
@@ -52,13 +52,13 @@ public interface EvoMutation<T,L> {
 			history = new ArrayList<>(capacity);
 		}
 		
-		private void updateHashCode(Collection<? extends EvoID> c) {
-			for (EvoID e : c) {
+		private void updateHashCode(Collection<? extends EvoID<K>> c) {
+			for (EvoID<K> e : c) {
 				updateHashCode(e);
 			}
 		}
 		
-		private void updateHashCode(EvoID e) {
+		private void updateHashCode(EvoID<K> e) {
 			hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
 		}
 		
@@ -70,13 +70,13 @@ public interface EvoMutation<T,L> {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof MutationHistory) {
-				MutationHistory o = (MutationHistory) obj;
+				MutationHistory<?> o = (MutationHistory<?>) obj;
 				//must have the same number of elements
 				if (this.size() != o.size()) {
 					return false;
 				}
-				Iterator<EvoID> iterator1 = this.iterator();
-				Iterator<EvoID> iterator2 = o.iterator();
+				Iterator<EvoID<K>> iterator1 = this.iterator();
+				Iterator<?> iterator2 = o.iterator();
 				while(iterator1.hasNext()) {
 					if (!iterator1.next().equals(iterator2.next())) {
 						return false;
@@ -104,7 +104,7 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public Iterator<EvoID> iterator() {
+		public Iterator<EvoID<K>> iterator() {
 			return history.iterator();
 		}
 
@@ -119,7 +119,7 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public boolean add(EvoID e) {
+		public boolean add(EvoID<K> e) {
 			updateHashCode(e);
 			return history.add(e);
 		}
@@ -130,13 +130,13 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public boolean addAll(Collection<? extends EvoID> c) {
+		public boolean addAll(Collection<? extends EvoID<K>> c) {
 			updateHashCode(c);
 			return history.addAll(c);
 		}
 
 		@Override
-		public EvoID get(int index) {
+		public EvoID<K> get(int index) {
 			return history.get(index);
 		}
 		@Override
@@ -150,12 +150,12 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public ListIterator<EvoID> listIterator() {
+		public ListIterator<EvoID<K>> listIterator() {
 			return history.listIterator();
 		}
 
 		@Override
-		public ListIterator<EvoID> listIterator(int index) {
+		public ListIterator<EvoID<K>> listIterator(int index) {
 			return history.listIterator(index);
 		}
 		
@@ -165,7 +165,7 @@ public interface EvoMutation<T,L> {
 		}
 		
 		@Override
-		public boolean addAll(int index, Collection<? extends EvoID> c) throws UnsupportedOperationException {
+		public boolean addAll(int index, Collection<? extends EvoID<K>> c) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
@@ -185,22 +185,22 @@ public interface EvoMutation<T,L> {
 		}
 
 		@Override
-		public EvoID set(int index, EvoID element) throws UnsupportedOperationException {
+		public EvoID<K> set(int index, EvoID<K> element) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public void add(int index, EvoID element) throws UnsupportedOperationException {
+		public void add(int index, EvoID<K> element) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public EvoID remove(int index) throws UnsupportedOperationException {
+		public EvoID<K> remove(int index) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public List<EvoID> subList(int fromIndex, int toIndex) throws UnsupportedOperationException {
+		public List<EvoID<K>> subList(int fromIndex, int toIndex) throws UnsupportedOperationException {
 			throw new UnsupportedOperationException();
 		}
 		

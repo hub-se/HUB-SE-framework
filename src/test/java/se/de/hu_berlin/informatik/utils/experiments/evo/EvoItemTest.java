@@ -57,47 +57,47 @@ public class EvoItemTest extends TestSettings {
 	public void testHistory() throws Exception {
 		Object origin1 = new Object();
 		Object origin2 = new Object();
-		History<Object> history1 = new History<>(origin1);
-		History<Object> history2 = new History<>(origin2);
+		History<Object, Integer> history1 = new History<>(origin1);
+		History<Object, Integer> history2 = new History<>(origin2);
 		
 		assertTrue(history1.equals(history1));
 		assertFalse(history1.equals(history2));
 		assertFalse(history2.equals(history1));
 		
-		history1.addMutationId(new EvoID(0,0));
-		history1.addMutationId(new EvoID(0,0));
-		history1.addMutationId(new EvoID(0,1));
+		history1.addMutationId(new EvoID<>(0,0));
+		history1.addMutationId(new EvoID<>(0,0));
+		history1.addMutationId(new EvoID<>(0,1));
 		
-		history2.addMutationId(new EvoID(0,0));
-		history2.addMutationId(new EvoID(0,0));
-		history2.addMutationId(new EvoID(0,1));
+		history2.addMutationId(new EvoID<>(0,0));
+		history2.addMutationId(new EvoID<>(0,0));
+		history2.addMutationId(new EvoID<>(0,1));
 		
 		assertTrue(history1.equals(history1));
 		assertFalse(history1.equals(history2));
 		assertFalse(history2.equals(history1));
 		
-		History<Object> history3 = history1.copy();
+		History<Object, Integer> history3 = history1.copy();
 		assertTrue(history1.equals(history3));
 		assertTrue(history3.equals(history1));
 		
-		history1.addMutationId(new EvoID(0,0));
+		history1.addMutationId(new EvoID<>(0,0));
 		
 		assertFalse(history1.equals(history3));
 		assertFalse(history3.equals(history1));
 		
-		History<Object> childHistory = new History<>(history1, history2, new EvoID(0,0));
+		History<Object, Integer> childHistory = new History<>(history1, history2, new EvoID<>(0,0));
 		
 		assertTrue(childHistory.equals(childHistory));
 		assertFalse(childHistory.equals(history1));
 		assertFalse(childHistory.equals(history2));
 		assertFalse(childHistory.equals(history3));
 		
-		History<Object> copiedChild = childHistory.copy();
+		History<Object, Integer> copiedChild = childHistory.copy();
 		
 		assertTrue(copiedChild.equals(childHistory));
 		
-		copiedChild.addMutationId(new EvoID(1,2));
-		copiedChild.addMutationId(new EvoID(12,1));
+		copiedChild.addMutationId(new EvoID<>(1,2));
+		copiedChild.addMutationId(new EvoID<>(12,1));
 		
 		assertFalse(copiedChild.equals(childHistory));
 	}

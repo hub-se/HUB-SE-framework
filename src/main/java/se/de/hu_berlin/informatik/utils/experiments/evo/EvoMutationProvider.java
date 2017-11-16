@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import java.util.Collection;
 
-public interface EvoMutationProvider<T,L> {
+public interface EvoMutationProvider<T,L,K extends Comparable<K>> {
 
 	public static enum MutationSelectionStrategy {
 		RANDOM
@@ -16,7 +16,7 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * the mutation
 	 */
-	public EvoMutation<T,L> getNextMutationTemplate(MutationSelectionStrategy strategy);
+	public EvoMutation<T,L,K> getNextMutationTemplate(MutationSelectionStrategy strategy);
 	
 	/**
 	 * Produces a mutation that can be applied to an object of type T, given a location of type L.
@@ -24,7 +24,7 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * the mutation
 	 */
-	default public EvoMutation<T,L> getNextMutationTemplate() {
+	default public EvoMutation<T,L,K> getNextMutationTemplate() {
 		return getNextMutationTemplate(getMutationSelectionStrategy());
 	}
 	
@@ -35,7 +35,7 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	public boolean addMutationTemplate(EvoMutation<T,L> mutation);
+	public boolean addMutationTemplate(EvoMutation<T,L,K> mutation);
 	
 	/**
 	 * Adds the given mutations to the collection of possible mutations.
@@ -44,9 +44,9 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutationTemplates(Collection<EvoMutation<T,L>> mutations) {
+	default public boolean addMutationTemplates(Collection<EvoMutation<T,L,K>> mutations) {
 		boolean result = true;
-		for (EvoMutation<T,L> mutation : mutations) {
+		for (EvoMutation<T,L,K> mutation : mutations) {
 			result &= addMutationTemplate(mutation);
 		}
 		return result;
@@ -59,9 +59,9 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L>... mutations) {
+	default public boolean addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L,K>... mutations) {
 		boolean result = true;
-		for (EvoMutation<T,L> mutation : mutations) {
+		for (EvoMutation<T,L,K> mutation : mutations) {
 			result &= addMutationTemplate(mutation);
 		}
 		return result;
@@ -71,9 +71,9 @@ public interface EvoMutationProvider<T,L> {
 	 * @return
 	 * the collection of mutations in the pool
 	 */
-	public Collection<EvoMutation<T,L>> getMutations();
+	public Collection<EvoMutation<T,L,K>> getMutations();
 	
-	public EvoMutationProvider<T,L> setMutationSelectionStrategy(MutationSelectionStrategy mutationSelectionStrategy);
+	public EvoMutationProvider<T,L,K> setMutationSelectionStrategy(MutationSelectionStrategy mutationSelectionStrategy);
 	
 	public MutationSelectionStrategy getMutationSelectionStrategy();
 }

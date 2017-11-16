@@ -79,7 +79,7 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 		};
 		
-		EvoMutation<Integer[],Integer> mutation = new EvoMutation<Integer[],Integer>() {
+		EvoMutation<Integer[],Integer,Integer> mutation = new EvoMutation<Integer[],Integer,Integer>() {
 			double nextGaussian = 0;
 			@Override
 			public Integer[] applyTo(Integer[] target, Integer location) {
@@ -99,13 +99,13 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 
 			@Override
-			public EvoID getIDofNextMutation(Integer[] target, Integer location) {
+			public EvoID<Integer> getIDofNextMutation(Integer[] target, Integer location) {
 				nextGaussian = random.nextGaussian();
-				return new EvoID(0, nextGaussian >= 0 ? location : -location);
+				return new EvoID<>(0, nextGaussian >= 0 ? location : -location);
 			}
 		};
 		
-		EvoMutation<Integer[],Integer> mutationLength = new EvoMutation<Integer[],Integer>() {
+		EvoMutation<Integer[],Integer,Integer> mutationLength = new EvoMutation<Integer[],Integer,Integer>() {
 			double nextGaussian = 0;
 			@Override
 			public Integer[] applyTo(Integer[] target, Integer location) {
@@ -122,18 +122,18 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 
 			@Override
-			public EvoID getIDofNextMutation(Integer[] target, Integer location) {
+			public EvoID<Integer> getIDofNextMutation(Integer[] target, Integer location) {
 				if (target.length > 1) {
 					nextGaussian = random.nextGaussian();
-					return new EvoID(1, nextGaussian >= 0 ? 1 : -1);
+					return new EvoID<>(1, nextGaussian >= 0 ? 1 : -1);
 				} else {
 					nextGaussian = 1;
-					return new EvoID(1, 1);
+					return new EvoID<>(1, 1);
 				}
 			}
 		};
 		
-		EvoFitnessChecker<Integer[],Integer> fitnessChecker = new EvoFitnessChecker<Integer[],Integer>() {
+		EvoFitnessChecker<Integer[],Integer,Integer> fitnessChecker = new EvoFitnessChecker<Integer[],Integer,Integer>() {
 			
 			@Override
 			public Integer computeFitness(Integer[] item) {
@@ -152,7 +152,7 @@ public class EvoAlgorithmTest extends TestSettings {
 		};
 		
 		//recombiner is optional
-		EvoRecombination<Integer[]> recombination = new EvoRecombination<Integer[]>() {
+		EvoRecombination<Integer[], Integer> recombination = new EvoRecombination<Integer[], Integer>() {
 			
 			private double nextGaussian;
 			private int switchIndex;
@@ -182,18 +182,18 @@ public class EvoAlgorithmTest extends TestSettings {
 			}
 			
 			@Override
-			public EvoID getIDofNextRecombination(Integer[] parent1, Integer[] parent2) {
+			public EvoID<Integer> getIDofNextRecombination(Integer[] parent1, Integer[] parent2) {
 				int smallerLength = parent1.length < parent2.length ? parent1.length : parent2.length;
 				switchIndex = random.nextInt(smallerLength-1) + 1;
 				nextGaussian = random.nextGaussian();
-				return new EvoID(0, nextGaussian >= 0 ? switchIndex : -switchIndex);
+				return new EvoID<>(0, nextGaussian >= 0 ? switchIndex : -switchIndex);
 			}
 		};
 		
 		StatisticsCollector<EvoStatistics> collector = new StatisticsCollector<>(EvoStatistics.class);
 		
-		EvoAlgorithm.Builder<Integer[], Integer, Integer> builder = 
-				new EvoAlgorithm.Builder<Integer[], Integer, Integer>(50, 20, 
+		EvoAlgorithm.Builder<Integer[], Integer, Integer, Integer> builder = 
+				new EvoAlgorithm.Builder<Integer[], Integer, Integer, Integer>(50, 20, 
 						KillStrategy.KILL_50_PERCENT, 
 						PopulationSelectionStrategy.HALF_BEST_HALF_RANDOM, 
 						ParentSelectionStrategy.BEST_75_PERCENT,
@@ -208,7 +208,7 @@ public class EvoAlgorithmTest extends TestSettings {
 				.addToInitialPopulation(new Integer[] {2,4,1,0})
 				.addToInitialPopulation(new Integer[] {0,2,10});
 		
-		EvoItem<Integer[],Integer> result = builder.build().start();
+		EvoItem<Integer[],Integer,Integer> result = builder.build().start();
 		
 		Log.out(this, collector.printStatistics());
 		

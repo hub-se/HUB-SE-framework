@@ -1,10 +1,10 @@
 package se.de.hu_berlin.informatik.utils.experiments.evo;
 
-public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
+public class SimpleEvoItem<T,F extends Comparable<F>, K extends Comparable<K>> implements EvoItem<T,F,K> {
 
 	private T item = null;
 	private F fitness = null;
-	private History<T> history;
+	private History<T,K> history;
 	
 	public SimpleEvoItem(T item) {
 		this.item = item;
@@ -16,12 +16,12 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 		this.fitness = fitness;
 	}
 	
-	public SimpleEvoItem(T item, History<T> history, EvoID mutationId) {
+	public SimpleEvoItem(T item, History<T,K> history, EvoID<K> mutationId) {
 		this.item = item;
 		this.history = new History<>(history, mutationId);
 	}
 	
-	public SimpleEvoItem(T item, History<T> parentHistory1, History<T> parentHistory2, EvoID recombinationId) {
+	public SimpleEvoItem(T item, History<T,K> parentHistory1, History<T,K> parentHistory2, EvoID<K> recombinationId) {
 		this.item = item;
 		this.history = new History<>(parentHistory1, parentHistory2, recombinationId);
 	}
@@ -48,7 +48,7 @@ public class SimpleEvoItem<T,F extends Comparable<F>> implements EvoItem<T,F> {
 	}
 
 	@Override
-	public History<T> getHistory() {
+	public History<T,K> getHistory() {
 		return history;
 	}
 

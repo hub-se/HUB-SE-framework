@@ -5,14 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-public class SimpleEvoRecombinationProvider<T> implements EvoRecombinationProvider<T> {
+public class SimpleEvoRecombinationProvider<T,K extends Comparable<K>> implements EvoRecombinationProvider<T,K> {
 
 	private RecombinationTypeSelectionStrategy strategy = RecombinationTypeSelectionStrategy.RANDOM;
-	private final List<EvoRecombination<T>> availableRecombinations = new ArrayList<>();
+	private final List<EvoRecombination<T,K>> availableRecombinations = new ArrayList<>();
 	private Random random = new Random(); 
 	
 	@Override
-	public EvoRecombination<T> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy) throws IllegalStateException {
+	public EvoRecombination<T,K> getNextRecombinationType(RecombinationTypeSelectionStrategy strategy) throws IllegalStateException {
 		if (availableRecombinations.isEmpty()) {
 			throw new IllegalStateException("No recombinations were added to the provider.");
 		}
@@ -28,17 +28,17 @@ public class SimpleEvoRecombinationProvider<T> implements EvoRecombinationProvid
 	}
 
 	@Override
-	public boolean addRecombinationTemplate(EvoRecombination<T> recombination) {
+	public boolean addRecombinationTemplate(EvoRecombination<T,K> recombination) {
 		return availableRecombinations.add(recombination);
 	}
 
 	@Override
-	public Collection<EvoRecombination<T>> getRecombinations() {
+	public Collection<EvoRecombination<T,K>> getRecombinations() {
 		return availableRecombinations;
 	}
 
 	@Override
-	public EvoRecombinationProvider<T> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy) {
+	public EvoRecombinationProvider<T,K> setRecombinationTypeSelectionStrategy(RecombinationTypeSelectionStrategy recombinationTypeSelectionStrategy) {
 		this.strategy = recombinationTypeSelectionStrategy;
 		return this;
 	}

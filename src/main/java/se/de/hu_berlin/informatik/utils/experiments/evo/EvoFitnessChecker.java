@@ -2,10 +2,10 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
-public abstract class EvoFitnessChecker<T,F extends Comparable<F>> extends AbstractProcessor<EvoItem<T,F>,EvoItem<T, F>> {
+public abstract class EvoFitnessChecker<T,F extends Comparable<F>, K extends Comparable<K>> extends AbstractProcessor<EvoItem<T,F,K>,EvoItem<T,F,K>> {
 
 	@Override
-	public EvoItem<T, F> processItem(EvoItem<T, F> item) {
+	public EvoItem<T, F, K> processItem(EvoItem<T, F, K> item) {
 		item.setFitness(computeFitness(item.getItem()));
 		return item;
 	}

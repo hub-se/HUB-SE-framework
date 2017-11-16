@@ -2,7 +2,7 @@ package se.de.hu_berlin.informatik.utils.experiments.evo;
 
 import se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutation.MutationHistory;
 
-public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
+public interface EvoItem<T,F extends Comparable<F>, K extends Comparable<K>> extends Comparable<F> {
 
 	/**
 	 * @return
@@ -37,9 +37,9 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 	 */
 	public boolean cleanUp();
 	
-	public History<T> getHistory();
+	public History<T, K> getHistory();
 	
-	default public void addMutationIdToHistory(EvoID id) {
+	default public void addMutationIdToHistory(EvoID<K> id) {
 		this.getHistory().addMutationId(id);
 	}
 	
@@ -51,15 +51,15 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		return this.getFitness().compareTo(o);
 	}
 	
-	public static class History<T> {
+	public static class History<T, K extends Comparable<K>> {
 		
-		private MutationHistory mutationHistory;
+		private MutationHistory<K> mutationHistory;
 		private T ancestor = null;
 		
-		private EvoID recombinationId = null;
+		private EvoID<K> recombinationId = null;
 		
-		private History<T> parentHistory1 = null;
-		private History<T> parentHistory2 = null;
+		private History<T, K> parentHistory1 = null;
+		private History<T, K> parentHistory2 = null;
 		
 		private Integer hashCode = 17;
 		
@@ -69,7 +69,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * a reference to the original item
 		 */
 		public History(T origin) {
-			this.mutationHistory = new MutationHistory();
+			this.mutationHistory = new MutationHistory<>();
 			this.ancestor = origin;
 			updateStaticHashCodePart();
 		}
@@ -79,8 +79,8 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param c
 		 * the history to copy
 		 */
-		public History(History<T> c) {
-			this.mutationHistory = new MutationHistory(c.getMutationHistory());
+		public History(History<T, K> c) {
+			this.mutationHistory = new MutationHistory<>(c.getMutationHistory());
 			this.ancestor = c.getAncestor();
 			this.recombinationId = c.getRecombinationId();
 			this.parentHistory1 = c.getParentHistory1() == null ? null : new History<>(c.getParentHistory1());
@@ -96,7 +96,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param mutationId
 		 * the mutation id to add
 		 */
-		public History(History<T> c, EvoID mutationId) {
+		public History(History<T, K> c, EvoID<K> mutationId) {
 			this(c);
 			this.addMutationId(mutationId);
 		}
@@ -111,8 +111,8 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		 * @param recombinationId
 		 * the recombination id
 		 */
-		public History(History<T> parentHistory1, History<T> parentHistory2, EvoID recombinationId) {
-			this.mutationHistory = new MutationHistory();
+		public History(History<T, K> parentHistory1, History<T, K> parentHistory2, EvoID<K> recombinationId) {
+			this.mutationHistory = new MutationHistory<>();
 			this.ancestor = null;
 			this.recombinationId = recombinationId;
 			this.parentHistory1 = parentHistory1 == null ? null : new History<>(parentHistory1);
@@ -127,15 +127,15 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			updateHashCode(this.parentHistory2);
 		}
 
-		public boolean addMutationId(EvoID id) {
+		public boolean addMutationId(EvoID<K> id) {
 			return mutationHistory.add(id);
 		}
 		
-		public EvoID getRecombinationId() {
+		public EvoID<K> getRecombinationId() {
 			return recombinationId;
 		}
 		
-		public MutationHistory getMutationHistory() {
+		public MutationHistory<K> getMutationHistory() {
 			return mutationHistory;
 		}
 		
@@ -147,11 +147,11 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			return ancestor;
 		}
 		
-		public History<T> getParentHistory1() {
+		public History<T, K> getParentHistory1() {
 			return parentHistory1;
 		}
 		
-		public History<T> getParentHistory2() {
+		public History<T, K> getParentHistory2() {
 			return parentHistory2;
 		}
 		
@@ -167,7 +167,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof History) {
-				History<?> o = (History<?>) obj;
+				History<?,?> o = (History<?,?>) obj;
 				//must have the same ancestor (or both null)
 				if (this.getAncestor() != o.getAncestor()) {
 					return false;
@@ -203,7 +203,7 @@ public interface EvoItem<T,F extends Comparable<F>> extends Comparable<F> {
 			}
 		}
 
-		public History<T> copy() {
+		public History<T, K> copy() {
 			return new History<>(this);
 		}
 		
