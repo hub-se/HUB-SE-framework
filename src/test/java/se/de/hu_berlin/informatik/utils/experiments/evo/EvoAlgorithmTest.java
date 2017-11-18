@@ -199,6 +199,7 @@ public class EvoAlgorithmTest extends TestSettings {
 						ParentSelectionStrategy.BEST_75_PERCENT,
 						RecombinationStrategy.POLYGAMY_BEST_20_PERCENT_WITH_OTHERS)
 //						RecombinationStrategy.MONOGAMY_BEST_TO_WORST)
+//				.useHistory()
 				.addRecombinationTemplate(recombination)
 				.addMutationTemplate(mutation)
 				.addMutationTemplate(mutationLength)

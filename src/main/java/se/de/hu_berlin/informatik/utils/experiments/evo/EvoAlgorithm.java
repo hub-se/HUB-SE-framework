@@ -80,8 +80,10 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 	private final boolean collectorAvailable;
 	
 	private final TrackingStrategy tracker = new ProgressTracker(false);
+	private boolean useHistory;
 	
 	private EvoAlgorithm(Builder<T, L, F, K> builder) {
+		this.useHistory = builder.useHistory;
 		this.populationCount = builder.populationCount;
 		if (this.populationCount < 1) {
 			throw new IllegalStateException("Population count has to be positive.");
@@ -160,9 +162,17 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		//initialize current population list
 		List<EvoItem<T,F,K>> currentPopulation = new ArrayList<>(populationCount);
 		//populate with selected old population
-		for (T item : initialPopulation) {
-			currentPopulation.add(new SimpleEvoItem<>(item));
+		if (useHistory) {
+			for (T item : initialPopulation) {
+				currentPopulation.add(new SimpleEvoItem<>(item));
+			}
+		} else {
+			for (T item : initialPopulation) {
+				currentPopulation.add(new SimpleEvoItemWithoutHistory<>(item));
+			}
 		}
+		
+		EvoItem<T, F, K> bestItem;
 		
 		int generationCounter= 1;
 		{
@@ -175,7 +185,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 					initialChildrenCount, statistics));
 
 			//test/validate (evaluation)
-			currentPopulation = calculateFitness(currentPopulation, statistics);
+			bestItem = calculateFitness(currentPopulation, statistics);
 			
 			//collect some statistics
 			if (collectorAvailable) {
@@ -211,7 +221,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			currentPopulation = mutatePopulation(currentPopulation, statistics);
 			
 			//test and validate (evaluation)
-			currentPopulation = calculateFitness(currentPopulation, statistics);
+			bestItem = getBetterItem(bestItem, calculateFitness(currentPopulation, statistics));
+			
 			
 			//collect some statistics
 			if (collectorAvailable) {
@@ -219,8 +230,10 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			}
 		} //loop end
 		
+		cleanUpOtherItems(currentPopulation, bestItem);
+		
 		//return best item, discard the rest
-		return selectBestItem(currentPopulation, true);
+		return bestItem;
 	}
 
 	private boolean checkIfGoalIsMet(List<EvoItem<T, F, K>> currentEvaluatedPop) {
@@ -261,10 +274,15 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 
 						if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
-							EvoItem<T, F, K> mutant = new SimpleEvoItem<>(mutation.applyTo(item.getItem(), nextLocation), 
-									item.getHistory(), mutationId);
-							//add the mutation history to the set of already applied mutation sequences
-							appliedMutations.add(mutant.getHistory().copy());
+							EvoItem<T, F, K> mutant;
+							if (useHistory) {
+								mutant = new SimpleEvoItem<>(mutation.applyTo(item.getItem(), nextLocation), 
+										item.getHistory(), mutationId);
+								//add the mutation history to the set of already applied mutation sequences
+								appliedMutations.add(mutant.getHistory().copy());
+							} else {
+								mutant = new SimpleEvoItemWithoutHistory<>(mutation.applyTo(item.getItem(), nextLocation));
+							}
 							mutationApplied = true;
 							children.add(mutant);
 						} else {
@@ -287,14 +305,20 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		}
 		EvoItem<T,F,K> bestItem = currentEvaluatedPop.iterator().next();
 		for (EvoItem<T,F,K> evaluatedItem : currentEvaluatedPop) {
-			if (evaluatedItem.compareTo(bestItem.getFitness()) > 0) {
-				bestItem = evaluatedItem;
-			}
+			bestItem = getBetterItem(bestItem, evaluatedItem);
 		}
 		if (cleanUpRest) {
 			cleanUpOtherItems(currentEvaluatedPop, bestItem);
 		}
 		return bestItem;
+	}
+
+	private static <T, F extends Comparable<F>, K extends Comparable<K>> EvoItem<T, F, K> getBetterItem(
+			EvoItem<T, F, K> previousBestItem, EvoItem<T, F, K> newItem) {
+		if (newItem.compareTo(previousBestItem.getFitness()) > 0) {
+			previousBestItem = newItem;
+		}
+		return previousBestItem;
 	}
 
 	private List<EvoItem<T,F,K>> mutatePopulation(List<EvoItem<T,F,K>> currentPopulation, 
@@ -315,10 +339,12 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 				if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
 					item.setItem(mutation.applyTo(item.getItem(), nextLocation));
-					//add the mutation id to the history of the item
-					item.addMutationIdToHistory(mutationId);
-					//add the mutation history to the set of already applied mutation sequences
-					appliedMutations.add(item.getHistory().copy());
+					if (useHistory) {
+						//add the mutation id to the history of the item
+						item.addMutationIdToHistory(mutationId);
+						//add the mutation history to the set of already applied mutation sequences
+						appliedMutations.add(item.getHistory().copy());
+					}
 					mutationApplied = true;
 				} else {
 					++duplicateCount;
@@ -331,6 +357,9 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 	}
 
 	private boolean mutationWasAlreadyApplied(History<T,K> history, EvoID<K> mutationId) {
+		if (!useHistory) {
+			return false;
+		}
 		History<T,K> temp = new History<>(history);
 		temp.addMutationId(mutationId);
 		if (appliedMutations.contains(temp)) {
@@ -341,6 +370,9 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 	}
 	
 	private boolean recombinationWasAlreadyApplied(History<T,K> history1, History<T,K> history2, EvoID<K> recombinationId) {
+		if (!useHistory) {
+			return false;
+		}
 		History<T,K> temp = new History<>(history1, history2, recombinationId);
 		if (appliedMutations.contains(temp)) {
 			return true;
@@ -431,11 +463,17 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 
 						if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 							//apply the recombination and produce the child
-							EvoItem<T,F,K> child = new SimpleEvoItem<>(
-									recombination.recombine(parent1.getItem(), parent2.getItem()), 
-									parent1.getHistory(), parent2.getHistory(), recombinationId);
-							//add the child history to the set of already seen histories
-							appliedMutations.add(child.getHistory().copy());
+							EvoItem<T,F,K> child;
+							if (useHistory) {
+								child = new SimpleEvoItem<>(
+										recombination.recombine(parent1.getItem(), parent2.getItem()), 
+										parent1.getHistory(), parent2.getHistory(), recombinationId);
+								//add the child history to the set of already seen histories
+								appliedMutations.add(child.getHistory().copy());
+							} else {
+								child = new SimpleEvoItemWithoutHistory<>(
+										recombination.recombine(parent1.getItem(), parent2.getItem()));
+							}
 							recombinationApplied = true;
 							children.add(child);
 						} else {
@@ -492,10 +530,15 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 
 			if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 				//apply the recombination and produce the child
-				EvoItem<T,F,K> child = new SimpleEvoItem<>(recombination.recombine(parent1.getItem(), parent2.getItem()), 
-						parent1.getHistory(), parent2.getHistory(), recombinationId);
-				//add the child history to the set of already seen histories
-				appliedMutations.add(child.getHistory().copy());
+				EvoItem<T,F,K> child;
+				if (useHistory) {
+					child = new SimpleEvoItem<>(recombination.recombine(parent1.getItem(), parent2.getItem()), 
+							parent1.getHistory(), parent2.getHistory(), recombinationId);
+					//add the child history to the set of already seen histories
+					appliedMutations.add(child.getHistory().copy());
+				} else {
+					child = new SimpleEvoItemWithoutHistory<>(recombination.recombine(parent1.getItem(), parent2.getItem()));
+				}
 				recombinationApplied = true;
 				children.add(child);
 			} else {
@@ -699,22 +742,25 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		}
 	}
 
-	private List<EvoItem<T, F, K>> calculateFitness(List<EvoItem<T,F,K>> population, Statistics<EvoStatistics> statistics) {
+	private EvoItem<T, F, K> calculateFitness(List<EvoItem<T,F,K>> population, Statistics<EvoStatistics> statistics) {
 		Log.out(EvoAlgorithm.class, "Checking fitness for %d elements.", population.size());
 		//check all elements in the population for their fitness values
 		evaluationPipe.submitAndShutdown(population);
 		
+		EvoItem<T, F, K> bestItem = selectBestItem(population, false);
+		
 		statistics.addStatisticsElement(EvoStatistics.EVALUATED_ELEMENTS_COUNT, population.size()); 
 		statistics.addStatisticsElement(EvoStatistics.BEST_FITNESS_REPRESENTATIONS, 
-				selectBestItem(population, false).toString());
+				bestItem.toString());
 		//return a list with the evaluated population
-		return population;
+		return bestItem;
 	}
 
 	
 	
 	public static class Builder<T,L,F extends Comparable<F>, K extends Comparable<K>> {
 		
+		private boolean useHistory = false;
 		private int populationCount;
 		private int maxGenerationBound;
 		private F fitnessGoal;
@@ -767,6 +813,11 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 					new ThreadedProcessor<>(threadCount, evaluationHandlerProvider)
 					);
 			
+			return this;
+		}
+		
+		public Builder<T, L, F, K> useHistory() {
+			this.useHistory = true;
 			return this;
 		}
 		
