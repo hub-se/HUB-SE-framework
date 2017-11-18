@@ -316,9 +316,10 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 	private static <T, F extends Comparable<F>, K extends Comparable<K>> EvoItem<T, F, K> getBetterItem(
 			EvoItem<T, F, K> previousBestItem, EvoItem<T, F, K> newItem) {
 		if (newItem.compareTo(previousBestItem.getFitness()) > 0) {
-			previousBestItem = newItem;
+			return newItem;
+		} else {
+			return previousBestItem;
 		}
-		return previousBestItem;
 	}
 
 	private List<EvoItem<T,F,K>> mutatePopulation(List<EvoItem<T,F,K>> currentPopulation, 
