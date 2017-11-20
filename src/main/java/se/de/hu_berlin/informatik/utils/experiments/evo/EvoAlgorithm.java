@@ -172,7 +172,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			}
 		}
 		
-		EvoItem<T, F, K> bestItem;
+		EvoItem<T, F, K> allTimeBestEvoItem;
 		
 		int generationCounter= 1;
 		{
@@ -185,7 +185,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 					initialChildrenCount, statistics));
 
 			//test/validate (evaluation)
-			bestItem = calculateFitness(currentPopulation, statistics);
+			EvoItem<T, F, K> newBestEvoItem = calculateFitness(currentPopulation, statistics);
+			allTimeBestEvoItem = new SimpleEvoItemWithoutHistory<>(newBestEvoItem.getItem(), newBestEvoItem.getFitness());
 			
 			//collect some statistics
 			if (collectorAvailable) {
@@ -221,8 +222,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			currentPopulation = mutatePopulation(currentPopulation, statistics);
 			
 			//test and validate (evaluation)
-			bestItem = getBetterItem(bestItem, calculateFitness(currentPopulation, statistics));
-			
+			EvoItem<T, F, K> newBestEvoItem = getBetterItem(allTimeBestEvoItem, calculateFitness(currentPopulation, statistics));
+			allTimeBestEvoItem = new SimpleEvoItemWithoutHistory<>(newBestEvoItem.getItem(), newBestEvoItem.getFitness());
 			
 			//collect some statistics
 			if (collectorAvailable) {
@@ -230,10 +231,10 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			}
 		} //loop end
 		
-		cleanUpOtherItems(currentPopulation, bestItem);
+		cleanUpOtherItems(currentPopulation, allTimeBestEvoItem);
 		
 		//return best item, discard the rest
-		return bestItem;
+		return allTimeBestEvoItem;
 	}
 
 	private boolean checkIfGoalIsMet(List<EvoItem<T, F, K>> currentEvaluatedPop) {
@@ -731,7 +732,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 	private static <T,F extends Comparable<F>, K extends Comparable<K>> void cleanUpOtherItems(
 			List<EvoItem<T, F, K>> evaluatedPop, EvoItem<T, F, K> evaluatedItem) {
 		for (EvoItem<T,F,K> item : evaluatedPop) {
-			if (evaluatedItem != item) {
+			if (evaluatedItem.getItem() != item.getItem()) {
 				item.cleanUp();
 			}
 		}
