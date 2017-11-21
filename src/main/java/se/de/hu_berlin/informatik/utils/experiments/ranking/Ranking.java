@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -134,7 +135,6 @@ public interface Ranking<T> extends Iterable<T> {
      * ranking value, or NaN if ranking doesn't exist
      */
     public double getRankingValue(final T element);
-    
     
     public double getBestRankingValue();
     
@@ -304,6 +304,47 @@ public interface Ranking<T> extends Iterable<T> {
      */
     default public void save(final String filename) throws IOException {
     	save(this, filename);
+    }
+    
+    /**
+     * Saves the ranking scores to the given file.
+     * The order depends on the given comparator.
+     * @param ranking
+     * the ranking to save
+     * @param comparator
+     * the comparator to use for ordering the ranking elements
+     * @param filename
+     * the file name to save the ranking to
+     * @throws IOException
+     * in case of not being able to write to the given path
+     * @param <T>
+     * the type of the ranked element
+     */
+    public static <T> void saveOnlyScores(Ranking<T> ranking, 
+    		Comparator<? super T> comparator, final String filename) throws IOException {
+        try (FileWriter writer = new FileWriter(filename)) {
+        	// order the elements based on the given comparator
+        	List<T> elements = new ArrayList<>(ranking.getElements());
+    		Collections.sort(elements, comparator);
+    		
+            for (final T el : elements) {
+                writer.write(String.format("%f\n", ranking.getRankingValue(el)));
+            }
+        }
+    }
+    
+    /**
+     * Saves the ranking scores to the given file.
+     * The order depends on the given comparator.
+     * @param comparator
+     * the comparator to use for ordering the ranking elements
+     * @param filename
+     * the file to use to store the ranking
+     * @throws IOException
+     * if saving to the file is not possible
+     */
+    default public void saveOnlyScores(Comparator<? super T> comparator, final String filename) throws IOException {
+    	saveOnlyScores(this, comparator, filename);
     }
     
     /**
