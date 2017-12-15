@@ -180,6 +180,53 @@ final public class Misc {
 	}
 	
 	/**
+	 * Returns a String representation of the given array
+	 * within the specified indices {@code from} and {@code to}.
+	 * @param array
+	 * an array
+	 * @param sepElement
+	 * a separation element that separates the different elements of
+	 * the array in the returned String representation
+	 * @param start
+	 * a String that marks the begin of the array
+	 * @param end
+	 * a String that marks the end of the array
+	 * @param from
+	 * the start index
+	 * @param to
+	 * the end index
+	 * @return
+	 * a String representation of the given array from index {@code from}
+	 * to index {@code from-1}
+	 * @param <T>
+	 * the type of the array elements
+	 */
+	public static <T> String arrayToString(T[] array, String sepElement, 
+			final String start, final String end, 
+			int from, int to) {
+		if (from < 0) {
+			from = 0;
+		}
+		if (to > array.length) {
+			to = array.length;
+		}
+		final StringBuilder builder = new StringBuilder();
+		builder.append(start);
+		boolean isFirst = true;
+		for (int i = from; i < to; ++i) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(sepElement);
+			}
+			builder.append(array[i]);
+		}
+		builder.append(end);
+		
+		return builder.toString();
+	}
+	
+	/**
 	 * Returns a String representation of the elements in the given enum class
 	 * with ',' as separation element and enclosed in rectangular brackets.
 	 * @param enumClass
@@ -479,4 +526,5 @@ final public class Misc {
         }
         return result;
 	}
+	
 }
