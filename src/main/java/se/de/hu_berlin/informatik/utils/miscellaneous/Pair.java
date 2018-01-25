@@ -14,6 +14,10 @@ public class Pair<A,B> {
 	private A first = null;
 	private B second = null;
 	
+	public Pair() {
+		super();
+	}
+	
 	public Pair(A first, B second) {
 		super();
 		this.first = first;
