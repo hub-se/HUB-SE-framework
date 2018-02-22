@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -111,6 +112,7 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		// ensure lines is not null before opening file
 		Objects.requireNonNull(lines);
 		CharsetEncoder encoder = cs.newEncoder();
+		encoder.onMalformedInput(CodingErrorAction.REPLACE);
 		OutputStream out = Files.newOutputStream(path, options);
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
 			for (Object line: lines) {
