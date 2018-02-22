@@ -101,7 +101,7 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		try {
 			write(outputPath, item, StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			Log.err(this, "File \"" + outputPath.toString() + "\" was probably not written correctly .");
+			Log.err(this, e, "File \"" + outputPath.toString() + "\" was probably not written correctly .");
 		}
 		return item;
 	}
