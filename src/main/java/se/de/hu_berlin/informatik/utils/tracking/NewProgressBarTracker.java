@@ -46,4 +46,7 @@ public class NewProgressBarTracker implements TrackingStrategy {
 		super.finalize();
 	}
 
+	public void stop() {
+		pb.stop();
+	}
 }

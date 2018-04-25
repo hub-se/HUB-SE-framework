@@ -5,7 +5,6 @@ package se.de.hu_berlin.informatik.utils.files.processors;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -113,8 +112,7 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		Objects.requireNonNull(lines);
 		CharsetEncoder encoder = cs.newEncoder();
 		encoder.onMalformedInput(CodingErrorAction.REPLACE);
-		OutputStream out = Files.newOutputStream(path, options);
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, encoder))) {
+		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path, options), encoder))) {
 			for (Object line: lines) {
 				try {
 					writer.append(line.toString());
