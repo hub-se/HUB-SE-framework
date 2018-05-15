@@ -28,6 +28,9 @@ final public class MathUtils {
 		if (x < 0) {
 			throw new IllegalArgumentException("Argument has to be positive.");
 		}
+		if (Double.isNaN(numberToRound)) {
+			return numberToRound;
+		}
 		final double factor = Math.pow(10, x);
 		return Math.round(numberToRound*factor)/factor;
 	}
@@ -43,11 +46,7 @@ final public class MathUtils {
 	 */
 	public static double roundToXDecimalPlaces(final String numberToRound, final int x) 
 			throws NumberFormatException {
-		if (x < 0) {
-			throw new IllegalArgumentException("Argument has to be positive.");
-		}
-		final double factor = Math.pow(10, x);
-		return Math.round(Double.parseDouble(numberToRound)*factor)/factor;
+		return roundToXDecimalPlaces(Double.parseDouble(numberToRound), x);
 	}
 	
 	/**
