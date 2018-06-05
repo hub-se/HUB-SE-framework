@@ -1,5 +1,7 @@
 # HUB-SE-framework
 
+### Purpose
+
 Contains various utility functionalities for Java projects, including:
 
 - a simple interface to the commons-cli option parser, mostly for convenience
@@ -17,4 +19,31 @@ Contains various utility functionalities for Java projects, including:
   - ...
 - many utility methods and classes, dealing with logging, math, arrrays, csv-files, ...
 
-If you encounter any bugs, feel free to write an [e-mail](mailto:heiden@informatik.hu-berlin.de) with details of the bug and I will fix it as soon as possible.
+### Installation
+
+#### Prerequisites:
+- Java JDK/JRE 1.8
+- Maven (I am using v3.3.9)
+
+Before you can install this library, you have to set the environment variables **JRE_HOME** and **JAVA_HOME** to an existing installation of Java 1.8. You can set them directly or you can add the following code to the **settings.xml** file that is located in your local mavan repository directory (.../.m2/settings.xml). If it doesn't exist, you may have to create it.
+
+```xml
+<profiles>
+  <profile>
+    <id>compiler</id>
+    <properties>
+      <JAVA_HOME>path\to\Java-1.8\Home\directory(JDK)</JAVA_HOME>
+      <JRE_HOME>path\to\Java-1.8\Home\directory(JRE)</JRE_HOME>
+    </properties>
+  </profile>
+</profiles>
+  
+<activeProfiles>
+  <activeProfile>compiler</activeProfile>
+</activeProfiles>
+```
+#### Compilation
+To compile the tool and generate JavaDocs, simply run 'mvn install' in the main project directory.
+
+#### Bug reports
+This project is under constant developement and is a research prototype. If you encounter any bugs, feel free to open an issue or write an [e-mail](mailto:heiden@informatik.hu-berlin.de) with details of the bug and I will fix it as soon as possible.
