@@ -332,9 +332,13 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(final T opt) {
-		Log.err(this, "Error with option '%s'.", opt.asArg());
-		printHelp();
+	public <T extends Enum<T> & OptionWrapperInterface> void printHelp(final T opt, String errorMessage) {
+		if (errorMessage == null) {
+			Log.err(this, "Error with option '%s'.", opt.asArg());
+		} else {
+			Log.err(this, "Error with option '%s': %s", opt.asArg(), errorMessage);
+		}
+//		printHelp();
 	}
 
 	/**
@@ -343,7 +347,6 @@ final public class OptionParser {
 	private void printHelp() {
 		this.lvFormatter.printHelp(this.tool, this.lvOptions, true);
 		System.exit(1);
-		;
 	}
 
 	/**
@@ -726,7 +729,11 @@ final public class OptionParser {
 		}
 
 		if (path == null) {
-			printHelp(opt);
+			if (ensureExistence) {
+				printHelp(opt, String.format("Directory '%s' does not exist or is an existing file.", getOptionValue(opt)));
+			} else {
+				printHelp(opt, String.format("Directory '%s' is an existing file.", getOptionValue(opt)));
+			}
 		}
 
 		return path;
@@ -756,7 +763,11 @@ final public class OptionParser {
 		}
 
 		if (path == null) {
-			printHelp(opt);
+			if (ensureExistence) {
+				printHelp(opt, String.format("File '%s' does not exist or is an existing directory.", getOptionValue(opt)));
+			} else {
+				printHelp(opt, String.format("File '%s' is an existing directory.", getOptionValue(opt)));
+			}
 		}
 
 		return path;
