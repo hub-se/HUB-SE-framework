@@ -329,6 +329,8 @@ final public class OptionParser {
 	 * given option parameter.
 	 * @param opt
 	 * the option parameter which produced the error.
+	 * @param errorMessage
+	 * an error message to display; can be {@code null}
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
