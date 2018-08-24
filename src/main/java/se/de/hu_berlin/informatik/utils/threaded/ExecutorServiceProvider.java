@@ -51,7 +51,7 @@ public class ExecutorServiceProvider {
 			ClassLoader cl) {
 		super();
 		// create an executor service
-		this.executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, 
+		 ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, 
 				new LimitedQueue<>(2 * maximumPoolSize),
 				new ThreadFactory() {
 
@@ -70,6 +70,8 @@ public class ExecutorServiceProvider {
 						return thread;
 					}
 				});
+		poolExecutor.allowCoreThreadTimeOut(true);
+		this.executor = poolExecutor;
 	}
 
 	/**
@@ -84,7 +86,7 @@ public class ExecutorServiceProvider {
 	 * a class loader to set as the context class loader for created threads
 	 */
 	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize, ClassLoader cl) {
-		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS, cl);
+		this(corePoolSize, maximumPoolSize, 10L, TimeUnit.SECONDS, cl);
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class ExecutorServiceProvider {
 	 * a class loader to set as the context class loader for created threads
 	 */
 	public ExecutorServiceProvider(int poolSize, ClassLoader cl) {
-		this(poolSize, poolSize, 1L, TimeUnit.SECONDS, cl);
+		this(poolSize, poolSize, 10L, TimeUnit.SECONDS, cl);
 	}
 
 	/**
@@ -128,7 +130,7 @@ public class ExecutorServiceProvider {
 	 * the maximum number of threads to allow in the pool
 	 */
 	public ExecutorServiceProvider(int corePoolSize, int maximumPoolSize) {
-		this(corePoolSize, maximumPoolSize, 1L, TimeUnit.SECONDS, null);
+		this(corePoolSize, maximumPoolSize, 10L, TimeUnit.SECONDS, null);
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class ExecutorServiceProvider {
 	 * the number of threads to run in the pool
 	 */
 	public ExecutorServiceProvider(int poolSize) {
-		this(poolSize, poolSize, 1L, TimeUnit.SECONDS, null);
+		this(poolSize, poolSize, 10L, TimeUnit.SECONDS, null);
 	}
 
 	/**
