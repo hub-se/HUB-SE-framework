@@ -29,7 +29,7 @@ public interface Ranking<T> extends Iterable<T> {
 	 * values to special ranking values like NaN, positive
 	 * infinity and negative infinity.
 	 */
-	public enum RankingStrategy {
+	public enum RankingValueReplacementStrategy {
 		/** Replaces the ranking value with 0.0 */
 		ZERO,
 		/** Replaces the ranking value with positive infinity */
@@ -365,7 +365,7 @@ public interface Ranking<T> extends Iterable<T> {
      * the ranking
      */
     public static Ranking<String> load(final Path file, boolean ascending, 
-    		RankingStrategy nanStrategy, RankingStrategy posInfStrategy, RankingStrategy negInfStrategy) {
+    		RankingValueReplacementStrategy nanStrategy, RankingValueReplacementStrategy posInfStrategy, RankingValueReplacementStrategy negInfStrategy) {
     	return load(file, ascending, Function.identity(), nanStrategy, posInfStrategy, negInfStrategy);
     }
     
@@ -391,7 +391,7 @@ public interface Ranking<T> extends Iterable<T> {
      * the type of identifiers in the ranking
      */
     public static <T> Ranking<T> load(final Path file, boolean ascending, Function<String, T> stringToObject,
-    		RankingStrategy nanStrategy, RankingStrategy posInfStrategy, RankingStrategy negInfStrategy) {
+    		RankingValueReplacementStrategy nanStrategy, RankingValueReplacementStrategy posInfStrategy, RankingValueReplacementStrategy negInfStrategy) {
     	Ranking<T> ranking = new SimpleRanking<>(ascending);
     	List<T> nanIdentifiers = new ArrayList<>();
     	List<T> posInfIdentifiers = new ArrayList<>();
@@ -551,7 +551,7 @@ public interface Ranking<T> extends Iterable<T> {
      * a ranking with applied strategies
      */
     public static <T> Ranking<T> getRankingWithStrategies(Ranking<T> originalRanking, 
-    		RankingStrategy nanStrategy, RankingStrategy posInfStrategy, RankingStrategy negInfStrategy) {
+    		RankingValueReplacementStrategy nanStrategy, RankingValueReplacementStrategy posInfStrategy, RankingValueReplacementStrategy negInfStrategy) {
     	Ranking<T> ranking = new SimpleRanking<>(originalRanking.isAscending());
     	List<T> nanIdentifiers = new ArrayList<>();
     	List<T> posInfIdentifiers = new ArrayList<>();
