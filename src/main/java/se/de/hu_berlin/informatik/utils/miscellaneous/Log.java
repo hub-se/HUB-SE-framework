@@ -235,6 +235,21 @@ final public class Log {
 	}
 	
 	/**
+	 * Prints the given message.
+	 * @param whatever
+	 * has no use; giving a parameter here will print the message using System.out.printf
+	 * @param id
+	 * the object to use for generating an identifier
+	 * @param message
+	 * a message
+	 * @param args
+	 * some arguments for the message, as in {@code System.out.printf(...)}, for example
+	 */
+	public static void out(boolean whatever, final Object id, final String message, final Object... args) {
+		System.out.printf(message + "%n", (Object[])args);
+	}
+	
+	/**
 	 * Helper method that prints the given message.
 	 * @param id
 	 * the object to use for generating an identifier
