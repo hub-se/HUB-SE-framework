@@ -29,6 +29,9 @@ public class ZipFileReader extends AbstractProcessor<Path,ZipFileWrapper> {
 		ZipFile zipFile = null;
 		try {
 			zipFile = new ZipFile(zipFilePath.toString());
+			if (!zipFile.isValidZipFile()) {
+				Log.abort(this, "File '%s' is no valid zip file.", zipFilePath);
+			}
 		} catch (ZipException e) {
 			Log.abort(this, "Could not initialize zip file '%s' for reading.", zipFilePath);
 		}
