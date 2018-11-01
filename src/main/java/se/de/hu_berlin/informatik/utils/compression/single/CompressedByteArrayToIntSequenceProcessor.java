@@ -38,6 +38,10 @@ public class CompressedByteArrayToIntSequenceProcessor extends AbstractProcessor
 
 		List<Integer> result = new ArrayList<Integer>(sequenceLength);
 		int intCounter = 0;
+		
+		if (sequenceLength == 0) {
+			return result;
+		}
 
 		//get all the encoded integers
 		while (arrayPos < array.length) {

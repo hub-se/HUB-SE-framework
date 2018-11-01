@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.compression.single;
 
 import java.nio.ByteBuffer;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
@@ -13,13 +12,13 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<byte[],byte[]> {
+public class CompressedByteArrayToIntArrayProcessor extends AbstractProcessor<byte[],int[]> {
 	
 	private byte usedBits;
 	private int sequenceLength;
 	private int arrayPos;
 	
-	public CompressedByteArrayToByteArrayProcessor() {
+	public CompressedByteArrayToIntArrayProcessor() {
 		super();
 	}
 	
@@ -27,22 +26,22 @@ public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<b
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public byte[] processItem(byte[] array) {
+	public int[] processItem(byte[] array) {
 		readHeader(array);
 		byte currentByte = 0;
 		int currentInt = 0;
 		byte remainingBits = 0;
 		byte bitsLeft = 0;
-		
-		byte[] result = new byte[sequenceLength];
-		int bytePos = -1;
+
+		int[] result = new int[sequenceLength];
+		int intCounter = 0;
 		
 		if (sequenceLength == 0) {
 			return result;
 		}
-		
-		//get all the encoded bytes
-		while (bytePos+1 < result.length) {
+
+		//get all the encoded integers
+		while (arrayPos < array.length) {
 			//for each number, the number of bits to get is equal
 			bitsLeft = usedBits;
 			//if no bits remain to get from the current byte, then get the next one from the array
@@ -57,12 +56,7 @@ public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<b
 					currentInt = (currentInt << remainingBits) | (currentByte & 0xFF ) >>> (8 - remainingBits);
 					bitsLeft -= remainingBits;
 //					remainingBits = 0;
-					++arrayPos;
-					if (arrayPos > array.length - 1) {
-						Log.err(this, "Unable to get full byte array from compressed byte array (too short).");
-						return null;
-					}
-					currentByte = array[arrayPos];
+					currentByte = array[++arrayPos];
 					remainingBits = 8;
 				} else { //bitsLeft <= remainingBits
 					currentInt = (currentInt << bitsLeft) | (currentByte & 0xFF ) >>> (8 - bitsLeft);
@@ -71,10 +65,15 @@ public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<b
 					bitsLeft = 0;
 				}
 			}
-			
-			//add the next integer to the result list
-			result[++bytePos] = (byte) currentInt;
-			
+
+			//add the next integer to the current sequence
+			result[intCounter] = currentInt;
+			++intCounter;
+			//if the sequence ends here, reset the counter
+			if (intCounter >= sequenceLength) {
+				return result;
+			}
+
 			//reset the current integer to all zeroes
 			currentInt = 0;
 			
@@ -84,7 +83,9 @@ public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<b
 			}
 		}
 		
-		return result;
+		// could not get full sequence...
+		Log.err(this, "Unable to get full integer sequence (length: %d) from byte array (too short).", sequenceLength);
+		return null;
 	}
 
 	private void readHeader(byte[] array) {
@@ -100,5 +101,6 @@ public class CompressedByteArrayToByteArrayProcessor extends AbstractProcessor<b
 		
 		arrayPos = 5;
 	}
+	
 	
 }
