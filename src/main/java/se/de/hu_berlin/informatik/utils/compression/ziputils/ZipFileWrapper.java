@@ -32,6 +32,10 @@ public class ZipFileWrapper {
 		}
 	}
 	
+	public Path getzipFilePath() {
+		return zipFile.getFile().toPath().toAbsolutePath();
+	}
+	
 	public byte[] uncheckedGet(String fileName) throws ZipException {
 		//extract the file in the zip file to a unique file
 		//may throw exception if file does not exist
