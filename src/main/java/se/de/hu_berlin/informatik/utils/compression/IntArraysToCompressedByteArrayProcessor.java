@@ -30,10 +30,13 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 	private int totalSequences = 0;
 
 	private int maxValue;
+
+	private boolean containsZero;
 	
-	public IntArraysToCompressedByteArrayProcessor(int maxValue, int sequenceLength) {
+	public IntArraysToCompressedByteArrayProcessor(int maxValue, int sequenceLength, boolean containsZero) {
 		super();
-		this.maxValue = maxValue;
+		this.containsZero = sequenceLength == 0 ? containsZero : false;
+		this.maxValue = containsZero ? maxValue+1 : maxValue;
 		result = new ArrayList<>();
 		
 		//compute the number of bits needed to represent integers with the given maximum value
@@ -44,8 +47,8 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 		addHeader(neededBits, sequenceLength);
 	}
 	
-	public IntArraysToCompressedByteArrayProcessor(int maxValue) {
-		this(maxValue, 0);
+	public IntArraysToCompressedByteArrayProcessor(int maxValue, boolean containsZero) {
+		this(maxValue, 0, containsZero);
 	}
 	
 	
@@ -77,7 +80,7 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 	public byte[] processItem(int[] intArray) {
 		if (sequenceLength == 0) {
 			for (int element : intArray) {
-				if (element == DELIMITER) {
+				if ((containsZero ? element+1 : element) == DELIMITER) {
 					Log.abort(this, "Cannot store numbers identical to the delimiter (%d).", DELIMITER);
 				}
 			}
@@ -89,7 +92,7 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 		++totalSequences;
 		
 		for (int element : intArray) {
-			storeNextInteger(element);
+			storeNextInteger(containsZero ? element+1 : element);
 		}
 
 		if (sequenceLength == 0) {

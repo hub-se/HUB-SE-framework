@@ -22,9 +22,12 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 	private int sequenceLength;
 	private int totalSequences;
 	private int arrayPos;
+
+	private boolean containsZero;
 	
-	public CompressedByteArrayToIntArraysProcessor() {
+	public CompressedByteArrayToIntArraysProcessor(boolean containsZero) {
 		super();
+		this.containsZero = containsZero;
 	}
 	
 	/* (non-Javadoc)
@@ -58,8 +61,10 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 				if (++sequenceCounter > totalSequences) {
 					break;
 				}
+				if (currentSequence != null) {
+					result.add(currentSequence.stream().mapToInt(i -> i).toArray());
+				}
 				currentSequence = new ArrayList<>();
-				result.add(currentSequence.stream().mapToInt(i -> i).toArray());
 			}
 			
 			//as long as bits are still needed, get them from the array
@@ -84,7 +89,7 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 					intCounter = 0;
 				} else {
 					//add the next integer to the current sequence
-					currentSequence.add(currentInt);
+					currentSequence.add(containsZero ? currentInt-1 : currentInt);
 					++intCounter;
 				}
 			} else {
@@ -103,6 +108,10 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 			if (remainingBits == 0) {
 				++arrayPos;
 			}
+		}
+		
+		if (currentSequence != null) {
+			result.add(currentSequence.stream().mapToInt(i -> i).toArray());
 		}
 		
 		return result;
