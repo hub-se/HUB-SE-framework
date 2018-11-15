@@ -5,8 +5,6 @@ package se.de.hu_berlin.informatik.utils.compression;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
@@ -20,7 +18,7 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 
 	public static final int DELIMITER = 0;
 	
-	private List<Byte> result;
+	private ArrayList<Byte> result;
 	
 	private byte neededBits;
 	private int sequenceLength;
@@ -90,6 +88,8 @@ public class IntArraysToCompressedByteArrayProcessor extends AbstractProcessor<i
 			}
 		}
 		++totalSequences;
+		
+		result.ensureCapacity(result.size() + (((intArray.length + (sequenceLength == 0 ? 1 : 0)) * neededBits) / 8) + 1);
 		
 		for (int element : intArray) {
 			storeNextInteger(containsZero ? element+1 : element);

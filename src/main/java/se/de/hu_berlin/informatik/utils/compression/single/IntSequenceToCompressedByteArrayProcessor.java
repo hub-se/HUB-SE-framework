@@ -52,7 +52,7 @@ public class IntSequenceToCompressedByteArrayProcessor extends AbstractProcessor
 		//compute the number of bits needed to represent integers with the given maximum value
 		byte neededBits = ceilLog2(maxValue);
 		
-		List<Byte> result = new ArrayList<>(sequenceLength + 5);
+		List<Byte> result = new ArrayList<>(((sequenceLength * neededBits) / 8) + 1 + 5);
 		//add a header that contains information needed for decoding
 		int lastByteIndex = addHeader(neededBits, sequenceLength, result);
 

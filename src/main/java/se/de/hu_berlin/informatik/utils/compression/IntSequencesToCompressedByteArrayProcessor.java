@@ -20,7 +20,7 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 
 	public static final int DELIMITER = 0;
 	
-	private List<Byte> result;
+	private ArrayList<Byte> result;
 	
 	private byte neededBits;
 	private int sequenceLength;
@@ -88,6 +88,8 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 			}
 		}
 		++totalSequences;
+		
+		result.ensureCapacity(result.size() + ((intSequence.size() * neededBits) / 8) + 1);
 		
 		for (Integer element : intSequence) {
 			if (element > maxValue) {

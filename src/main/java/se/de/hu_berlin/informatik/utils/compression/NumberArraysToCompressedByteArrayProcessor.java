@@ -5,8 +5,6 @@ package se.de.hu_berlin.informatik.utils.compression;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
@@ -18,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class NumberArraysToCompressedByteArrayProcessor<T extends Number> extends AbstractProcessor<T[],byte[] > {
 
-	private List<Byte> result;
+	private ArrayList<Byte> result;
 	
 	private byte neededBits;
 	private int sequenceLength;
