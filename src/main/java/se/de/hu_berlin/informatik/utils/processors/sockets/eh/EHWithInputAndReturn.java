@@ -141,6 +141,11 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
+	
+	@Override
+	public Pipe<A, B> asPipe(int bufferSize) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("not supported");
+	}
 
 	@Override
 	public Module<A, B> asModule() throws UnsupportedOperationException {
@@ -159,7 +164,7 @@ public class EHWithInputAndReturn<A,B> extends DisruptorFCFSEventHandler<A> impl
 	}
 
 	@Override
-	public Pipe<A, B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+	public Pipe<A, B> asPipe(int bufferSize, ClassLoader classLoader) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 	

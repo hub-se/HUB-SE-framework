@@ -79,26 +79,41 @@ public class PipeLinker implements Trackable, OptionCarrier {
 	 * this PipeLinker
 	 */
 	public PipeLinker append(ProcessorSocketGenerator<?,?>... generators) {	
+		return append(8, (ProcessorSocketGenerator<?,?>[])generators);
+	}
+	
+	/**
+	 * Links the given Pipes (provided by socket generators, possibly) 
+	 * together and appends them to former appended Pipes, if any. 
+	 * If the Pipes don't match, then execution stops and the application aborts.
+	 * @param bufferSize
+	 * size of buffers in front of linked pipes
+	 * @param generators
+	 * Pipes to be linked together (given as generators, possibly)
+	 * @return
+	 * this PipeLinker
+	 */
+	public PipeLinker append(int bufferSize, ProcessorSocketGenerator<?,?>... generators) {	
 		if (generators.length != 0) {
 			try {
-				generators[0].asPipe().setOptions(options);
+				generators[0].asPipe(bufferSize).setOptions(options);
 				if (startPipe == null) {
-					startPipe = generators[0].asPipe();
+					startPipe = generators[0].asPipe(bufferSize);
 					//set whether input items are submitted with a single thread
 					startPipe.setProducerType(singleWriter);
 					if (isTracking()) {
 						startPipe.enableTracking(getTracker());
 					}
 				} else {
-					endPipe.linkTo(generators[0].asPipe());
+					endPipe.linkTo(generators[0].asPipe(bufferSize));
 				}
 
 				for (int i = 0; i < generators.length-1; ++i) {
-					generators[i].asPipe().linkTo(generators[i+1].asPipe());
-					generators[i+1].asPipe().setOptions(options);
+					generators[i].asPipe(bufferSize).linkTo(generators[i+1].asPipe(bufferSize));
+					generators[i+1].asPipe(bufferSize).setOptions(options);
 				}
 
-				endPipe = generators[generators.length-1].asPipe();
+				endPipe = generators[generators.length-1].asPipe(bufferSize);
 			} catch(UnsupportedOperationException e) {
 				Log.abort(this, e, "Unable to get pipe from a given transmitter.");
 			}

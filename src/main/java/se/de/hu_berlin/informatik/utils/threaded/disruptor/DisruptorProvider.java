@@ -264,7 +264,7 @@ public class DisruptorProvider<A> implements Trackable {
 			//get a reasonable buffer size, such that it is at least eight times
 			//as big as the number of handlers, but at least as big as the
 			//specified minimal buffer size
-			bufferSize = getContainingPowerOfTwo(handlers.length * 8);
+			bufferSize = getContainingPowerOfTwo(handlers.length/* * 8*/);
 			if (bufferSize < minimalBufferSize) {
 				bufferSize = getContainingPowerOfTwo(minimalBufferSize);
 			}

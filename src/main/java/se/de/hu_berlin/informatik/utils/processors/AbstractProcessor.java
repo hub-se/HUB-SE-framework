@@ -56,13 +56,18 @@ public abstract class AbstractProcessor<A,B> implements Processor<A,B> {
 	
 	@Override
 	public Pipe<A,B> asPipe() {
-		return asPipe(this.classLoader);
+		return asPipe(8, this.classLoader);
 	}
 	
 	@Override
-	public Pipe<A,B> asPipe(ClassLoader classLoader) {
+	public Pipe<A,B> asPipe(int bufferSize) {
+		return asPipe(bufferSize, this.classLoader);
+	}
+	
+	@Override
+	public Pipe<A,B> asPipe(int bufferSize, ClassLoader classLoader) {
 		if (pipeView == null) {
-			pipeView = new Pipe<>(this, true, classLoader);
+			pipeView = new Pipe<>(this, bufferSize, true, classLoader);
 		}
 		return pipeView;
 	}

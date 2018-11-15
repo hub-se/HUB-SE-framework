@@ -54,13 +54,18 @@ public abstract class AbstractConsumingProcessor<A> implements ConsumingProcesso
 	
 	@Override
 	public Pipe<A,Object> asPipe() throws UnsupportedOperationException {
-		return asPipe(this.classLoader);
+		return asPipe(8, this.classLoader);
 	}
 	
 	@Override
-	public Pipe<A,Object> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+	public Pipe<A,Object> asPipe(int bufferSize) throws UnsupportedOperationException {
+		return asPipe(bufferSize, this.classLoader);
+	}
+	
+	@Override
+	public Pipe<A,Object> asPipe(int bufferSize, ClassLoader classLoader) throws UnsupportedOperationException {
 		if (pipeView == null) {
-			pipeView = new Pipe<>(this, true, classLoader);
+			pipeView = new Pipe<>(this, bufferSize, true, classLoader);
 		}
 		return pipeView;
 	}

@@ -33,6 +33,20 @@ public interface ProcessorSocketGenerator<A,B> {
 	/**
 	 * Creates a {@link Pipe} from this object. Has to return a 
 	 * reference to the same Pipe if called multiple times.
+	 * @param bufferSize
+	 * size of the buffer in front of the pipe
+	 * @return
+	 * a Pipe, if possible
+	 * @throws UnsupportedOperationException
+	 * if not possible
+	 */
+	public Pipe<A,B> asPipe(int bufferSize) throws UnsupportedOperationException;
+	
+	/**
+	 * Creates a {@link Pipe} from this object. Has to return a 
+	 * reference to the same Pipe if called multiple times.
+	 * @param bufferSize
+	 * size of the buffer in front of the pipe
 	 * @param classLoader
 	 * a class loader that should be set for the thread of this Pipe
 	 * @return
@@ -40,7 +54,7 @@ public interface ProcessorSocketGenerator<A,B> {
 	 * @throws UnsupportedOperationException
 	 * if not possible
 	 */
-	public Pipe<A,B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException;
+	public Pipe<A,B> asPipe(int bufferSize, ClassLoader classLoader) throws UnsupportedOperationException;
 	
 	/**
 	 * Creates a {@link Module} from this object. Has to return a 

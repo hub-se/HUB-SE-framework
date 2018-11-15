@@ -59,12 +59,14 @@ import se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.Disrupto
  */
 public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 
-	final private DisruptorProvider<A> disruptorProvider;
+	private DisruptorProvider<A> disruptorProvider;
+	private int bufferSize;
 
 	private boolean hasInput = false;
 	private Pipe<B, ?> output = null;
 
 	private final boolean singleWriter;
+	private ClassLoader classLoader;
 
 	/**
 	 * Creates a pipe object with a buffer size of 8.
@@ -118,9 +120,16 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 	 * @param cl
 	 * a class loader to set as the context class loader for created threads
 	 */
-	@SuppressWarnings("unchecked")
 	public Pipe(Processor<A, B> processor, int bufferSize, boolean singleWriter, ClassLoader cl) {
 		super(processor);
+		initialize(bufferSize, cl);
+		this.singleWriter = singleWriter;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void initialize(int bufferSize, ClassLoader cl) {
+		this.bufferSize = bufferSize;
+		this.classLoader = cl;
 		disruptorProvider = new DisruptorProvider<>(bufferSize, cl);
 		// event handler used for transmitting items from one pipe to another
 		disruptorProvider.connectHandlers(new DisruptorFCFSEventHandler<A>() {
@@ -134,7 +143,6 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 				Pipe.this.initAndConsume(item);
 			}
 		});
-		this.singleWriter = singleWriter;
 	}
 
 	@Override
@@ -290,11 +298,6 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 	}
 
 	@Override
-	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
-		return this;
-	}
-
-	@Override
 	public Module<A, B> asModule() throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
@@ -306,7 +309,20 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 	}
 
 	@Override
-	public Pipe<A, B> asPipe(ClassLoader classLoader) throws UnsupportedOperationException {
+	public Pipe<A, B> asPipe() throws UnsupportedOperationException {
+		return this;
+	}
+	
+	@Override
+	public Pipe<A, B> asPipe(int bufferSize) throws UnsupportedOperationException {
+		if (this.bufferSize != bufferSize) {
+			initialize(bufferSize, this.classLoader);
+		}
+		return this;
+	}
+	
+	@Override
+	public Pipe<A, B> asPipe(int bufferSize, ClassLoader classLoader) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException("not supported");
 	}
 
