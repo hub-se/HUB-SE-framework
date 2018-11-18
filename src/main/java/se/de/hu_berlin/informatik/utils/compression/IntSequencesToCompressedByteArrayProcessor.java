@@ -30,10 +30,13 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 	private int totalSequences = 0;
 
 	private int maxValue;
+
+	private boolean containsZero;
 	
-	public IntSequencesToCompressedByteArrayProcessor(int maxValue, int sequenceLength) {
+	public IntSequencesToCompressedByteArrayProcessor(int maxValue, int sequenceLength, boolean containsZero) {
 		super();
-		this.maxValue = maxValue;
+		this.containsZero = sequenceLength == 0 ? containsZero : false;
+		this.maxValue = containsZero ? maxValue+1 : maxValue;
 		result = new ArrayList<>();
 		
 		//compute the number of bits needed to represent integers with the given maximum value
@@ -44,8 +47,8 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 		addHeader(neededBits, sequenceLength);
 	}
 	
-	public IntSequencesToCompressedByteArrayProcessor(int maxValue) {
-		this(maxValue, 0);
+	public IntSequencesToCompressedByteArrayProcessor(int maxValue, boolean containsZero) {
+		this(maxValue, 0, containsZero);
 	}
 	
 	
@@ -77,11 +80,10 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 	public byte[] processItem(List<Integer> intSequence) {
 		if (sequenceLength == 0) {
 			for (int element : intSequence) {
-				if (element == DELIMITER) {
+				if ((containsZero ? element+1 : element) == DELIMITER) {
 					Log.abort(this, "Cannot store numbers identical to the delimiter (%d).", DELIMITER);
 				}
 			}
-			intSequence.add(DELIMITER);
 		} else {
 			if (intSequence.size() != sequenceLength) {
 				Log.abort(this, "given sequence is of length %d, but should be %d.", intSequence.size(), sequenceLength);
@@ -89,42 +91,50 @@ public class IntSequencesToCompressedByteArrayProcessor extends AbstractProcesso
 		}
 		++totalSequences;
 		
-		result.ensureCapacity(result.size() + ((intSequence.size() * neededBits) / 8) + 1);
+		result.ensureCapacity(result.size() + (((intSequence.size() + (sequenceLength == 0 ? 1 : 0)) * neededBits) / 8) + 1);
 		
 		for (Integer element : intSequence) {
-			if (element > maxValue) {
-				Log.warn(this, "Trying to store '%d', but max value set to '%d'.", element.intValue(), maxValue);
-				if (ceilLog2(element) > neededBits) {
-					Log.abort(this, "Can not store '%d' in %d bits.", element.intValue(), neededBits);
-				}
-			}
-			//reset the bits left to write
-			bitsLeft = neededBits;
-			//keep only relevant bits as defined by the given maximum value
-			element = keepLastNBits(element, bitsLeft);
-			//add bits until all bits of the given number are processed
-			while (bitsLeft > 0) {
-				//add a new byte if no space is left
-				if (remainingFreeBits == 0) {
-					addNewByteToList();
-					//remainingFreeBits > 0 holds now!
-				}
-				//need to shift the bits differently if more bits are left to write than free bits are remaining in the last byte of the list
-				if (bitsLeft > remainingFreeBits) {
-					bitsLeft -= remainingFreeBits;
-					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element >>> bitsLeft)) );
-					remainingFreeBits = 0;
-					//set the first bits that are processed already to 0 and keep only the last n bits
-					element = keepLastNBits(element, bitsLeft);
-				} else { //bitsLeft <= remainingFreeBits
-					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element << (remainingFreeBits - bitsLeft))) );
-					remainingFreeBits -= bitsLeft;
-					bitsLeft = 0;
-				}
-			}
+			storeNextInteger(containsZero ? element+1 : element);
+		}
+		
+		if (sequenceLength == 0) {
+			storeNextInteger(DELIMITER);
 		}
 
 		return null;
+	}
+
+	public void storeNextInteger(Integer element) {
+		if (element > maxValue) {
+			Log.warn(this, "Trying to store '%d', but max value set to '%d'.", element.intValue(), maxValue);
+			if (ceilLog2(element) > neededBits) {
+				Log.abort(this, "Can not store '%d' in %d bits.", element.intValue(), neededBits);
+			}
+		}
+		//reset the bits left to write
+		bitsLeft = neededBits;
+		//keep only relevant bits as defined by the given maximum value
+		element = keepLastNBits(element, bitsLeft);
+		//add bits until all bits of the given number are processed
+		while (bitsLeft > 0) {
+			//add a new byte if no space is left
+			if (remainingFreeBits == 0) {
+				addNewByteToList();
+				//remainingFreeBits > 0 holds now!
+			}
+			//need to shift the bits differently if more bits are left to write than free bits are remaining in the last byte of the list
+			if (bitsLeft > remainingFreeBits) {
+				bitsLeft -= remainingFreeBits;
+				result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element >>> bitsLeft)) );
+				remainingFreeBits = 0;
+				//set the first bits that are processed already to 0 and keep only the last n bits
+				element = keepLastNBits(element, bitsLeft);
+			} else { //bitsLeft <= remainingFreeBits
+				result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element << (remainingFreeBits - bitsLeft))) );
+				remainingFreeBits -= bitsLeft;
+				bitsLeft = 0;
+			}
+		}
 	}
 
 	@Override
