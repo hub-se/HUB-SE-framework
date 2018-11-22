@@ -14,7 +14,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  * 
  * @author Simon Heiden
  */
-public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<byte[],List<int[]>> {
+public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<byte[],int[][]> {
 	
 	public static final int DELIMITER = 0;
 	
@@ -34,7 +34,7 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public List<int[]> processItem(byte[] array) {
+	public int[][] processItem(byte[] array) {
 		readHeader(array);
 		byte currentByte = 0;
 		int currentInt = 0;
@@ -42,7 +42,7 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 		byte bitsLeft = 0;
 		List<Integer> currentSequence = null;
 		
-		List<int[]> result = new ArrayList<>();
+		int[][] result = new int[totalSequences][];
 		int intCounter = 0;
 		int sequenceCounter = 0;
 		
@@ -58,11 +58,11 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 			
 			//if intCounter is zero, then we are at the start of a new sequence
 			if (intCounter == 0) {
-				if (++sequenceCounter > totalSequences) {
-					break;
-				}
 				if (currentSequence != null) {
-					result.add(currentSequence.stream().mapToInt(i -> i).toArray());
+					result[sequenceCounter++] = currentSequence.stream().mapToInt(i -> i).toArray();
+				}
+				if (sequenceCounter >= totalSequences) {
+					break;
 				}
 				currentSequence = new ArrayList<>();
 			}
@@ -110,8 +110,8 @@ public class CompressedByteArrayToIntArraysProcessor extends AbstractProcessor<b
 			}
 		}
 		
-		if (currentSequence != null) {
-			result.add(currentSequence.stream().mapToInt(i -> i).toArray());
+		if (currentSequence != null && sequenceCounter < totalSequences) {
+			result[sequenceCounter] = currentSequence.stream().mapToInt(i -> i).toArray();
 		}
 		
 		return result;
