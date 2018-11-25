@@ -11,6 +11,7 @@ import java.util.List;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.io.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
@@ -40,6 +41,15 @@ public class ZipFileWrapper {
 		}
 	}
 	
+	public boolean exists(String fileName) {
+		try {
+			return zipFile.getFileHeader(fileName) != null;
+		} catch (ZipException e) {
+			Log.err(this, "Unable to get zipped file '%s'", fileName);
+			return false;
+		}
+	}
+	
 	public Path getzipFilePath() {
 		return zipFile.getFile().toPath().toAbsolutePath();
 	}
@@ -65,6 +75,22 @@ public class ZipFileWrapper {
 			return getBytesFromInputStream(zipFile.getInputStream(fileHeader));
 		} catch (IOException e) {
 			throw new ZipException("Reading input stream from file '" + fileHeader.getFileName() + "' failed!");
+		}
+	}
+	
+	public ZipInputStream uncheckedGetAsStream(FileHeader fileHeader) throws ZipException {
+		try {
+			return zipFile.getInputStream(fileHeader);
+		} catch (ZipException e) {
+			throw new ZipException("Reading input stream from file '" + fileHeader.getFileName() + "' failed!");
+		}
+	}
+	
+	public ZipInputStream uncheckedGetAsStream(String filename) throws ZipException {
+		try {
+			return zipFile.getInputStream(zipFile.getFileHeader(filename));
+		} catch (ZipException e) {
+			throw new ZipException("Reading input stream from file '" + filename + "' failed!");
 		}
 	}
 	
