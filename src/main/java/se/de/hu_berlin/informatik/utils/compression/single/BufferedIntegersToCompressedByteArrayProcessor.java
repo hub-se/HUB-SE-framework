@@ -199,13 +199,17 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 	private void addNewByteToList() {
 		++lastByteIndex;
 		remainingFreeBits = 8;
+		writeBuferToStreamIfFull();
+	}
+
+	private void writeBuferToStreamIfFull() {
 		if (lastByteIndex >= BUFER_SIZE) {
 			try {
 				out.write(result);
 			} catch (IOException e) {
 				Log.abort(this, e, "Could not write to output stream.");
 			}
-			lastByteIndex = -1;
+			lastByteIndex = 0;
 			result = new byte[BUFER_SIZE];
 		}
 	}
