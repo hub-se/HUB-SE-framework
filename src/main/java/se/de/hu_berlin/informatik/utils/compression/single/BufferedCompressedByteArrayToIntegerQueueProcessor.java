@@ -79,7 +79,12 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 					currentInt = (currentInt << remainingBits) | (currentByte & 0xFF ) >>> (8 - remainingBits);
 					bitsLeft -= remainingBits;
 //					remainingBits = 0;
-					currentByte = buffer[++arrayPos];
+					++arrayPos;
+					if (arrayPos >= len) {
+						len = getNextBytesFromInputStream(inputStream);
+						arrayPos = 0;
+					}
+					currentByte = buffer[arrayPos];
 					remainingBits = 8;
 				} else { //bitsLeft <= remainingBits
 					currentInt = (currentInt << bitsLeft) | (currentByte & 0xFF ) >>> (8 - bitsLeft);
