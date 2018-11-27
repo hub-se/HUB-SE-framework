@@ -39,11 +39,17 @@ public class BufferedCompressedByteArrayToIntArrayQueueProcessor extends Abstrac
 	private Queue<int[]> result;
 	
 	public BufferedCompressedByteArrayToIntArrayQueueProcessor(ZipFileWrapper zipFileWrapper, 
-			boolean containsZero, Queue<int[]> result) {
+			int sequenceLength, boolean containsZero, Queue<int[]> result) {
 		super();
 		this.containsZero = containsZero;
 		this.zipFileWrapper = zipFileWrapper;
 		this.result = result;
+		this.sequenceLength = sequenceLength;
+	}
+	
+	public BufferedCompressedByteArrayToIntArrayQueueProcessor(ZipFileWrapper zipFileWrapper, 
+			boolean containsZero, Queue<int[]> result) {
+		this(zipFileWrapper, 0, containsZero, result);
 	}
 	
 	/* (non-Javadoc)

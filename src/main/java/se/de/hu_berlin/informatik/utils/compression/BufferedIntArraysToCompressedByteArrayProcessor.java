@@ -84,8 +84,11 @@ public class BufferedIntArraysToCompressedByteArrayProcessor extends AbstractPro
 		zipFileListener.start();
 		
 		
-		this.containsZero = sequenceLength == 0 ? containsZero : false;
-		this.maxValue = containsZero ? maxValue+2 : maxValue+1;
+		this.containsZero = containsZero;
+		this.maxValue = containsZero ? maxValue+1 : maxValue;
+		if (sequenceLength == 0) {
+			++this.maxValue;
+		}
 		result = new byte[BUFER_SIZE];
 		
 		//compute the number of bits needed to represent integers with the given maximum value
