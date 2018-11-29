@@ -114,6 +114,14 @@ public class BufferedIntArraysToCompressedByteArrayProcessor extends AbstractPro
 					zipFile.addStream(is, parameters);
 				} catch (ZipException e) {
 					Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+				} finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+							// ignore
+						}
+					}
 				}
 			}
 		});
@@ -240,6 +248,9 @@ public class BufferedIntArraysToCompressedByteArrayProcessor extends AbstractPro
 				out = null;
 			}
 		}
+		
+		// invalidate zip file after use
+		this.zipFile = null;
 	}
 
 	@Override

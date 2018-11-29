@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.file.Path;
@@ -25,31 +24,23 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcessor<Pair<String, String>, Boolean> {
 
-	private ZipFile zipFileSource;
-	private ZipFile zipFileTarget;
+	private Path zipFilePathSource;
+	private Path zipFilePathTarget;
 	private ZipParameters parameters;
 	
-	public MoveNamedByteArraysBetweenZipFilesProcessor(Path zipFilePathSoure, Path zipFilePathTarget) {
+	public MoveNamedByteArraysBetweenZipFilesProcessor(Path zipFilePathSource, Path zipFilePathTarget) {
 		//if this module needs an input item
 		super();
 		
-		if (!zipFilePathSoure.toFile().exists()) {
-			Log.abort(this, "File '%s' does not exist.", zipFilePathSoure);
+		if (!zipFilePathSource.toFile().exists()) {
+			Log.abort(this, "File '%s' does not exist.", zipFilePathSource);
 		}
 		if (!zipFilePathTarget.toFile().exists()) {
 			Log.abort(this, "File '%s' does not exist.", zipFilePathTarget);
 		}
 		
-		try {
-			zipFileSource = new ZipFile(zipFilePathSoure.toString());
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileSource);
-		}
-		try {
-			zipFileTarget = new ZipFile(zipFilePathTarget.toString());
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileTarget);
-		}
+		this.zipFilePathSource = zipFilePathSource;
+		this.zipFilePathTarget = zipFilePathTarget;
 		
 		parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
@@ -65,6 +56,19 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 	 */
 	@Override
 	public Boolean processItem(Pair<String, String> sourceAndTargetFileNames) {
+		ZipFile zipFileSource = null;
+		try {
+			zipFileSource = new ZipFile(zipFilePathSource.toString());
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileSource);
+		}
+		ZipFile zipFileTarget = null;
+		try {
+			zipFileTarget = new ZipFile(zipFilePathTarget.toString());
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileTarget);
+		}
+		
 		FileHeader fileHeader = null;
 		try {
 			fileHeader = zipFileSource.getFileHeader(sourceAndTargetFileNames.first());
@@ -78,16 +82,17 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 			// this sets the name of the file for this entry in the zip file
 			parameters.setFileNameInZip(sourceAndTargetFileNames.second());
 			
+			ZipInputStream sourceStream = null;
 			PipedOutputStream out = null;
 			Thread thread = null;
 			try {
 				PipedInputStream in = new PipedInputStream();
 				out = new PipedOutputStream(in);
 
-				thread = startZipFileListener(sourceAndTargetFileNames.second(), in);
+				thread = startZipFileListener(zipFileTarget, sourceAndTargetFileNames.second(), in);
 				thread.start();
 
-				ZipInputStream sourceStream = zipFileSource.getInputStream(fileHeader);
+				sourceStream = zipFileSource.getInputStream(fileHeader);
 
 				byte[] buffer = new byte[4096];
 				int bytesRead;
@@ -97,6 +102,9 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 			} catch (ZipException e) {
 				Log.abort(this, e, "File '%s' does not exist or failed to create stream.", sourceAndTargetFileNames.first());
 			} finally {
+				if (sourceStream != null) {
+					sourceStream.close();
+				}
 				if (out != null) {
 					out.flush();
 					out.close();
@@ -116,7 +124,7 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 		return true;
 	}
 
-	private Thread startZipFileListener(String fileName, PipedInputStream in) {
+	private Thread startZipFileListener(ZipFile zipFileTarget, String fileName, PipedInputStream in) {
 		return new Thread(new Runnable() {
 			
 			@Override
@@ -125,12 +133,18 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 					// this sets the name of the file for this entry in the zip file, starting from '0.bin'
 					parameters.setFileNameInZip(fileName);
 
-					InputStream is = in;
-
 					// Creates a new entry in the zip file and adds the content to the zip file
-					zipFileTarget.addStream(is, parameters);
+					zipFileTarget.addStream(in, parameters);
 				} catch (ZipException e) {
 					Log.abort(this, e, "Zip file '%s' does not exist.", zipFileTarget.getFile());
+				} finally {
+					if (in != null) {
+						try {
+							in.close();
+						} catch (IOException e) {
+
+						}
+					}
 				}
 			}
 		});

@@ -26,9 +26,9 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class AddStringListToZipFileProcessor<A extends Iterable<? extends CharSequence>> extends AbstractProcessor<A,A> {
 
-	private ZipFile zipFile;
 	private ZipParameters parameters;
 	private int fileCounter = -1;
+	private Object zipFilePath;
 	
 	public AddStringListToZipFileProcessor(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
@@ -41,14 +41,7 @@ public class AddStringListToZipFileProcessor<A extends Iterable<? extends CharSe
 			zipFilePath.getParent().toFile().mkdirs();
 		}
 		
-		try {
-			zipFile = new ZipFile(zipFilePath.toString());
-			if (zipFile.getFile().exists()) {
-				fileCounter = zipFile.getFileHeaders().size()-1;
-			}
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
-		}
+		this.zipFilePath = zipFilePath;
 		
 		parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
@@ -64,6 +57,15 @@ public class AddStringListToZipFileProcessor<A extends Iterable<? extends CharSe
 	 */
 	@Override
 	public A processItem(A list) {
+		ZipFile zipFile = null;
+		try {
+			zipFile  = new ZipFile(zipFilePath.toString());
+			if (zipFile.getFile().exists()) {
+				fileCounter = zipFile.getFileHeaders().size()-1;
+			}
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
+		}
 		Path temp = null;
 		try {
 			// creates a temporary file

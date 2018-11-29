@@ -21,9 +21,9 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class AddByteArrayToZipFileProcessor extends AbstractProcessor<byte[],byte[]> {
 
-	private ZipFile zipFile;
 	private ZipParameters parameters;
 	private int fileCounter = -1;
+	private Object zipFilePath;
 	
 	public AddByteArrayToZipFileProcessor(Path zipFilePath, boolean deleteExisting) {
 		//if this module needs an input item
@@ -36,14 +36,7 @@ public class AddByteArrayToZipFileProcessor extends AbstractProcessor<byte[],byt
 			zipFilePath.getParent().toFile().mkdirs();
 		}
 		
-		try {
-			zipFile = new ZipFile(zipFilePath.toString());
-			if (zipFile.getFile().exists()) {
-				fileCounter = zipFile.getFileHeaders().size()-1;
-			}
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
-		}
+		this.zipFilePath = zipFilePath;
 		
 		parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
@@ -63,6 +56,15 @@ public class AddByteArrayToZipFileProcessor extends AbstractProcessor<byte[],byt
 	 */
 	@Override
 	public byte[] processItem(byte[] array) {
+		ZipFile zipFile = null;
+		try {
+			zipFile  = new ZipFile(zipFilePath.toString());
+			if (zipFile.getFile().exists()) {
+				fileCounter = zipFile.getFileHeaders().size()-1;
+			}
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
+		}
 		try {
 			// this sets the name of the file for this entry in the zip file, starting from '0.bin'
 			parameters.setFileNameInZip(++fileCounter + ".bin");

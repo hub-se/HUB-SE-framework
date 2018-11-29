@@ -61,102 +61,113 @@ public class BufferedCompressedByteArrayToIntArrayQueueProcessor extends Abstrac
 		ZipInputStream inputStream = null;
 		try {
 			inputStream = zipFileWrapper.uncheckedGetAsStream(fileName);
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not get input stream from file %s.", fileName);
-		}
-		int len = getNextBytesFromInputStream(inputStream);
-		readHeader(len);
-		
-		boolean atTotalEnd = false;
-		
-		byte currentByte = 0;
-		int currentInt = 0;
-		byte remainingBits = 0;
-		byte bitsLeft = 0;
-		List<Integer> currentSequence = null;
-		
-		int intCounter = 0;
 
-		//get all the encoded integers
-		while (arrayPos < len) {
-			//for each number, the number of bits to get is equal
-			bitsLeft = usedBits;
-			//if no bits remain to get from the current byte, then get the next one from the array
-			if (remainingBits == 0) {
-				currentByte = buffer[arrayPos];
-				remainingBits = 8;
-			}
-			
-			//if intCounter is zero, then we are at the start of a new sequence
-			if (intCounter == 0) {
-				if (currentSequence != null) {
-					result.add(currentSequence.stream().mapToInt(i -> i).toArray());
-				}
-				currentSequence = new ArrayList<>();
-			}
-			
-			//as long as bits are still needed, get them from the array
-			while (bitsLeft > 0) {
-				if (bitsLeft > remainingBits) {
-					currentInt = (currentInt << remainingBits) | (currentByte & 0xFF ) >>> (8 - remainingBits);
-					bitsLeft -= remainingBits;
-//					remainingBits = 0;
-					++arrayPos;
-					if (arrayPos >= len) {
-						len = getNextBytesFromInputStream(inputStream);
-						arrayPos = 0;
-					}
+			int len = getNextBytesFromInputStream(inputStream);
+			readHeader(len);
+
+			boolean atTotalEnd = false;
+
+			byte currentByte = 0;
+			int currentInt = 0;
+			byte remainingBits = 0;
+			byte bitsLeft = 0;
+			List<Integer> currentSequence = null;
+
+			int intCounter = 0;
+
+			//get all the encoded integers
+			while (arrayPos < len) {
+				//for each number, the number of bits to get is equal
+				bitsLeft = usedBits;
+				//if no bits remain to get from the current byte, then get the next one from the array
+				if (remainingBits == 0) {
 					currentByte = buffer[arrayPos];
 					remainingBits = 8;
-				} else { //bitsLeft <= remainingBits
-					currentInt = (currentInt << bitsLeft) | (currentByte & 0xFF ) >>> (8 - bitsLeft);
-					currentByte = (byte) (currentByte << bitsLeft);
-					remainingBits -= bitsLeft;
-					bitsLeft = 0;
 				}
-			}
-			
-			if (currentInt == TOTAL_END_MARKER) {
-				atTotalEnd = true;
-				break;
-			} else {
-				if (sequenceLength == 0) {
-					if (currentInt == DELIMITER) {
-						//reset the counter (start of new sequence)
-						intCounter = 0;
+
+				//if intCounter is zero, then we are at the start of a new sequence
+				if (intCounter == 0) {
+					if (currentSequence != null) {
+						result.add(currentSequence.stream().mapToInt(i -> i).toArray());
+					}
+					currentSequence = new ArrayList<>();
+				}
+
+				//as long as bits are still needed, get them from the array
+				while (bitsLeft > 0) {
+					if (bitsLeft > remainingBits) {
+						currentInt = (currentInt << remainingBits) | (currentByte & 0xFF ) >>> (8 - remainingBits);
+						bitsLeft -= remainingBits;
+						//					remainingBits = 0;
+						++arrayPos;
+						if (arrayPos >= len) {
+							len = getNextBytesFromInputStream(inputStream);
+							arrayPos = 0;
+						}
+						currentByte = buffer[arrayPos];
+						remainingBits = 8;
+					} else { //bitsLeft <= remainingBits
+						currentInt = (currentInt << bitsLeft) | (currentByte & 0xFF ) >>> (8 - bitsLeft);
+						currentByte = (byte) (currentByte << bitsLeft);
+						remainingBits -= bitsLeft;
+						bitsLeft = 0;
+					}
+				}
+
+				if (currentInt == TOTAL_END_MARKER) {
+					atTotalEnd = true;
+					break;
+				} else {
+					if (sequenceLength == 0) {
+						if (currentInt == DELIMITER) {
+							//reset the counter (start of new sequence)
+							intCounter = 0;
+						} else {
+							//add the next integer to the current sequence
+							currentSequence.add(containsZero ? currentInt-2 : currentInt-1);
+							++intCounter;
+						}
 					} else {
 						//add the next integer to the current sequence
-						currentSequence.add(containsZero ? currentInt-2 : currentInt-1);
+						currentSequence.add(containsZero ? currentInt-1 : currentInt);
 						++intCounter;
-					}
-				} else {
-					//add the next integer to the current sequence
-					currentSequence.add(containsZero ? currentInt-1 : currentInt);
-					++intCounter;
-					//if the sequence ends here, reset the counter
-					if (intCounter >= sequenceLength) {
-						intCounter = 0;
+						//if the sequence ends here, reset the counter
+						if (intCounter >= sequenceLength) {
+							intCounter = 0;
+						}
 					}
 				}
+				//reset the current integer to all zeroes
+				currentInt = 0;
+
+				//if no bits remain in the current byte, then update the array position for the next step
+				if (remainingBits == 0) {
+					++arrayPos;
+				}
+				if (arrayPos >= len) {
+					len = getNextBytesFromInputStream(inputStream);
+					arrayPos = 0;
+				}
 			}
-			//reset the current integer to all zeroes
-			currentInt = 0;
-			
-			//if no bits remain in the current byte, then update the array position for the next step
-			if (remainingBits == 0) {
-				++arrayPos;
+
+			if (!atTotalEnd) {
+				Log.abort(this, "No total end marker was read!");
 			}
-			if (arrayPos >= len) {
-				len = getNextBytesFromInputStream(inputStream);
-				arrayPos = 0;
+
+			return result;
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not get input stream from file %s.", fileName);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// ignore
+				}
 			}
 		}
 		
-		if (!atTotalEnd) {
-			Log.abort(this, "No total end marker was read!");
-		}
-		
-		return result;
+		return null;
 	}
 
 	private void readHeader(int len) {

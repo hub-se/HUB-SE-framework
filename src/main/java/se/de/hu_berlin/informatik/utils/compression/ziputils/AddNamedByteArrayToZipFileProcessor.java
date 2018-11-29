@@ -22,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
  */
 public class AddNamedByteArrayToZipFileProcessor extends AbstractProcessor<Pair<String, byte[]>, byte[]> {
 
-	private ZipFile zipFile;
+	private Path zipFilePath;
 	private ZipParameters parameters;
 	
 	public AddNamedByteArrayToZipFileProcessor(Path zipFilePath, boolean deleteExisting) {
@@ -36,12 +36,8 @@ public class AddNamedByteArrayToZipFileProcessor extends AbstractProcessor<Pair<
 			zipFilePath.getParent().toFile().mkdirs();
 		}
 		
-		try {
-			zipFile = new ZipFile(zipFilePath.toString());
-		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
-		}
-		
+		this.zipFilePath = zipFilePath;
+
 		parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
 		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
@@ -60,6 +56,13 @@ public class AddNamedByteArrayToZipFileProcessor extends AbstractProcessor<Pair<
 	 */
 	@Override
 	public byte[] processItem(Pair<String, byte[]> arrayWithFileName) {
+		ZipFile zipFile = null;
+		try {
+			zipFile  = new ZipFile(zipFilePath.toString());
+		} catch (ZipException e) {
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePath);
+		}
+		
 		try {
 			// this sets the name of the file for this entry in the zip file, starting from '0.bin'
 			parameters.setFileNameInZip(arrayWithFileName.first());

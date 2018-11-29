@@ -2,7 +2,6 @@ package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,13 +17,15 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Misc;
 
 public class ZipFileWrapper {
 	
-	final private ZipFile zipFile;
-	public ZipFileWrapper(final ZipFile zipFile) {
+	final private Path zipFilePath;
+	
+	public ZipFileWrapper(final Path zipFilePath) {
 		super();
-		this.zipFile = zipFile;
+		this.zipFilePath = zipFilePath;
 	}
 	
 	public byte[] get(String fileName, boolean logError) {
+		ZipFile zipFile = getZipFile();
 		try {
 			if (zipFile.getFileHeader(fileName) == null) {
 				if (logError) {
@@ -42,6 +43,7 @@ public class ZipFileWrapper {
 	}
 	
 	public boolean exists(String fileName) {
+		ZipFile zipFile = getZipFile();
 		try {
 			return zipFile.getFileHeader(fileName) != null;
 		} catch (ZipException e) {
@@ -51,7 +53,7 @@ public class ZipFileWrapper {
 	}
 	
 	public Path getzipFilePath() {
-		return zipFile.getFile().toPath().toAbsolutePath();
+		return zipFilePath.toAbsolutePath();
 	}
 	
 	public byte[] uncheckedGet(String fileName) throws ZipException {
@@ -67,18 +69,34 @@ public class ZipFileWrapper {
 //		
 //		return result;
 		
+		ZipFile zipFile = getZipFile();
 		return uncheckedGet(zipFile.getFileHeader(fileName));
 	}
 
 	public byte[] uncheckedGet(FileHeader fileHeader) throws ZipException {
+		ZipFile zipFile = getZipFile();
 		try {
 			return getBytesFromInputStream(zipFile.getInputStream(fileHeader));
 		} catch (IOException e) {
 			throw new ZipException("Reading input stream from file '" + fileHeader.getFileName() + "' failed!");
 		}
 	}
+
+	private ZipFile getZipFile() {
+		ZipFile zipFile = null;
+		try {
+			zipFile = new ZipFile(zipFilePath.toString());
+			if (!zipFile.isValidZipFile()) {
+				Log.abort(this, "File '%s' is no valid zip file.", zipFilePath);
+			}
+		} catch (ZipException e) {
+			Log.abort(this, "Could not initialize zip file '%s' for reading.", zipFilePath);
+		}
+		return zipFile;
+	}
 	
 	public ZipInputStream uncheckedGetAsStream(FileHeader fileHeader) throws ZipException {
+		ZipFile zipFile = getZipFile();
 		try {
 			return zipFile.getInputStream(fileHeader);
 		} catch (ZipException e) {
@@ -87,6 +105,7 @@ public class ZipFileWrapper {
 	}
 	
 	public ZipInputStream uncheckedGetAsStream(String filename) throws ZipException {
+		ZipFile zipFile = getZipFile();
 		try {
 			return zipFile.getInputStream(zipFile.getFileHeader(filename));
 		} catch (ZipException e) {
@@ -95,6 +114,7 @@ public class ZipFileWrapper {
 	}
 	
 	public List<FileHeader> getFileHeadersContainingString(String pattern) throws ZipException {
+		ZipFile zipFile = getZipFile();
 		List<FileHeader> matchingHeaders = new ArrayList<>();
 		for (Object headerO : zipFile.getFileHeaders()) {
 			if (headerO != null) {
@@ -116,14 +136,20 @@ public class ZipFileWrapper {
 		
 		return matchingHeaders;
 	}
-	
-	private static byte[] getBytesFromInputStream(InputStream is) throws IOException {
-	    ByteArrayOutputStream os = new ByteArrayOutputStream(); 
-	    byte[] buffer = new byte[0xFFFF];
-	    for (int len = is.read(buffer); len != -1; len = is.read(buffer)) { 
-	        os.write(buffer, 0, len);
-	    }
-	    return os.toByteArray();
+
+	private static byte[] getBytesFromInputStream(ZipInputStream is) throws IOException {
+		try {
+			ByteArrayOutputStream os = new ByteArrayOutputStream(); 
+			byte[] buffer = new byte[0xFFFF];
+			for (int len = is.read(buffer); len != -1; len = is.read(buffer)) { 
+				os.write(buffer, 0, len);
+			}
+			return os.toByteArray();
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+		}
 	}
 	
 	public byte[] uncheckedGet(final int index) throws ZipException {
@@ -158,6 +184,7 @@ public class ZipFileWrapper {
 
 	@Override
 	public String toString() {
+		ZipFile zipFile = getZipFile();
 		return zipFile.getFile().toString();
 	}
 

@@ -36,7 +36,7 @@ public class ZipFileReader extends AbstractProcessor<Path,ZipFileWrapper> {
 			Log.abort(this, "Could not initialize zip file '%s' for reading.", zipFilePath);
 		}
 		
-		return new ZipFileWrapper(zipFile);
+		return new ZipFileWrapper(zipFilePath);
 	}
 
 }
