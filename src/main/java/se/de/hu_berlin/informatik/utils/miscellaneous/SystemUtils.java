@@ -211,10 +211,10 @@ final public class SystemUtils {
 	public static void addToClassPath(ClassLoader classLoader, URL... urls) throws IllegalArgumentException {
 		try {
 			Class<?> clazz = URLClassLoader.class;
-			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+			Method m = clazz.getDeclaredMethod("addURL", URL.class);
 			m.setAccessible(true);
 			for (URL url : urls) {
-				m.invoke(classLoader, new Object[]{url});
+				m.invoke(classLoader, url);
 			}
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Adding URLs failed: " + Misc.arrayToString(urls), ex);
@@ -235,9 +235,9 @@ final public class SystemUtils {
 	public static void addToClassPath(ClassLoader classLoader, URL url) throws IllegalArgumentException {
 		try {
 			Class<?> clazz = URLClassLoader.class;
-			Method m = clazz.getDeclaredMethod("addURL", new Class[]{URL.class});
+			Method m = clazz.getDeclaredMethod("addURL", URL.class);
 			m.setAccessible(true);
-			m.invoke(classLoader, new Object[]{url});
+			m.invoke(classLoader, url);
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Adding URL failed: " + url, ex);
 		}
@@ -299,12 +299,7 @@ final public class SystemUtils {
 		if (System.getSecurityManager() == null) {
 			return ClassLoader.getSystemClassLoader();
 		} else {
-			return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-				@Override
-				public ClassLoader run() {
-					return ClassLoader.getSystemClassLoader();
-				}
-			});
+			return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) ClassLoader::getSystemClassLoader);
 		}
 	}
 

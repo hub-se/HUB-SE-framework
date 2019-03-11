@@ -114,7 +114,7 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 	}
 	
 	public static <T extends Enum<T> & StatisticsAPI> Statistics<T> loadAndMergeFromCSV(Class<T> clazz, Path input) {
-		Statistics<T> statistics = new Statistics<T>();
+		Statistics<T> statistics = new Statistics<>();
 		List<String[]> list = CSVUtils.readCSVFileToListOfStringArrays(input, false);
 		for (String[] array : list) {
 			if (array.length == 2) {
@@ -151,7 +151,7 @@ public class Statistics<T extends Enum<T> & StatisticsAPI> {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (Entry<T, StatisticsElement<?>> statisticsEntry : elements.entrySet()) {
-			builder.append(statisticsEntry.getKey().getLabel() + " -> " + statisticsEntry.getValue().getValueAsString());
+			builder.append(statisticsEntry.getKey().getLabel()).append(" -> ").append(statisticsEntry.getValue().getValueAsString());
 			builder.append(System.lineSeparator());
 		}
 		return builder.toString();

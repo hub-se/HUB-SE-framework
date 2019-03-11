@@ -22,7 +22,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 
 public interface Ranking<T> extends Iterable<T> {
 	
-	final public static char RANKING_SEPARATOR = ':'; 
+	final public static char RANKING_SEPARATOR = ':';
 	
 	/**
 	 * Holds strategies for assigning different ranking
@@ -325,7 +325,7 @@ public interface Ranking<T> extends Iterable<T> {
         try (FileWriter writer = new FileWriter(filename)) {
         	// order the elements based on the given comparator
         	List<T> elements = new ArrayList<>(ranking.getElements());
-    		Collections.sort(elements, comparator);
+    		elements.sort(comparator);
     		
             for (final T el : elements) {
                 writer.write(String.format("%f\n", ranking.getRankingValue(el)));
@@ -404,7 +404,7 @@ public interface Ranking<T> extends Iterable<T> {
 				if (pos == -1) {
 					Log.abort(Ranking.class, "Entry '%s' not valid in '%s'.", rankingline, file.toAbsolutePath());
 				}
-				double rankingValue = Double.parseDouble(rankingline.substring(pos+1, rankingline.length()));
+				double rankingValue = Double.parseDouble(rankingline.substring(pos+1));
 				T identifier = stringToObject.apply(rankingline.substring(0, pos));
 				if (Double.isNaN(rankingValue)) {
 					nanIdentifiers.add(identifier);

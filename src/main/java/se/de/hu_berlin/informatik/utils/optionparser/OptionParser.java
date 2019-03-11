@@ -40,7 +40,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.OutputStreamManipulationUt
  */
 final public class OptionParser {
 
-	public static enum DefaultCmdOptions implements OptionWrapperInterface {
+	public enum DefaultCmdOptions implements OptionWrapperInterface {
 		/* add options here according to your needs */
 		HELP("h", "help", false, "Shows this help.", false),
 		SILENCE("z", "silence", false, "Disallows outputs to standard out.", false),
@@ -100,9 +100,9 @@ final public class OptionParser {
 		}
 	}
 
-	public final static String STRAT_AGGRESSIVE = "AGGRESSIVE";
-	public final static String STRAT_NICE = "NICE";
-	public final static String STRAT_DEFENSIVE = "DEFENSIVE";
+	private final static String STRAT_AGGRESSIVE = "AGGRESSIVE";
+	private final static String STRAT_NICE = "NICE";
+	private final static String STRAT_DEFENSIVE = "DEFENSIVE";
 
 	public enum ThreadingStrategy {
 		AGGRESSIVE, NICE, DEFENSIVE;
@@ -221,7 +221,7 @@ final public class OptionParser {
 	 * Returns a parsed {@link CommandLine} object. Aborts otherwise.
 	 * @return parsed {@link CommandLine}
 	 */
-	public CommandLine getCmdLine() {
+	private CommandLine getCmdLine() {
 		if (lvCmd == null) {
 			Log.abort(this, "No command line available. (Maybe forgot parsing the options?)");
 		}
@@ -359,8 +359,9 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
-			@SuppressWarnings("unchecked") final T... options) {
+	@SafeVarargs
+	public final <T extends Enum<T> & OptionWrapperInterface> void assertAtLeastOneOptionSet(
+			final T... options) {
 		int count = getNumberOfSetOptions(options);
 		if (count < 1) {
 			Log.abort(this, "At least one of the options %s has to be set.", getOptionString(options));
@@ -375,8 +376,9 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void assertOneOptionSet(
-			@SuppressWarnings("unchecked") final T... options) {
+	@SafeVarargs
+	public final <T extends Enum<T> & OptionWrapperInterface> void assertOneOptionSet(
+			final T... options) {
 		int count = getNumberOfSetOptions(options);
 		if (count != 1) {
 			Log.abort(this, "Exactly one of the options %s has to be set.", getOptionString(options));
@@ -391,8 +393,9 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void assertNoOptionSet(
-			@SuppressWarnings("unchecked") final T... options) {
+	@SafeVarargs
+	public final <T extends Enum<T> & OptionWrapperInterface> void assertNoOptionSet(
+			final T... options) {
 		int count = getNumberOfSetOptions(options);
 		if (count != 0) {
 			Log.abort(this, "No option of the options %s has to be set.", getOptionString(options));
@@ -407,8 +410,9 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	public <T extends Enum<T> & OptionWrapperInterface> void assertAllOptionsSet(
-			@SuppressWarnings("unchecked") final T... options) {
+	@SafeVarargs
+	public final <T extends Enum<T> & OptionWrapperInterface> void assertAllOptionsSet(
+			final T... options) {
 		int count = getNumberOfSetOptions(options);
 		if (count != options.length) {
 			Log.abort(this, "All of the options %s have to be set.", getOptionString(options));
@@ -416,7 +420,7 @@ final public class OptionParser {
 	}
 
 	private <T extends Enum<T> & OptionWrapperInterface> String getOptionString(final T[] options) {
-		StringBuilder builder = new StringBuilder('[');
+		StringBuilder builder = new StringBuilder("[");
 		boolean isFirst = true;
 		for (T option : options) {
 			if (isFirst) {
@@ -426,7 +430,7 @@ final public class OptionParser {
 			}
 			builder.append(option.asArg());
 		}
-		builder.append(']');
+		builder.append("]");
 		return builder.toString();
 	}
 
@@ -471,9 +475,10 @@ final public class OptionParser {
 	 * @param <T>
 	 * an Enum type that represents an option
 	 */
-	private <T extends Enum<T> & OptionWrapperInterface> void addGroup(final boolean required,
-			@SuppressWarnings("unchecked") final T... group) {
-		addGroup(required, new ArrayList<T>(Arrays.asList(group)));
+	@SafeVarargs
+	private final <T extends Enum<T> & OptionWrapperInterface> void addGroup(final boolean required,
+																			 final T... group) {
+		addGroup(required, new ArrayList<>(Arrays.asList(group)));
 	}
 
 	/**
@@ -553,7 +558,7 @@ final public class OptionParser {
 		if (intValue == null) {
 			return defaultValue;
 		} else {
-			return intValue.intValue();
+			return intValue;
 		}
 	}
 	
@@ -594,7 +599,7 @@ final public class OptionParser {
 		if (longValue == null) {
 			return defaultValue;
 		} else {
-			return longValue.longValue();
+			return longValue;
 		}
 	}
 

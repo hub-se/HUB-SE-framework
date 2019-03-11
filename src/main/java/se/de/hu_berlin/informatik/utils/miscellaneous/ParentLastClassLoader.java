@@ -10,7 +10,7 @@ public class ParentLastClassLoader extends URLClassLoader {
 	private ChildClassLoader childClassLoader;
 
 	public ParentLastClassLoader(List<URL> classpath, ClassLoader parent, boolean debug, String... excludes) {
-		this(classpath.toArray(new URL[classpath.size()]), parent, debug, (String[]) excludes);
+		this(classpath.toArray(new URL[0]), parent, debug, (String[]) excludes);
 	}
 
 	public ParentLastClassLoader(URL[] classpath, ClassLoader parent, boolean debug, String... excludes) {
@@ -23,7 +23,7 @@ public class ParentLastClassLoader extends URLClassLoader {
 	}
 
 	public ParentLastClassLoader(List<URL> classpath, boolean debug, String... excludes) {
-		this(classpath.toArray(new URL[classpath.size()]), Thread.currentThread().getContextClassLoader(), debug, excludes);
+		this(classpath.toArray(new URL[0]), Thread.currentThread().getContextClassLoader(), debug, excludes);
 	}
 
 	public ParentLastClassLoader(URL[] classpath, boolean debug, String... excludes) {

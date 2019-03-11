@@ -1,6 +1,3 @@
-/**
- * 
- */
 package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
 import java.io.IOException;
@@ -60,13 +57,13 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 		try {
 			zipFileSource = new ZipFile(zipFilePathSource.toString());
 		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileSource);
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePathSource);
 		}
 		ZipFile zipFileTarget = null;
 		try {
 			zipFileTarget = new ZipFile(zipFilePathTarget.toString());
 		} catch (ZipException e) {
-			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFileTarget);
+			Log.abort(this, e, "Could not initialize zip file '%s'.", zipFilePathTarget);
 		}
 		
 		FileHeader fileHeader = null;

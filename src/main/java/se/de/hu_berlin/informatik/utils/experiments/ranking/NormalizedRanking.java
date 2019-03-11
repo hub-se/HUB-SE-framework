@@ -14,7 +14,7 @@ public class NormalizedRanking<T> implements Ranking<T> {
 
 	final private Ranking<T> ranking;
 	
-    public static enum NormalizationStrategy {
+    public enum NormalizationStrategy {
         ZeroToOneRankingValue("01rankingvalue"),
         ZeroToOneRank("01rank"),
         ZeroToOneRankWorst("01worstrank"),
@@ -27,7 +27,7 @@ public class NormalizedRanking<T> implements Ranking<T> {
         ReciprocalRankMean("rpmeanrank");
     	
         private final String id;
-        private NormalizationStrategy(String id) {
+        NormalizationStrategy(String id) {
 			this.id = id;
 		}
         
@@ -88,7 +88,7 @@ public class NormalizedRanking<T> implements Ranking<T> {
     public RankingMetric<T> getRankingMetrics(final T node) {
         final RankingMetric<T> metric = ranking.getRankingMetrics(node);
         final double susNormalized = this.normalizeSuspiciousness(metric);
-        return new SimpleRankingMetric<T>(metric.getElement(), 
+        return new SimpleRankingMetric<>(metric.getElement(),
         		metric.getBestRanking(), metric.getRanking(), metric.getWorstRanking(), 
         		susNormalized, getElements().size());
     }
@@ -173,9 +173,9 @@ public class NormalizedRanking<T> implements Ranking<T> {
 			return 0.5d;
 		} else {
 			if (ranking.isAscending()) {
-				return (double) (rank - 1) / (double) (size - 1);
+				return (rank - 1) / (double) (size - 1);
 			} else {
-				return 1 - ((double) (rank - 1) / (double) (size - 1));
+				return 1 - ((rank - 1) / (double) (size - 1));
 			}
 		}
 	}
@@ -257,7 +257,7 @@ public class NormalizedRanking<T> implements Ranking<T> {
 
 	@Override
 	public NormalizedRanking<T> newInstance(boolean ascending) {
-		return new NormalizedRanking<T>(ascending, strategy);
+		return new NormalizedRanking<>(ascending, strategy);
 	}
     
 	@Override

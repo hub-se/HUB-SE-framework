@@ -51,8 +51,8 @@ public abstract class ClassLoaders {
     public abstract ClassLoader build();
 
     public static class IsolatedURLClassLoaderBuilder extends ClassLoaders {
-        private final ArrayList<String> privateCopyPrefixes = new ArrayList<String>();
-        private final ArrayList<URL> codeSourceUrls = new ArrayList<URL>();
+        private final ArrayList<String> privateCopyPrefixes = new ArrayList<>();
+        private final ArrayList<URL> codeSourceUrls = new ArrayList<>();
 
         public IsolatedURLClassLoaderBuilder withPrivateCopyOf(String... privatePrefixes) {
             privateCopyPrefixes.addAll(asList(privatePrefixes));
@@ -79,7 +79,7 @@ public abstract class ClassLoaders {
         public ClassLoader build() {
             return new LocalIsolatedURLClassLoader(
                     jdkClassLoader(),
-                    codeSourceUrls.toArray(new URL[codeSourceUrls.size()]),
+                    codeSourceUrls.toArray(new URL[0]),
                     privateCopyPrefixes
             );
         }
@@ -108,8 +108,8 @@ public abstract class ClassLoaders {
     }
 
     public static class ExcludingURLClassLoaderBuilder extends ClassLoaders {
-        private final ArrayList<String> privateCopyPrefixes = new ArrayList<String>();
-        private final ArrayList<URL> codeSourceUrls = new ArrayList<URL>();
+        private final ArrayList<String> privateCopyPrefixes = new ArrayList<>();
+        private final ArrayList<URL> codeSourceUrls = new ArrayList<>();
 
         public ExcludingURLClassLoaderBuilder without(String... privatePrefixes) {
             privateCopyPrefixes.addAll(asList(privatePrefixes));
@@ -141,7 +141,7 @@ public abstract class ClassLoaders {
         public ClassLoader build() {
             return new LocalExcludingURLClassLoader(
                     jdkClassLoader(),
-                    codeSourceUrls.toArray(new URL[codeSourceUrls.size()]),
+                    codeSourceUrls.toArray(new URL[0]),
                     privateCopyPrefixes
             );
         }
@@ -170,7 +170,7 @@ public abstract class ClassLoaders {
     }
 
     public static class InMemoryClassLoaderBuilder extends ClassLoaders {
-        private Map<String , byte[]> inMemoryClassObjects = new HashMap<String , byte[]>();
+        private Map<String , byte[]> inMemoryClassObjects = new HashMap<>();
 
         public InMemoryClassLoaderBuilder withParent(ClassLoader parent) {
             this.parent = parent;
@@ -189,7 +189,7 @@ public abstract class ClassLoaders {
 
     static class InMemoryClassLoader extends ClassLoader {
         public static final String SCHEME = "mem";
-        private Map<String , byte[]> inMemoryClassObjects = new HashMap<String , byte[]>();
+        private Map<String , byte[]> inMemoryClassObjects = new HashMap<>();
 
         public InMemoryClassLoader(ClassLoader parent, Map<String, byte[]> inMemoryClassObjects) {
             super(parent);
@@ -205,7 +205,7 @@ public abstract class ClassLoaders {
         }
 
         @Override
-        public Enumeration<URL> getResources(String ignored) throws IOException {
+        public Enumeration<URL> getResources(String ignored) {
             return inMemoryOnly();
         }
 
@@ -238,7 +238,7 @@ public abstract class ClassLoaders {
         }
 
         @Override
-        protected URLConnection openConnection(URL url) throws IOException {
+        protected URLConnection openConnection(URL url) {
             return new MemURLConnection(url, inMemoryClassLoader);
         }
 
@@ -251,10 +251,10 @@ public abstract class ClassLoaders {
                 qualifiedName = url.getPath();
             }
             @Override
-            public void connect() throws IOException { }
+            public void connect() { }
 
             @Override
-            public InputStream getInputStream() throws IOException {
+            public InputStream getInputStream() {
                 return new ByteArrayInputStream(inMemoryClassLoader.inMemoryClassObjects.get(qualifiedName));
             }
         }
@@ -276,7 +276,7 @@ public abstract class ClassLoaders {
     }
 
     private List<URL> pathsToURLs(List<String> codeSourceUrls) {
-        ArrayList<URL> urls = new ArrayList<URL>(codeSourceUrls.size());
+        ArrayList<URL> urls = new ArrayList<>(codeSourceUrls.size());
         for (String codeSourceUrl : codeSourceUrls) {
             URL url = pathToUrl(codeSourceUrl);
             urls.add(url);
@@ -294,7 +294,7 @@ public abstract class ClassLoaders {
 
     public static class ReachableClassesFinder {
         private ClassLoader classLoader;
-        private Set<String> qualifiedNameSubstring = new HashSet<String>();
+        private Set<String> qualifiedNameSubstring = new HashSet<>();
 
         public ReachableClassesFinder(ClassLoader classLoader) {
             this.classLoader = classLoader;
@@ -308,7 +308,7 @@ public abstract class ClassLoaders {
         public Set<String> listOwnedClasses() throws IOException, URISyntaxException {
             Enumeration<URL> roots = classLoader.getResources("");
 
-            Set<String> classes = new HashSet<String>();
+            Set<String> classes = new HashSet<>();
             while(roots.hasMoreElements()) {
                 URI uri = roots.nextElement().toURI();
 
@@ -339,7 +339,7 @@ public abstract class ClassLoaders {
         private Set<String> findClassQualifiedNames(File root, File file, Set<String> packageFilters) {
             if(file.isDirectory()) {
                 File[] files = file.listFiles();
-                Set<String> classes = new HashSet<String>();
+                Set<String> classes = new HashSet<>();
                 for (File children : files) {
                     classes.addAll(findClassQualifiedNames(root, children, packageFilters));
                 }

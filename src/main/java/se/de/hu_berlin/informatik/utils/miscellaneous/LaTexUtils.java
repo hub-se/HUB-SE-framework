@@ -13,10 +13,10 @@ import java.util.List;
  */
 final public class LaTexUtils {
 	
-	public static final String LATEX_TABLE_DELIMITER = " & ";
+	private static final String LATEX_TABLE_DELIMITER = " & ";
 	
-	public static final String LATEX_TABLE_EOL = " \\\\";
-	public static final String LATEX_TABLE_HLINE = "\\hline";
+	private static final String LATEX_TABLE_EOL = " \\\\";
+	private static final String LATEX_TABLE_HLINE = "\\hline";
 	
 	//suppress default constructor (class should not be instantiated)
 	private LaTexUtils() {
@@ -41,7 +41,7 @@ final public class LaTexUtils {
 			} else {
 				builder.append(" and ");
 			}
-			builder.append(authors[i] + ", " + authors[i+1]);
+			builder.append(authors[i]).append(", ").append(authors[i+1]);
 		}
 		lines.add("\tauthor = {" + builder.toString() + "},");
 		lines.add("\ttitle = {{" + title + "}},");
@@ -137,7 +137,7 @@ final public class LaTexUtils {
 			if (item != null) {
 				builder.append(item/*.replace("_", "\\_")*/);
 			} else {
-				builder.append("");
+				//builder.append("");
 			}
 		}
 		return builder.toString();

@@ -138,11 +138,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		}
 		
 		this.collector = builder.collector;
-		if (this.collector == null) {
-			collectorAvailable = false;
-		} else {
-			collectorAvailable = true;
-		}
+		collectorAvailable = this.collector != null;
 	}
 	
 	public EvoItem<T,F,K> start() {
@@ -219,7 +215,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			currentPopulation.addAll(produceMutationBasedOffspring(parents, childrenCount, statistics));
 			
 			//mutate the current population
-			currentPopulation = mutatePopulation(currentPopulation, statistics);
+			mutatePopulation(currentPopulation, statistics);
 			
 			//test and validate (evaluation)
 			EvoItem<T, F, K> newBestEvoItem = getBetterItem(allTimeBestEvoItem, calculateFitness(currentPopulation, statistics));
@@ -261,23 +257,21 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			while (i < childrenCount) {
 				//iterate through original population and generate mutants 
 				//until the population is filled to the desired count
-				Iterator<EvoItem<T,F,K>> iterator = parents.iterator();
-				while (iterator.hasNext()) {
-					EvoItem<T,F,K> item = iterator.next();
+				for (EvoItem<T, F, K> item : parents) {
 					//TODO: what if no new mutation can be found? infinite loop...
 					boolean mutationApplied = false;
 					int tryCount = 0;
-					while(!mutationApplied && tryCount < 1) {
+					while (!mutationApplied && tryCount < 1) {
 						++tryCount;
 						L nextLocation = locationProvider.getNextLocation(item.getItem());
-						EvoMutation<T,L,K> mutation = mutationProvider.getNextMutationTemplate();
+						EvoMutation<T, L, K> mutation = mutationProvider.getNextMutationTemplate();
 						EvoID<K> mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
-						if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
+						if (mutationWasNotYetApplied(item.getHistory(), mutationId)) {
 							//apply the mutation and replace the item
 							EvoItem<T, F, K> mutant;
 							if (useHistory) {
-								mutant = new SimpleEvoItem<>(mutation.applyTo(item.getItem(), nextLocation), 
+								mutant = new SimpleEvoItem<>(mutation.applyTo(item.getItem(), nextLocation),
 										item.getHistory(), mutationId);
 								//add the mutation history to the set of already applied mutation sequences
 								appliedMutations.add(mutant.getHistory().copy());
@@ -338,7 +332,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 				EvoMutation<T,L,K> mutation = mutationProvider.getNextMutationTemplate();
 				EvoID<K> mutationId = mutation.getIDofNextMutation(item.getItem(), nextLocation);
 
-				if (!mutationWasAlreadyApplied(item.getHistory(), mutationId)) {
+				if (mutationWasNotYetApplied(item.getHistory(), mutationId)) {
 					//apply the mutation and replace the item
 					item.setItem(mutation.applyTo(item.getItem(), nextLocation));
 					if (useHistory) {
@@ -358,29 +352,21 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		return currentPopulation;
 	}
 
-	private boolean mutationWasAlreadyApplied(History<T,K> history, EvoID<K> mutationId) {
+	private boolean mutationWasNotYetApplied(History<T,K> history, EvoID<K> mutationId) {
 		if (!useHistory) {
-			return false;
+			return true;
 		}
 		History<T,K> temp = new History<>(history);
 		temp.addMutationId(mutationId);
-		if (appliedMutations.contains(temp)) {
-			return true;
-		} else {
-			return false;
-		}
+		return !appliedMutations.contains(temp);
 	}
 	
-	private boolean recombinationWasAlreadyApplied(History<T,K> history1, History<T,K> history2, EvoID<K> recombinationId) {
+	private boolean recombinationWasNotYetApplied(History<T,K> history1, History<T,K> history2, EvoID<K> recombinationId) {
 		if (!useHistory) {
-			return false;
+			return true;
 		}
 		History<T,K> temp = new History<>(history1, history2, recombinationId);
-		if (appliedMutations.contains(temp)) {
-			return true;
-		} else {
-			return false;
-		}
+		return !appliedMutations.contains(temp);
 	}
 
 	private List<EvoItem<T,F,K>> produceRecombinationalOffspring(List<EvoItem<T, F, K>> parents, int childrenCount, 
@@ -443,32 +429,30 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		//repeat until all children are generated
 		while (i < childrenCount) {
 			//start iterating over the best parents
-			Iterator<EvoItem<T,F,K>> iterator = bestParents.iterator();
-			while (iterator.hasNext()) {
+			for (EvoItem<T, F, K> bestParent : bestParents) {
 				//get parent1
-				parent1 = iterator.next();
-				
+				parent1 = bestParent;
+
 				//start iterating over the other parents
-				Iterator<EvoItem<T,F,K>> iterator2 = population.iterator();
-				while (iterator2.hasNext()) {
+				for (EvoItem<T, F, K> tfkEvoItem : population) {
 					//get parent2
-					parent2 = iterator2.next();
+					parent2 = tfkEvoItem;
 
 					//TODO: what if no new recombination can be found? infinite loop...
 					boolean recombinationApplied = false;
 					int tryCount = 0;
-					while(!recombinationApplied && tryCount < 50) {
+					while (!recombinationApplied && tryCount < 50) {
 						++tryCount;
 						//if both parents are picked, produce a child
-						EvoRecombination<T,K> recombination = recombinationProvider.getNextRecombinationType();
+						EvoRecombination<T, K> recombination = recombinationProvider.getNextRecombinationType();
 						EvoID<K> recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
-						if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
+						if (recombinationWasNotYetApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 							//apply the recombination and produce the child
-							EvoItem<T,F,K> child;
+							EvoItem<T, F, K> child;
 							if (useHistory) {
 								child = new SimpleEvoItem<>(
-										recombination.recombine(parent1.getItem(), parent2.getItem()), 
+										recombination.recombine(parent1.getItem(), parent2.getItem()),
 										parent1.getHistory(), parent2.getHistory(), recombinationId);
 								//add the child history to the set of already seen histories
 								appliedMutations.add(child.getHistory().copy());
@@ -503,7 +487,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 				//first get parent1, then parent2
 				if (parent1 == null) {
 					parent1 = iterator.next();
-				} else if (parent2 == null) {
+				} else {
 					parent2 = iterator.next();
 				} 
 				
@@ -530,7 +514,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			EvoRecombination<T,K> recombination = recombinationProvider.getNextRecombinationType();
 			EvoID<K> recombinationId = recombination.getIDofNextRecombination(parent1.getItem(), parent2.getItem());
 
-			if (!recombinationWasAlreadyApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
+			if (recombinationWasNotYetApplied(parent1.getHistory(), parent2.getHistory(), recombinationId)) {
 				//apply the recombination and produce the child
 				EvoItem<T,F,K> child;
 				if (useHistory) {
@@ -839,7 +823,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			return this;
 		}
 		
-		public Builder<T, L, F, K> addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L,K>... mutations) {
+		@SafeVarargs
+		public final Builder<T, L, F, K> addMutationTemplates(EvoMutation<T, L, K>... mutations) {
 			initializeMutationProviderIfNull();
 			for (EvoMutation<T,L,K> mutation : mutations) {
 				this.mutationProvider.addMutationTemplate(mutation);
@@ -872,7 +857,8 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 			return this;
 		}
 		
-		public Builder<T, L, F, K> addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T,K>... recombinations) {
+		@SafeVarargs
+		public final Builder<T, L, F, K> addRecombinationTemplates(EvoRecombination<T, K>... recombinations) {
 			initializeRecombinerIfNull();
 			for (EvoRecombination<T,K> recombination : recombinations) {
 				this.recombinationProvider.addRecombinationTemplate(recombination);
@@ -895,7 +881,7 @@ public class EvoAlgorithm<T,L,F extends Comparable<F>,K extends Comparable<K>> {
 		}
 		
 		public EvoAlgorithm<T, L, F, K> build() {
-			return new EvoAlgorithm<T,L,F,K>(this);
+			return new EvoAlgorithm<>(this);
 		}
 		
 		public Builder<T, L, F, K> addToInitialPopulation(T item) {

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package se.de.hu_berlin.informatik.utils.miscellaneous;
 
 import java.io.File;
@@ -215,7 +212,7 @@ public class ClassPathParser {
 						Log.out(this, "removed %s", element.toString());
 					}
 					iterator.remove();
-					classpathElementsSet.remove(element);
+					classpathElementsSet.remove(element.toString());
 					break;
 				}
 			}
@@ -238,7 +235,7 @@ public class ClassPathParser {
 					Log.out(this, "removed %s", element.toString());
 				}
 				iterator.remove();
-				classpathElementsSet.remove(element);
+				classpathElementsSet.remove(element.toString());
 			}
 		}
 	}
@@ -377,7 +374,7 @@ public class ClassPathParser {
 	 * a ClassLoader that knows the paths provided to him
 	 */
 	public ClassLoader getClassLoader(ClassLoader parent) {
-		URL[] urls = getUniqueClasspathElements().toArray(new URL[getUniqueClasspathElements().size()]);
+		URL[] urls = getUniqueClasspathElements().toArray(new URL[0]);
 		
 		return new URLClassLoader(urls, parent);
 	}
@@ -393,9 +390,9 @@ public class ClassPathParser {
 	 * a ClassLoader that knows the paths provided to him
 	 */
 	public ClassLoader getParentLastClassLoader(ClassLoader parent) {
-		URL[] urls = getUniqueClasspathElements().toArray(new URL[getUniqueClasspathElements().size()]);
-		
+		URL[] urls = getUniqueClasspathElements().toArray(new URL[0]);
+
 		return new ParentLastClassLoader(urls, parent, false);
 	}
-	
+
 }

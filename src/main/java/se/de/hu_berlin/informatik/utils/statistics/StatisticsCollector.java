@@ -87,25 +87,25 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 	}
 	
 	public boolean addStatisticsElement(T identifier, int value) {
-		Statistics<T> statistics = new Statistics<T>();
+		Statistics<T> statistics = new Statistics<>();
 		statistics.addStatisticsElement(identifier, value);
 		return this.addStatistics(statistics);
 	}
 	
 	public boolean addStatisticsElement(T identifier, double value) {
-		Statistics<T> statistics = new Statistics<T>();
+		Statistics<T> statistics = new Statistics<>();
 		statistics.addStatisticsElement(identifier, value);
 		return this.addStatistics(statistics);
 	}
 	
 	public boolean addStatisticsElement(T identifier, String value) {
-		Statistics<T> statistics = new Statistics<T>();
+		Statistics<T> statistics = new Statistics<>();
 		statistics.addStatisticsElement(identifier, value);
 		return this.addStatistics(statistics);
 	}
 	
 	public boolean addStatisticsElement(T identifier, boolean value) {
-		Statistics<T> statistics = new Statistics<T>();
+		Statistics<T> statistics = new Statistics<>();
 		statistics.addStatisticsElement(identifier, value);
 		return this.addStatistics(statistics);
 	}
@@ -118,7 +118,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 				StringStatisticsElementCollector stringList = (StringStatisticsElementCollector) list;
 				for (String element : stringList.getElements()) {
 					if (element != null) {
-						builder.append("\t  " + element);
+						builder.append("\t  ").append(element);
 						builder.append(System.lineSeparator());
 					}
 				}
@@ -227,7 +227,8 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 		return builder.toString();
 	}
 	
-	public String printStatistics(@SuppressWarnings("unchecked") T... statisticsEntries) {
+	@SafeVarargs
+	public final String printStatistics(T... statisticsEntries) {
 		StringBuilder builder = new StringBuilder();
 		for (T statisticsEntry : statisticsEntries) {
 			printStatisticsForSingleEntry(builder, statisticsEntry);
@@ -237,7 +238,7 @@ public class StatisticsCollector<T extends Enum<T> & StatisticsAPI> {
 
 	private void printStatisticsForSingleEntry(StringBuilder builder, T statisticsEntry) {
 		StatisticsElementCollector list = statisticsElements.get(statisticsEntry);
-		builder.append("\t" + getStatistics(statisticsEntry, list));
+		builder.append("\t").append(getStatistics(statisticsEntry, list));
 		builder.append(System.lineSeparator());
 	}
 

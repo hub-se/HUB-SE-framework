@@ -255,7 +255,8 @@ public class DisruptorProvider<A> implements Trackable {
 	 * @return
 	 * this
 	 */
-	public DisruptorProvider<A> connectHandlers(@SuppressWarnings("unchecked") AbstractDisruptorEventHandler<A>... handlers) {
+	@SafeVarargs
+	public final DisruptorProvider<A> connectHandlers(AbstractDisruptorEventHandler<A>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}
@@ -278,8 +279,8 @@ public class DisruptorProvider<A> implements Trackable {
 		}
 		
 		boolean isSingle = handlers.length == 1;
-		for (int i = 0; i < handlers.length; ++i) {
-			handlers[i].setSingleConsumer(isSingle);
+		for (AbstractDisruptorEventHandler<A> handler : handlers) {
+			handler.setSingleConsumer(isSingle);
 		}
 		// Connect the handlers
 		disruptor.handleEventsWith(handlers);
@@ -304,8 +305,9 @@ public class DisruptorProvider<A> implements Trackable {
 	 * @param <B>
 	 * the type of returned items
 	 */
-	public <B> DisruptorProvider<A> connectHandlers(ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer,
-			@SuppressWarnings("unchecked") EHWithInputAndReturn<A,B>... handlers) {
+	@SafeVarargs
+	public final <B> DisruptorProvider<A> connectHandlers(ThreadLimit limit, AbstractDisruptorMultiplexer<B> multiplexer,
+														  EHWithInputAndReturn<A, B>... handlers) {
 		if (handlers == null || handlers.length <= 0) {
 			throw new IllegalStateException("No Handlers given.");
 		}

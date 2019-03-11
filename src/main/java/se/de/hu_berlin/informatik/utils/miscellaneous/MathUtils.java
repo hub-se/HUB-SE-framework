@@ -143,7 +143,7 @@ final public class MathUtils {
 		int count = 0;
 		double sum = 0;
 		for (Number value : numbers) {
-			if (value.doubleValue() == Double.NaN) {
+			if (Double.isNaN(value.doubleValue())) {
 				continue;
 			}
 			sum += value.doubleValue();
