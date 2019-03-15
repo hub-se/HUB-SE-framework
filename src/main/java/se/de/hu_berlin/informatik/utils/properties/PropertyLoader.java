@@ -42,23 +42,14 @@ public class PropertyLoader {
 		Properties props = new Properties();
 
 		if (propertyFile.exists()) {
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(propertyFile);
+			try (FileInputStream fis = new FileInputStream(propertyFile)) {
 				props.load(fis);
 			} catch (FileNotFoundException e) {
 				Log.abort(PropertyLoader.class, "No property file found: '" + propertyFile + "'.");
 			} catch (IOException e) {
 				Log.abort(PropertyLoader.class, "IOException while reading property file: '" + propertyFile + "'.");
-			} finally {
-				try {
-					if (fis != null) {
-						fis.close();
-					}
-				} catch (IOException e) {
-					// nothing to do, since it is an input stream
-				}
 			}
+			// nothing to do, since it is an input stream
 		} else {
 			Log.err(PropertyLoader.class, "No property file exists: '" + propertyFile + "'.");
 			if (UserCommunicationUtils.askUser("Generate a template configuration file in this location?")) {
@@ -71,7 +62,7 @@ public class PropertyLoader {
 		
 		for (final T property : EnumSet.allOf(properties)) {
 			String value = props.getProperty(property.getPropertyIdentifier(), null);
-			if (value == null || value.equals("")) {
+			if (value == null || value.isEmpty()) {
 				Log.abort(PropertyLoader.class, "Property '" + property.getPropertyIdentifier() 
 				+ "' not set in configuration file: '" + propertyFile + "'.");
 			}

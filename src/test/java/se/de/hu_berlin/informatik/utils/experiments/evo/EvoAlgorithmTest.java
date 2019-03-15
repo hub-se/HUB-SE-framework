@@ -60,9 +60,6 @@ public class EvoAlgorithmTest extends TestSettings {
 		deleteTestOutputs();
 	}
 
-	/**
-	 * Test method for {@link se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm#EvolutionaryAlgorithm(int, int, int, java.lang.Object, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.PopulationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.ParentSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.RecombinationStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoLocationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.LocationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoMutationProvider, se.de.hu_berlin.informatik.utils.experiments.evo.EvoAlgorithm.MutationSelectionStrategy, se.de.hu_berlin.informatik.utils.experiments.evo.EvoRecombination, se.de.hu_berlin.informatik.utils.threaded.disruptor.eventhandler.EHWithInputAndReturnFactory)}.
-	 */
 	@Test
 	public void testEvolutionaryAlgorithm() throws Exception {
 		Integer[] goal = { 1, 2, 3 };
@@ -163,20 +160,14 @@ public class EvoAlgorithmTest extends TestSettings {
 				
 				if (nextGaussian >= 0) {
 					child = new Integer[parent2.length];
-					for (int i = 0; i < switchIndex; ++i) {
-						child[i] = parent1[i];
-					}
-					for (int i = 0; i < parent2.length; ++i) {
-						child[i] = parent2[i];
-					}
+					if (switchIndex >= 0)
+						System.arraycopy(parent1, 0, child, 0, switchIndex);
+					System.arraycopy(parent2, 0, child, 0, parent2.length);
 				} else {
 					child = new Integer[parent1.length];
-					for (int i = 0; i < switchIndex; ++i) {
-						child[i] = parent2[i];
-					}
-					for (int i = 0; i < parent1.length; ++i) {
-						child[i] = parent1[i];
-					}
+					if (switchIndex >= 0)
+						System.arraycopy(parent2, 0, child, 0, switchIndex);
+					System.arraycopy(parent1, 0, child, 0, parent1.length);
 				}
 				return child;
 			}

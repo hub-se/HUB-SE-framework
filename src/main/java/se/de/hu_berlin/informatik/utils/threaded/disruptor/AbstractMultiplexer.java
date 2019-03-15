@@ -14,8 +14,7 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 	
 	private Thread thread = null;
 	private boolean shouldStop;
-	private boolean shouldDefinitivelyStop;
-	
+
 	private boolean isRunning = false;
 	
 	public AbstractMultiplexer() {
@@ -52,7 +51,7 @@ public abstract class AbstractMultiplexer<B> implements Multiplexer<B> {
 	@Override
 	public void run() {
 		shouldStop = false;
-		shouldDefinitivelyStop = false;
+		boolean shouldDefinitivelyStop = false;
 		if (handlers == null || handlers.length == 0) {
 			throw new IllegalStateException("No handlers given to multiplexer.");
 		}

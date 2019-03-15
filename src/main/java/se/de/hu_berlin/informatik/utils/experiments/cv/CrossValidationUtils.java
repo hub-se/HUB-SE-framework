@@ -92,7 +92,7 @@ public class CrossValidationUtils {
 			String[] line = lineIterator.next();
 			List<T> bucket = new ArrayList<>();
 			for (String element : line) {
-				if (element != null && !element.equals("")) {
+				if (element != null && !element.isEmpty()) {
 					bucket.add(elementSupplier.apply(element));
 				}
 			}

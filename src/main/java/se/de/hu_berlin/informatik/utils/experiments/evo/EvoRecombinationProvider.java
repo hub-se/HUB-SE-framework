@@ -59,7 +59,7 @@ public interface EvoRecombinationProvider<T, K extends Comparable<K>> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addRecombinationTemplates(@SuppressWarnings("unchecked") EvoRecombination<T,K>... recombinations) {
+	default public boolean addRecombinationTemplates(EvoRecombination<T,K>... recombinations) {
 		boolean result = true;
 		for (EvoRecombination<T,K> recombination : recombinations) {
 			result &= addRecombinationTemplate(recombination);

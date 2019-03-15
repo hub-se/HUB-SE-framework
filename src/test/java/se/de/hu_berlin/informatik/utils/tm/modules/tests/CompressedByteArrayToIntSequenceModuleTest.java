@@ -37,6 +37,7 @@ public class CompressedByteArrayToIntSequenceModuleTest {
 	/**
 	 * @throws java.lang.Exception
 	 */
+	@SuppressWarnings("JavaDoc")
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}

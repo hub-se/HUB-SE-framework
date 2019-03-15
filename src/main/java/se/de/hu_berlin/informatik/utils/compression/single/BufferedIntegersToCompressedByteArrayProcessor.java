@@ -38,7 +38,6 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 	private byte neededBits;
 	private int lastByteIndex = -1;
 	private byte remainingFreeBits = 0;
-	private byte bitsLeft = 0;
 
 	private int maxValue;
 
@@ -147,7 +146,7 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 			}
 		}
 		//reset the bits left to write
-		bitsLeft = neededBits;
+		byte bitsLeft = neededBits;
 		//keep only relevant bits as defined by the given maximum value
 		element = keepLastNBits(element, bitsLeft);
 		//add bits until all bits of the given number are processed

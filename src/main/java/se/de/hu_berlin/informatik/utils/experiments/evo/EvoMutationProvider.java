@@ -59,7 +59,7 @@ public interface EvoMutationProvider<T,L,K extends Comparable<K>> {
 	 * @return
 	 * true if successful; false otherwise
 	 */
-	default public boolean addMutationTemplates(@SuppressWarnings("unchecked") EvoMutation<T,L,K>... mutations) {
+	default public boolean addMutationTemplates(EvoMutation<T,L,K>... mutations) {
 		boolean result = true;
 		for (EvoMutation<T,L,K> mutation : mutations) {
 			result &= addMutationTemplate(mutation);

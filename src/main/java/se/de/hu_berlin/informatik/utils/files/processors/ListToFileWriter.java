@@ -36,8 +36,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<A, A> {
 
 	private Path outputPath;
-	private Path outputdir;
-	private boolean generateOutputPaths = false;
+    private boolean generateOutputPaths = false;
 	private String extension;
 	
 	OutputPathGenerator generator;
@@ -59,7 +58,7 @@ public class ListToFileWriter<A extends Iterable<?> > extends AbstractProcessor<
 		this.generateOutputPaths = generateOutputPaths;
 		this.extension = extension;
 		if (generateOutputPaths) {
-			this.outputdir = outputPath;
+            Path outputdir = outputPath;
 			this.generator = new OutputPathGenerator(outputdir, overwrite);
 		} else {
 			if (outputPath.toFile().isDirectory()) {

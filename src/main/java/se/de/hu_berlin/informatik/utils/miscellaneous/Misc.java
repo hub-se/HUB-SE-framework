@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +21,11 @@ import java.util.stream.Collectors;
  * @author Simon Heiden
  */
 final public class Misc {
-	
+
+	private static final Pattern WHITESPACE = Pattern.compile(" |\t");
+
+	private static final Pattern NEWLINE = Pattern.compile("\n|\r|\f");
+
 	//suppress default constructor (class should not be instantiated)
 	private Misc() {
 		throw new AssertionError();
@@ -58,9 +64,8 @@ final public class Misc {
 	 */
 	public static String replaceWhitespacesInString(
 			final String aString, final String replaceString) {
-		return replaceNewLinesInString(aString, replaceString)
-				.replace(" ", replaceString)
-				.replace("\t", replaceString);
+		return WHITESPACE.matcher(replaceNewLinesInString(aString, replaceString))
+				.replaceAll(Matcher.quoteReplacement(replaceString));
 	}
 	
 	/**
@@ -75,10 +80,8 @@ final public class Misc {
 	 */
 	public static String replaceNewLinesInString(
 			final String aString, final String replaceString) {
-		return aString
-				.replace("\n", replaceString)
-				.replace("\r", replaceString)
-				.replace("\f", replaceString);
+		return NEWLINE.matcher(aString)
+				.replaceAll(Matcher.quoteReplacement(replaceString));
 	}
 	
 	/**

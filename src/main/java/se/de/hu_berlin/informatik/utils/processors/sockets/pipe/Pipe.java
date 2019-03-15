@@ -126,7 +126,6 @@ public class Pipe<A, B> extends AbstractProcessorSocket<A, B> {
 		this.singleWriter = singleWriter;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initialize(int bufferSize, ClassLoader cl) {
 		this.bufferSize = bufferSize;
 		this.classLoader = cl;

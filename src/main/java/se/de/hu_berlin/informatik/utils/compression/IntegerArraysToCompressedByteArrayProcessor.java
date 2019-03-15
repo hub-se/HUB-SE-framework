@@ -24,7 +24,6 @@ public class IntegerArraysToCompressedByteArrayProcessor extends AbstractProcess
 	private int sequenceLength;
 	private int lastByteIndex = 0;
 	private byte remainingFreeBits = 0;
-	private byte bitsLeft = 0;
 	private int totalSequences = 0;
 
 	private int maxValue;
@@ -33,7 +32,7 @@ public class IntegerArraysToCompressedByteArrayProcessor extends AbstractProcess
 	
 	public IntegerArraysToCompressedByteArrayProcessor(int maxValue, int sequenceLength, boolean containsZero) {
 		super();
-		this.containsZero = sequenceLength == 0 ? containsZero : false;
+		this.containsZero = sequenceLength == 0 && containsZero;
 		this.maxValue = containsZero ? maxValue+1 : maxValue;
 		result = new ArrayList<>();
 		
@@ -110,7 +109,7 @@ public class IntegerArraysToCompressedByteArrayProcessor extends AbstractProcess
 			}
 		}
 		//reset the bits left to write
-		bitsLeft = neededBits;
+		byte bitsLeft = neededBits;
 		//keep only relevant bits as defined by the given maximum value
 		element = keepLastNBits(element, bitsLeft);
 		//add bits until all bits of the given number are processed

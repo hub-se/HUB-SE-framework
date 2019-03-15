@@ -43,7 +43,7 @@ final public class LaTexUtils {
 			}
 			builder.append(authors[i]).append(", ").append(authors[i+1]);
 		}
-		lines.add("\tauthor = {" + builder.toString() + "},");
+		lines.add("\tauthor = {" + builder + "},");
 		lines.add("\ttitle = {{" + title + "}},");
 		lines.add("\tjournal = {" + journal + "},");
 		lines.add("\tpages = {" + pages + "},");

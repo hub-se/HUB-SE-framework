@@ -22,7 +22,6 @@ public class NumberArraysToCompressedByteArrayProcessor<T extends Number> extend
 	private int sequenceLength;
 	private int lastByteIndex = 0;
 	private byte remainingFreeBits = 0;
-	private byte bitsLeft = 0;
 	private int totalSequences = 0;
 
 	private int maxValue;
@@ -71,8 +70,8 @@ public class NumberArraysToCompressedByteArrayProcessor<T extends Number> extend
 			Log.abort(this, "Sequence length %d, doesn't fit with size of given array (%d).", sequenceLength, array.length);
 		}
 		totalSequences += array.length / sequenceLength;
-		for (int i = 0; i < array.length; ++i) {
-			int element = array[i].intValue();
+		for (T t : array) {
+			int element = t.intValue();
 			if (element > maxValue) {
 				Log.warn(this, "Trying to store '%d', but max value set to '%d'.", element, maxValue);
 				if (ceilLog2(element) > neededBits) {
@@ -80,7 +79,7 @@ public class NumberArraysToCompressedByteArrayProcessor<T extends Number> extend
 				}
 			}
 			//reset the bits left to write
-			bitsLeft = neededBits;
+			byte bitsLeft = neededBits;
 			//keep only relevant bits as defined by the given maximum value
 			element = keepLastNBits(element, bitsLeft);
 			//add bits until all bits of the given number are processed
@@ -93,12 +92,12 @@ public class NumberArraysToCompressedByteArrayProcessor<T extends Number> extend
 				//need to shift the bits differently if more bits are left to write than free bits are remaining in the last byte of the list
 				if (bitsLeft > remainingFreeBits) {
 					bitsLeft -= remainingFreeBits;
-					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element >>> bitsLeft)) );
+					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element >>> bitsLeft)));
 					remainingFreeBits = 0;
 					//set the first bits that are processed already to 0 and keep only the last n bits
 					element = keepLastNBits(element, bitsLeft);
 				} else { //bitsLeft <= remainingFreeBits
-					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element << (remainingFreeBits - bitsLeft))) );
+					result.set(lastByteIndex, (byte) (result.get(lastByteIndex) | (element << (remainingFreeBits - bitsLeft))));
 					remainingFreeBits -= bitsLeft;
 					bitsLeft = 0;
 				}
