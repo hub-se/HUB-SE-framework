@@ -16,7 +16,7 @@ import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
 /**
- * Encodes arrays of integers into compressed sequences of integers, depending on the maximum
+ * Encodes submitted integers into compressed sequences of integers, depending on the maximum
  * values of the input integers.
  * 
  * @author Simon Heiden
@@ -24,7 +24,7 @@ import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProcessor<Integer,byte[] > {
 
 	// same buffer that is used in zip utils
-	private static final int BUFER_SIZE = 4096;
+	private static final int BUFFER_SIZE = 4096;
 
 	PipedOutputStream out;
 	
@@ -79,7 +79,7 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 		
 		this.containsZero = containsZero;
 		this.maxValue = containsZero ? maxValue+1 : maxValue;
-		result = new byte[BUFER_SIZE];
+		result = new byte[BUFFER_SIZE];
 		
 		//compute the number of bits needed to represent integers with the given maximum value
 		neededBits = ceilLog2(this.maxValue);
@@ -213,14 +213,14 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 	}
 
 	private void writeBuferToStreamIfFull() {
-		if (lastByteIndex >= BUFER_SIZE) {
+		if (lastByteIndex >= BUFFER_SIZE) {
 			try {
 				out.write(result);
 			} catch (IOException e) {
 				Log.abort(this, e, "Could not write to output stream.");
 			}
 			lastByteIndex = 0;
-			result = new byte[BUFER_SIZE];
+			result = new byte[BUFFER_SIZE];
 		}
 	}
 	
