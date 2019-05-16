@@ -68,9 +68,6 @@
 					<!-- <executions> <execution> <goals> <goal> prepare </goal> </goals> 
 						<phase> process-test-classes </phase> </execution> </executions> -->
 				</plugin>
-			</plugins>
-		</pluginManagement>
-		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -171,5 +168,6 @@
 				<version>2.6</version>
 			</plugin>
 		</plugins>
+		</pluginManagement>
 	</build>
 </project>

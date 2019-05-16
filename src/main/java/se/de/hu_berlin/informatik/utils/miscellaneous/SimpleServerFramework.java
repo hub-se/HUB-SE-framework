@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class SimpleServerFramework {
+	
+	private static final int TIMEOUT = 120000;
 
 	final private static byte ACCEPT = 0;
 
@@ -136,7 +138,7 @@ public class SimpleServerFramework {
 				try (Socket clientSocket = serverSocket.accept()) {
 					// the timeout only matters AFTER a connection is
 					// established
-					clientSocket.setSoTimeout(10000);
+					clientSocket.setSoTimeout(TIMEOUT);
 
 					// Log.out(this, "Server Socket Extablished...");
 					// Create input and output streams to client
@@ -323,7 +325,7 @@ public class SimpleServerFramework {
 			++count;
 			// Create the socket
 			try (Socket clientSocket = new Socket((String) null, port)) {
-				clientSocket.setSoTimeout(10000);
+				clientSocket.setSoTimeout(TIMEOUT);
 				// Log.out("client", "Client Socket initialized...");
 				// Create the input & output streams to the server
 				ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
