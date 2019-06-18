@@ -90,17 +90,34 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 
 	private Thread startZipFileListener(String fileName, PipedInputStream in) {
 		return new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
-				try {
-					// this sets the name of the file for this entry in the zip file, starting from '0.bin'
-					parameters.setFileNameInZip(fileName);
+				// this sets the name of the file for this entry in the zip file, starting from '0.bin'
+				parameters.setFileNameInZip(fileName);
 
-					// Creates a new entry in the zip file and adds the content to the zip file
-					zipFile.addStream(in, parameters);
-				} catch (ZipException e) {
-					Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+				try {
+					int tries = 0;
+					boolean worked = false;
+					while (!worked) {
+						++tries;
+						try {
+							// Creates a new entry in the zip file and adds the content to the zip file
+							zipFile.addStream(in, parameters);
+							worked = true;
+						} catch (ZipException e) {
+							if (tries < 5) {
+								Log.warn(this, "Attempt %d - Error adding stream to zip file '%s'.", tries, zipFile.getFile());
+								try {
+									Thread.sleep(5000);
+								} catch (InterruptedException e1) {
+									// do nothing
+								}
+							} else {
+								Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+							}
+						}
+					}
 				} finally {
 					if (in != null) {
 						try {

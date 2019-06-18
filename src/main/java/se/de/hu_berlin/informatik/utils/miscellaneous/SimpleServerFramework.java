@@ -343,6 +343,7 @@ public class SimpleServerFramework {
 						outToServer.writeByte(NORMAL_DATA);
 						outToServer.writeObject(data);
 					}
+					outToServer.reset();
 					outToServer.flush();
 
 					/*-----------------------------------------

@@ -4,7 +4,6 @@
 package se.de.hu_berlin.informatik.utils.compression;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.ByteBuffer;
@@ -102,16 +101,31 @@ public class BufferedIntArraysToCompressedByteArrayProcessor extends AbstractPro
 			
 			@Override
 			public void run() {
+				// this sets the name of the file for this entry in the zip file, starting from '0.bin'
+				parameters.setFileNameInZip(fileName);
+
 				try {
-					// this sets the name of the file for this entry in the zip file, starting from '0.bin'
-					parameters.setFileNameInZip(fileName);
-
-					InputStream is = in;
-
-					// Creates a new entry in the zip file and adds the content to the zip file
-					zipFile.addStream(is, parameters);
-				} catch (ZipException e) {
-					Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+					int tries = 0;
+					boolean worked = false;
+					while (!worked) {
+						++tries;
+						try {
+							// Creates a new entry in the zip file and adds the content to the zip file
+							zipFile.addStream(in, parameters);
+							worked = true;
+						} catch (ZipException e) {
+							if (tries < 5) {
+								Log.warn(this, "Attempt %d - Error adding stream to zip file '%s'.", tries, zipFile.getFile());
+								try {
+									Thread.sleep(5000);
+								} catch (InterruptedException e1) {
+									// do nothing
+								}
+							} else {
+								Log.abort(this, e, "Zip file '%s' does not exist.", zipFile.getFile());
+							}
+						}
+					}
 				} finally {
 					if (in != null) {
 						try {
