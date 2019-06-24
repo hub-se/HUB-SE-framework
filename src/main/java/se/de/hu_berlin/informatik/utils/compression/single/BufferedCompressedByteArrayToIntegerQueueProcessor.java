@@ -5,20 +5,20 @@ package se.de.hu_berlin.informatik.utils.compression.single;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Queue;
+import java.util.function.Consumer;
 
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.ZipInputStream;
 import se.de.hu_berlin.informatik.utils.compression.ziputils.ZipFileWrapper;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
-import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
+import se.de.hu_berlin.informatik.utils.processors.AbstractConsumingProcessor;
 
 /**
  * Decodes...
  * 
  * @author Simon Heiden
  */
-public class BufferedCompressedByteArrayToIntegerQueueProcessor extends AbstractProcessor<String,Queue<Integer>> {
+public class BufferedCompressedByteArrayToIntegerQueueProcessor extends AbstractConsumingProcessor<String> {
 	
 	// same buffer that is used in zip utils
 	private static final int BUFER_SIZE = 4096;
@@ -31,21 +31,21 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 
 	private boolean containsZero;
 	private ZipFileWrapper zipFileWrapper;
-	private Queue<Integer> result;
+	private Consumer<Integer> consumer;
 	
 	public BufferedCompressedByteArrayToIntegerQueueProcessor(ZipFileWrapper zipFileWrapper, 
-			boolean containsZero, Queue<Integer> result) {
+			boolean containsZero, Consumer<Integer> consumer) {
 		super();
 		this.containsZero = containsZero;
 		this.zipFileWrapper = zipFileWrapper;
-		this.result = result;
+		this.consumer = consumer;
 	}
 	
 	/* (non-Javadoc)
 	 * @see se.de.hu_berlin.informatik.utils.tm.ITransmitter#processItem(java.lang.Object)
 	 */
 	@Override
-	public Queue<Integer> processItem(String fileName) {
+	public void consumeItem(String fileName) {
 
 		ZipInputStream inputStream = null;
 		try {
@@ -99,7 +99,7 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 				} else {
 					//				System.out.print((currentInt-1) + ",");
 					//add the next integer to the current sequence
-					result.add(containsZero ? currentInt-1 : currentInt);
+					consumer.accept(containsZero ? currentInt-1 : currentInt);
 				}
 				//reset the current integer to all zeroes
 				currentInt = 0;
@@ -118,7 +118,6 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 				Log.abort(this, "No total end marker was read!");
 			}
 
-			return result;
 		} catch (ZipException e) {
 			Log.abort(this, e, "Could not get input stream from file %s.", fileName);
 		} finally {
@@ -131,7 +130,6 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 			}
 		}
 		
-		return null;
 	}
 
 	private void readHeader(int len) {
