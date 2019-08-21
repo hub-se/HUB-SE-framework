@@ -6,9 +6,9 @@ package se.de.hu_berlin.informatik.utils.compression.single;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.io.ZipInputStream;
 import se.de.hu_berlin.informatik.utils.compression.ziputils.ZipFileWrapper;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
@@ -47,9 +47,10 @@ public class BufferedCompressedByteArrayToLongQueueProcessor extends AbstractPro
 	@Override
 	public Queue<Long> processItem(String fileName) {
 
-		ZipInputStream inputStream = null;
-		try {
-			inputStream = zipFileWrapper.uncheckedGetAsStream(fileName);
+		InputStream inputStream = null;
+		try (ZipFile zipFile = new ZipFile(zipFileWrapper.getzipFilePath().toFile())) {
+			ZipEntry entry = zipFile.getEntry(fileName);
+			inputStream = zipFile.getInputStream(entry);
 
 			int len = getNextBytesFromInputStream(inputStream);
 			readHeader(len);
@@ -119,7 +120,7 @@ public class BufferedCompressedByteArrayToLongQueueProcessor extends AbstractPro
 			}
 
 			return result;
-		} catch (ZipException e) {
+		} catch (IOException e) {
 			Log.abort(this, e, "Could not get input stream from file %s.", fileName);
 		} finally {
 			if (inputStream != null) {

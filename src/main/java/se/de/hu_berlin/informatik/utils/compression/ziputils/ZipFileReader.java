@@ -3,9 +3,10 @@
  */
 package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
+import java.io.IOException;
 import java.nio.file.Path;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
+import java.util.zip.ZipFile;
+
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractProcessor;
 
@@ -26,13 +27,12 @@ public class ZipFileReader extends AbstractProcessor<Path,ZipFileWrapper> {
 	 */
 	@Override
 	public ZipFileWrapper processItem(Path zipFilePath) {
-		ZipFile zipFile = null;
-		try {
-			zipFile = new ZipFile(zipFilePath.toString());
-			if (!zipFile.isValidZipFile()) {
-				Log.abort(this, "File '%s' is no valid zip file.", zipFilePath);
-			}
-		} catch (ZipException e) {
+//		ZipFile zipFile = null;
+		try (ZipFile zipFile = new ZipFile(zipFilePath.toString())) {
+//			if (!zipFile.isValidZipFile()) {
+//				Log.abort(this, "File '%s' is no valid zip file.", zipFilePath);
+//			}
+		} catch (IOException e) {
 			Log.abort(this, "Could not initialize zip file '%s' for reading.", zipFilePath);
 		}
 		

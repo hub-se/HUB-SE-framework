@@ -6,9 +6,9 @@ package se.de.hu_berlin.informatik.utils.compression.single;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.io.ZipInputStream;
 import se.de.hu_berlin.informatik.utils.compression.ziputils.ZipFileWrapper;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
 import se.de.hu_berlin.informatik.utils.processors.AbstractConsumingProcessor;
@@ -47,9 +47,13 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 	@Override
 	public void consumeItem(String fileName) {
 
-		ZipInputStream inputStream = null;
-		try {
-			inputStream = zipFileWrapper.uncheckedGetAsStream(fileName);
+		InputStream inputStream = null;
+		try (ZipFile zipFile = new ZipFile(zipFileWrapper.getzipFilePath().toFile())) {
+			ZipEntry entry = zipFile.getEntry(fileName);
+			if (entry == null) {
+				Log.abort(this, "No entry '%s' in zip file!", fileName);
+			}
+			inputStream = zipFile.getInputStream(entry);
 
 			int len = getNextBytesFromInputStream(inputStream);
 			readHeader(len);
@@ -118,7 +122,7 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 				Log.abort(this, "No total end marker was read!");
 			}
 
-		} catch (ZipException e) {
+		} catch (IOException e) {
 			Log.abort(this, e, "Could not get input stream from file %s.", fileName);
 		} finally {
 			if (inputStream != null) {
