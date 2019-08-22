@@ -42,8 +42,8 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 	 */
 	@Override
 	public Boolean processItem(Pair<String, String> sourceAndTargetFileNames) {
-		ZipFileWrapper zipFileSource = new ZipFileWrapper(zipFilePathSource);
-		ZipFileWrapper zipFileTarget = new ZipFileWrapper(zipFilePathTarget);
+		ZipFileWrapper zipFileSource = ZipFileWrapper.getZipFileWrapper(zipFilePathSource);
+		ZipFileWrapper zipFileTarget = ZipFileWrapper.getZipFileWrapper(zipFilePathTarget);
 
 		try {
 			if (!zipFileSource.exists(sourceAndTargetFileNames.first())) {

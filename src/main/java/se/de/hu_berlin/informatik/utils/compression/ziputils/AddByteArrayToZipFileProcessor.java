@@ -28,7 +28,7 @@ public class AddByteArrayToZipFileProcessor extends AbstractProcessor<byte[],byt
 			zipFilePath.getParent().toFile().mkdirs();
 		}
 		
-		this.zipFile = new ZipFileWrapper(zipFilePath);
+		this.zipFile = ZipFileWrapper.getZipFileWrapper(zipFilePath);
 	}
 	
 	public AddByteArrayToZipFileProcessor(Path zipFilePath) {

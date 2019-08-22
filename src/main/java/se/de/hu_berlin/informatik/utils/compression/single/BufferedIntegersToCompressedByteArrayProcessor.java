@@ -53,7 +53,7 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 			zipFilePath.getParent().toFile().mkdirs();
 		}
 		
-		zipFile = new ZipFileWrapper(zipFilePath);
+		zipFile = ZipFileWrapper.getZipFileWrapper(zipFilePath);
 
 		PipedInputStream in = new PipedInputStream();
 		out = new PipedOutputStream(in);
