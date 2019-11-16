@@ -10,13 +10,8 @@
 package se.de.hu_berlin.informatik.utils.experiments.ranking;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Class used to create a ranking of nodes with corresponding suspiciousness set.
@@ -60,7 +55,7 @@ public class SimpleRanking<T> implements Ranking<T> {
      */
     public SimpleRanking(boolean ascending) {
         super();
-        this.nodes = new HashMap<>();
+        this.nodes = new LinkedHashMap<>();
         this.ascending = ascending;
     }
     
