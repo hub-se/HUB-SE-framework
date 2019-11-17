@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 public class SimpleRanking<T> implements Ranking<T> {
 
     /** Holds the nodes with their corresponding ranking values */
-    private final Map<T, Double> nodes;
+    private final LinkedHashMap<T, Double> nodes;
 
     /** caches the actual ranking for each node */
     private Map<T, Integer> __cacheRanking;
