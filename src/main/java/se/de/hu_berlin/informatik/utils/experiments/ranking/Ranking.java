@@ -6,12 +6,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -287,8 +285,9 @@ public interface Ranking<T> extends Iterable<T> {
      */
     public static <T> void save(Ranking<T> ranking, final String filename) throws IOException {
         try (FileWriter writer = new FileWriter(filename)) {
+			Locale locale  = new Locale("en", "US");
             for (final RankedElement<T> el : ranking.getSortedRankedElements()) {
-                writer.write(String.format("%s" + RANKING_SEPARATOR + "%f\n", el.getIdentifier(), el.getRankingValue()));
+                writer.write(String.format(locale,"%s" + RANKING_SEPARATOR + "%f\n", el.getIdentifier(), el.getRankingValue()));
             }
         }
     }
@@ -395,7 +394,10 @@ public interface Ranking<T> extends Iterable<T> {
     	List<T> nanIdentifiers = new ArrayList<>();
     	List<T> posInfIdentifiers = new ArrayList<>();
     	List<T> negInfIdentifiers = new ArrayList<>();
-    	try (final BufferedReader reader = Files.newBufferedReader(file , StandardCharsets.UTF_8)) {
+
+		NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
+
+		try (final BufferedReader reader = Files.newBufferedReader(file , StandardCharsets.UTF_8)) {
 			//get the maximal ranking value that is NOT infinity
 			String rankingline = null;
 			while((rankingline = reader.readLine()) != null) {
@@ -403,7 +405,7 @@ public interface Ranking<T> extends Iterable<T> {
 				if (pos == -1) {
 					Log.abort(Ranking.class, "Entry '%s' not valid in '%s'.", rankingline, file.toAbsolutePath());
 				}
-				double rankingValue = Double.parseDouble(rankingline.substring(pos+1));
+				double rankingValue = nf.parse(rankingline.substring(pos+1)).doubleValue();
 				T identifier = stringToObject.apply(rankingline.substring(0, pos));
 				if (Double.isNaN(rankingValue)) {
 					nanIdentifiers.add(identifier);
@@ -419,9 +421,11 @@ public interface Ranking<T> extends Iterable<T> {
 			Log.abort(Ranking.class, e, "Could not open/read the ranking file '%s'.", file.toAbsolutePath());
 		} catch (NumberFormatException e) {
 			Log.abort(Ranking.class, e, "Ranking value not valid in '%s'.", file.toAbsolutePath());
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-    	
-    	double nanValue;
+
+		double nanValue;
     	switch(nanStrategy) {
 		case BEST:
 			if (ranking.isAscending()) {
