@@ -321,12 +321,13 @@ public interface Ranking<T> extends Iterable<T> {
     public static <T> void saveOnlyScores(Ranking<T> ranking, 
     		Comparator<? super T> comparator, final String filename) throws IOException {
         try (FileWriter writer = new FileWriter(filename)) {
+			Locale locale  = new Locale("en", "US");
         	// order the elements based on the given comparator
         	List<T> elements = new ArrayList<>(ranking.getElements());
     		elements.sort(comparator);
     		
             for (final T el : elements) {
-                writer.write(String.format("%f\n", ranking.getRankingValue(el)));
+                writer.write(String.format(locale,"%f\n", ranking.getRankingValue(el)));
             }
         }
     }
