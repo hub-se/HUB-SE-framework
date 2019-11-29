@@ -26,8 +26,8 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 	PipedOutputStream out;
 	
 	private ZipFileWrapper zipFile;
-	
-	private static final byte TOTAL_END_MARKER = 0;
+		
+	public static final int DELIMITER = 0;
 	
 	private byte[] result;
 	
@@ -125,14 +125,26 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 	@Override
 	public byte[] processItem(Integer next) {
 		int element = containsZero ? next+1 : next;
-		if (element == TOTAL_END_MARKER) {
+		if (element == DELIMITER) {
 			closeOutputStream();
-			Log.abort(this, "Cannot store numbers identical to the end marker (%d).", TOTAL_END_MARKER);
+			Log.abort(this, "Cannot store numbers identical to the delimiter (%d).", DELIMITER);
 		}
 
 		storeNextInteger(element);
 		
 		return null;
+	}
+	
+	/**
+	 * This will add an end marker at the current position.
+	 * Setting a delimiter in the middle of a sequence might
+	 * result in all successing elements being ignored when
+	 * the resulting byte array gets decoded again.
+	 * 
+	 * Do NOT use this if you don't know what you're doing!
+	 */
+	public void addDelimiter() {
+		storeNextInteger(DELIMITER);
 	}
 
 	private void storeNextInteger(int element) {
@@ -171,7 +183,9 @@ public class BufferedIntegersToCompressedByteArrayProcessor extends AbstractProc
 
 	private void closeOutputStream() {
 		if (out != null) {
-			storeNextInteger(TOTAL_END_MARKER);
+			// add two delimiters to indicate the absolute end
+			storeNextInteger(DELIMITER);
+			storeNextInteger(DELIMITER);
 			try {
 				if (lastByteIndex >= 0) {
 					out.write(result, 0, lastByteIndex+1);
