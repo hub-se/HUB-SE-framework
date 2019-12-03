@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -528,6 +529,40 @@ final public class Misc {
             result.add(values[ordinal]);
         }
         return result;
+	}
+
+	/**
+	 * Converts the given time in milliseconds into a formatted String that
+	 * shows the amount of days, hours, minutes and seconds.
+	 * @param timeInMilliSeconds
+	 * time in milliseconds
+	 * @return
+	 * the given time as a formatted String
+	 */
+	public static String getFormattedTimerString(long timeInMilliSeconds) {
+		long days = TimeUnit.MILLISECONDS.toDays(timeInMilliSeconds);
+		long hours = TimeUnit.MILLISECONDS.toHours(timeInMilliSeconds);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMilliSeconds);
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMilliSeconds);
+		if (days > 0) {
+			return String.format("%dd:%02dh:%02dm:%02ds", 
+					days,
+					hours % 24,
+					minutes % 60,
+					seconds % 60
+					);
+		} else if (hours > 0) {
+			return String.format("%02dh:%02dm:%02ds", 
+					hours,
+					minutes % 60,
+					seconds % 60
+					);
+		} else {
+			return String.format("%02dm:%02ds", 
+					minutes,
+					seconds % 60
+					);
+		}
 	}
 	
 }
