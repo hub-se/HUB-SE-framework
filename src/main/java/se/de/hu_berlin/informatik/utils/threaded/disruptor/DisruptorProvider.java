@@ -179,6 +179,9 @@ public class DisruptorProvider<A> implements Trackable {
 					Log.abort(this, ex, "%s was thrown while processing item #%d.", ex, sequence);
 				} else {
 					Log.err(this, ex, "%s was thrown while processing item #%d.", ex, sequence);
+					if (ex instanceof OutOfMemoryError) {
+						Log.abort(this, "Abort due to out of memory error on item #%d!.", sequence);
+					}
 				}
 			}
 		});
