@@ -185,6 +185,15 @@ public class ZipFileWrapper {
 //		return zipFile;
 //	}
 	
+	public void close() {
+		readWriteLock.lock();
+		try {
+			closeOpenOutputStream();
+		} finally {
+			readWriteLock.unlock();
+		}
+	}
+	
 	private void closeOpenOutputStream() {
 		if (outputStream != null) {
 			System.out.println("Closed output stream for zip file '" + zipFilePath + "'.");
