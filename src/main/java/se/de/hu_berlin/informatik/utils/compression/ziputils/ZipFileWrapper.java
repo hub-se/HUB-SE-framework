@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -220,9 +221,7 @@ public class ZipFileWrapper {
 						File source = zipFilePath.toFile();
 						File tmpZip = File.createTempFile(source.getName(), null);
 						tmpZip.delete();
-						if(!source.renameTo(tmpZip)) {
-							throw new Exception("Could not make temp file (" + source.getName() + ")");
-						}
+						Files.move(zipFilePath, tmpZip.toPath());
 						byte[] buffer = new byte[1024];
 						ZipInputStream zin = new ZipInputStream(new FileInputStream(tmpZip));
 						ZipOutputStream out = new ZipOutputStream(new FileOutputStream(source));
