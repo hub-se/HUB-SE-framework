@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -206,7 +207,10 @@ public class ZipFileWrapper {
 		}
 	}
 	
-	private ZipOutputStream getOutputStream() {
+	private ZipOutputStream getOutputStream(Collection<String> excludeFiles) {
+		if (excludeFiles != null) {
+			closeOpenOutputStream();
+		}
 		if (outputStream == null) {
 			// new file or previously closed
 			try {
@@ -223,12 +227,26 @@ public class ZipFileWrapper {
 						ZipInputStream zin = new ZipInputStream(new FileInputStream(tmpZip));
 						ZipOutputStream out = new ZipOutputStream(new FileOutputStream(source));
 
-						for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
-							out.putNextEntry(ze);
-							for (int read = zin.read(buffer); read > -1; read = zin.read(buffer)) {
-								out.write(buffer, 0, read);
+						if (excludeFiles == null) {
+							for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
+								out.putNextEntry(ze);
+								for (int read = zin.read(buffer); read > -1; read = zin.read(buffer)) {
+									out.write(buffer, 0, read);
+								}
+								out.closeEntry();
 							}
-							out.closeEntry();
+						} else {
+							for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
+								if (excludeFiles.contains(ze.getName())) {
+									// skip entries to exclude
+									continue;
+								}
+								out.putNextEntry(ze);
+								for (int read = zin.read(buffer); read > -1; read = zin.read(buffer)) {
+									out.write(buffer, 0, read);
+								}
+								out.closeEntry();
+							}
 						}
 
 						zin.close();
@@ -239,6 +257,7 @@ public class ZipFileWrapper {
 					}
 				} else {
 					// new zip file!
+					zipFilePath.getParent().toFile().mkdirs();
 					outputStream = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()));
 				}
 			} catch (FileNotFoundException e) {
@@ -248,6 +267,10 @@ public class ZipFileWrapper {
 		}
 
 		return outputStream;
+	}
+	
+	public void removeEntries(Collection<String> files) {
+		getOutputStream(files);
 	}
 	
 	public void addArray(byte[] array, String fileName) {
@@ -261,8 +284,19 @@ public class ZipFileWrapper {
 	public void addStream(InputStream in, String fileName) throws IOException {
 		readWriteLock.lock();
 		try {
-			ZipOutputStream zos = getOutputStream();
+			ZipOutputStream zos = getOutputStream(null);
 			try {
+				ZipEntry entry = new ZipEntry(fileName);
+				zos.putNextEntry(entry);
+				int n;
+				byte[] buffer = new byte[4096];
+				while (0 <= (n = in.read(buffer))) {
+					zos.write(buffer, 0, n);		        	
+				}
+				zos.flush();
+			} catch (ZipException e) {
+				// trying to add duplicate entry? -> remove the existing one
+				zos = getOutputStream(Collections.singletonList(fileName));
 				ZipEntry entry = new ZipEntry(fileName);
 				zos.putNextEntry(entry);
 				int n;
@@ -277,119 +311,7 @@ public class ZipFileWrapper {
 		} finally {
 			readWriteLock.unlock();
 		}
-		
-//		URI uri = URI.create("jar:" + zipFilePath.toUri());
-////		if (FileSystems.getFileSystem(uri).isOpen()){ return FileSystems.getFileSystem(uri); } return FileSystems.newFileSystem(uri, env);
-//		
-//		FileSystem fs = null;
-//		try {
-//			while (fs == null || !fs.isOpen()) {
-//				try {
-//					fs = FileSystems.newFileSystem(uri, env);
-//				} catch (FileSystemAlreadyExistsException e) {
-//					if (fs != null) {
-//						fs.close();
-//					}
-//					System.out.println("0");
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e2) {
-//						// do nothing
-//					}
-//					
-//					try {
-//						
-//						fs = FileSystems.getFileSystem(uri);
-//					} finally {
-//						while (fs != null && fs.isOpen()) {
-//							try {
-//								fs.close();
-//							} catch (Exception e2) {
-//								System.out.println("1");
-//								try {
-//									Thread.sleep(50);
-//								} catch (InterruptedException e3) {
-//									// do nothing
-//								}
-//							}
-//						}
-//					}
-//					
-//				}
-//			}
-//		    Path nf = fs.getPath(fileName);
-//		    try (SeekableByteChannel channel = Files.newByteChannel(nf, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-//		        int n;
-//		        // heap resident byte buffer
-//		        ByteBuffer directBuf = ByteBuffer.allocate(4096);
-//		        while (0 <= (n = in.read(directBuf.array()))) {
-//		        	// uses the byte buffer's backing array to read from the input stream;
-//		        	// this indirect use of a byte array is necessary, since we 
-//		        	// need a byte buffer to write to the file channel object...
-//		        	directBuf.position(0);
-//		        	directBuf.limit(n);
-//					channel.write(directBuf);		        	
-//		        }
-//		    }
-//		} finally {
-//			while (fs != null && fs.isOpen()) {
-//				try {
-//					fs.close();
-//				} catch (Exception e) {
-//					System.out.println("2: " + e.getMessage());
-//					e.printStackTrace();
-//					
-//					try {
-//						Thread.sleep(50);
-//					} catch (InterruptedException e2) {
-//						// do nothing
-//					}
-//				}
-//			}
-//			
-//		}
-//		
-////		try {
-////			while (FileSystems.getFileSystem(uri).isOpen()) {
-////				try {
-////					Thread.sleep(50);
-////				} catch (InterruptedException e) {
-////					// do nothing
-////				}
-////			}
-////		} catch (FileSystemNotFoundException e) {
-////			// may happen if closed
-////		}
-//		return fs;
 	}
-	
-//	public InputStream uncheckedGetAsStream(ZipEntry fileHeader) throws IOException {
-//		ZipFile zipFile = null;
-//		try {
-//			zipFile = new ZipFile(zipFilePath.toString());
-//			return zipFile.getInputStream(fileHeader);
-//		} catch (IOException e) {
-//			throw new ZipException("Reading input stream from file '" + fileHeader.getName() + "' failed!");
-//		} finally {
-//			if (zipFile != null) {
-//				zipFile.close();
-//			}
-//		}
-//	}
-//	
-//	public InputStream uncheckedGetAsStream(String filename) throws IOException {
-//		ZipFile zipFile = null;
-//		try {
-//			zipFile = new ZipFile(zipFilePath.toString());
-//			return zipFile.getInputStream(zipFile.getEntry(filename));
-//		} catch (IOException e) {
-//			throw new ZipException("Reading input stream from file '" + filename + "' failed!");
-//		} finally {
-//			if (zipFile != null) {
-//				zipFile.close();
-//			}
-//		}
-//	}
 	
 	public List<String> getFileHeadersContainingString(String pattern) throws IOException {
 		readWriteLock.lock();

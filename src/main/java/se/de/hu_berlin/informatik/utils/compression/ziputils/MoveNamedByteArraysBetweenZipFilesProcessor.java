@@ -30,7 +30,7 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 			Log.abort(this, "File '%s' does not exist.", zipFilePathSource);
 		}
 		if (!zipFilePathTarget.toFile().exists()) {
-			Log.abort(this, "File '%s' does not exist.", zipFilePathTarget);
+			Log.warn(this, "File '%s' does not exist.", zipFilePathTarget);
 		}
 		
 		this.zipFilePathSource = zipFilePathSource;
