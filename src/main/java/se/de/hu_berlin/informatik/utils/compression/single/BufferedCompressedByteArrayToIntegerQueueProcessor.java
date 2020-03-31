@@ -24,7 +24,7 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 	private static final int BUFER_SIZE = 4096;
 	private byte[] buffer = new byte[BUFER_SIZE];
 		
-	public static final int TOTAL_END_MARKER = 0;
+	public static final int DELIMITER = 0;
 	
 	private byte usedBits;
 	private int arrayPos;
@@ -96,7 +96,7 @@ public class BufferedCompressedByteArrayToIntegerQueueProcessor extends Abstract
 					}
 				}
 
-				if (currentInt == TOTAL_END_MARKER) {
+				if (currentInt == DELIMITER) {
 					atTotalEnd = true;
 					//				System.out.println();
 					break;
