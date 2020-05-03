@@ -2,8 +2,6 @@ package se.de.hu_berlin.informatik.utils.compression.ziputils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -54,25 +52,13 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 		}
 		try {
 			InputStream sourceStream = null;
-			PipedOutputStream out = null;
-			Thread thread = null;
 			try {
-				PipedInputStream in = new PipedInputStream();
-				out = new PipedOutputStream(in);
-
-				thread = startZipFileListener(zipFileTarget, sourceAndTargetFileNames.second(), in);
-				thread.start();
-
 				try (ZipFile zipFile = new ZipFile(zipFileSource.getzipFilePath().toFile())) {
-					ZipEntry entry = zipFile.getEntry(sourceAndTargetFileNames.first());
 
-					sourceStream = zipFile.getInputStream(entry);
+					sourceStream = zipFile.getInputStream(zipFile.getEntry(sourceAndTargetFileNames.first()));
 
-					byte[] buffer = new byte[4096];
-					int bytesRead;
-					while ((bytesRead = sourceStream.read(buffer)) != -1) {
-						out.write(buffer, 0, bytesRead);
-					}
+					// Creates a new entry in the zip file and adds the content to the zip file
+					zipFileTarget.addStream(sourceStream, sourceAndTargetFileNames.second());
 
 				} catch (IOException e) {
 					throw new ZipException("Reading input stream from file '" + zipFileSource.getzipFilePath() + "' failed!");
@@ -83,18 +69,6 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 				if (sourceStream != null) {
 					sourceStream.close();
 				}
-				if (out != null) {
-					out.flush();
-					out.close();
-				}
-				if (thread != null) {
-					while (thread.isAlive()) {
-						try {
-							thread.join();
-						} catch (InterruptedException e) {
-						}
-					}
-				}
 			}
 		} catch (IOException e) {
 			Log.abort(this, e, "Could not copy files.");
@@ -102,26 +76,4 @@ public class MoveNamedByteArraysBetweenZipFilesProcessor extends AbstractProcess
 		return true;
 	}
 
-	private Thread startZipFileListener(ZipFileWrapper zipFileTarget, String fileName, PipedInputStream in) {
-		return new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					// Creates a new entry in the zip file and adds the content to the zip file
-					zipFileTarget.addStream(in, fileName);
-				} catch (IOException e) {
-					Log.abort(this, e, "Zip file '%s' does not exist or could not add stream.", zipFileTarget.getzipFilePath());
-				} finally {
-					if (in != null) {
-						try {
-							in.close();
-						} catch (IOException e) {
-
-						}
-					}
-				}
-			}
-		});
-	}
 }
