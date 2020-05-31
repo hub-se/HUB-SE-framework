@@ -126,23 +126,26 @@ public class ZipFileWrapper {
 		}
 	}
 	
+	public long getEntrySize(String fileName) throws ZipException {
+		readWriteLock.lock();
+		try {
+			closeOpenOutputStream();
+			try (ZipFile zipFile = new ZipFile(zipFilePath.toString()) ){
+				ZipEntry entry = zipFile.getEntry(fileName);
+				return entry.getSize();
+			} catch (IOException e) {
+				throw new ZipException("Reading file '" + fileName + "' failed!");
+			}
+		} finally {
+			readWriteLock.unlock();
+		}
+	}
+	
 	public Path getzipFilePath() {
 		return zipFilePath.toAbsolutePath();
 	}
 	
 	public byte[] uncheckedGet(String fileName) throws ZipException {
-//		//extract the file in the zip file to a unique file
-//		//may throw exception if file does not exist
-//		String newFileName = zipFile.getFile().getName() + "_" + fileName;
-//		zipFile.extractFile(fileName, destPath.toString(), null, newFileName);
-//
-//		//parse the file containing the identifiers
-//		final Path filePath = Paths.get(destPath, newFileName);
-//		final byte[] result = new FileToByteArrayReader().asModule().submit(filePath).getResult();
-//		FileUtils.delete(filePath);
-//		
-//		return result;
-		
 		readWriteLock.lock();
 		try {
 			closeOpenOutputStream();
@@ -166,6 +169,38 @@ public class ZipFileWrapper {
 			closeOpenOutputStream();
 			try (ZipFile zipFile = new ZipFile(zipFilePath.toString()) ){
 				return getBytesFromInputStream(zipFile.getInputStream(fileHeader));
+			} catch (IOException e) {
+				throw new ZipException("Reading input stream from file '" + fileHeader.getName() + "' failed!");
+			}
+		} finally {
+			readWriteLock.unlock();
+		}
+	}
+	
+	public byte[] uncheckedGet(String fileName, long start, int byteCount) throws ZipException {
+		readWriteLock.lock();
+		try {
+			closeOpenOutputStream();
+			try (ZipFile zipFile = new ZipFile(zipFilePath.toString()) ){
+				ZipEntry entry = zipFile.getEntry(fileName);
+				if (entry == null) {
+					throw new ZipException("File '" + fileName + "' does not exist in zip file'" + zipFilePath.toString() + "'!");
+				}
+				return getBytesFromInputStream(zipFile.getInputStream(entry), start, byteCount);
+			} catch (IOException e) {
+				throw new ZipException("Reading input stream from file '" + fileName + "' failed!");
+			}
+		} finally {
+			readWriteLock.unlock();
+		}
+	}
+
+	public byte[] uncheckedGet(ZipEntry fileHeader, long start, int byteCount) throws ZipException {
+		readWriteLock.lock();
+		try {
+			closeOpenOutputStream();
+			try (ZipFile zipFile = new ZipFile(zipFilePath.toString()) ){
+				return getBytesFromInputStream(zipFile.getInputStream(fileHeader), start, byteCount);
 			} catch (IOException e) {
 				throw new ZipException("Reading input stream from file '" + fileHeader.getName() + "' failed!");
 			}
@@ -290,6 +325,7 @@ public class ZipFileWrapper {
 				int n;
 				byte[] buffer = new byte[4096];
 				while (0 <= (n = in.read(buffer))) {
+//					System.err.print(Arrays.toString(buffer));
 					zos.write(buffer, 0, n);		        	
 				}
 				zos.flush();
@@ -301,10 +337,12 @@ public class ZipFileWrapper {
 				int n;
 				byte[] buffer = new byte[4096];
 				while (0 <= (n = in.read(buffer))) {
+//					System.err.print(Arrays.toString(buffer));
 					zos.write(buffer, 0, n);		        	
 				}
 				zos.flush();
 			} finally {
+				in.close();
 				zos.closeEntry();
 			}
 		} finally {
@@ -323,6 +361,7 @@ public class ZipFileWrapper {
 				ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile.getName()));
 				ZipEntry zipEntry = zis.getNextEntry();
 				while (zipEntry != null) {
+//					System.err.println(zipEntry.getName());
 					if (zipEntry.getName().contains(pattern)) {
 						matchingHeaders.add(zipEntry.getName());
 					}
@@ -354,18 +393,46 @@ public class ZipFileWrapper {
 	}
 
 	private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream(); 
 		try {
-			ByteArrayOutputStream os = new ByteArrayOutputStream(); 
-			byte[] buffer = new byte[0xFFFF];
+			byte[] buffer = new byte[4096];
 			for (int len = inputStream.read(buffer); len != -1; len = inputStream.read(buffer)) { 
 				os.write(buffer, 0, len);
 			}
-			return os.toByteArray();
 		} finally {
 			if (inputStream != null) {
 				inputStream.close();
 			}
 		}
+		return os.toByteArray();
+	}
+	
+	private static byte[] getBytesFromInputStream(InputStream inputStream, long start, int byteCount) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream(); 
+		try {
+			long skip = inputStream.skip(start);
+			if (skip != start) {
+				return null;
+			}
+			byte[] buffer = new byte[4096];
+			for (int len = inputStream.read(buffer); len != -1; len = inputStream.read(buffer)) {
+				if (len < byteCount) {
+					os.write(buffer, 0, len);
+					byteCount -= len;
+				} else {
+					os.write(buffer, 0, byteCount);
+					byteCount = 0;
+					break;
+				}
+			}
+		} finally {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		}
+		byte[] byteArray = os.toByteArray();
+//		System.err.println(byteArray.length + ", " + Arrays.toString(byteArray));
+		return byteArray;
 	}
 	
 	public byte[] uncheckedGet(final int index) throws ZipException {

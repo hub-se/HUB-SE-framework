@@ -3,7 +3,6 @@ package se.de.hu_berlin.informatik.utils.compression.ziputils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import se.de.hu_berlin.informatik.utils.miscellaneous.Log;
