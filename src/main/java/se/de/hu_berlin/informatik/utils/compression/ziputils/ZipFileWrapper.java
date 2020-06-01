@@ -13,11 +13,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -257,14 +257,15 @@ public class ZipFileWrapper {
 						File tmpZip = File.createTempFile(source.getName(), null);
 						tmpZip.delete();
 						Files.move(zipFilePath, tmpZip.toPath());
-						byte[] buffer = new byte[1024];
+						byte[] buffer = new byte[4096];
 						ZipInputStream zin = new ZipInputStream(new FileInputStream(tmpZip));
 						ZipOutputStream out = new ZipOutputStream(new FileOutputStream(source));
 
 						if (excludeFiles == null) {
 							for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
 								out.putNextEntry(ze);
-								for (int read = zin.read(buffer); read > -1; read = zin.read(buffer)) {
+								int read;
+								while ((read = zin.read(buffer)) > 0) {
 									out.write(buffer, 0, read);
 								}
 								out.closeEntry();
@@ -276,7 +277,8 @@ public class ZipFileWrapper {
 									continue;
 								}
 								out.putNextEntry(ze);
-								for (int read = zin.read(buffer); read > -1; read = zin.read(buffer)) {
+								int read;
+								while ((read = zin.read(buffer)) > 0) {
 									out.write(buffer, 0, read);
 								}
 								out.closeEntry();
@@ -324,7 +326,7 @@ public class ZipFileWrapper {
 				zos.putNextEntry(entry);
 				int n;
 				byte[] buffer = new byte[4096];
-				while (0 <= (n = in.read(buffer))) {
+				while ((n = in.read(buffer)) > 0) {
 //					System.err.print(Arrays.toString(buffer));
 					zos.write(buffer, 0, n);		        	
 				}
@@ -336,7 +338,7 @@ public class ZipFileWrapper {
 				zos.putNextEntry(entry);
 				int n;
 				byte[] buffer = new byte[4096];
-				while (0 <= (n = in.read(buffer))) {
+				while ((n = in.read(buffer)) > 0) {
 //					System.err.print(Arrays.toString(buffer));
 					zos.write(buffer, 0, n);		        	
 				}
@@ -351,6 +353,14 @@ public class ZipFileWrapper {
 	}
 	
 	public List<String> getFileHeadersContainingString(String pattern) throws IOException {
+		return getFileHeadersSatisfyingCheck(k -> k.contains(pattern));
+	}
+	
+	public List<String> getFileHeadersStartingWithString(String pattern) throws IOException {
+		return getFileHeadersSatisfyingCheck(k -> k.startsWith(pattern));
+	}
+	
+	public List<String> getFileHeadersSatisfyingCheck(Predicate<String> check) throws IOException {
 		readWriteLock.lock();
 		try {
 			closeOpenOutputStream();
@@ -359,29 +369,29 @@ public class ZipFileWrapper {
 				zipFile = new ZipFile(zipFilePath.toString());
 				List<String> matchingHeaders = new ArrayList<>();
 				ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile.getName()));
-				ZipEntry zipEntry = zis.getNextEntry();
-				while (zipEntry != null) {
+				ZipEntry zipEntry;
+				while ((zipEntry = zis.getNextEntry()) != null) {
 //					System.err.println(zipEntry.getName());
-					if (zipEntry.getName().contains(pattern)) {
+					if (check.test(zipEntry.getName())) {
 						matchingHeaders.add(zipEntry.getName());
 					}
-					zipEntry = zis.getNextEntry();
+					zis.closeEntry();
 				}
-				zis.closeEntry();
 				zis.close();
 
-				// sort the files alphabetically
-				Collections.sort(matchingHeaders, new Comparator<String>() {
-
-					@Override
-					public int compare(String o1, String o2) {
-						return o1.compareTo(o2);
-					}
-				});
+//				// sort the files alphabetically
+//				Collections.sort(matchingHeaders, new Comparator<String>() {
+//
+//					@Override
+//					public int compare(String o1, String o2) {
+//						return o1.compareTo(o2);
+//					}
+//				});
 
 				return matchingHeaders;
 			} catch (IOException e) {
-				throw new ZipException("Getting zip file contents containing pattern '" + pattern + "' failed!");
+				e.printStackTrace();
+				throw new ZipException("Getting zip file contents failed: " + zipFilePath);
 			} finally {
 				if (zipFile != null) {
 					zipFile.close();
@@ -396,7 +406,8 @@ public class ZipFileWrapper {
 		ByteArrayOutputStream os = new ByteArrayOutputStream(); 
 		try {
 			byte[] buffer = new byte[4096];
-			for (int len = inputStream.read(buffer); len != -1; len = inputStream.read(buffer)) { 
+			int len;
+			while ((len = inputStream.read(buffer)) > 0) { 
 				os.write(buffer, 0, len);
 			}
 		} finally {
@@ -415,7 +426,8 @@ public class ZipFileWrapper {
 				return null;
 			}
 			byte[] buffer = new byte[4096];
-			for (int len = inputStream.read(buffer); len != -1; len = inputStream.read(buffer)) {
+			int len;
+			while ((len = inputStream.read(buffer)) > 0) { 
 				if (len < byteCount) {
 					os.write(buffer, 0, len);
 					byteCount -= len;
