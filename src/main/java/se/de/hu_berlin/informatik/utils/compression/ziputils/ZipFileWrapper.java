@@ -274,6 +274,7 @@ public class ZipFileWrapper {
 							for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
 								if (excludeFiles.contains(ze.getName())) {
 									// skip entries to exclude
+//									System.err.println("removing " + ze.getName());
 									continue;
 								}
 								out.putNextEntry(ze);

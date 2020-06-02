@@ -1,12 +1,16 @@
 package se.de.hu_berlin.informatik.utils.experiments.ranking;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
+import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -284,12 +288,20 @@ public interface Ranking<T> extends Iterable<T> {
      * the type of the ranked element
      */
     public static <T> void save(Ranking<T> ranking, final String filename) throws IOException {
-        try (FileWriter writer = new FileWriter(filename)) {
-			Locale locale  = new Locale("en", "US");
-            for (final RankedElement<T> el : ranking.getSortedRankedElements()) {
-                writer.write(String.format(locale,"%s" + RANKING_SEPARATOR + "%f\n", el.getIdentifier(), el.getRankingValue()));
-            }
-        }
+    	Locale locale  = new Locale("en", "US");
+
+    	CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder();
+    	encoder.onMalformedInput(CodingErrorAction.REPLACE);
+    	try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(filename)), encoder))) {
+    		for (final RankedElement<T> el : ranking.getSortedRankedElements()) {
+    			try {
+    				writer.append(String.format(locale,"%s" + RANKING_SEPARATOR + "%f", el.getIdentifier(), el.getRankingValue()));
+    				writer.newLine();
+    			} catch (IOException e) {
+    				// do nothing...?
+    			}
+    		}
+    	}
     }
     
     /**
