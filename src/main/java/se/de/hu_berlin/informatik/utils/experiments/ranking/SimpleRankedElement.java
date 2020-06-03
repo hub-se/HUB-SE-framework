@@ -54,7 +54,7 @@ public class SimpleRankedElement<T> implements RankedElement<T> {
     
     @Override
     public int hashCode() {
-        return getIdentifier().hashCode();
+        return node.hashCode();
     }
 
 	@Override

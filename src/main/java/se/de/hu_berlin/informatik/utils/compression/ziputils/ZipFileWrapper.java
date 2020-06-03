@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,18 +56,7 @@ public class ZipFileWrapper {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				readWriteLock.lock();
-				try {
-					if (outputStream != null) {
-						try {
-							outputStream.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				} finally {
-					readWriteLock.unlock();
-				}
+				closeOpenOutputStream();
 //				for (Entry<String, ZipOutputStream> entry : openOutputStreams.entrySet()) {
 //					if (entry.getValue() != null) {
 //						try {
@@ -188,7 +178,8 @@ public class ZipFileWrapper {
 				}
 				return getBytesFromInputStream(zipFile.getInputStream(entry), start, byteCount);
 			} catch (IOException e) {
-				throw new ZipException("Reading input stream from file '" + fileName + "' failed!");
+				e.printStackTrace();
+				throw new ZipException("Reading input stream from file '" + this.zipFilePath + "/" + fileName + "' failed!");
 			}
 		} finally {
 			readWriteLock.unlock();
@@ -208,6 +199,24 @@ public class ZipFileWrapper {
 			readWriteLock.unlock();
 		}
 	}
+	
+	public List<byte[]> uncheckedGet(String fileName, List<Integer> chunkLengths) throws ZipException {
+		readWriteLock.lock();
+		try {
+			closeOpenOutputStream();
+			try (ZipFile zipFile = new ZipFile(zipFilePath.toString()) ){
+				ZipEntry entry = zipFile.getEntry(fileName);
+				if (entry == null) {
+					throw new ZipException("File '" + fileName + "' does not exist in zip file'" + zipFilePath.toString() + "'!");
+				}
+				return getBytesFromInputStream(zipFile.getInputStream(entry), chunkLengths);
+			} catch (IOException e) {
+				throw new ZipException("Reading input stream from file '" + fileName + "' failed!");
+			}
+		} finally {
+			readWriteLock.unlock();
+		}
+	}
 
 //	public ZipFile getOrCreateZipFile() {
 //		ZipFile zipFile = null;
@@ -222,6 +231,7 @@ public class ZipFileWrapper {
 //		return zipFile;
 //	}
 	
+
 	public void close() {
 		readWriteLock.lock();
 		try {
@@ -446,6 +456,59 @@ public class ZipFileWrapper {
 		byte[] byteArray = os.toByteArray();
 //		System.err.println(byteArray.length + ", " + Arrays.toString(byteArray));
 		return byteArray;
+	}
+	
+	private List<byte[]> getBytesFromInputStream(InputStream inputStream, List<Integer> chunkLengths) throws IOException {
+		List<byte[]> chunks = new ArrayList<>(chunkLengths.size());
+		
+		int bytesToRead = 0;
+		Iterator<Integer> iterator = chunkLengths.iterator();
+		if (iterator.hasNext()) {
+			bytesToRead = iterator.next();
+		} else {
+			return Collections.emptyList();
+		}
+		
+		ByteArrayOutputStream os = new ByteArrayOutputStream(); 
+		try {
+			byte[] buffer = new byte[4096];
+			int len;
+			while ((len = inputStream.read(buffer)) > 0) {
+				int processed = 0;
+				while (bytesToRead <= len - processed) {
+					// enough bytes left to read in the current buffer
+					os.write(buffer, processed, bytesToRead);
+					processed += bytesToRead;
+					// add the next chunk to the output list and reset the output stream
+					chunks.add(os.toByteArray());
+					os.reset();
+					// get next chunk length
+					if (iterator.hasNext()) {
+						bytesToRead = iterator.next();
+					} else {
+						if (len - processed > 0) {
+							Log.warn(this, "Didn't process entire file entry!");
+						}
+						return chunks;
+					}
+				}
+				if (len - processed > 0) {
+					// process the remaining input buffer;
+					// bytesToRead is greater than remaining buffer size
+					os.write(buffer, processed, len - processed);
+					bytesToRead -= len - processed;
+				}
+			}
+		} finally {
+			if (inputStream != null) {
+				inputStream.close();
+			}
+		}
+		if (iterator.hasNext()) {
+			Log.err(this, "Not all chunks could be retrieved (file entry too short)!");
+		}
+//		System.err.println(byteArray.length + ", " + Arrays.toString(byteArray));
+		return chunks;
 	}
 	
 	public byte[] uncheckedGet(final int index) throws ZipException {
