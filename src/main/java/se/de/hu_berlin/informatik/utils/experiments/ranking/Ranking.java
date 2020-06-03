@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -408,8 +406,8 @@ public interface Ranking<T> extends Iterable<T> {
     	List<T> posInfIdentifiers = new ArrayList<>();
     	List<T> negInfIdentifiers = new ArrayList<>();
 
-		NumberFormat nf = NumberFormat.getInstance(Locale.ENGLISH);
-
+    	Locale.setDefault(new Locale("en", "US"));
+    	
 		try (final BufferedReader reader = Files.newBufferedReader(file , StandardCharsets.UTF_8)) {
 			//get the maximal ranking value that is NOT infinity
 			String rankingline = null;
@@ -418,7 +416,7 @@ public interface Ranking<T> extends Iterable<T> {
 				if (pos == -1) {
 					Log.abort(Ranking.class, "Entry '%s' not valid in '%s'.", rankingline, file.toAbsolutePath());
 				}
-				double rankingValue = nf.parse(rankingline.substring(pos+1)).doubleValue();
+				double rankingValue = Double.valueOf(rankingline.substring(pos+1));
 				T identifier = stringToObject.apply(rankingline.substring(0, pos));
 				if (Double.isNaN(rankingValue)) {
 					nanIdentifiers.add(identifier);
@@ -434,8 +432,6 @@ public interface Ranking<T> extends Iterable<T> {
 			Log.abort(Ranking.class, e, "Could not open/read the ranking file '%s'.", file.toAbsolutePath());
 		} catch (NumberFormatException e) {
 			Log.abort(Ranking.class, e, "Ranking value not valid in '%s'.", file.toAbsolutePath());
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 
 		double nanValue;
