@@ -65,7 +65,8 @@ public class SimpleRanking<T> implements Ranking<T> {
     }
 
     /**
-     * Adds a node with its suspiciousness to the ranking.
+     * Adds a node with its suspiciousness to the ranking. If a ranking value already exists, it will not 
+     * add (or change) the suspiciousness value.
      *
      * @param node
      *            the node to add to the ranking
@@ -75,7 +76,7 @@ public class SimpleRanking<T> implements Ranking<T> {
     @Override
     public boolean add(final T node, final double suspiciousness) {
 //        final double s = Double.isNaN(suspiciousness) ? Double.NEGATIVE_INFINITY : suspiciousness;
-    	if (hasRanking(node)) {
+    	if (node == null || hasRanking(node)) {
     		//do not add the element if already in the ranking
     		return false;
     	}
