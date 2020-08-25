@@ -17,18 +17,22 @@ import org.apache.logging.log4j.Logger;
  */
 final public class Log {
 	
-	//intended to store already created loggers
+	// intended to store already created loggers
 	final private static Map<String,Logger> LOGGER_CACHE;
 	
 	private static boolean currentlyLogging = true;
 			
 	static {
-		System.setProperty("log4j.configurationFactory", LogConfigurationFactory.class.getCanonicalName());
-		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+//		System.setProperty("Log4jContextSelector", "org.apache.logging.log4j.core.async.AsyncLoggerContextSelector");
+		// this may be the cause of occasional error messages 
+//		System.setProperty("log4j.configurationFactory", LogConfigurationFactory.class.getCanonicalName());
+		// this seems to work, too
+//		ConfigurationFactory.setConfigurationFactory(new LogConfigurationFactory());
+		// we can probably ignore all the previous lines by using a properties file in src/main/resources
 		LOGGER_CACHE = new ConcurrentHashMap<>();
 	}
 	
-	//suppress default constructor (class should not be instantiated)
+	// suppress default constructor (class should not be instantiated)
 	private Log() {
 		throw new AssertionError();
 	}
